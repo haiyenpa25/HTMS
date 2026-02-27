@@ -41,6 +41,9 @@ class MemberController extends Controller
             ->when($request->is_baptized !== null, function ($query) use ($request) {
                 $query->where('is_baptized', filter_var($request->is_baptized, FILTER_VALIDATE_BOOLEAN));
             })
+            ->when($request->age_from, function ($query, $age) {
+                $query->where('date_of_birth', '<=', now()->subYears($age));
+            })
             ->when($request->join_time, function ($query, $time) {
                 $now = now();
                 switch ($time) {
@@ -64,8 +67,51 @@ class MemberController extends Controller
 
         return Inertia::render('Members/Index', [
             'members' => $members,
-            'filters' => $request->only(['search', 'status', 'marital_status', 'is_baptized', 'join_time']),
+            'filters' => $request->only(['search', 'status', 'marital_status', 'is_baptized', 'join_time', 'age_from']),
         ]);
+    }
+
+    /**
+     * Store a newly created member in storage.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255|unique:members,email',
+            'phone' => 'nullable|string|max:20',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|string|in:Nam,Nữ',
+            'address' => 'nullable|string|max:255',
+            'status' => 'required|string',
+            'marital_status' => 'nullable|string',
+            'is_baptized' => 'boolean',
+        ]);
+
+        // Generate member code: TH + 2 dígits year + 4 random digits
+        $memberCode = 'TH' . now()->format('y') . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        while (Member::where('member_code', $memberCode)->exists()) {
+            $memberCode = 'TH' . now()->format('y') . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        }
+
+        $member = Member::create([
+            'member_code' => $memberCode,
+            'full_name' => $validated['full_name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'date_of_birth' => $validated['date_of_birth'],
+            'gender' => $validated['gender'],
+            'address' => $validated['address'],
+            'status' => $validated['status'],
+            'is_baptized' => $validated['is_baptized'],
+            'joined_date' => now()->format('Y-m-d'),
+        ]);
+
+        $member->sensitiveInfo()->create([
+            'marital_status' => $validated['marital_status'] ?? 'Khác',
+        ]);
+
+        return redirect()->back()->with('message', 'Tạo tín hữu thành công!');
     }
 
     /**
@@ -103,5 +149,59 @@ class MemberController extends Controller
             'member' => $member,
             'auth_roles' => $user->getRoleNames(),
         ]);
+    }
+
+    /**
+     * Update the specified member in storage.
+     */
+    public function update(Request $request, Member $member)
+    {
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255|unique:members,email,' . $member->id,
+            'phone' => 'nullable|string|max:20',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|string|in:Nam,Nữ',
+            'address' => 'nullable|string|max:255',
+            'status' => 'required|string',
+            'is_baptized' => 'boolean',
+            'faith_date' => 'nullable|date',
+            'baptism_date' => 'nullable|date',
+            'general_notes' => 'nullable|string',
+            
+            // Sensitive Info (only pastors can see and update these typically, but we accept them and check role)
+            'marital_status' => 'nullable|string',
+            'prayer_concerns' => 'nullable|string',
+            'pastoral_notes' => 'nullable|string',
+            'occupation' => 'nullable|string',
+        ]);
+
+        $member->update([
+            'full_name' => $validated['full_name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'date_of_birth' => $validated['date_of_birth'],
+            'gender' => $validated['gender'],
+            'address' => $validated['address'],
+            'status' => $validated['status'],
+            'is_baptized' => $validated['is_baptized'],
+            'faith_date' => $validated['faith_date'] ?? null,
+            'baptism_date' => $validated['baptism_date'] ?? null,
+            'general_notes' => $validated['general_notes'] ?? null,
+        ]);
+
+        if ($request->user()->hasRole('Pastor')) {
+            $member->sensitiveInfo()->updateOrCreate(
+                ['member_id' => $member->id],
+                [
+                    'marital_status' => $validated['marital_status'] ?? 'Khác',
+                    'prayer_concerns' => $validated['prayer_concerns'] ?? null,
+                    'pastoral_notes' => $validated['pastoral_notes'] ?? null,
+                    'occupation' => $validated['occupation'] ?? null,
+                ]
+            );
+        }
+
+        return redirect()->back()->with('message', 'Cập nhật tín hữu thành công!');
     }
 }

@@ -15,12 +15,20 @@
         </Link>
         
         <div class="flex items-center space-x-2">
-          <button class="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 shadow-sm transition-all">
+          <button class="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 shadow-sm transition-all hidden sm:block">
             In hồ sơ
           </button>
-          <button class="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-md shadow-blue-100 transition-all">
+          <button v-if="!isEditing" @click="startEditing" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-md shadow-blue-100 transition-all">
             Chỉnh sửa
           </button>
+          <template v-else>
+            <button @click="cancelEditing" class="px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">
+              Hủy
+            </button>
+            <button @click="submit" :disabled="form.processing" class="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700 shadow-md shadow-green-100 transition-all">
+              Lưu thay đổi
+            </button>
+          </template>
         </div>
       </div>
 
@@ -46,19 +54,22 @@
               </div>
             </div>
             <div class="mt-6 md:mt-0 flex-1 pb-1">
-              <h1 class="text-3xl font-black text-gray-900 leading-none mb-2">{{ member.full_name }}</h1>
+              <h1 v-if="!isEditing" class="text-3xl font-black text-gray-900 leading-none mb-2">{{ member.full_name }}</h1>
+              <input v-else type="text" v-model="form.full_name" class="w-full text-2xl font-black text-gray-900 border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 mb-2 py-1" placeholder="Họ và Tên" />
               <div class="flex flex-wrap items-center gap-y-2 gap-x-6 text-sm text-gray-500">
                 <div class="flex items-center">
                   <div class="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
                   {{ member.member_type || 'Tín hữu chính thức' }}
                 </div>
-                <div v-if="member.phone" class="flex items-center">
+                <div class="flex items-center">
                   <svg class="w-4 h-4 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                  {{ member.phone }}
+                  <input v-if="isEditing" type="tel" v-model="form.phone" class="w-32 py-1 text-sm border-gray-300 rounded-md focus:border-blue-500" placeholder="SĐT" />
+                  <template v-else>{{ member.phone || 'Chưa cập nhật' }}</template>
                 </div>
-                <div v-if="member.email" class="flex items-center">
+                <div class="flex items-center">
                   <svg class="w-4 h-4 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                  {{ member.email }}
+                  <input v-if="isEditing" type="email" v-model="form.email" class="w-48 py-1 text-sm border-gray-300 rounded-md focus:border-blue-500" placeholder="Email" />
+                  <template v-else>{{ member.email || 'Chưa cập nhật' }}</template>
                 </div>
               </div>
             </div>
@@ -97,8 +108,10 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-8 py-2">
                 <div>
                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Địa chỉ hiện tại</label>
-                   <p class="text-sm text-gray-900 font-bold leading-relaxed">{{ member.address || 'Chưa cập nhật' }}</p>
-                   <a v-if="member.visit_location" :href="member.visit_location" target="_blank" class="mt-2 flex items-center text-xs text-blue-600 font-bold hover:underline">
+                   <textarea v-if="isEditing" v-model="form.address" rows="2" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="123 Nguyễn Văn Cừ..."></textarea>
+                   <p v-else class="text-sm text-gray-900 font-bold leading-relaxed">{{ member.address || 'Chưa cập nhật' }}</p>
+                   
+                   <a v-if="!isEditing && member.visit_location" :href="member.visit_location" target="_blank" class="mt-2 flex items-center text-xs text-blue-600 font-bold hover:underline">
                       <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                       Vị trí trên bản đồ
                    </a>
@@ -106,11 +119,26 @@
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Ngày sinh</label>
-                    <p class="text-sm text-gray-900 font-black">{{ member.date_of_birth || 'Chưa rõ' }}</p>
+                    <input v-if="isEditing" type="date" v-model="form.date_of_birth" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                    <p v-else class="text-sm text-gray-900 font-black">{{ member.date_of_birth ? formatDate(member.date_of_birth) : 'Chưa rõ' }}</p>
                   </div>
                   <div>
                     <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Giới tính</label>
-                    <p class="text-sm text-gray-900 font-black uppercase">{{ member.gender === 'male' ? 'Nam' : 'Nữ' }}</p>
+                    <select v-if="isEditing" v-model="form.gender" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                      <option value="Nam">Nam</option>
+                      <option value="Nữ">Nữ</option>
+                    </select>
+                    <p v-else class="text-sm text-gray-900 font-black uppercase">{{ member.gender === 'Nam' ? 'Nam' : 'Nữ' }}</p>
+                  </div>
+                  <div class="col-span-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Trạng thái tín hữu</label>
+                    <select v-if="isEditing" v-model="form.status" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                      <option value="Chính thức">Chính thức</option>
+                      <option value="Thân hữu">Thân hữu</option>
+                      <option value="Hội viên liên kết">Hội viên liên kết</option>
+                      <option value="Chuyển đi">Chuyển đi</option>
+                    </select>
+                    <p v-else class="text-sm text-gray-900 font-black">{{ member.status }}</p>
                   </div>
                 </div>
               </div>
@@ -118,17 +146,28 @@
               <div class="mt-8 pt-8 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="space-y-4">
                   <div class="flex items-center justify-between bg-blue-50/50 p-3 rounded-2xl border border-blue-100">
-                    <span class="text-xs font-bold text-gray-600">Ngày tin Chúa</span>
-                    <span class="text-sm font-black text-blue-700">{{ member.faith_date || 'N/A' }}</span>
+                    <span class="text-xs font-bold text-gray-600 w-24 shrink-0">Ngày tin Chúa</span>
+                    <input v-if="isEditing" type="date" v-model="form.faith_date" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 py-1" />
+                    <span v-else class="text-sm font-black text-blue-700">{{ member.faith_date ? formatDate(member.faith_date) : 'N/A' }}</span>
                   </div>
-                  <div class="flex items-center justify-between bg-purple-50/50 p-3 rounded-2xl border border-purple-100">
-                    <span class="text-xs font-bold text-gray-600">Ngày Báp-tem</span>
-                    <span class="text-sm font-black text-purple-700">{{ member.baptism_date || 'Chưa' }}</span>
+                  <div class="flex flex-col space-y-2 bg-purple-50/50 p-3 rounded-2xl border border-purple-100">
+                    <div class="flex items-center justify-between">
+                       <span class="text-xs font-bold text-gray-600 w-24 shrink-0">Ngày Báp-tem</span>
+                       <input v-if="isEditing" type="date" v-model="form.baptism_date" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 py-1" />
+                       <span v-else class="text-sm font-black text-purple-700">{{ member.baptism_date ? formatDate(member.baptism_date) : 'Chưa' }}</span>
+                    </div>
+                    <div v-if="isEditing" class="flex items-center justify-end mt-1">
+                       <label class="flex items-center text-xs text-gray-600 font-bold">
+                          <input type="checkbox" v-model="form.is_baptized" class="mr-2 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                          Đánh dấu là đã Báp-têm
+                       </label>
+                    </div>
                   </div>
                 </div>
-                <div>
+                <div class="flex flex-col h-full">
                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Ghi chú chung</label>
-                   <p class="text-xs text-gray-600 italic leading-relaxed">
+                   <textarea v-if="isEditing" v-model="form.general_notes" placeholder="Ghi chú về thành viên..." class="w-full h-full min-h-[100px] text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 resize-none"></textarea>
+                   <p v-else class="text-xs text-gray-600 italic leading-relaxed">
                      {{ member.general_notes || 'Không có ghi chú nào khác.' }}
                    </p>
                 </div>
@@ -136,7 +175,7 @@
             </AppCard>
 
             <AppCard title="Ân tứ & Phục vụ" icon="SparklesIcon">
-               <div v-if="member.talents.length" class="flex flex-wrap gap-2">
+               <div v-if="member.talents && member.talents.length" class="flex flex-wrap gap-2">
                   <span v-for="t in member.talents" :key="t.id" class="px-4 py-2 bg-gradient-to-tr from-yellow-50 to-orange-50 text-orange-700 border border-yellow-200 rounded-2xl text-xs font-black shadow-sm">
                     {{ t.name }}
                   </span>
@@ -147,7 +186,7 @@
                
                <div class="mt-8 pt-6 border-t border-gray-100">
                   <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block">Khóa học đã tham gia</label>
-                  <div v-if="member.courses.length" class="space-y-3">
+                  <div v-if="member.courses && member.courses.length" class="space-y-3">
                      <div v-for="c in member.courses" :key="c.id" class="flex items-center justify-between p-3 bg-gray-50 rounded-2xl">
                         <span class="text-sm font-bold text-gray-700">{{ c.name }}</span>
                         <span class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-black rounded-lg uppercase">Completed</span>
@@ -166,7 +205,7 @@
              </div>
              
              <div class="relative pl-12 space-y-12 before:absolute before:left-5 before:top-2 before:bottom-0 before:w-1 before:bg-blue-100 before:rounded-full">
-                <div v-for="(log, idx) in member.care_logs" :key="idx" class="relative group">
+                <div v-for="(log, idx) in (member.care_logs || [])" :key="idx" class="relative group">
                    <!-- Timeline Dot -->
                    <div class="absolute -left-[35px] top-1.5 w-7 h-7 bg-white border-4 border-blue-500 rounded-full shadow-lg shadow-blue-100 z-10 transition-transform group-hover:scale-125"></div>
                    
@@ -190,7 +229,7 @@
                    </div>
                 </div>
 
-                <div v-if="!member.care_logs.length" class="bg-white rounded-3xl p-20 text-center border-2 border-dashed border-gray-100">
+                <div v-if="!member.care_logs || !member.care_logs.length" class="bg-white rounded-3xl p-20 text-center border-2 border-dashed border-gray-100">
                    <div class="text-gray-300 mb-2">Chưa có nhật ký thăm viếng.</div>
                    <button class="text-xs font-black text-blue-500 uppercase tracking-widest text-center hover:underline">Khởi tạo lần đầu</button>
                 </div>
@@ -273,14 +312,16 @@
                    <div class="space-y-6">
                       <div class="bg-white rounded-2xl p-6 border border-red-50 shadow-sm">
                          <label class="text-[10px] font-black uppercase tracking-widest text-red-400 mb-3 block">Nan đề & Cầu thay</label>
-                         <div class="bg-gray-50 rounded-xl p-4 text-sm text-gray-700 italic border border-dashed border-gray-200">
+                         <textarea v-if="isEditing" v-model="form.prayer_concerns" rows="4" class="w-full text-sm text-gray-700 font-medium border-red-200 rounded-lg shadow-sm focus:border-red-500 focus:ring-red-500 bg-red-50/20 placeholder-red-200" placeholder="Viết nan đề..."></textarea>
+                         <div v-else class="bg-gray-50 rounded-xl p-4 text-sm text-gray-700 italic border border-dashed border-gray-200 min-h-[4rem]">
                             {{ member.sensitive_info?.prayer_concerns || 'Chưa có ghi nhận nan đề.' }}
                          </div>
                       </div>
                       
                       <div class="bg-white rounded-2xl p-6 border border-red-50 shadow-sm">
                          <label class="text-[10px] font-black uppercase tracking-widest text-red-400 mb-3 block">Ghi chú mục vụ riêng</label>
-                         <p class="text-sm text-gray-600 leading-relaxed font-bold">
+                         <textarea v-if="isEditing" v-model="form.pastoral_notes" rows="4" class="w-full text-sm text-gray-700 font-medium border-red-200 rounded-lg shadow-sm focus:border-red-500 focus:ring-red-500 bg-red-50/20 placeholder-red-200" placeholder="Ghi chú mục vụ..."></textarea>
+                         <p v-else class="text-sm text-gray-600 leading-relaxed font-bold">
                             {{ member.sensitive_info?.pastoral_notes || 'Không có ghi chú riêng cho tín hữu này.' }}
                          </p>
                       </div>
@@ -289,11 +330,18 @@
                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div class="bg-white rounded-2xl p-6 border border-red-50 shadow-sm">
                          <label class="text-[10px] font-black uppercase tracking-widest text-red-400 mb-2 block">Nghề nghiệp chi tiết</label>
-                         <p class="text-lg font-black text-gray-900">{{ member.sensitive_info?.occupation || '-' }}</p>
+                         <input v-if="isEditing" type="text" v-model="form.occupation" class="w-full text-lg font-black border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="VD: Bác sĩ, Giáo viên..." />
+                         <p v-else class="text-lg font-black text-gray-900">{{ member.sensitive_info?.occupation || '-' }}</p>
                       </div>
                       <div class="bg-white rounded-2xl p-6 border border-red-50 shadow-sm">
                          <label class="text-[10px] font-black uppercase tracking-widest text-red-400 mb-2 block">Tình trạng Hôn nhân</label>
-                         <p class="text-lg font-black text-gray-900">{{ member.sensitive_info?.marital_status || '-' }}</p>
+                         <select v-if="isEditing" v-model="form.marital_status" class="w-full text-lg font-black border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="Độc thân">Độc thân</option>
+                            <option value="Đã kết hôn">Đã kết hôn</option>
+                            <option value="Góa">Góa</option>
+                            <option value="Khác">Khác / Chưa rõ</option>
+                         </select>
+                         <p v-else class="text-lg font-black text-gray-900">{{ member.sensitive_info?.marital_status || '-' }}</p>
                       </div>
                    </div>
                 </div>
@@ -305,7 +353,7 @@
         <!-- Sidebar (Right) -->
         <div class="space-y-8">
            <AppCard title="Vai trò Ban ngành" class="!bg-gray-50/50">
-              <div v-if="member.memberships.length" class="space-y-4">
+              <div v-if="member.memberships && member.memberships.length" class="space-y-4">
                  <div v-for="m in member.memberships" :key="m.id" class="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 group">
                     <div class="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-1">
                        {{ m.model?.name }}
@@ -334,7 +382,7 @@
                      <div class="w-px h-8 bg-gray-100"></div>
                      <div>
                         <div class="text-[10px] font-black uppercase text-gray-400 mb-0.5">Thăm viếng</div>
-                        <div class="text-xl font-black text-indigo-600">{{ member.care_logs.length }}</div>
+                        <div class="text-xl font-black text-indigo-600">{{ member.care_logs ? member.care_logs.length : 0 }}</div>
                      </div>
                   </div>
                </div>
@@ -347,24 +395,56 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import MobileLayout from '@/Layouts/MobileLayout.vue';
 import AppCard from '@/Components/AppCard.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
-
-// HeroIcons Shorthand (giả lập để code gọn)
-const IdentificationIcon = () => import('lucide-vue-next').then(m => m.User);
-const SparklesIcon = () => import('lucide-vue-next').then(m => m.Sparkles);
-const HomeIcon = () => import('lucide-vue-next').then(m => m.Home);
-const ShareIcon = () => import('lucide-vue-next').then(m => m.Share2);
-const HistoryIcon = () => import('lucide-vue-next').then(m => m.History);
-const ShieldCheckIcon = () => import('lucide-vue-next').then(m => m.ShieldCheck);
+import { User as IdentificationIcon, Sparkles as SparklesIcon, Home as HomeIcon, Share2 as ShareIcon, History as HistoryIcon, ShieldCheck as ShieldCheckIcon } from 'lucide-vue-next';
 
 const props = defineProps({
   member: Object,
   auth_roles: Array
 });
+
+const isEditing = ref(false);
+
+const form = useForm({
+  full_name: props.member.full_name,
+  email: props.member.email,
+  phone: props.member.phone,
+  date_of_birth: props.member.date_of_birth ? props.member.date_of_birth.split('T')[0] : '',
+  gender: props.member.gender,
+  address: props.member.address,
+  status: props.member.status,
+  is_baptized: props.member.is_baptized,
+  faith_date: props.member.faith_date ? props.member.faith_date.split('T')[0] : '',
+  baptism_date: props.member.baptism_date ? props.member.baptism_date.split('T')[0] : '',
+  general_notes: props.member.general_notes,
+  // Sensitive info section
+  marital_status: props.member.sensitive_info?.marital_status || 'Độc thân',
+  prayer_concerns: props.member.sensitive_info?.prayer_concerns || '',
+  pastoral_notes: props.member.sensitive_info?.pastoral_notes || '',
+  occupation: props.member.sensitive_info?.occupation || ''
+});
+
+const startEditing = () => {
+  isEditing.value = true;
+};
+
+const cancelEditing = () => {
+  form.reset();
+  isEditing.value = false;
+};
+
+const submit = () => {
+  form.put(route('members.update', props.member.id), {
+    preserveScroll: true,
+    onSuccess: () => {
+      isEditing.value = false;
+    }
+  });
+};
 
 const activeTab = ref('general');
 
@@ -389,8 +469,13 @@ const tabs = computed(() => {
 // Helper xử lý định dạng ngày
 const formatDate = (dateString) => {
   if (!dateString) return '-';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  // Loại bỏ phần timezone nếu có để tránh sai lệch ngày do múi giờ
+  const dateStr = dateString.split('T')[0];
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return dateString;
 };
 
 // Phân lọc quan hệ gia phả đơn giản cho demo

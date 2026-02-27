@@ -18,6 +18,7 @@
         "@headlessui/vue": "^1.7.23",
         "@inertiajs/vue3": "^2.3.16",
         "@vitejs/plugin-vue": "^6.0.4",
+        "lucide-vue-next": "^0.575.0",
         "vue": "^3.5.29",
         "ziggy-js": "^2.6.1"
     }

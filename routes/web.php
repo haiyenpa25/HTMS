@@ -16,7 +16,7 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-    Route::resource('members', \App\Http\Controllers\MemberController::class)->only(['index', 'show']);
+    Route::resource('members', \App\Http\Controllers\MemberController::class)->only(['index', 'show', 'store', 'update']);
     Route::resource('departments', \App\Http\Controllers\DepartmentController::class)->only(['index', 'show']);
 
     // System Settings (Users & Roles)

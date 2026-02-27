@@ -20,7 +20,7 @@
            </button>
         </template>
         <template #actions>
-          <PrimaryButton>
+          <PrimaryButton @click="isSlideOverOpen = true">
             + Thêm Tín hữu
           </PrimaryButton>
         </template>
@@ -32,7 +32,7 @@
             <h3 class="text-sm font-black text-gray-900 uppercase tracking-widest">Tiêu chí Lọc</h3>
             <button @click="resetFilters" class="text-xs font-bold text-red-600 hover:text-red-800 hover:underline">Xóa tất cả lọc</button>
          </div>
-         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <!-- Tình trạng -->
             <div class="space-y-1">
                <label class="text-xs font-bold text-gray-500">Phân loại</label>
@@ -75,6 +75,18 @@
                   <option value="6_months">3 đến 6 tháng</option>
                   <option value="1_year">6 tháng đến 1 năm</option>
                   <option value="2_years_plus">Lâu năm (trên 2 năm)</option>
+               </select>
+            </div>
+
+            <!-- Độ tuổi -->
+            <div class="space-y-1">
+               <label class="text-xs font-bold text-gray-500">Độ tuổi</label>
+               <select v-model="filterForm.age_from" class="w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50">
+                  <option value="">Tất cả</option>
+                  <option value="18">Từ 18 tuổi trở lên</option>
+                  <option value="30">Từ 30 tuổi trở lên</option>
+                  <option value="50">Từ 50 tuổi trở lên</option>
+                  <option value="65">Từ 65 tuổi trở lên (Người cao tuổi)</option>
                </select>
             </div>
          </div>
@@ -248,6 +260,17 @@
         </nav>
       </div>
     </div>
+
+    <!-- Create Member Slide-Over -->
+    <SlideOver 
+      v-model="isSlideOverOpen" 
+      title="Thêm Tín hữu Mới" 
+      description="Nhập thông tin cơ bản để tạo hồ sơ quản lý tín hữu mới."
+      size="md"
+    >
+      <CreateMemberForm @success="isSlideOverOpen = false" @cancel="isSlideOverOpen = false" />
+    </SlideOver>
+
   </component>
 </template>
 
@@ -260,6 +283,8 @@ import AppCard from '@/Components/AppCard.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import DataToolbar from '@/Components/DataToolbar.vue';
+import SlideOver from '@/Components/SlideOver.vue';
+import CreateMemberForm from './Partials/CreateMemberForm.vue';
 
 const props = defineProps({
   members: Object,
@@ -269,12 +294,14 @@ const props = defineProps({
 const search = ref(props.filters.search || '');
 const viewMode = ref('list'); // Sẽ tự đồng bộ từ DataToolbar
 const showFilters = ref(false);
+const isSlideOverOpen = ref(false);
 
 const filterForm = ref({
    status: props.filters.status || '',
    marital_status: props.filters.marital_status || '',
    is_baptized: props.filters.is_baptized || '',
-   join_time: props.filters.join_time || ''
+   join_time: props.filters.join_time || '',
+   age_from: props.filters.age_from || ''
 });
 
 const activeFilterCount = computed(() => {
@@ -286,6 +313,7 @@ const resetFilters = () => {
    filterForm.value.marital_status = '';
    filterForm.value.is_baptized = '';
    filterForm.value.join_time = '';
+   filterForm.value.age_from = '';
 };
 
 // Debounce search and filters
