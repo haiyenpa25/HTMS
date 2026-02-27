@@ -72,6 +72,42 @@ class MemberController extends Controller
     }
 
     /**
+     * API endpoint to get members with optional filters.
+     */
+    public function apiIndex(Request $request)
+    {
+        $members = Member::with(['sensitiveInfo'])
+            ->when($request->search, function ($query, $search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('full_name', 'like', "%{$search}%")
+                      ->orWhere('phone', 'like', "%{$search}%")
+                      ->orWhere('member_code', 'like', "%{$search}%");
+                });
+            })
+            ->when($request->marital_status, function ($query, $marital_status) {
+                $query->whereHas('sensitiveInfo', function($q) use ($marital_status) {
+                    $q->where('marital_status', $marital_status);
+                });
+            })
+            ->when($request->age_from, function ($query, $age) {
+                $query->where('date_of_birth', '<=', now()->subYears($age));
+            })
+            ->orderBy('full_name')
+            ->limit(100)
+            ->get();
+
+        return response()->json($members->map(function ($member) {
+            return [
+                'id' => $member->id,
+                'full_name' => $member->full_name,
+                'phone' => $member->phone,
+                'date_of_birth' => $member->date_of_birth,
+                'marital_status' => $member->sensitiveInfo ? $member->sensitiveInfo->marital_status : 'Độc thân',
+            ];
+        }));
+    }
+
+    /**
      * Store a newly created member in storage.
      */
     public function store(Request $request)

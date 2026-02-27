@@ -1,206 +1,292 @@
 <template>
   <component :is="currentLayout">
     <template #header>
-      Danh sách Ban ngành
+      Danh sách Ban Ngành
     </template>
 
-    <div class="py-4 space-y-12">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 class="text-2xl font-black text-gray-900">Cơ cấu Tổ chức</h2>
-          <p class="text-sm text-gray-500 mt-1">Hệ thống các Ban ngành và Khối sinh hoạt tại HTTL Thạnh Mỹ Lợi.</p>
-        </div>
-      </div>
-
+    <div class="py-4 space-y-6">
+      
       <!-- Toolbar (Search, Filters, View Switcher) -->
       <DataToolbar 
-        v-model:search="search"
+        v-model:search="filterForm.search"
         v-model:viewMode="viewMode"
         storageKey="departments_view_mode"
-        placeholder="Tìm kiếm theo tên hoặc mã ban ngành..."
+        placeholder="Tìm theo tên ban hoặc mã ngắn..."
       >
+        <template #filters>
+           <button type="button" @click="showFilters = !showFilters" class="ml-2 flex flex-col md:flex-row md:items-center justify-center space-x-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-100 transition-colors">
+              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+              <span>Lọc nâng cao</span>
+              <span v-if="activeFilterCount > 0" class="ml-1 bg-blue-100 text-blue-700 py-0.5 px-2 rounded-full text-[10px]">{{ activeFilterCount }}</span>
+           </button>
+        </template>
         <template #actions>
-          <PrimaryButton>
-            + Khai báo Ban mới
+          <PrimaryButton @click="openCreateSlideOver">
+            + Tạo Ban mới
           </PrimaryButton>
         </template>
       </DataToolbar>
 
-      <div v-for="(group, blockKey) in filteredGroups" :key="blockKey" class="space-y-6">
-        <div class="flex items-center space-x-4">
-          <div class="h-px flex-1 bg-gray-100"></div>
-          <h3 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">
-            {{ blockNames[blockKey] || blockKey }}
-          </h3>
-          <div class="h-px flex-1 bg-gray-100"></div>
-        </div>
-
-        <!-- BẢNG (LIST VIEW) -->
-        <div v-show="viewMode === 'list' && windowWidth >= 768" class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden animate-in fade-in duration-300">
-           <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                 <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tên Ban / Mã</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Trực thuộc</th>
-                    <th scope="col" class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Quy mô</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Trạng thái</th>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Thao tác</th>
-                 </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-100">
-                 <tr v-for="dept in group" :key="dept.id" class="hover:bg-gray-50 transition-colors group/row">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                       <div class="flex items-center">
-                          <div class="flex-shrink-0 h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                             {{ dept.name.charAt(0) }}
-                          </div>
-                          <div class="ml-4">
-                             <div class="text-sm font-bold text-gray-900">{{ dept.name }}</div>
-                             <div class="text-xs text-gray-500 font-mono">{{ dept.code }}</div>
-                          </div>
-                       </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                       <span v-if="dept.parent" class="bg-gray-100 px-2 py-1 rounded text-xs">{{ dept.parent.name }}</span>
-                       <span v-else class="italic opacity-50">Độc lập</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
-                       <span class="font-bold text-gray-900">{{ dept.members_count }}</span> <span class="text-gray-500 text-xs">tín hữu</span> &bull; 
-                       <span class="font-bold text-gray-900">{{ dept.teams_count }}</span> <span class="text-gray-500 text-xs">tổ</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                       <StatusBadge :status="dept.is_active ? 'success' : 'gray'">
-                          {{ dept.is_active ? 'Hoạt động' : 'Tạm ngưng' }}
-                       </StatusBadge>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                       <Link :href="route('departments.show', dept.id)" class="text-blue-600 hover:text-blue-900 font-bold bg-blue-50 px-3 py-1 rounded-lg transition-colors">Chi tiết</Link>
-                    </td>
-                 </tr>
-              </tbody>
-           </table>
-        </div>
-
-        <!-- LƯỚI (GRID VIEW) & MOBILE -->
-        <div v-show="viewMode === 'grid' || windowWidth < 768" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in duration-300">
-          <AppCard v-for="dept in group" :key="dept.id" class="hover:shadow-md transition-shadow group">
-
-            <!-- Thẻ Card thiết kế nhỏ gọn -->
-            <div class="flex items-start justify-between mb-3 border-b border-gray-50 pb-3">
-              <div class="flex items-center space-x-3">
-                 <div class="p-2 rounded-xl transition-colors" :class="blockColors[blockKey] || 'bg-blue-50 text-blue-600'">
-                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path v-if="blockKey === 'leadership'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                     <path v-else-if="blockKey === 'activities'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                     <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                   </svg>
-                 </div>
-                 <div>
-                    <h3 class="text-sm font-bold text-gray-900 leading-tight">{{ dept.name }}</h3>
-                    <p class="text-[11px] text-gray-400 font-mono">{{ dept.code }}</p>
-                 </div>
-              </div>
+      <!-- Panel Bộ Lọc -->
+      <div v-show="showFilters" class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm animate-in slide-in-from-top-4 duration-200">
+         <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-black text-gray-900 uppercase tracking-widest">Tiêu chí Lọc</h3>
+            <button @click="resetFilters" class="text-xs font-bold text-red-600 hover:text-red-800 hover:underline">Xóa tất cả lọc</button>
+         </div>
+         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Phân loại Khối -->
+            <div class="space-y-1">
+               <label class="text-xs font-bold text-gray-500">Khối hoạt động</label>
+               <select v-model="filterForm.block" class="w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50">
+                  <option value="">Tất cả khối</option>
+                  <option value="ministry">Mục vụ (Ministry)</option>
+                  <option value="leadership">Lãnh đạo (Leadership)</option>
+                  <option value="fellowship">Đội nhóm (Fellowship)</option>
+               </select>
             </div>
             
-            <div v-if="dept.parent" class="mb-3 flex items-center text-[10px] text-gray-500 bg-gray-50 px-2 py-1 rounded w-fit italic tracking-wide">
-               <svg class="w-3 h-3 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 10h10a8 8 0 018 8v2M3 10l4 4m-4-4l4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-               Trực thuộc {{ dept.parent.name }}
+            <!-- Trạng thái -->
+            <div class="space-y-1">
+               <label class="text-xs font-bold text-gray-500">Trạng thái</label>
+               <select v-model="filterForm.status" class="w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50">
+                  <option value="">Tất cả</option>
+                  <option value="active">Đang hoạt động</option>
+                  <option value="inactive">Tạm ngưng</option>
+               </select>
             </div>
-            
-            <div class="flex items-center justify-between mt-auto pt-3">
-              <div class="flex items-center space-x-3 text-xs">
-                 <div class="flex items-center text-gray-500">
-                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    <span class="font-bold">{{ dept.members_count }}</span>
-                 </div>
-                 <div class="flex items-center text-gray-500">
-                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    <span class="font-bold">{{ dept.teams_count }}</span>
-                 </div>
-              </div>
-              <Link :href="route('departments.show', dept.id)" class="text-[11px] font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-800 px-3 py-1.5 rounded-lg transition-colors group-hover:underline">
-                Chi tiết &rarr;
-              </Link>
-            </div>
-          </AppCard>
-        </div>
+         </div>
       </div>
 
-      <div v-if="departments.length === 0" class="py-20 text-center bg-white rounded-2xl border border-dashed border-gray-200">
-         <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-         </svg>
-         <h3 class="mt-2 text-sm font-medium text-gray-900">Chưa có ban ngành nào</h3>
-         <p class="mt-1 text-sm text-gray-500">Bắt đầu bằng cách khai báo ban ngành đầu tiên cho Hội Thánh.</p>
+      <!-- Data List -->
+      <!-- Only list view implemented for departments currently -->
+      <div v-show="viewMode === 'list' || windowWidth < 768" class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden animate-in fade-in duration-300">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50/50">
+              <tr>
+                <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tên Ban / Đội</th>
+                <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Phân Loại</th>
+                <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider hidden md:table-cell">Số Tổ</th>
+                <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Ban Viên</th>
+                <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Trạng Thái</th>
+                <th scope="col" class="px-4 sm:px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+              <tr v-for="dept in departments" :key="dept.id" class="hover:bg-blue-50/30 transition-colors group/row">
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-700 rounded-full flex items-center justify-center font-black text-lg shadow-inner ring-2 ring-white">
+                      {{ dept.name.charAt(0) }}
+                    </div>
+                    <div class="ml-4">
+                      <Link :href="route('departments.show', dept.id)" class="text-sm font-black text-gray-900 hover:text-blue-600 transition-colors leading-tight">
+                        {{ dept.name }}
+                      </Link>
+                      <div class="text-[10px] text-gray-500 mt-0.5 font-bold sm:hidden">{{ blockLabels[dept.block] || dept.block }}</div>
+                      <div class="text-[11px] text-gray-500 font-mono mt-0.5 hidden sm:block">{{ dept.code || 'N/A' }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold bg-gray-100 text-gray-800 border border-gray-200/50">
+                    {{ blockLabels[dept.block] || dept.block }}
+                  </span>
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-center hidden md:table-cell">
+                  <div class="text-sm font-bold text-gray-900">{{ dept.teams_count }}</div>
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-center">
+                  <div class="inline-flex items-center justify-center bg-blue-50 text-blue-700 font-black text-xs min-w-[2rem] h-8 rounded-full border border-blue-100 px-2">
+                    {{ dept.members_count }}
+                  </div>
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-center">
+                  <span v-if="dept.is_active" class="inline-flex items-center px-2 py-1 rounded-full text-[10px] sm:px-2.5 font-bold bg-green-100 text-green-800">
+                    Hoạt động
+                  </span>
+                  <span v-else class="inline-flex items-center px-2 py-1 rounded-full text-[10px] sm:px-2.5 font-bold bg-red-100 text-red-800">
+                    Ngưng
+                  </span>
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                   <div class="flex items-center justify-end space-x-1 sm:space-x-2 sm:opacity-0 group-hover/row:opacity-100 transition-opacity">
+                      <button @click="openEditSlideOver(dept)" class="text-blue-600 hover:text-blue-900 font-bold p-1.5 hover:bg-blue-50 rounded-lg transition-colors tooltip" title="Chỉnh sửa Ban">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                      </button>
+                      <Link :href="route('departments.show', dept.id)" class="text-gray-400 hover:text-gray-900 font-bold p-1.5 hover:bg-gray-100 rounded-lg transition-colors tooltip" title="Mở Dashboard">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                      </Link>
+                   </div>
+                </td>
+              </tr>
+              <tr v-if="departments.length === 0">
+                 <td colspan="6" class="px-6 py-12 text-center text-gray-500 text-sm">
+                    <div class="flex flex-col items-center justify-center">
+                       <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                       <p class="font-medium">Không tìm thấy ban ngành nào khớp với bộ lọc.</p>
+                       <button @click="resetFilters" class="mt-2 text-blue-600 hover:underline font-bold">Xóa bộ lọc</button>
+                    </div>
+                 </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
+      
+      <!-- Grid View & Mobile List -->
+      <div v-show="viewMode === 'grid' || windowWidth < 768" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in duration-300">
+         <div v-for="dept in departments" :key="'grid-'+dept.id" class="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-md hover:border-blue-100 transition-all flex flex-col relative group">
+            
+            <!-- Header (Avatar + Name) -->
+            <div class="flex items-start space-x-3 mb-4">
+               <div class="shrink-0 h-10 w-10 bg-gradient-to-br from-indigo-50 to-purple-50 text-indigo-700 rounded-xl flex items-center justify-center font-black shadow-sm ring-1 ring-black/5">
+                  {{ dept.name.charAt(0) }}
+               </div>
+               <div class="flex-1 min-w-0">
+                  <h3 class="text-sm font-black text-gray-900 line-clamp-2">
+                     {{ dept.name }}
+                  </h3>
+                  <p class="text-[11px] text-gray-400 font-mono mt-0.5">{{ dept.code || 'N/A' }}</p>
+               </div>
+               
+               <!-- Status Dot -->
+               <div class="shrink-0 w-2.5 h-2.5 rounded-full mt-1" :class="dept.is_active ? 'bg-green-500' : 'bg-red-500'" :title="dept.is_active ? 'Hoạt động' : 'Tạm ngưng'"></div>
+            </div>
+            
+            <!-- Stats -->
+            <div class="grid grid-cols-2 gap-3 mb-4 mt-auto">
+               <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-100/50 flex flex-col items-center justify-center">
+                  <div class="text-[10px] uppercase font-bold text-gray-400 mb-0.5 tracking-wider">Số Tổ</div>
+                  <div class="text-base font-black text-gray-900">{{ dept.teams_count }}</div>
+               </div>
+               <div class="bg-blue-50/50 p-2.5 rounded-xl border border-blue-100/50 flex flex-col items-center justify-center">
+                  <div class="text-[10px] uppercase font-bold text-blue-400 mb-0.5 tracking-wider">Ban Viên</div>
+                  <div class="text-base font-black text-blue-700">{{ dept.members_count }}</div>
+               </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="pt-3 border-t border-gray-50 flex items-center justify-between">
+               <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600 truncate max-w-[120px]">
+                 {{ blockLabels[dept.block] || dept.block }}
+               </span>
+               <div class="flex space-x-2 relative z-20">
+                  <button @click.prevent="openEditSlideOver(dept)" class="text-gray-400 hover:text-blue-600 transition-colors p-1.5 rounded-lg hover:bg-blue-50" title="Sửa">
+                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                  </button>
+                  <Link :href="route('departments.show', dept.id)" class="text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 hover:text-black px-3 py-1.5 rounded-lg transition-colors inline-block text-center">
+                     Mở &rarr;
+                  </Link>
+               </div>
+            </div>
+            <Link :href="route('departments.show', dept.id)" class="absolute inset-0 z-0"></Link>
+            <div class="relative z-10 pointer-events-none absolute inset-0"></div>
+         </div>
+         <div v-if="departments.length === 0" class="col-span-full py-12 text-center text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
+            Không có dữ liệu.
+         </div>
+      </div>
+
     </div>
+
+    <!-- Unified SlideOver for Create/Edit -->
+    <SlideOver 
+       v-model="isSlideOverOpen"
+       title="Quản lý Ban Ngành"
+       description="Thực hiện thiết lập các thông tin ban ngành"
+    >
+       <DepartmentForm 
+          :department="selectedDepartment"
+          @close="closeSlideOver"
+          @success="handleSuccess"
+       />
+    </SlideOver>
+
   </component>
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
+import { router, Link } from '@inertiajs/vue3';
+import { debounce } from 'lodash';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import MobileLayout from '@/Layouts/MobileLayout.vue';
-import AppCard from '@/Components/AppCard.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import StatusBadge from '@/Components/StatusBadge.vue';
 import DataToolbar from '@/Components/DataToolbar.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SlideOver from '@/Components/SlideOver.vue';
+import DepartmentForm from './Partials/DepartmentForm.vue';
 
 const props = defineProps({
-  departments: Array
+  departments: Array,
+  filters: Object,
 });
 
-const search = ref('');
-const viewMode = ref('grid'); // Sẽ tự đồng bộ từ DataToolbar
-
-const blockNames = {
-  leadership: 'I. Ban Lãnh đạo',
-  activities: 'II. Khối Sinh hoạt',
-  ministry: 'III. Khối Mục vụ'
-};
-
-const blockColors = {
-  leadership: 'bg-purple-50 text-purple-600',
-  activities: 'bg-orange-50 text-orange-600',
-  ministry: 'bg-blue-50 text-blue-600'
-};
-
-const filteredGroups = computed(() => {
-  const order = ['leadership', 'activities', 'ministry'];
-  const groups = {};
-  
-  // Lọc theo search
-  const keyword = search.value.toLowerCase().trim();
-  const matchedDepts = props.departments.filter(dept => {
-     if(!keyword) return true;
-     return dept.name.toLowerCase().includes(keyword) || dept.code.toLowerCase().includes(keyword);
-  });
-  
-  // Initialize groups in correct order
-  order.forEach(key => groups[key] = []);
-  
-  matchedDepts.forEach(dept => {
-    const key = dept.block || 'ministry';
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(dept);
-  });
-
-  // Remove empty groups
-  Object.keys(groups).forEach(key => {
-    if (groups[key].length === 0) delete groups[key];
-  });
-
-  return groups;
-});
-
-// Nhận diện kích thước màn hình
-const windowWidth = ref(window.innerWidth);
-const updateWidth = () => windowWidth.value = window.innerWidth;
-onMounted(() => window.addEventListener('resize', updateWidth));
-onUnmounted(() => window.removeEventListener('resize', updateWidth));
+// Layout Handling
+const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024);
+const handleResize = () => { windowWidth.value = window.innerWidth; };
+onMounted(() => { window.addEventListener('resize', handleResize); });
+onUnmounted(() => { window.removeEventListener('resize', handleResize); });
 
 const currentLayout = computed(() => {
-  return windowWidth.value >= 768 ? AuthenticatedLayout : MobileLayout;
+   return windowWidth.value < 768 ? MobileLayout : AuthenticatedLayout;
 });
+
+// Views and Filters
+const viewMode = ref(localStorage.getItem('departments_view_mode') || 'list');
+const showFilters = ref(false);
+
+const blockLabels = {
+  ministry: 'Mục vụ',
+  leadership: 'Lãnh đạo',
+  fellowship: 'Đội nhóm'
+};
+
+const filterForm = ref({
+   search: props.filters.search || '',
+   block: props.filters.block || '',
+   status: props.filters.status || '',
+});
+
+const activeFilterCount = computed(() => {
+   let count = 0;
+   if (filterForm.value.block) count++;
+   if (filterForm.value.status) count++;
+   return count;
+});
+
+const resetFilters = () => {
+   filterForm.value.block = '';
+   filterForm.value.status = '';
+   filterForm.value.search = '';
+};
+
+// Watch over filters and debounce router push
+watch(filterForm, debounce((newVal) => {
+   router.get(route('departments.index'), newVal, { preserveState: true, replace: true });
+}, 300), { deep: true });
+
+// Slide-Over State
+const isSlideOverOpen = ref(false);
+const selectedDepartment = ref(null);
+
+const openCreateSlideOver = () => {
+   selectedDepartment.value = null;
+   isSlideOverOpen.value = true;
+};
+
+const openEditSlideOver = (dept) => {
+   selectedDepartment.value = dept;
+   isSlideOverOpen.value = true;
+};
+
+const closeSlideOver = () => {
+   isSlideOverOpen.value = false;
+   setTimeout(() => {
+      selectedDepartment.value = null;
+   }, 300); // Wait for animation
+};
+
+const handleSuccess = () => {};
+
 </script>
