@@ -20,9 +20,9 @@
          <div class="flex items-center space-x-6">
             <div class="w-20 h-20 rounded-2xl flex items-center justify-center font-black text-4xl shadow-md"
                  :class="{
-                   'bg-red-100 text-red-600 shadow-red-100': role.name === 'Super Admin',
+                   'bg-red-100 text-red-600 shadow-red-100': role.name === 'Super_Admin',
                    'bg-purple-100 text-purple-600 shadow-purple-100': role.name === 'Pastor',
-                   'bg-blue-100 text-blue-600 shadow-blue-100': !['Super Admin', 'Pastor'].includes(role.name)
+                   'bg-blue-100 text-blue-600 shadow-blue-100': !['Super_Admin', 'Pastor'].includes(role.name)
                  }">
                {{ role.name.charAt(0) }}
             </div>
@@ -44,7 +44,7 @@
          </div>
       </div>
 
-      <div v-if="role.name === 'Super Admin'" class="bg-red-50 border border-red-200 rounded-2xl p-6 text-red-800">
+      <div v-if="role.name === 'Super_Admin'" class="bg-red-50 border border-red-200 rounded-2xl p-6 text-red-800">
          <div class="flex items-center font-black text-lg mb-2">
             <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             Tài khoản Super Admin
@@ -82,7 +82,7 @@
                    </div>
                    
                    <!-- Check All Toggle cho nhóm -->
-                   <button v-if="role.name !== 'Super Admin'" type="button" @click="toggleGroup(perms)" class="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors">
+                   <button v-if="role.name !== 'Super_Admin'" type="button" @click="toggleGroup(perms)" class="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors">
                       Bật/Tắt toàn bộ
                    </button>
                 </div>
@@ -151,7 +151,7 @@ const form = useForm({
 });
 
 const togglePermission = (name) => {
-   if (props.role.name === 'Super Admin') return; // Ngăn chặn tương tác nếu là SuperAdmin
+   if (props.role.name === 'Super_Admin') return; // Ngăn chặn tương tác nếu là SuperAdmin
    
    const index = form.permissions.indexOf(name);
    if (index === -1) {
@@ -162,7 +162,7 @@ const togglePermission = (name) => {
 };
 
 const toggleGroup = (perms) => {
-   if (props.role.name === 'Super Admin') return;
+   if (props.role.name === 'Super_Admin') return;
    
    const permNames = perms.map(p => p.name);
    // Kiểm tra xem nhóm này đã được toggle hết chưa

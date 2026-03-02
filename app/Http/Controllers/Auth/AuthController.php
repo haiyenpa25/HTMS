@@ -34,7 +34,13 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            return redirect()->intended(route('dashboard'));
+            $user = Auth::user();
+            
+            if ($user->hasRole(['Pastor', 'Super_Admin'])) {
+                return redirect()->intended(route('dashboard'));
+            } else {
+                return redirect()->intended(route('portal.index'));
+            }
         }
 
         return back()->withErrors([
@@ -56,3 +62,4 @@ class AuthController extends Controller
         return redirect('/login');
     }
 }
+

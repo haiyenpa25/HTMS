@@ -44,22 +44,29 @@
           <span class="text-[10px] font-medium">Tín hữu</span>
         </Link>
 
-        <!-- Tab 2: Departments -->
-        <Link :href="route('departments.index')" class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors" :class="route().current('departments.*') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'">
-          <svg class="w-6 h-6" :fill="route().current('departments.*') ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Tab 2: Departments Portal -->
+        <Link :href="route('portal.index')" class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors" :class="route().current('portal.*') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'">
+          <svg class="w-6 h-6" :fill="route().current('portal.*') ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
           </svg>
-          <span class="text-[10px] font-medium">Ban ngành</span>
+          <span class="text-[10px] font-medium">Sinh hoạt</span>
         </Link>
 
-        <!-- Tab 3: Action/Forms -->
-        <a href="#" class="flex flex-col items-center justify-center w-full h-full space-y-1 relative text-gray-500 hover:text-gray-900 transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        <!-- Tab 3: Meetings -->
+        <Link :href="route('meetings.index')" class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors" :class="route().current('meetings.*') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'">
+          <svg class="w-6 h-6" :fill="route().current('meetings.*') ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path>
           </svg>
-          <span class="text-[10px] font-medium">Đơn từ</span>
-          <span v-if="page.props.pending_approvals_count > 0" class="absolute top-1 right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-[8px] font-bold text-white bg-red-500 rounded-full">{{ page.props.pending_approvals_count }}</span>
-        </a>
+          <span class="text-[10px] font-medium">Buổi nhóm</span>
+        </Link>
+        
+        <!-- Tab 4: Speakers -->
+        <Link :href="route('speakers.index')" class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors" :class="route().current('speakers.*') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'">
+          <svg class="w-6 h-6" :fill="route().current('speakers.*') ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+          </svg>
+          <span class="text-[10px] font-medium">Diễn giả</span>
+        </Link>
 
         <!-- Tab 4: Menu / Logout -->
         <Link :href="route('logout')" method="post" as="button" class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-500 hover:text-red-600 transition-colors">

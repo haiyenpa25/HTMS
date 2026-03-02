@@ -55,9 +55,9 @@
                 <td class="px-6 py-4 whitespace-nowrap">
                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold"
                          :class="{
-                           'bg-red-100 text-red-800': user.role === 'Super Admin',
+                           'bg-red-100 text-red-800': user.role === 'Super_Admin',
                            'bg-purple-100 text-purple-800': user.role === 'Pastor',
-                           'bg-blue-100 text-blue-800': !['Super Admin', 'Pastor', 'Guest'].includes(user.role),
+                           'bg-blue-100 text-blue-800': !['Super_Admin', 'Pastor', 'Guest'].includes(user.role),
                            'bg-gray-100 text-gray-800': user.role === 'Guest'
                          }">
                      {{ user.role }}

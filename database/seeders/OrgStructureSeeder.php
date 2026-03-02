@@ -18,10 +18,64 @@ class OrgStructureSeeder extends Seeder
 {
     public function run()
     {
-        // 1. Spatie Roles (for application permissions)
-        $spatieRoles = ['Pastor', 'BTS_Admin', 'Department_Lead', 'Secretary', 'Team_Lead', 'Member'];
-        foreach ($spatieRoles as $role) {
-            Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
+        // 1. Spatie Permissions
+        $portalPermissions = [
+            'access_department_portal',
+            'portal_view_members',
+            'portal_manage_attendance',
+            'view_attendance',
+            'mark_attendance',
+            'bypass_attendance_lock',
+            'view_visitations',
+            'create_visitation_requests',
+            'manage_visitations',
+            'view_sensitive_visitation_content',
+            'view_finance',
+            'manage_finance',
+            'approve_finance',
+        ];
+        foreach ($portalPermissions as $perm) {
+            \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
+        }
+
+        // 2. Spatie Roles (for application permissions)
+        $spatieRoles = ['Pastor', 'BTS_Admin', 'Department_Lead', 'Secretary', 'Team_Lead', 'Member', 'Visitation_Staff'];
+        foreach ($spatieRoles as $roleName) {
+            $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
+            
+            // Assign specific permissions to roles here
+            if (in_array($roleName, ['Pastor', 'BTS_Admin', 'Super_Admin', 'Department_Lead', 'Team_Lead', 'Member'])) {
+                $role->givePermissionTo([
+                    'access_department_portal',
+                    'portal_view_members',
+                    'portal_manage_attendance'
+                ]);
+            }
+            if (in_array($roleName, ['Pastor', 'BTS_Admin', 'Super_Admin', 'Department_Lead', 'Team_Lead'])) {
+                $role->givePermissionTo([
+                    'view_attendance',
+                    'mark_attendance'
+                ]);
+            }
+            if (in_array($roleName, ['Pastor', 'BTS_Admin', 'Super_Admin'])) {
+                $role->givePermissionTo([
+                    'bypass_attendance_lock',
+                    'manage_visitations',
+                    'view_sensitive_visitation_content',
+                    'view_finance',
+                    'manage_finance',
+                    'approve_finance'
+                ]);
+            }
+            if (in_array($roleName, ['Pastor', 'BTS_Admin', 'Super_Admin', 'Visitation_Staff', 'Department_Lead'])) {
+                $role->givePermissionTo([
+                    'view_visitations',
+                    'create_visitation_requests'
+                ]);
+            }
+            if ($roleName === 'Pastor') {
+                $role->givePermissionTo(['view_speakers', 'manage_speakers']);
+            }
         }
 
         // 2. OrgRoles (Functional roles within the organization)
@@ -31,6 +85,7 @@ class OrgStructureSeeder extends Seeder
             ['name' => 'Thư Ký', 'code' => 'tk', 'level' => 50],
             ['name' => 'Thủ Quỹ', 'code' => 'tq', 'level' => 50],
             ['name' => 'Ủy Viên', 'code' => 'uv', 'level' => 40],
+            ['name' => 'Tổ Trưởng', 'code' => 'tt', 'level' => 30],
             ['name' => 'Ban Viên', 'code' => 'bv', 'level' => 10],
             ['name' => 'Chấp Sự', 'code' => 'cs', 'level' => 80],
             ['name' => 'Thư ký Hội Thánh', 'code' => 'tkhu', 'level' => 95],
@@ -131,24 +186,13 @@ class OrgStructureSeeder extends Seeder
         ]);
         $pastor->assignRole('Pastor');
 
-        // Leadership (Ban Chấp Sự / Trị Sự)
-        $createFunctionalAccount('tkhu.chapsu@httlthanhmyloi.com', 'Thư ký Hội Thánh', 'tkhu', $bcs, 'Secretary');
-        $createFunctionalAccount('ptk.chapsu@httlthanhmyloi.com', 'Phó thư ký', 'ptk', $bcs, 'Secretary');
-        $createFunctionalAccount('tq.chapsu@httlthanhmyloi.com', 'Thủ quỹ Hội Thánh', 'tqht', $bcs, 'BTS_Admin');
-        $createFunctionalAccount('cs.chapsu@httlthanhmyloi.com', 'Chấp sự đặc trách', 'cs', $bcs, 'BTS_Admin');
-
-        // Activities (Example: Ban Thanh Tráng)
+        // Activities (Ban Thanh Tráng)
         $deptTT = $activityDepts['BTTR'];
         $createFunctionalAccount('tb.thanhtrang@httlthanhmyloi.com', 'Trưởng ban Thanh Tráng', 'tb', $deptTT, 'Department_Lead');
         $createFunctionalAccount('pb.thanhtrang@httlthanhmyloi.com', 'Phó ban Thanh Tráng', 'pb', $deptTT, 'Department_Lead');
         $createFunctionalAccount('tk.thanhtrang@httlthanhmyloi.com', 'Thư ký Thanh Tráng', 'tk', $deptTT, 'Secretary');
         $createFunctionalAccount('tq.thanhtrang@httlthanhmyloi.com', 'Thủ quỹ Thanh Tráng', 'tq', $deptTT, 'Secretary');
-        $createFunctionalAccount('uv.thanhtrang@httlthanhmyloi.com', 'Ủy viên Thanh Tráng', 'uv', $deptTT, 'Member');
-
-        // Ministry (Example: Ban Kỹ Thuật)
-        $deptKT = $ministryDepts['BKT'];
-        $createFunctionalAccount('tb.kythuat@httlthanhmyloi.com', 'Trưởng ban Kỹ Thuật', 'tb', $deptKT, 'Department_Lead');
-        $createFunctionalAccount('bv.kythuat@httlthanhmyloi.com', 'Ban viên Kỹ Thuật', 'bv', $deptKT, 'Member');
+        $createFunctionalAccount('tt.thanhtrang@httlthanhmyloi.com', 'Tổ trưởng Thanh Tráng', 'tt', $deptTT, 'Team_Lead');
 
         $this->command->info('Organization structure and functional accounts initialized!');
     }

@@ -14,8 +14,8 @@
           Quay lại danh sách
         </Link>
         <div class="flex items-center space-x-2">
-           <button class="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 shadow-sm transition-all hidden sm:block">
-             Báo cáo nhanh
+           <button v-if="department.block === 'activities'" @click="goToPortal(department.id)" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-xl text-sm font-bold hover:bg-blue-200 shadow-sm transition-all">
+             Vào Cổng Nội Bộ
            </button>
            <button class="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-md shadow-blue-100 transition-all">
              Chỉnh sửa
@@ -138,7 +138,7 @@ const currentLayout = computed(() => {
 const blockLabels = {
   ministry: 'Mục vụ',
   leadership: 'Lãnh đạo',
-  fellowship: 'Đội nhóm'
+  activities: 'Sinh hoạt'
 };
 
 const activeTab = ref('teams');
@@ -160,6 +160,10 @@ const activeTabComponent = computed(() => {
 
 const refreshData = () => {
    router.reload({ only: ['teams', 'members', 'department'] });
+};
+
+const goToPortal = (deptId) => {
+    router.post(route('portal.switch-context'), { department_id: deptId });
 };
 
 </script>

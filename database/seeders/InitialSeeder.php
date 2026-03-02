@@ -42,33 +42,7 @@ class InitialSeeder extends Seeder
             ]
         );
 
-        // 4. Create Super Admin User
-        $user = User::updateOrCreate(
-            ['email' => 'superadmin@httlthanhmyloi.com'],
-            [
-                'name' => 'Quản trị viên Hệ thống',
-                'password' => Hash::make('Abc.1234'),
-            ]
-        );
-
-        // Assign Pastor role (highest in system)
-        $user->assignRole('Pastor');
-
-        // 5. Create Member profile for Super Admin
-        $member = Member::updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'member_code' => 'MBR-00001',
-                'full_name' => 'Quản trị viên',
-                'email' => 'superadmin@httlthanhmyloi.com',
-                'phone' => '0901234567',
-            ]
-        );
-
-        MemberSensitive::updateOrCreate(
-            ['member_id' => $member->id],
-            ['id_card_number' => '000000000000']
-        );
+        // Accounts have been moved to OrgStructureSeeder
 
         // 6. Basic Departments & Teams
         $dept1 = Department::firstOrCreate(['code' => 'BMV'], ['name' => 'Ban Mục vụ']);

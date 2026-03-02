@@ -46,15 +46,15 @@
 
       <!-- Block/Type -->
       <div class="space-y-2">
-        <label class="text-xs font-bold text-gray-700 uppercase tracking-wide">Đội nhóm / Phân loại <span class="text-red-500">*</span></label>
+        <label class="text-xs font-bold text-gray-700 uppercase tracking-wide">Phân loại <span class="text-red-500">*</span></label>
         <select 
           v-model="form.block" 
           required
           class="w-full text-sm border-gray-300 rounded-xl shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3"
         >
-          <option value="ministry">Ban Mục vụ (Tráng niên, Thanh niên, Thiếu nhi...)</option>
-          <option value="leadership">Ban Trị sự / Lãnh đạo</option>
-          <option value="fellowship">Đội nhóm phục vụ</option>
+          <option value="leadership">Lãnh đạo</option>
+          <option value="ministry">Mục vụ</option>
+          <option value="activities">Sinh hoạt</option>
         </select>
         <div v-if="form.errors.block" class="text-xs text-red-500 font-medium mt-1">{{ form.errors.block }}</div>
       </div>

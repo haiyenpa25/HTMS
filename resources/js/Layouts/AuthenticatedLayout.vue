@@ -1,44 +1,88 @@
 <template>
   <div class="flex h-screen bg-gray-50 overflow-hidden font-sans text-gray-900">
-    <!-- Sidebar / Desktop -->
-    <aside class="hidden w-64 overflow-y-auto bg-white border-r border-gray-200 md:block flex-shrink-0 relative">
-      <div class="py-4 text-center border-b border-gray-200">
-        <h2 class="text-xl font-bold text-gray-800 tracking-tight">CMS<span class="text-blue-600">HT</span></h2>
+    <aside 
+      class="hidden overflow-y-auto bg-white border-r border-gray-200 md:flex flex-col flex-shrink-0 relative transition-all duration-300"
+      :class="isSidebarCollapsed ? 'w-20' : 'w-64'"
+    >
+      <div class="py-4 flex items-center justify-between px-4 border-b border-gray-200 shrink-0">
+        <h2 v-if="!isSidebarCollapsed" class="text-xl font-black text-gray-800 tracking-tight whitespace-nowrap overflow-hidden">CMS<span class="text-blue-600">HT</span></h2>
+        <h2 v-else class="text-xl font-black text-blue-600 tracking-tight mx-auto">C<span class="text-gray-800">H</span></h2>
+        
+        <button @click="toggleSidebar" class="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors" :class="isSidebarCollapsed ? 'mx-auto' : ''">
+          <svg v-if="!isSidebarCollapsed" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+          <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+        </button>
       </div>
-      <nav class="p-4 space-y-1">
-        <Link :href="route('dashboard')" class="flex items-center space-x-2 px-3 py-2 rounded-md font-medium transition-colors" :class="route().current('dashboard') ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:bg-gray-100'">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-          <span>Tổng quan</span>
-        </Link>
-        <Link :href="route('members.index')" class="flex items-center space-x-2 px-3 py-2 rounded-md font-medium transition-colors" :class="route().current('members.*') ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:bg-gray-100'">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-          <span>Tín hữu</span>
-        </Link>
-        <Link :href="route('departments.index')" class="flex items-center space-x-2 px-3 py-2 rounded-md font-medium transition-colors" :class="route().current('departments.*') ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:bg-gray-100'">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-          <span>Ban ngành</span>
-        </Link>
-        <a href="#" class="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md font-medium transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-          <span>Hồ sơ & Đơn</span>
-          <span v-if="page.props.pending_approvals_count > 0" class="ml-auto inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-800">{{ page.props.pending_approvals_count }}</span>
-        </a>
 
-        <!-- Menu Hệ thống (Chỉ hiện khi có quyền quản trị, nhưng để demo cứ hiện trước) -->
+      <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto hide-scrollbar">
+        <Link :href="route('dashboard')" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group" :class="route().current('dashboard') ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
+          <svg class="w-5 h-5 shrink-0" :class="route().current('dashboard') ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+          <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Tổng quan</span>
+        </Link>
+        <Link :href="route('members.index')" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group" :class="route().current('members.*') ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
+          <svg class="w-5 h-5 shrink-0" :class="route().current('members.*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Tín hữu</span>
+        </Link>
+        <!-- Ban ngành Accordion -->
+        <div class="space-y-1">
+          <button @click="toggleDeptsMenu" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-bold transition-all group" :class="(route().current('portal.*') || route().current('ministry.*')) ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
+             <div class="flex items-center space-x-3">
+               <svg class="w-5 h-5 shrink-0" :class="(route().current('portal.*') || route().current('ministry.*')) ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+               <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Ban ngành</span>
+             </div>
+             <svg v-if="!isSidebarCollapsed" class="w-4 h-4 text-gray-400 transition-transform duration-200" :class="isDeptsMenuOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          
+          <div v-show="!isSidebarCollapsed && isDeptsMenuOpen" class="pl-11 pr-3 py-1.5 space-y-1">
+             <Link :href="route('portal.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('portal.*') ? 'text-blue-700 bg-blue-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
+               Sinh hoạt
+             </Link>
+             <Link v-if="route().has('ministry.index')" :href="route('ministry.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('ministry.*') ? 'text-blue-700 bg-blue-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
+               Mục vụ
+             </Link>
+          </div>
+        </div>
+
+        <Link :href="route('finance.index')" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group" :class="route().current('finance.*') ? 'bg-emerald-50 text-emerald-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
+          <svg class="w-5 h-5 shrink-0" :class="route().current('finance.*') ? 'text-emerald-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Tài chính</span>
+        </Link>
+
+        <!-- Menu Hệ thống -->
         <div class="pt-4 mt-4 border-t border-gray-100">
-          <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Cài đặt hệ thống</p>
+          <p v-if="!isSidebarCollapsed" class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Cài đặt hệ thống</p>
           <div class="space-y-1">
-            <Link :href="route('users.index')" class="flex items-center space-x-2 px-3 py-2 rounded-md font-medium transition-colors" :class="route().current('users.*') ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:bg-gray-100'">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-              <span>Quản lý Người dùng</span>
-            </Link>
-            <Link :href="route('roles.index')" class="flex items-center space-x-2 px-3 py-2 rounded-md font-medium transition-colors" :class="route().current('roles.*') ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:bg-gray-100'">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-              <span>Phân quyền</span>
-            </Link>
+            <button @click="toggleSettingsMenu" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-bold transition-all group" :class="(route().current('users.*') || route().current('roles.*') || route().current('meetings.*')) ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
+               <div class="flex items-center space-x-3">
+                 <svg class="w-5 h-5 shrink-0" :class="(route().current('users.*') || route().current('roles.*') || route().current('meetings.*')) ? 'text-indigo-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                 <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Hệ thống</span>
+               </div>
+               <svg v-if="!isSidebarCollapsed" class="w-4 h-4 text-gray-400 transition-transform duration-200" :class="isSettingsMenuOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            
+            <!-- Submenu Items -->
+            <div v-show="!isSidebarCollapsed && isSettingsMenuOpen" class="pl-11 pr-3 py-1.5 space-y-1">
+               <Link :href="route('users.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('users.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
+                 Người dùng
+               </Link>
+               <Link :href="route('roles.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('roles.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
+                 Phân quyền
+               </Link>
+               <Link :href="route('speakers.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('speakers.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
+                 Diễn giả
+               </Link>
+               <Link :href="route('departments.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('departments.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
+                 Quản lý Ban ngành
+               </Link>
+               <Link :href="route('meetings.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('meetings.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
+                 Buổi nhóm
+               </Link>
+            </div>
           </div>
         </div>
       </nav>
+      
+      <!-- User profile at bottom of sidebar (optional) -->
     </aside>
 
     <!-- Main Wrapper -->
@@ -90,6 +134,37 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 const page = usePage();
+
+const isSidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true');
+const isSettingsMenuOpen = ref(route().current('users.*') || route().current('roles.*') || route().current('meetings.*') || route().current('departments.*'));
+const isDeptsMenuOpen = ref(route().current('portal.*') || route().current('ministry.*') || false);
+
+const toggleSidebar = () => {
+    isSidebarCollapsed.value = !isSidebarCollapsed.value;
+    localStorage.setItem('sidebarCollapsed', isSidebarCollapsed.value);
+    if (isSidebarCollapsed.value) {
+        isSettingsMenuOpen.value = false;
+        isDeptsMenuOpen.value = false;
+    }
+};
+
+const toggleDeptsMenu = () => {
+    if (isSidebarCollapsed.value) {
+        isSidebarCollapsed.value = false;
+        localStorage.setItem('sidebarCollapsed', false);
+    }
+    isDeptsMenuOpen.value = !isDeptsMenuOpen.value;
+};
+
+const toggleSettingsMenu = () => {
+    if (isSidebarCollapsed.value) {
+        isSidebarCollapsed.value = false;
+        localStorage.setItem('sidebarCollapsed', false);
+    }
+    isSettingsMenuOpen.value = !isSettingsMenuOpen.value;
+};
+
 </script>

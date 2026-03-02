@@ -13,6 +13,9 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/', function () {
+        if (!auth()->user()->hasRole(['Pastor', 'Super_Admin'])) {
+            return redirect()->route('portal.index');
+        }
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
@@ -31,11 +34,90 @@ Route::middleware('auth')->group(function () {
     
     Route::put('departments/{department}/features', [\App\Http\Controllers\DepartmentController::class, 'updateFeatures'])->name('departments.features.update');
 
+    // Meetings
+    Route::resource('meetings', \App\Http\Controllers\MeetingController::class);
+
+    // Speakers
+    Route::get('api/speakers', [\App\Http\Controllers\SpeakerController::class, 'apiIndex'])->name('api.speakers.index');
+    Route::resource('speakers', \App\Http\Controllers\SpeakerController::class)->except(['create', 'edit']);
+
     // System Settings (Users & Roles)
     Route::resource('users', \App\Http\Controllers\UserController::class);
     Route::resource('roles', \App\Http\Controllers\RoleController::class);
 
+    // Department Portal
+    Route::prefix('portal')->middleware(\App\Http\Middleware\EnsurePortalContext::class)->group(function () {
+        Route::get('/', [\App\Http\Controllers\DepartmentPortalController::class, 'index'])->name('portal.index');
+        Route::post('/switch-context', [\App\Http\Controllers\DepartmentPortalController::class, 'switchContext'])->name('portal.switch-context');
+        
+        Route::get('/attendance', [\App\Http\Controllers\Portal\AttendanceController::class, 'index'])->name('portal.attendance.index');
+        Route::get('/attendance/{meeting}', [\App\Http\Controllers\Portal\AttendanceController::class, 'show'])->name('portal.attendance.show');
+        Route::post('/attendance/{meeting}', [\App\Http\Controllers\Portal\AttendanceController::class, 'store'])->name('portal.attendance.store');
+        
+        // Portal Members Module (New)
+        Route::get('/members', [\App\Http\Controllers\Portal\PortalMemberController::class, 'index'])->name('portal.members.index');
+        Route::post('/members/{member}/role', [\App\Http\Controllers\Portal\PortalMemberController::class, 'updateRole'])->name('portal.members.update');
+        Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('portal.members.bulk-assign');
+        // Add export route later if needed
+        
+        Route::get('/assignments', [\App\Http\Controllers\Portal\AssignmentsController::class, 'index'])->name('portal.assignments.index');
+        Route::get('/reports', [\App\Http\Controllers\Portal\DeptReportController::class, 'index'])->name('portal.reports.index');
+        Route::post('/reports/save', [\App\Http\Controllers\Portal\DeptReportController::class, 'saveReport'])->name('portal.reports.save');
+        Route::post('/reports/{report}/approve', [\App\Http\Controllers\Portal\DeptReportController::class, 'approveReport'])->name('portal.reports.approve');
+        Route::get('/finance', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'index'])->name('portal.finance.index');
+        // Meetings
+        Route::post('/finance/meetings', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'storeMeeting'])->name('portal.finance.meetings.store');
+        Route::put('/finance/meetings/{meeting}', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'updateMeeting'])->name('portal.finance.meetings.update');
+        Route::delete('/finance/meetings/{meeting}', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'destroyMeeting'])->name('portal.finance.meetings.destroy');
+        // Standalone Transactions
+        Route::post('/finance/transactions', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'storeTransaction'])->name('portal.finance.transactions.store');
+        Route::delete('/finance/transactions/{transaction}', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'destroyTransaction'])->name('portal.finance.transactions.destroy');
+        // Funds
+        Route::post('/finance/funds', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'storeFund'])->name('portal.finance.funds.store');
+        Route::delete('/finance/funds/{fund}', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'destroyFund'])->name('portal.finance.funds.destroy');
+        
+        // Localized Visitation Module (Activities)
+        Route::get('/visitation', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'index'])->name('portal.visitation.index');
+        Route::post('/visitation', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'store'])->name('portal.visitation.store');
+        Route::put('/visitation/{visitation}', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'update'])->name('portal.visitation.update');
+        Route::delete('/visitation/{visitation}', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'destroy'])->name('portal.visitation.destroy');
+    });
+
+    // Ministry Portal
+    Route::prefix('ministry')->middleware(\App\Http\Middleware\EnsureMinistryContext::class)->group(function () {
+        Route::get('/', [\App\Http\Controllers\MinistryPortalController::class, 'index'])->name('ministry.index');
+        Route::post('/switch-context', [\App\Http\Controllers\MinistryPortalController::class, 'switchContext'])->name('ministry.switch-context');
+        
+        // Visitation Module
+        Route::get('/visitation', [\App\Http\Controllers\Portal\VisitationController::class, 'index'])->name('ministry.visitation.index');
+        Route::post('/visitation', [\App\Http\Controllers\Portal\VisitationController::class, 'store'])->name('ministry.visitation.store');
+        Route::put('/visitation/{visitation}', [\App\Http\Controllers\Portal\VisitationController::class, 'update'])->name('ministry.visitation.update');
+        Route::delete('/visitation/{visitation}', [\App\Http\Controllers\Portal\VisitationController::class, 'destroy'])->name('ministry.visitation.destroy');
+
+        // Member Management Module
+        Route::get('/members', [\App\Http\Controllers\Portal\PortalMemberController::class, 'index'])->name('ministry.members.index');
+        Route::post('/members/{member}/role', [\App\Http\Controllers\Portal\PortalMemberController::class, 'updateRole'])->name('ministry.members.update');
+        Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('ministry.members.bulk-assign');
+    });
+
+    // Finance Portal
+    Route::prefix('finance-portal')->middleware(\App\Http\Middleware\EnsureFinanceContext::class)->group(function () {
+        Route::get('/', [\App\Http\Controllers\Portal\FinancePortalController::class, 'index'])->name('finance.index');
+        Route::post('/switch-context', [\App\Http\Controllers\Portal\FinancePortalController::class, 'switchContext'])->name('finance.switch-context');
+        
+        // Funds & Transactions
+        Route::resource('funds', \App\Http\Controllers\Portal\FinanceFundController::class)->names('finance.funds');
+        Route::resource('transactions', \App\Http\Controllers\Portal\FinanceTransactionController::class)->names('finance.transactions');
+        Route::post('transactions/{transaction}/approve', [\App\Http\Controllers\Portal\FinanceTransactionController::class, 'approve'])->name('finance.transactions.approve');
+        
+        // Fund Transfers
+        Route::post('transfers', [\App\Http\Controllers\Portal\FinanceFundTransferController::class, 'store'])->name('finance.transfers.store');
+        Route::post('transfers/{fundTransfer}/approve', [\App\Http\Controllers\Portal\FinanceFundTransferController::class, 'approve'])->name('finance.transfers.approve');
+        Route::delete('transfers/{fundTransfer}', [\App\Http\Controllers\Portal\FinanceFundTransferController::class, 'destroy'])->name('finance.transfers.destroy');
+        
+        // Reports
+        Route::get('/reports', [\App\Http\Controllers\Portal\FinanceReportController::class, 'index'])->name('finance.reports.index');
+    });
+
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 });
-
-

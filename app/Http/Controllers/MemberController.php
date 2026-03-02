@@ -156,34 +156,37 @@ class MemberController extends Controller
     public function show(Request $request, Member $member): Response
     {
         $user = $request->user();
-        $isPastor = $user->hasRole('Pastor');
+        $isPastor = $user->hasRole(['Pastor', 'Super_Admin']);
 
-        $loadRelations = [
-            'user', 
-            'departments', 
-            'teams', 
+        $member->load([
+            'user',
             'household',
             'courses',
             'talents',
             'relatedTo',
             'relatedFrom',
-            'careLogs' => function($query) use ($isPastor) {
-                $query->orderBy('visit_date', 'desc');
-                if (!$isPastor) {
-                    $query->where('is_sensitive', false);
-                }
-            }
-        ];
+            // Visitations as Care Log — load with visitors
+            'visitations' => function($query) {
+                $query->with(['visitors'])->orderBy('visit_date', 'desc');
+            },
+            // Memberships: org role in each department/team
+            'memberships' => function($query) {
+                $query->with(['role', 'model'])->where('is_active', true);
+            },
+            // Last attendance
+            'attendances' => function($query) {
+                $query->with('meeting')->orderBy('meeting_id', 'desc')->limit(1);
+            },
+        ]);
 
         if ($isPastor) {
-            $loadRelations[] = 'sensitiveInfo';
+            $member->load('sensitiveInfo');
         }
-
-        $member->load($loadRelations);
         
         return Inertia::render('Members/Show', [
             'member' => $member,
             'auth_roles' => $user->getRoleNames(),
+            'isPastor' => $isPastor,
         ]);
     }
 

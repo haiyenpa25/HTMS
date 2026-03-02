@@ -14,9 +14,9 @@ class MemberSeeder extends Seeder
     public function run(): void
     {
         // Xóa dữ liệu cũ nếu chạy re-seed
-        Member::truncate();
+        // Member::truncate();
         
         // Tạo 200 tín hữu (hồ sơ quản lý) không nhất thiết có User Account
-        Member::factory()->count(200)->create();
+        // Member::factory()->count(200)->create();
     }
 }

@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\OrgRole;
+use App\Models\Department;
 
 class Member extends Model
 {
@@ -12,7 +14,7 @@ class Member extends Model
 
     protected $fillable = [
         'user_id', 'household_id', 'member_code', 'full_name', 'email', 'phone', 
-        'address', 'visit_location', 'date_of_birth', 'gender', 'member_type',
+        'address', 'visit_location', 'latitude', 'longitude', 'date_of_birth', 'gender', 'member_type',
         'faith_date', 'is_baptized', 'baptism_date', 'joined_date',
         'attendance_status', 'status', 'general_notes'
     ];
@@ -52,6 +54,11 @@ class Member extends Model
         return $this->hasMany(CareLog::class);
     }
 
+    public function visitations()
+    {
+        return $this->hasMany(Visitation::class);
+    }
+
     public function courses()
     {
         return $this->belongsToMany(Course::class, 'member_courses')->withPivot('status', 'completion_date');
@@ -88,5 +95,33 @@ class Member extends Model
     public function memberships()
     {
         return $this->hasMany(OrgMembership::class);
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(MeetingAttendance::class);
+    }
+
+    public function hasOrgRoleIn($departmentId, array $roles)
+    {
+        $roleCodes = array_map(function($r) {
+            $map = [
+                'TruongBan' => 'tb',
+                'PhoBan' => 'pb',
+                'ThuKy' => 'tk',
+                'ThuQuy' => 'tq',
+                'UyVien' => 'uv',
+                'Member' => 'bv'
+            ];
+            return $map[$r] ?? $r;
+        }, $roles);
+
+        $roleIds = OrgRole::whereIn('code', $roleCodes)->pluck('id');
+
+        return $this->memberships()
+            ->where('model_type', Department::class)
+            ->where('model_id', $departmentId)
+            ->whereIn('org_role_id', $roleIds)
+            ->exists();
     }
 }

@@ -30,9 +30,9 @@
            <div class="flex items-start justify-between mb-3">
               <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg" 
                    :class="{
-                     'bg-red-100 text-red-600': role.name === 'Super Admin',
+                     'bg-red-100 text-red-600': role.name === 'Super_Admin',
                      'bg-purple-100 text-purple-600': role.name === 'Pastor',
-                     'bg-blue-100 text-blue-600': !['Super Admin', 'Pastor'].includes(role.name)
+                     'bg-blue-100 text-blue-600': !['Super_Admin', 'Pastor'].includes(role.name)
                    }">
                  {{ role.name.charAt(0) }}
               </div>
@@ -87,7 +87,7 @@ defineProps({
 
 const getRoleDescription = (name) => {
    const descs = {
-      'Super Admin': 'Quản trị viên cấp cao nhất. Có toàn quyền quản lý hệ thống, phân quyền và điều chỉnh kỹ thuật.',
+      'Super_Admin': 'Quản trị viên cấp cao nhất. Có toàn quyền quản lý hệ thống, phân quyền và điều chỉnh kỹ thuật.',
       'Pastor': 'Mục sư Quản nhiệm. Được cấp quyền truy cập vào thông tin tín hữu lớp 3 (Nhạy cảm/Mục vụ).',
       'Ban Lãnh Đạo': 'Ban Trị sự, Chấp sự. Quản lý toàn bộ tín hữu, lên kế hoạch cho các Khối.',
       'Trưởng Ban': 'Quản lý một ban ngành cụ thể, xem danh sách tín hữu trong ban.',

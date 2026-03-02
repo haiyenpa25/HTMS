@@ -64,7 +64,7 @@ class RoleController extends Controller
      */
     public function update(Request $request, Role $role)
     {
-        if ($role->name === 'Super Admin') {
+        if ($role->name === 'Super_Admin') {
             return redirect()->back()->with('message', 'Role Super Admin có toàn quyền hệ thống, không cần gán Permissions thủ công.');
         }
 
@@ -78,3 +78,4 @@ class RoleController extends Controller
         return redirect()->back()->with('message', 'Cập nhật phân quyền thành công.');
     }
 }
+

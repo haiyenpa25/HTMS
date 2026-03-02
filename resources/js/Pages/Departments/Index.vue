@@ -39,9 +39,9 @@
                <label class="text-xs font-bold text-gray-500">Khối hoạt động</label>
                <select v-model="filterForm.block" class="w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50">
                   <option value="">Tất cả khối</option>
-                  <option value="ministry">Mục vụ (Ministry)</option>
-                  <option value="leadership">Lãnh đạo (Leadership)</option>
-                  <option value="fellowship">Đội nhóm (Fellowship)</option>
+                  <option value="leadership">Lãnh đạo</option>
+                  <option value="ministry">Mục vụ</option>
+                  <option value="activities">Sinh hoạt</option>
                </select>
             </div>
             
@@ -114,7 +114,10 @@
                       <button @click="openEditSlideOver(dept)" class="text-blue-600 hover:text-blue-900 font-bold p-1.5 hover:bg-blue-50 rounded-lg transition-colors tooltip" title="Chỉnh sửa Ban">
                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                       </button>
-                      <Link :href="route('departments.show', dept.id)" class="text-gray-400 hover:text-gray-900 font-bold p-1.5 hover:bg-gray-100 rounded-lg transition-colors tooltip" title="Mở Dashboard">
+                      <button v-if="dept.block === 'activities'" @click="goToPortal(dept.id)" class="text-blue-500 hover:text-blue-700 font-bold p-1.5 hover:bg-blue-50 rounded-lg transition-colors tooltip" title="Vào Cổng Sinh Hoạt">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+                      </button>
+                      <Link :href="route('departments.show', dept.id)" class="text-gray-400 hover:text-gray-900 font-bold p-1.5 hover:bg-gray-100 rounded-lg transition-colors tooltip" title="Quản lý Tổ & Ban viên">
                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                       </Link>
                    </div>
@@ -175,8 +178,11 @@
                   <button @click.prevent="openEditSlideOver(dept)" class="text-gray-400 hover:text-blue-600 transition-colors p-1.5 rounded-lg hover:bg-blue-50" title="Sửa">
                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                   </button>
-                  <Link :href="route('departments.show', dept.id)" class="text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 hover:text-black px-3 py-1.5 rounded-lg transition-colors inline-block text-center">
-                     Mở &rarr;
+                  <button v-if="dept.block === 'activities'" @click.prevent="goToPortal(dept.id)" class="text-xs font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 px-3 py-1.5 rounded-lg transition-colors inline-block text-center relative z-20">
+                     Vào Cổng
+                  </button>
+                  <Link :href="route('departments.show', dept.id)" class="text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 hover:text-black px-3 py-1.5 rounded-lg transition-colors inline-block text-center relative z-20">
+                     Quản lý
                   </Link>
                </div>
             </div>
@@ -239,7 +245,7 @@ const showFilters = ref(false);
 const blockLabels = {
   ministry: 'Mục vụ',
   leadership: 'Lãnh đạo',
-  fellowship: 'Đội nhóm'
+  activities: 'Sinh hoạt'
 };
 
 const filterForm = ref({
@@ -247,6 +253,10 @@ const filterForm = ref({
    block: props.filters.block || '',
    status: props.filters.status || '',
 });
+
+const goToPortal = (deptId) => {
+    router.post(route('portal.switch-context'), { department_id: deptId });
+};
 
 const activeFilterCount = computed(() => {
    let count = 0;
