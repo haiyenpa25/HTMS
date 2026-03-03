@@ -39,7 +39,7 @@ class OrgStructureSeeder extends Seeder
         }
 
         // 2. Spatie Roles (for application permissions)
-        $spatieRoles = ['Pastor', 'BTS_Admin', 'Department_Lead', 'Secretary', 'Team_Lead', 'Member', 'Visitation_Staff'];
+        $spatieRoles = ['Super_Admin', 'Pastor', 'BTS_Admin', 'Department_Lead', 'Secretary', 'Team_Lead', 'Member', 'Visitation_Staff'];
         foreach ($spatieRoles as $roleName) {
             $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
             
@@ -75,6 +75,12 @@ class OrgStructureSeeder extends Seeder
             }
             if ($roleName === 'Pastor') {
                 $role->givePermissionTo(['view_speakers', 'manage_speakers']);
+            }
+
+            if ($roleName === 'Super_Admin') {
+                // Super Admin gets EVERYTHING
+                $allPerms = \Spatie\Permission\Models\Permission::all();
+                $role->syncPermissions($allPerms);
             }
         }
 
@@ -185,6 +191,7 @@ class OrgStructureSeeder extends Seeder
             'password' => Hash::make('Abc.1234')
         ]);
         $pastor->assignRole('Pastor');
+        $pastor->assignRole('Super_Admin');
 
         // Activities (Ban Thanh Tráng)
         $deptTT = $activityDepts['BTTR'];
