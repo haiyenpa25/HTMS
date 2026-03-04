@@ -140,13 +140,54 @@ class ActivitiesVisitationController extends Controller
             return $s['priority'] === 'high' ? 0 : 1;
         })->values();
 
+        // Suggestions for this specific department only (last 3 meetings absences + not visited 6mo)
+        $recentMeetingIds = \App\Models\Meeting::where('department_id', $departmentId)
+            ->orderBy('date', 'desc')
+            ->take(3)
+            ->pluck('id')
+            ->toArray();
+
+        $suggestions = collect();
+        if (count($recentMeetingIds) > 0) {
+            $deptMembers = Member::whereHas('memberships', function($q) use ($departmentId) {
+                $q->where('model_type', Department::class)->where('model_id', $departmentId);
+            })->with([
+                'visitations' => fn($q) => $q->orderBy('visit_date', 'desc')->take(1),
+                'attendances' => fn($q) => $q->whereIn('meeting_id', $recentMeetingIds),
+            ])->get(['id', 'full_name', 'phone', 'address', 'latitude', 'longitude', 'visit_location']);
+
+            foreach ($deptMembers as $m) {
+                $lastVisit = $m->visitations->first();
+                $monthsSinceLastVisit = $lastVisit ? \Carbon\Carbon::parse($lastVisit->visit_date)->diffInMonths(now()) : 999;
+                $absentCount = 0;
+                foreach ($recentMeetingIds as $mId) {
+                    $att = $m->attendances->firstWhere('meeting_id', $mId);
+                    if (!$att || $att->status === 'absent') $absentCount++;
+                }
+                $priority = 'normal';
+                $reasons = [];
+                if ($absentCount >= 3) $reasons[] = 'Vắng nhóm 3 lần liên tiếp';
+                if ($monthsSinceLastVisit >= 6) $reasons[] = 'Chưa được thăm > 6 tháng';
+                if ($absentCount >= 3 && $monthsSinceLastVisit >= 6) $priority = 'high';
+                elseif (count($reasons) > 0) $priority = 'medium';
+                if ($priority !== 'normal') {
+                    $suggestions->push([
+                        'id' => $m->id, 'full_name' => $m->full_name, 'phone' => $m->phone,
+                        'priority' => $priority, 'reasons' => $reasons,
+                        'address' => $m->address, 'visit_location' => $m->visit_location,
+                        'latitude' => $m->latitude, 'longitude' => $m->longitude,
+                    ]);
+                }
+            }
+            $suggestions = $suggestions->sortBy(fn($s) => $s['priority'] === 'high' ? 0 : 1)->values();
+        }
+
         return Inertia::render('Portal/Visitation/Index', [
             'visitations' => $visitations,
             'members' => $members,
             'suggestions' => $suggestions,
             'filters' => $request->only(['reason', 'period', 'search', 'start_date', 'end_date']),
             'canManage' => Gate::allows('manage_visitations') || $user->hasPermissionTo('create_visitation_requests') || $user->hasRole(['Department_Lead', 'Team_Lead']),
-            // only department types since this is localized
             'visitationTypes' => ['department' => 'Ban Ngành'],
             'reasons' => ['ốm đau', 'mới tin Chúa', 'khích lệ', 'khác'],
             'department' => $department,

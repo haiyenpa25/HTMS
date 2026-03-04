@@ -22,19 +22,20 @@ class VisitationController extends Controller
         
         if ($departmentId) {
             $department = Department::findOrFail($departmentId);
-            // Since this is ministry context, we should probably check access_department_portal but ensure it's ministry
             Gate::authorize('access_portal', [Department::class, $department]);
         }
+
+        // Filter by activity department (for church-wide visitation view)
+        // 'other' = members with no activity dept membership
+        $filterDeptId = $request->input('filter_dept');
 
         $query = Visitation::with(['member', 'visitors', 'department']);
 
         // Data Isolation
         if (!$user->hasRole(['Pastor', 'Super_Admin', 'Visitation_Staff'])) {
-            // Department leads only see their department's visitations
             if ($departmentId) {
                 $query->where('department_id', $departmentId);
             } else {
-                // If no active department and not a generic staff, show nothing or just their own
                 $query->whereRaw('1 = 0'); 
             }
         }
@@ -50,6 +51,25 @@ class VisitationController extends Controller
             });
         }
         
+        // Department filter on visitation list
+        if ($filterDeptId === 'other') {
+            // Members not belonging to any activities department
+            $activityDeptIds = Department::where('block', 'activities')->pluck('id')->toArray();
+            $query->whereHas('member', function($q) use ($activityDeptIds) {
+                $q->whereDoesntHave('memberships', function($sq) use ($activityDeptIds) {
+                    $sq->where('model_type', Department::class)
+                       ->whereIn('model_id', $activityDeptIds);
+                });
+            });
+        } elseif ($filterDeptId && $filterDeptId !== 'all') {
+            $query->whereHas('member', function($q) use ($filterDeptId) {
+                $q->whereHas('memberships', function($sq) use ($filterDeptId) {
+                    $sq->where('model_type', Department::class)
+                       ->where('model_id', $filterDeptId);
+                });
+            });
+        }
+
         if ($request->filled('month') && $request->filled('year')) {
             $query->whereMonth('visit_date', $request->month)
                   ->whereYear('visit_date', $request->year);
@@ -69,128 +89,132 @@ class VisitationController extends Controller
         $query->orderBy('visit_date', 'desc');
 
         $visitations = $query->paginate(15)->through(function ($visitation) use ($user) {
-            // Sensitive Content Filtering
             if (!Gate::allows('viewSensitiveContent', $visitation)) {
                 $visitation->content = '*** (Chỉ Mục sư & Người thăm viếng được xem) ***';
             }
             return $visitation;
         });
         
-        // Allowed to manage?
         $canManage = Gate::allows('manage_visitations') || $user->hasPermissionTo('create_visitation_requests');
 
-        $membersQuery = Member::query();
-        if ($departmentId) {
-             $membersQuery->whereHas('memberships', function($q) use ($departmentId) {
-                 $q->where('model_type', Department::class)
-                   ->where('model_id', $departmentId);
-             });
-        }
-        
-        $members = $membersQuery->with(['memberships' => function($q) use ($departmentId) {
-            if ($departmentId) {
-                $q->where('model_type', Department::class)
-                  ->where('model_id', $departmentId)
-                  ->with('role');
-            }
-        }])->orderBy('full_name')->get(['id', 'full_name', 'phone']);
+        // Members for visitor selection (all members)
+        $members = Member::orderBy('full_name')
+            ->get(['id', 'full_name', 'phone', 'address', 'latitude', 'longitude', 'visit_location']);
 
-        // Smart Suggestions List
-        $suggestions = collect();
-        if (($departmentId && Department::find($departmentId)->code === 'BTV') || $user->hasRole(['Pastor', 'Super_Admin', 'Visitation_Staff'])) {
-            $ministryDepts = Department::where('block', 'ministry')->pluck('id')->toArray();
-            
-            $recentMeetingsByDept = \App\Models\Meeting::whereIn('department_id', $ministryDepts)
-                ->orderBy('date', 'desc')
-                ->get()
-                ->groupBy('department_id')
-                ->map(fn($meetings) => $meetings->take(3)->pluck('id')->toArray())
-                ->toArray();
-                
-            $recentMeetingIds = collect($recentMeetingsByDept)->flatten()->toArray();
+        // All activity departments for filter dropdown
+        $activityDepartments = Department::where('block', 'activities')
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->get();
 
-            $suggestedMembers = Member::with(['visitations' => function($q) {
-                $q->orderBy('visit_date', 'desc');
-            }, 'attendances' => function($q) use ($recentMeetingIds) {
-                $q->whereIn('meeting_id', $recentMeetingIds);
-            }, 'memberships' => function($q) use ($ministryDepts) {
-                $q->whereIn('model_id', $ministryDepts)->where('model_type', Department::class);
-            }])->get(['id', 'full_name', 'phone', 'address', 'latitude', 'longitude', 'visit_location']);
-
-            foreach ($suggestedMembers as $m) {
-                $lastVisit = $m->visitations->first();
-                $lastVisitDate = $lastVisit ? \Carbon\Carbon::parse($lastVisit->visit_date) : null;
-                $monthsSinceLastVisit = $lastVisitDate ? $lastVisitDate->diffInMonths(now()) : 999;
-
-                $missed3InAnyDept = false;
-                foreach ($m->memberships as $membership) {
-                    $deptId = $membership->model_id;
-                    if (isset($recentMeetingsByDept[$deptId]) && count($recentMeetingsByDept[$deptId]) >= 3) {
-                        $absentCount = 0;
-                        foreach ($recentMeetingsByDept[$deptId] as $mId) {
-                            $att = $m->attendances->firstWhere('meeting_id', $mId);
-                            if (!$att || $att->status === 'absent') {
-                                $absentCount++;
-                            }
-                        }
-                        if ($absentCount >= 3) {
-                            $missed3InAnyDept = true;
-                            break;
-                        }
-                    }
-                }
-
-                $priority = 'normal';
-                $reasons = [];
-
-                if ($missed3InAnyDept) {
-                    $reasons[] = 'Vắng nhóm 3 lần liên tiếp';
-                }
-                if ($monthsSinceLastVisit >= 6) {
-                    $reasons[] = 'Chưa được thăm > 6 tháng';
-                }
-
-                if ($missed3InAnyDept && $monthsSinceLastVisit >= 6) {
-                    $priority = 'high';
-                } elseif (count($reasons) > 0) {
-                    $priority = 'medium';
-                }
-
-                if ($priority !== 'normal') {
-                    $suggestions->push([
-                        'id' => $m->id,
-                        'full_name' => $m->full_name,
-                        'phone' => $m->phone,
-                        'priority' => $priority,
-                        'reasons' => $reasons,
-                        'address' => $m->address,
-                        'visit_location' => $m->visit_location,
-                        'latitude' => $m->latitude,
-                        'longitude' => $m->longitude,
-                    ]);
-                }
-            }
-
-            $suggestions = $suggestions->sortBy(function($s) {
-                return $s['priority'] === 'high' ? 0 : 1;
-            })->values();
-        }
+        // Smart Suggestions — with optional department filter
+        $suggDeptId = $request->input('sugg_dept');
+        $suggestions = $this->buildSuggestions($suggDeptId);
 
         return Inertia::render('Portal/Visitation/Index', [
             'visitations' => $visitations,
             'members' => $members,
             'suggestions' => $suggestions,
-            'filters' => $request->only(['reason', 'period', 'search', 'month', 'year']),
+            'filters' => $request->only(['reason', 'period', 'search', 'month', 'year', 'filter_dept', 'sugg_dept']),
             'canManage' => $canManage,
             'visitationTypes' => ['church' => 'Hội Thánh', 'department' => 'Ban Ngành'],
             'reasons' => ['ốm đau', 'mới tin Chúa', 'khích lệ', 'khác'],
-            // pass some department context
             'department' => $departmentId ? Department::find($departmentId) : null,
             'isGlobalAdmin' => $user->hasRole(['Pastor', 'Super_Admin', 'Visitation_Staff']),
             'routePrefix' => 'ministry.visitation',
             'portalType' => 'ministry',
+            'activityDepartments' => $activityDepartments,
         ]);
     }
+
+    /**
+     * Build suggestions list — church-wide, with optional activity dept filter.
+     * $deptFilter: null|'all' = whole church; 'other' = no dept; numeric = specific dept ID.
+     */
+    private function buildSuggestions($deptFilter = null): \Illuminate\Support\Collection
+    {
+        $activityDeptIds = Department::where('block', 'activities')->pluck('id')->toArray();
+        $recentMeetingsByDept = \App\Models\Meeting::whereIn('department_id', $activityDeptIds)
+            ->orderBy('date', 'desc')
+            ->get()
+            ->groupBy('department_id')
+            ->map(fn($meetings) => $meetings->take(3)->pluck('id')->toArray())
+            ->toArray();
+        $recentMeetingIds = collect($recentMeetingsByDept)->flatten()->toArray();
+
+        // Build member query based on department filter
+        $membersQuery = Member::with([
+            'visitations' => fn($q) => $q->orderBy('visit_date', 'desc')->take(1),
+            'attendances' => fn($q) => $q->whereIn('meeting_id', $recentMeetingIds),
+            'memberships' => fn($q) => $q->whereIn('model_id', $activityDeptIds)
+                                         ->where('model_type', Department::class)
+                                         ->with('department'),
+        ]);
+
+        if ($deptFilter === 'other') {
+            // Members with NO membership in any activities dept
+            $membersQuery->whereDoesntHave('memberships', function($q) use ($activityDeptIds) {
+                $q->where('model_type', Department::class)
+                  ->whereIn('model_id', $activityDeptIds);
+            });
+        } elseif ($deptFilter && $deptFilter !== 'all') {
+            $membersQuery->whereHas('memberships', function($q) use ($deptFilter) {
+                $q->where('model_type', Department::class)
+                  ->where('model_id', $deptFilter);
+            });
+        }
+        // Default = all members (no additional filter)
+
+        $suggestedMembers = $membersQuery->get(['id', 'full_name', 'phone', 'address', 'latitude', 'longitude', 'visit_location']);
+
+        $suggestions = collect();
+        foreach ($suggestedMembers as $m) {
+            $lastVisit = $m->visitations->first();
+            $lastVisitDate = $lastVisit ? \Carbon\Carbon::parse($lastVisit->visit_date) : null;
+            $monthsSinceLastVisit = $lastVisitDate ? $lastVisitDate->diffInMonths(now()) : 999;
+
+            // Check if missed 3 consecutive meetings in any activity dept
+            $missed3InAnyDept = false;
+            foreach ($m->memberships as $membership) {
+                $deptId = $membership->model_id;
+                if (isset($recentMeetingsByDept[$deptId]) && count($recentMeetingsByDept[$deptId]) >= 3) {
+                    $absentCount = 0;
+                    foreach ($recentMeetingsByDept[$deptId] as $mId) {
+                        $att = $m->attendances->firstWhere('meeting_id', $mId);
+                        if (!$att || $att->status === 'absent') $absentCount++;
+                    }
+                    if ($absentCount >= 3) { $missed3InAnyDept = true; break; }
+                }
+            }
+
+            // For members with NO dept, only flag if not visited > 6 months
+            $priority = 'normal';
+            $reasons = [];
+            if ($missed3InAnyDept) $reasons[] = 'Vắng nhóm 3 lần liên tiếp';
+            if ($monthsSinceLastVisit >= 6) $reasons[] = 'Chưa được thăm > 6 tháng';
+
+            if ($missed3InAnyDept && $monthsSinceLastVisit >= 6) $priority = 'high';
+            elseif (count($reasons) > 0) $priority = 'medium';
+
+            if ($priority !== 'normal') {
+                $suggestions->push([
+                    'id' => $m->id,
+                    'full_name' => $m->full_name,
+                    'phone' => $m->phone,
+                    'priority' => $priority,
+                    'reasons' => $reasons,
+                    'address' => $m->address,
+                    'visit_location' => $m->visit_location,
+                    'latitude' => $m->latitude,
+                    'longitude' => $m->longitude,
+                    'dept_name' => $m->memberships->first()?->department?->name,
+                ]);
+            }
+        }
+
+        return $suggestions->sortBy(fn($s) => $s['priority'] === 'high' ? 0 : 1)->values();
+    }
+
 
     public function store(Request $request)
     {

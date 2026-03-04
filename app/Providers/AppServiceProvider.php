@@ -36,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Gate::policy(\App\Models\DepartmentMeeting::class, \App\Policies\DepartmentFinancePolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\App\Models\DepartmentTransaction::class, \App\Policies\DepartmentFinancePolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\App\Models\DepartmentReport::class, \App\Policies\DepartmentReportPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\EduClass::class, \App\Policies\EduClassPolicy::class);
     }
 }
 

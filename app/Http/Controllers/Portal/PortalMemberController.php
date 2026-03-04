@@ -46,7 +46,7 @@ class PortalMemberController extends Controller
     {
         $isMinistry = request()->is('ministry/*');
         return [
-            'type' => $isMinistry ? 'ministry' : 'portal',
+            'type' => $isMinistry ? 'ministry' : 'activities',
             'session_key' => $isMinistry ? 'active_ministry_dept_id' : 'active_portal_dept_id',
             'route_prefix' => $isMinistry ? 'ministry.members' : 'portal.members',
             'base_route' => $isMinistry ? 'ministry.index' : 'portal.index',

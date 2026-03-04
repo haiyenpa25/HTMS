@@ -15,6 +15,13 @@
             >
                 <template #filters>
                     <div class="flex flex-wrap gap-2 items-center">
+                        <!-- Department Filter (Ministry only) -->
+                        <select v-if="portalType === 'ministry' && activityDepartments?.length" v-model="filtersForm.filter_dept" @change="updateFilters" class="rounded-lg border-gray-200 text-sm font-medium py-1.5 pl-3 pr-8 text-gray-700 bg-white hover:bg-gray-50 focus:ring-amber-500 focus:border-amber-500 transition-colors shadow-sm">
+                            <option value="">Tất cả Ban Sinh Hoạt</option>
+                            <option v-for="d in activityDepartments" :key="d.id" :value="d.id">{{ d.name }}</option>
+                            <option value="other">Khác (không thuộc ban)</option>
+                        </select>
+                        <div v-if="portalType === 'ministry'" class="w-px h-6 bg-gray-200 mx-1"></div>
                         <!-- Reason Filter -->
                         <select v-model="filtersForm.reason" @change="updateFilters" class="rounded-lg border-gray-200 text-sm font-medium py-1.5 pl-3 pr-8 text-gray-700 bg-white hover:bg-gray-50 focus:ring-amber-500 focus:border-amber-500 transition-colors shadow-sm capitalize">
                             <option value="">Tất cả lý do</option>
@@ -26,13 +33,20 @@
                         <button @click="setPeriod('3m')" :class="[filtersForm.period === '3m' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50', 'px-3 py-1.5 border rounded-lg text-sm font-medium transition-colors shadow-sm']">3 tháng</button>
                         <button @click="setPeriod('6m')" :class="[filtersForm.period === '6m' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50', 'px-3 py-1.5 border rounded-lg text-sm font-medium transition-colors shadow-sm']">6 tháng</button>
                         <button @click="setPeriod('1y')" :class="[filtersForm.period === '1y' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50', 'px-3 py-1.5 border rounded-lg text-sm font-medium transition-colors shadow-sm']">1 năm</button>
-                        <button v-if="filtersForm.period || filtersForm.reason || search" @click="clearFilters" class="px-3 py-1.5 text-gray-400 hover:text-red-600 text-sm font-medium transition-colors">Xóa lọc</button>
+                        <button v-if="filtersForm.period || filtersForm.reason || filtersForm.filter_dept || search" @click="clearFilters" class="px-3 py-1.5 text-gray-400 hover:text-red-600 text-sm font-medium transition-colors">Xóa lọc</button>
                     </div>
                 </template>
 
                 <template #actions>
                     <!-- Desktop only buttons -->
                     <div class="hidden sm:flex items-center gap-2">
+                        <!-- Suggestions Button -->
+                        <button v-if="isGlobalAdmin || portalType === 'ministry'" @click="isSuggOpen = true"
+                            class="relative font-bold px-3 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl shadow-sm hover:bg-amber-100 transition-colors flex items-center text-sm">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Đề Xuất Thăm Viếng
+                            <span v-if="suggCount > 0" class="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-black leading-none text-white bg-red-500 rounded-full min-w-[18px]">{{ suggCount }}</span>
+                        </button>
                         <button v-if="canManage" @click="openEmergencyForm" class="font-bold px-3 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl shadow-sm hover:bg-red-100 transition-colors flex items-center text-sm">
                             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                             Khẩn Cấp
@@ -45,47 +59,7 @@
                 </template>
             </DataToolbar>
 
-            <!-- Gợi ý kế hoạch thăm viếng -->
-            <div v-if="suggestions && suggestions.length > 0" class="mb-5 rounded-2xl border overflow-hidden shadow-sm">
-                <div class="px-5 py-3 flex justify-between items-center bg-gradient-to-r from-amber-50 to-amber-100/60 border-b border-amber-200">
-                    <h3 class="font-bold text-amber-900 flex items-center text-sm">
-                        <svg class="w-4 h-4 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        Gợi ý Đặc biệt — Cần Thăm Viếng
-                    </h3>
-                    <span class="text-xs font-bold text-amber-800 bg-amber-200 px-2.5 py-1 rounded-full">{{ suggestions.length }} tín hữu</span>
-                </div>
-                <div class="overflow-x-auto bg-white">
-                    <table class="min-w-full">
-                        <tbody class="divide-y divide-gray-100">
-                            <tr v-for="s in suggestions" :key="'sug-'+s.id"
-                                :class="s.priority === 'high' ? 'bg-red-50 hover:bg-red-100/70' : 'bg-amber-50/50 hover:bg-amber-100/50'"
-                                class="transition-colors">
-                                <td class="pl-5 pr-3 py-3 w-8">
-                                    <div v-if="s.priority === 'high'" class="w-2.5 h-2.5 rounded-full bg-red-500 shadow shadow-red-300"></div>
-                                    <div v-else class="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
-                                </td>
-                                <td class="px-3 py-3">
-                                    <div class="font-bold text-sm" :class="s.priority === 'high' ? 'text-red-900' : 'text-gray-900'">{{ s.full_name }}</div>
-                                    <div class="text-xs text-gray-500">{{ s.phone || 'K có SĐT' }}</div>
-                                </td>
-                                <td class="px-3 py-3 hidden md:table-cell">
-                                    <div class="flex flex-wrap gap-1">
-                                        <span v-for="r in s.reasons" :key="r"
-                                            :class="s.priority === 'high' ? 'bg-red-100 text-red-800 border-red-200' : 'bg-amber-100 text-amber-800 border-amber-200'"
-                                            class="text-[11px] font-medium px-2 py-0.5 rounded-full border">{{ r }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-4 py-3 text-right">
-                                    <button @click="createFromSuggestion(s)" class="text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"
-                                        :class="s.priority === 'high' ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-amber-500 text-white hover:bg-amber-600'">
-                                        Lập kế hoạch
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <!-- Suggestions inline section removed, now in slide-over -->
 
             <!-- Main list -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -422,6 +396,65 @@
             </template>
         </SlideOver>
 
+        <!-- Suggestions Slide-Over -->
+        <SlideOver :show="isSuggOpen" @close="isSuggOpen = false" title="Đề Xuất Thăm Viếng">
+            <div class="space-y-4">
+                <!-- Dept Filter inside suggestions -->
+                <div v-if="portalType === 'ministry' && activityDepartments?.length" class="bg-amber-50 border border-amber-100 rounded-xl p-3">
+                    <label class="block text-xs font-bold text-amber-800 mb-1.5">Lọc theo Ban Sinh Hoạt</label>
+                    <select v-model="suggDept" @change="fetchSuggestions" class="block w-full rounded-lg border-amber-200 text-sm font-medium py-2 pl-3 pr-8 text-gray-700 bg-white focus:ring-amber-500 focus:border-amber-500">
+                        <option value="">Toàn bộ Hội Thánh</option>
+                        <option v-for="d in activityDepartments" :key="d.id" :value="d.id">{{ d.name }}</option>
+                        <option value="other">Khác (không thuộc ban sinh hoạt nào)</option>
+                    </select>
+                </div>
+
+                <!-- Summary badge -->
+                <div v-if="localSuggestions.length > 0" class="flex items-center justify-between">
+                    <span class="text-sm font-bold text-gray-700">{{ localSuggestions.length }} tín hữu cần thăm</span>
+                    <div class="flex gap-2">
+                        <span class="text-[11px] font-bold px-2 py-0.5 bg-red-100 text-red-700 rounded-full">{{ localSuggestions.filter(s => s.priority === 'high').length }} Khẩn</span>
+                        <span class="text-[11px] font-bold px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">{{ localSuggestions.filter(s => s.priority === 'medium').length }} Trung bình</span>
+                    </div>
+                </div>
+
+                <div v-if="localSuggestions.length === 0" class="py-12 flex flex-col items-center text-center">
+                    <div class="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mb-3">
+                        <svg class="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <p class="text-sm font-bold text-gray-700 mb-1">Tốt lắm!</p>
+                    <p class="text-xs text-gray-400">Không có tín hữu nào cần ưu tiên thăm viếng.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <div v-for="s in localSuggestions" :key="'sugg-'+s.id"
+                        class="p-4 rounded-xl border transition-colors"
+                        :class="s.priority === 'high' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-2.5 h-2.5 rounded-full shrink-0" :class="s.priority === 'high' ? 'bg-red-500' : 'bg-amber-400'"></div>
+                                    <h4 class="font-bold text-sm truncate" :class="s.priority === 'high' ? 'text-red-900' : 'text-gray-900'">{{ s.full_name }}</h4>
+                                </div>
+                                <p v-if="s.phone" class="text-xs text-gray-500 ml-4.5">📞 {{ s.phone }}</p>
+                                <p v-if="s.dept_name" class="text-xs text-blue-600 font-medium ml-4.5 mt-0.5">🏠 {{ s.dept_name }}</p>
+                                <div class="flex flex-wrap gap-1 mt-2 ml-4.5">
+                                    <span v-for="r in s.reasons" :key="r"
+                                        :class="s.priority === 'high' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-amber-100 text-amber-700 border-amber-200'"
+                                        class="text-[10px] font-bold px-2 py-0.5 rounded-full border">{{ r }}</span>
+                                </div>
+                            </div>
+                            <button v-if="canManage" @click="createFromSuggestion(s); isSuggOpen = false"
+                                class="shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"
+                                :class="s.priority === 'high' ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-amber-500 text-white hover:bg-amber-600'">
+                                Lập kế hoạch
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </SlideOver>
+
     </PortalLayout>
 </template>
 
@@ -445,7 +478,8 @@ const props = defineProps({
     department: Object,
     isGlobalAdmin: Boolean,
     routePrefix: String,
-    portalType: String
+    portalType: String,
+    activityDepartments: Array,
 });
 
 const getRoutePrefix = () => props.routePrefix || 'portal.visitation';
@@ -456,13 +490,42 @@ const viewMode = ref('list');
 const filtersForm = ref({
     period: props.filters.period || '',
     reason: props.filters.reason || '',
+    filter_dept: props.filters.filter_dept || '',
 });
+
+// Suggestions slide-over state
+const isSuggOpen = ref(false);
+const suggDept = ref(props.filters.sugg_dept || '');
+const localSuggestions = ref(Array.isArray(props.suggestions) ? props.suggestions : Object.values(props.suggestions || {}));
+
+const suggCount = computed(() => localSuggestions.value.length);
+
+const fetchSuggestions = () => {
+    router.get(route(getRoutePrefix() + '.index'), {
+        ...filtersForm.value,
+        search: search.value,
+        sugg_dept: suggDept.value,
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+        onSuccess: () => {
+            localSuggestions.value = Array.isArray(props.suggestions) ? props.suggestions : Object.values(props.suggestions || {});
+        }
+    });
+};
+
+watch(() => props.suggestions, (val) => {
+    localSuggestions.value = Array.isArray(val) ? val : Object.values(val || {});
+}, { immediate: true });
 
 const updateFilters = () => {
     router.get(route(getRoutePrefix() + '.index'), { 
         search: search.value,
         period: filtersForm.value.period, 
-        reason: filtersForm.value.reason 
+        reason: filtersForm.value.reason,
+        filter_dept: filtersForm.value.filter_dept,
+        sugg_dept: suggDept.value,
     }, {
         preserveState: true,
         preserveScroll: true,
@@ -483,6 +546,7 @@ const clearFilters = () => {
     search.value = '';
     filtersForm.value.period = '';
     filtersForm.value.reason = '';
+    filtersForm.value.filter_dept = '';
     updateFilters();
 };
 

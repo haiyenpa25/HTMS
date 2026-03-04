@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="h-screen bg-gray-50 flex flex-col relative w-full overflow-hidden font-sans text-gray-900">
     <!-- Header: Portal Navigation and Admin Back -->
     <header class="bg-blue-600 text-white shadow-md relative z-20 shrink-0">
@@ -66,8 +66,25 @@
                <Link :href="route('ministry.members.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('ministry.members.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                    Thành viên
                </Link>
-               <Link v-if="department.code === 'BTV' || isGlobalAdmin" :href="route('ministry.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('ministry.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="department?.code === 'BTV' || isGlobalAdmin" :href="route('ministry.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('ministry.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                    Thăm viếng
+               </Link>
+           </template>
+
+           <!-- Education (CĐGD) Portal Links -->
+           <template v-else-if="portalType === 'education'">
+               <Link :href="route('ministry.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2 border-transparent text-blue-200 hover:text-white flex items-center gap-1">
+                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                   Mục Vụ
+               </Link>
+               <Link :href="route('education.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('education.index') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                   Tổng quan
+               </Link>
+               <Link :href="route('education.classes')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('education.classes') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                   Quản lý lớp
+               </Link>
+               <Link :href="route('education.report')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('education.report') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                   Báo cáo
                </Link>
            </template>
 
