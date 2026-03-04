@@ -100,6 +100,35 @@ Route::middleware('auth')->group(function () {
         Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('ministry.members.bulk-assign');
     });
 
+    // Education (CĐGD) Portal — Portal riêng của Ban Cơ Đốc Giáo Dục
+    Route::prefix('education')->middleware(\App\Http\Middleware\EnsureMinistryContext::class)->group(function () {
+        // Portal Dashboard — Tính năng tổng quan
+        Route::get('/', [\App\Http\Controllers\Portal\EducationController::class, 'dashboard'])->name('education.index');
+        // Class Management — Danh sách và quản lý lớp
+        Route::get('/classes', [\App\Http\Controllers\Portal\EducationController::class, 'index'])->name('education.classes');
+        // Class CRUD
+        Route::post('/', [\App\Http\Controllers\Portal\EducationController::class, 'store'])->name('education.store');
+        Route::put('/{eduClass}', [\App\Http\Controllers\Portal\EducationController::class, 'update'])->name('education.update');
+        // Class Members
+        Route::post('/{eduClass}/members', [\App\Http\Controllers\Portal\EducationController::class, 'storeMember'])->name('education.members.store');
+        Route::delete('/{eduClass}/members/{member}', [\App\Http\Controllers\Portal\EducationController::class, 'destroyMember'])->name('education.members.destroy');
+        // Session Management — Quản lý buổi học (list, create, delete)
+        Route::get('/{eduClass}/sessions', [\App\Http\Controllers\Portal\EducationController::class, 'sessions'])->name('education.sessions');
+        Route::post('/{eduClass}/sessions', [\App\Http\Controllers\Portal\EducationController::class, 'createSession'])->name('education.sessions.store');
+        Route::delete('/{eduClass}/sessions/{eduSession}', [\App\Http\Controllers\Portal\EducationController::class, 'destroySession'])->name('education.sessions.destroy');
+        Route::delete('/{eduClass}/sessions', [\App\Http\Controllers\Portal\EducationController::class, 'bulkDestroySession'])->name('education.sessions.bulk-destroy');
+        // Session Detail / Focus Mode — Điểm danh + Tiền dâng (theo session ID)
+        Route::get('/{eduClass}/session/{eduSession}', [\App\Http\Controllers\Portal\EducationController::class, 'sessionById'])->name('education.session.view');
+        Route::put('/{eduClass}/session/{eduSession}', [\App\Http\Controllers\Portal\EducationController::class, 'updateSession'])->name('education.session.update');
+        Route::post('/{eduClass}/session/{eduSession}/attendance', [\App\Http\Controllers\Portal\EducationController::class, 'saveAttendance'])->name('education.attendance.save');
+        Route::post('/{eduClass}/session/{eduSession}/offering', [\App\Http\Controllers\Portal\EducationController::class, 'storeOffering'])->name('education.offering.store');
+        Route::delete('/{eduClass}/session/{eduSession}/offering/{transaction}', [\App\Http\Controllers\Portal\EducationController::class, 'destroyOffering'])->name('education.offering.destroy');
+        // Monthly Report
+        Route::get('/report', [\App\Http\Controllers\Portal\EducationController::class, 'report'])->name('education.report');
+        Route::post('/report/save', [\App\Http\Controllers\Portal\EducationController::class, 'saveReport'])->name('education.report.save');
+        Route::post('/report/{eduReport}/approve', [\App\Http\Controllers\Portal\EducationController::class, 'approveReport'])->name('education.report.approve');
+    });
+
     // Finance Portal
     Route::prefix('finance-portal')->middleware(\App\Http\Middleware\EnsureFinanceContext::class)->group(function () {
         Route::get('/', [\App\Http\Controllers\Portal\FinancePortalController::class, 'index'])->name('finance.index');

@@ -49,8 +49,13 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
             ],
             'pending_approvals_count' => $user ? \App\Models\ApprovalRequest::where('status', 'pending')->count() : 0,
+            'pending_reports_count'   => $user ? (
+                \App\Models\DepartmentReport::where('status', 'submitted')->count() +
+                \App\Models\EduReport::where('status', 'submitted')->count()
+            ) : 0,
             'flash' => [
-                'message' => fn () => $request->session()->get('message')
+                'message' => fn () => $request->session()->get('message'),
+                'success' => fn () => $request->session()->get('success'),
             ],
         ];
     }
