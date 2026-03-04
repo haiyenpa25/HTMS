@@ -99,7 +99,7 @@ class ThanhTrangMemberSeeder extends Seeder
                 [
                     'date_of_birth' => $item['dob'],
                     'address' => $item['address'],
-                    'status' => 'active',
+                    'status' => 'Chính thức',
                     'member_type' => 'official'
                 ]
             );

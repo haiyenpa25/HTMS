@@ -243,4 +243,30 @@ class MemberController extends Controller
 
         return redirect()->back()->with('message', 'Cập nhật tín hữu thành công!');
     }
+
+    /**
+     * Remove the specified member from storage (soft delete).
+     */
+    public function destroy(Member $member)
+    {
+        $member->delete();
+        return redirect()->route('members.index')->with('message', 'Đã xoá tín hữu thành công!');
+    }
+
+    /**
+     * Update status (member type) for one or multiple members.
+     */
+    public function updateStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'member_ids' => 'required|array',
+            'member_ids.*' => 'exists:members,id',
+            'status' => 'required|string|in:Chính thức,Chưa chính thức,Thân hữu,Tín hữu HT khác',
+        ]);
+
+        Member::whereIn('id', $validated['member_ids'])
+            ->update(['status' => $validated['status']]);
+
+        return redirect()->back()->with('message', 'Đã cập nhật loại tín hữu thành công!');
+    }
 }

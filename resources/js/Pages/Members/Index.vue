@@ -6,7 +6,7 @@
 
     <div class="py-4 space-y-6">
       <!-- Toolbar (Search, Filters, View Switcher) -->
-      <DataToolbar 
+      <DataToolbar
         v-model:search="search"
         v-model:viewMode="viewMode"
         storageKey="members_view_mode"
@@ -33,17 +33,18 @@
             <button @click="resetFilters" class="text-xs font-bold text-red-600 hover:text-red-800 hover:underline">Xóa tất cả lọc</button>
          </div>
          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <!-- Tình trạng -->
+            <!-- Loại tín hữu -->
             <div class="space-y-1">
                <label class="text-xs font-bold text-gray-500">Phân loại</label>
                <select v-model="filterForm.status" class="w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50">
                   <option value="">Tất cả</option>
-                  <option value="Chính thức">Tín hữu Chính thức</option>
+                  <option value="Chính thức">Chính thức</option>
+                  <option value="Chưa chính thức">Chưa chính thức</option>
                   <option value="Thân hữu">Thân hữu</option>
-                  <option value="Chưa rõ">Khác</option>
+                  <option value="Tín hữu HT khác">Tín hữu HT khác</option>
                </select>
             </div>
-            
+
             <!-- Hôn nhân -->
             <div class="space-y-1">
                <label class="text-xs font-bold text-gray-500">Hôn nhân</label>
@@ -55,7 +56,7 @@
                   <option value="Khác">Khác</option>
                </select>
             </div>
-            
+
             <!-- Báp-têm -->
             <div class="space-y-1">
                <label class="text-xs font-bold text-gray-500">Báp-têm</label>
@@ -65,7 +66,7 @@
                   <option value="false">Chưa nhận</option>
                </select>
             </div>
-            
+
             <!-- Thâm niên sinh hoạt -->
             <div class="space-y-1">
                <label class="text-xs font-bold text-gray-500">Thâm niên sinh hoạt</label>
@@ -92,7 +93,6 @@
          </div>
       </div>
 
-      <!-- Desktop Table -->
       <!-- Desktop Table View -->
       <div v-show="viewMode === 'list' && windowWidth >= 768" class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden animate-in fade-in duration-300">
         <table class="min-w-full divide-y divide-gray-200">
@@ -100,7 +100,7 @@
             <tr>
               <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Hồ sơ Cầm tay</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Liên hệ</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Gia thế & Tâm linh</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Gia thế &amp; Tâm linh</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Trực thuộc</th>
               <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Thao tác</th>
             </tr>
@@ -122,12 +122,14 @@
                     <div class="text-[11px] text-gray-500 font-mono mt-0.5">{{ member.member_code }}</div>
                     <div class="mt-1 flex items-center space-x-2">
                        <span v-if="member.status === 'Chính thức'" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">Chính thức</span>
-                       <span v-else class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-800">{{ member.status || 'Thân hữu' }}</span>
+                       <span v-else-if="member.status === 'Chưa chính thức'" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-700">Chưa chính thức</span>
+                       <span v-else-if="member.status === 'Thân hữu'" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-700">Thân hữu</span>
+                       <span v-else class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600">{{ member.status || 'Tín hữu HT khác' }}</span>
                     </div>
                   </div>
                 </div>
               </td>
-              
+
               <!-- Cột 2: Liên hệ -->
               <td class="px-6 py-4 whitespace-nowrap">
                  <div class="flex flex-col space-y-1">
@@ -141,7 +143,7 @@
                     </div>
                  </div>
               </td>
-              
+
               <!-- Cột 3: Tình trạng -->
               <td class="px-6 py-4 whitespace-nowrap">
                  <div class="flex flex-col space-y-1">
@@ -169,10 +171,30 @@
                  </div>
               </td>
 
+              <!-- Cột 5: Thao tác -->
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <Link :href="route('members.show', member.id)" class="text-gray-600 bg-gray-100 hover:bg-gray-200 hover:text-black px-4 py-2 rounded-lg font-bold shadow-sm transition-colors cursor-pointer inline-flex items-center">
-                  Hồ sơ
-                </Link>
+                 <div class="flex items-center justify-end gap-2">
+                    <!-- Dropdown loại tín hữu nhanh -->
+                    <select
+                       :value="member.status"
+                       @change="quickUpdateStatus(member.id, $event.target.value)"
+                       class="text-xs border border-gray-200 rounded-lg py-1.5 px-2 bg-gray-50 hover:bg-white focus:ring-1 focus:ring-blue-400 transition-colors"
+                       title="Thay đổi loại tín hữu"
+                    >
+                       <option value="Chính thức">Chính thức</option>
+                       <option value="Chưa chính thức">Chưa chính thức</option>
+                       <option value="Thân hữu">Thân hữu</option>
+                       <option value="Tín hữu HT khác">HT khác</option>
+                    </select>
+                    <Link :href="route('members.show', member.id)" class="text-gray-600 bg-gray-100 hover:bg-gray-200 hover:text-black px-3 py-1.5 rounded-lg font-bold shadow-sm transition-colors cursor-pointer inline-flex items-center text-xs">
+                      Hồ sơ
+                    </Link>
+                    <button
+                       @click="confirmDelete(member)"
+                       class="text-red-500 bg-red-50 hover:bg-red-100 hover:text-red-700 px-3 py-1.5 rounded-lg font-bold shadow-sm transition-colors cursor-pointer inline-flex items-center text-xs"
+                       title="Xoá tín hữu"
+                    >Xoá</button>
+                 </div>
               </td>
             </tr>
             <tr v-if="members.data.length === 0">
@@ -184,11 +206,10 @@
         </table>
       </div>
 
-      <!-- Mobile List -->
       <!-- Grid View & Mobile List -->
       <div v-show="viewMode === 'grid' || windowWidth < 768" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in duration-300">
         <div v-for="member in members.data" :key="member.id" class="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-md hover:border-blue-100 transition-all flex flex-col relative group">
-          
+
           <!-- Header (Avatar + Name) -->
           <div class="flex items-start space-x-3 mb-4">
              <div class="shrink-0 h-10 w-10 bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-700 rounded-xl flex items-center justify-center font-black shadow-sm ring-1 ring-black/5">
@@ -202,9 +223,17 @@
                 </h3>
                 <p class="text-[11px] text-gray-400 font-mono">{{ member.member_code }}</p>
              </div>
-             
+
              <!-- Status Dot -->
-             <div class="shrink-0 w-2.5 h-2.5 rounded-full mt-1" :class="member.status === 'Chính thức' ? 'bg-green-500' : 'bg-yellow-400'" :title="member.status"></div>
+             <div class="shrink-0 w-2.5 h-2.5 rounded-full mt-1"
+               :class="{
+                 'bg-green-500': member.status === 'Chính thức',
+                 'bg-yellow-400': member.status === 'Chưa chính thức',
+                 'bg-orange-400': member.status === 'Thân hữu',
+                 'bg-gray-400': !member.status || member.status === 'Tín hữu HT khác'
+               }"
+               :title="member.status"
+             ></div>
           </div>
 
           <!-- Dữ liệu rút gọn -->
@@ -213,28 +242,33 @@
                 <svg class="w-3.5 h-3.5 mr-2 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                 <span class="truncate">{{ member.phone || 'Chưa cập nhật' }}</span>
              </div>
-             
-             <!-- Badges info -->
-             <div class="flex flex-wrap gap-1.5 pt-1">
-                <span v-if="member.is_baptized" class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-100">
-                   Báp-têm
-                </span>
-                <span v-if="member.marital_status" class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-100">
-                   {{ member.marital_status }}
-                </span>
-             </div>
+
+             <!-- Dropdown loại nhanh mobile -->
+             <select
+                :value="member.status"
+                @change="quickUpdateStatus(member.id, $event.target.value)"
+                class="w-full text-xs border border-gray-200 rounded-lg py-1.5 px-2 bg-gray-50 focus:ring-1 focus:ring-blue-400"
+             >
+                <option value="Chính thức">Chính thức</option>
+                <option value="Chưa chính thức">Chưa chính thức</option>
+                <option value="Thân hữu">Thân hữu</option>
+                <option value="Tín hữu HT khác">Tín hữu HT khác</option>
+             </select>
           </div>
-          
-          <div class="pt-3 border-t border-gray-50 flex items-center justify-between">
-             <span class="text-[10px] text-gray-400 font-medium italic truncate max-w-[120px]">
+
+          <div class="pt-3 border-t border-gray-50 flex items-center justify-between gap-2">
+             <span class="text-[10px] text-gray-400 font-medium italic truncate max-w-[100px]">
                 {{ member.departments?.[0]?.name || 'Không có ban' }}
              </span>
-             <Link :href="route('members.show', member.id)" class="text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 hover:text-black px-3 py-1.5 rounded-lg transition-colors inline-block">
-                Hồ sơ &rarr;
-             </Link>
+             <div class="flex gap-1.5 shrink-0">
+                <Link :href="route('members.show', member.id)" class="text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 hover:text-black px-3 py-1.5 rounded-lg transition-colors inline-block">
+                   Hồ sơ
+                </Link>
+                <button @click="confirmDelete(member)" class="text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 px-2 py-1.5 rounded-lg transition-colors">Xoá</button>
+             </div>
           </div>
         </div>
-        
+
         <div v-if="members.data.length === 0" class="col-span-full py-12 text-center text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
            Không tìm thấy tín hữu nào phù hợp.
         </div>
@@ -262,14 +296,32 @@
     </div>
 
     <!-- Create Member Slide-Over -->
-    <SlideOver 
-      v-model="isSlideOverOpen" 
-      title="Thêm Tín hữu Mới" 
+    <SlideOver
+      v-model="isSlideOverOpen"
+      title="Thêm Tín hữu Mới"
       description="Nhập thông tin cơ bản để tạo hồ sơ quản lý tín hữu mới."
       size="md"
     >
       <CreateMemberForm @success="isSlideOverOpen = false" @cancel="isSlideOverOpen = false" />
     </SlideOver>
+
+    <!-- Confirm Delete Dialog -->
+    <div v-if="deletingMember" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div class="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4">
+        <h3 class="text-lg font-black text-gray-900 mb-2">Xác nhận xoá tín hữu</h3>
+        <p class="text-sm text-gray-600 mb-5">Bạn có chắc muốn xoá <strong>{{ deletingMember.full_name }}</strong>? Thao tác này không thể hoàn tác.</p>
+        <div class="flex justify-end gap-3">
+          <button @click="deletingMember = null" class="px-4 py-2 text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Huỷ</button>
+          <Link
+            :href="route('members.destroy', deletingMember.id)"
+            method="delete"
+            as="button"
+            class="px-4 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+            @click="deletingMember = null"
+          >Xoá</Link>
+        </div>
+      </div>
+    </div>
 
   </component>
 </template>
@@ -292,9 +344,10 @@ const props = defineProps({
 });
 
 const search = ref(props.filters.search || '');
-const viewMode = ref('list'); // Sẽ tự đồng bộ từ DataToolbar
+const viewMode = ref('list');
 const showFilters = ref(false);
 const isSlideOverOpen = ref(false);
+const deletingMember = ref(null);
 
 const filterForm = ref({
    status: props.filters.status || '',
@@ -314,6 +367,17 @@ const resetFilters = () => {
    filterForm.value.is_baptized = '';
    filterForm.value.join_time = '';
    filterForm.value.age_from = '';
+};
+
+const confirmDelete = (member) => {
+   deletingMember.value = member;
+};
+
+const quickUpdateStatus = (memberId, newStatus) => {
+   router.patch(route('members.update-status'), {
+      member_ids: [memberId],
+      status: newStatus,
+   }, { preserveState: true, preserveScroll: true });
 };
 
 // Debounce search and filters
