@@ -8,8 +8,14 @@ class DeaconMonthlyReport extends Model
 {
     protected $fillable = [
         'report_month', 'report_year',
+        // YouTube stats
         'yt_subscribers', 'yt_new_subscribers', 'yt_views', 'yt_watch_hours',
-        'announcements', 'summary_notes', 'status', 'submitted_by',
+        // Text fields (legacy names preserved for DB compat)
+        'announcements', 'summary_notes',
+        // New fields (reporter, evaluation, plans)
+        'reporter_name', 'evaluation', 'proposals', 'notes',
+        // Meta
+        'status', 'submitted_by',
     ];
 
     public function incidents()

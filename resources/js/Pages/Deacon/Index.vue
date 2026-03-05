@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PortalLayout 
       :department="department" 
       :available-departments="availableDepartments"
@@ -34,7 +34,7 @@
               </Link>
 
               <!-- Card: Reports -->
-              <Link :href="route('portal.reports.index')" class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-purple-200 transition-all active:scale-95 duration-200 relative">
+              <Link :href="route('deacon.report')" class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-purple-200 transition-all active:scale-95 duration-200 relative">
                   <!-- Notification Badge -->
                   <div v-if="pendingReports.length > 0" class="absolute top-4 right-4 bg-red-500 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center shadow-md animate-pulse">
                       {{ pendingReports.length }}
@@ -144,7 +144,7 @@ const props = defineProps({
   pendingTx:            { type: Number, default: 0 },
 });
 
-// Chú ý: Ở PortalLayout sẽ hiện SlideOver nếu isSwitchOpen = true
+// Chú ý: ở PortalLayout sẽ hiện SlideOver nếu isSwitchOpen = true
 const isSwitchOpen = ref(false);
 
 const switchDept = (roleId) => {
