@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('meetings', function (Blueprint $table) {
-            $table->boolean('attendance_marked')->default(false)->after('notes')->comment('Đã ghi nhận điểm danh bởi Thư Ký');
+            $table->boolean('attendance_marked')->default(false)->comment('Đã ghi nhận điểm danh bởi Thư Ký');
         });
     }
 
