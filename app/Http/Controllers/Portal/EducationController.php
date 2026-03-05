@@ -160,6 +160,10 @@ class EducationController extends Controller
                 // Tổng tiền thu
                 $totalIncome = \App\Models\EduClassTransaction::where('edu_session_id', $s->id)
                     ->where('type', 'income')->sum('amount');
+                // Điểm trung bình (bible_quiz)
+                $scores = EduSessionRecord::where('edu_session_id', $s->id)
+                    ->whereNotNull('quiz_score')->pluck('quiz_score');
+                $avgScore = $scores->count() > 0 ? round($scores->average(), 1) : null;
 
                 return [
                     'id'              => $s->id,
@@ -168,10 +172,13 @@ class EducationController extends Controller
                     'lesson_series'   => $s->lesson_series,
                     'topic'           => $s->topic,
                     'scripture'       => $s->scripture,
+                    'book'            => $s->book,
+                    'total_questions' => $s->total_questions,
                     'attendance_mode' => $s->attendance_mode ?? 'checkin',
                     'total_present'   => $s->total_present,
                     'present_count'   => $s->attendance_mode === 'quick' ? ($s->total_present ?? 0) : $presentCount,
                     'total_income'    => $totalIncome,
+                    'avg_score'       => $avgScore,
                 ];
             });
 

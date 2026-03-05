@@ -76,22 +76,31 @@
 
                 <!-- Tabs -->
                 <div class="max-w-5xl mx-auto px-4 flex border-t border-white/10">
-                    <button @click="activeTab = 'attendance'" :class="activeTab === 'attendance' ? 'border-b-2 border-white text-white' : 'text-indigo-300 hover:text-white'" class="px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-                        Điểm Danh
-                        <span class="bg-white/20 text-[10px] font-black px-1.5 py-0.5 rounded-full">{{ presentCount }}/{{ localRecords.length }}</span>
-                    </button>
-                    <!-- Tab Chấm Điểm — chỉ cho bible_quiz -->
-                    <button v-if="eduClass.class_type === 'bible_quiz'" @click="activeTab = 'scores'" :class="activeTab === 'scores' ? 'border-b-2 border-white text-white' : 'text-indigo-300 hover:text-white'" class="px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                        Chấm Điểm
-                        <span v-if="scoredCount > 0" class="bg-amber-400/30 text-amber-100 text-[10px] font-black px-1.5 py-0.5 rounded-full">{{ scoredCount }}/{{ localRecords.length }}</span>
-                    </button>
-                    <button v-if="eduClass.class_type !== 'gospel' && eduClass.class_type !== 'bible_quiz'" @click="activeTab = 'finance'" :class="activeTab === 'finance' ? 'border-b-2 border-white text-white' : 'text-indigo-300 hover:text-white'" class="px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                        Tiền Dâng
-                        <span v-if="totalSessionIncome > 0" class="bg-green-400/30 text-green-100 text-[10px] font-black px-1.5 py-0.5 rounded-full">{{ formatMoney(totalSessionIncome) }}</span>
-                    </button>
+                    <!-- bible_quiz: chỉ hiện 2 tab riêng -->
+                    <template v-if="eduClass.class_type === 'bible_quiz'">
+                        <button @click="activeTab = 'scores'" :class="activeTab === 'scores' ? 'border-b-2 border-white text-white' : 'text-indigo-300 hover:text-white'" class="px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            Chấm Điểm
+                            <span v-if="scoredCount > 0" class="bg-amber-400/30 text-amber-100 text-[10px] font-black px-1.5 py-0.5 rounded-full">{{ scoredCount }}/{{ localRecords.length }}</span>
+                        </button>
+                        <button @click="activeTab = 'ranking'" :class="activeTab === 'ranking' ? 'border-b-2 border-white text-white' : 'text-indigo-300 hover:text-white'" class="px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                            Xếp Hạng
+                        </button>
+                    </template>
+                    <!-- Các loại lớp khác -->
+                    <template v-else>
+                        <button @click="activeTab = 'attendance'" :class="activeTab === 'attendance' ? 'border-b-2 border-white text-white' : 'text-indigo-300 hover:text-white'" class="px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                            Điểm Danh
+                            <span class="bg-white/20 text-[10px] font-black px-1.5 py-0.5 rounded-full">{{ presentCount }}/{{ localRecords.length }}</span>
+                        </button>
+                        <button v-if="eduClass.class_type !== 'gospel'" @click="activeTab = 'finance'" :class="activeTab === 'finance' ? 'border-b-2 border-white text-white' : 'text-indigo-300 hover:text-white'" class="px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                            Tiền Dâng
+                            <span v-if="totalSessionIncome > 0" class="bg-green-400/30 text-green-100 text-[10px] font-black px-1.5 py-0.5 rounded-full">{{ formatMoney(totalSessionIncome) }}</span>
+                        </button>
+                    </template>
                 </div>
             </div>
 
@@ -248,132 +257,199 @@
                 </div>
 
 
-                <!-- ── TAB: CHẤM ĐIỂM (chỉ bible_quiz) ───────────────────── -->
-                <div v-if="activeTab === 'scores' && eduClass.class_type === 'bible_quiz'" class="space-y-5">
+                <!-- ── TAB: CHẤM ĐIỂM (bible_quiz) ────────────────────────────── -->
+                <div v-if="activeTab === 'scores' && eduClass.class_type === 'bible_quiz'" class="space-y-4">
 
-                    <!-- Thông tin bài thi -->
-                    <div class="bg-white rounded-2xl border border-amber-100 shadow-sm overflow-hidden">
-                        <div class="px-5 py-3 bg-amber-50 border-b border-amber-100 flex items-center justify-between">
-                            <div>
-                                <h3 class="text-sm font-black text-amber-900">📋 Thông Tin Bài Kiểm Tra</h3>
-                                <p class="text-xs text-amber-600 mt-0.5">
-                                    <span v-if="session.book">Sách: <strong>{{ session.book }}</strong> · </span>
-                                    <span v-if="session.total_questions">Số câu: <strong>{{ session.total_questions }}</strong> · </span>
-                                    <span v-if="session.grader_name">Chấm: <strong>{{ session.grader_name }}</strong></span>
-                                    <span v-if="!session.book && !session.total_questions" class="text-amber-400">Chưa nhập thông tin bài thi</span>
-                                </p>
+                    <!-- Header thông tin bài thi -->
+                    <div class="bg-amber-50 rounded-2xl border border-amber-100 px-5 py-3 flex items-center justify-between">
+                        <div>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <span v-if="session.book" class="bg-amber-200 text-amber-900 text-xs font-black px-2.5 py-0.5 rounded-full">Sách: {{ session.book }}</span>
+                                <span v-if="session.total_questions" class="bg-indigo-100 text-indigo-800 text-xs font-black px-2.5 py-0.5 rounded-full">ℓ {{ session.total_questions }} câu</span>
+                                <span v-if="session.grader_name" class="bg-gray-100 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded-full">👤 {{ session.grader_name }}</span>
+                                <span v-if="!session.book && !session.total_questions" class="text-amber-600 text-xs italic">Chưa nhập thông tin bài thi</span>
                             </div>
-                            <button v-if="canMarkAttendance" @click="isQuizInfoOpen = true"
-                                class="text-xs font-bold text-amber-700 px-3 py-1.5 bg-amber-100 rounded-lg hover:bg-amber-200 transition-colors">
-                                ✏️ Cập nhật
-                            </button>
+                            <div class="flex items-center gap-4 mt-1.5 text-xs text-gray-500">
+                                <span class="text-green-600 font-bold">✔ {{ scoredCount }}/{{ localRecords.length }} đã chấm</span>
+                                <span v-if="avgScore !== '—'" class="text-amber-700 font-bold">ĐTB: {{ avgScore }}/{{ session.total_questions || 100 }}</span>
+                            </div>
                         </div>
-                        <!-- Ảnh bài thi -->
-                        <div v-if="session.photo_path" class="p-4">
-                            <p class="text-xs font-bold text-gray-500 mb-2">📸 Ảnh bài kiểm tra:</p>
-                            <a :href="session.photo_path" target="_blank">
-                                <img :src="session.photo_path" class="max-h-56 rounded-xl border border-gray-200 object-contain hover:opacity-90 transition-opacity" alt="Ảnh bài KT">
-                            </a>
-                        </div>
+                        <button v-if="canMarkAttendance" @click="isQuizInfoOpen = true"
+                            class="shrink-0 text-xs font-bold text-amber-700 px-3 py-1.5 bg-amber-100 hover:bg-amber-200 rounded-xl transition-colors">
+                            ✏️ Thông tin
+                        </button>
                     </div>
 
-                    <!-- Bảng nhập điểm -->
+                    <!-- Ảnh bài thi -->
+                    <div v-if="session.photo_path" class="bg-white rounded-xl border border-gray-100 p-3">
+                        <a :href="session.photo_path" target="_blank">
+                            <img :src="session.photo_path" class="max-h-48 mx-auto rounded-xl border border-gray-200 object-contain" alt="Ảnh bài KT">
+                        </a>
+                        <p class="text-center text-xs text-gray-400 mt-1">📸 Nhấn để xem to</p>
+                    </div>
+
+                    <!-- Danh sách học viên — click để nhập điểm -->
                     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                        <div class="px-5 py-3 bg-indigo-900 flex items-center justify-between">
-                            <h3 class="text-sm font-black text-white">✏️ Nhập Điểm Học Viên</h3>
-                            <div class="flex items-center gap-3 text-xs text-indigo-200">
-                                <span>Điểm tối đa: <strong class="text-white">{{ session.total_questions || 100 }}</strong></span>
-                                <span>Có mặt: <strong class="text-green-300">{{ presentCount }}</strong>/{{ localRecords.length }}</span>
+                        <div class="px-5 py-3 bg-indigo-900 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span class="text-sm font-black text-white">Chấm Điểm Học Viên</span>
+                            <span class="text-xs text-indigo-300 ml-auto">Nhấn tên để nhập điểm</span>
+                        </div>
+
+                        <div v-if="localRecords.length === 0" class="py-10 text-center text-gray-400 text-sm">
+                            Lớp chưa có học viên.
+                        </div>
+
+                        <div v-else class="divide-y divide-gray-100">
+                            <div v-for="(rec, idx) in localRecords" :key="rec.member_id">
+                                <!-- Row: click để expand -->
+                                <div @click="canMarkAttendance && toggleExpand(rec.member_id)"
+                                    class="flex items-center gap-3 px-4 py-3 transition-colors"
+                                    :class="[
+                                        expandedMember === rec.member_id ? 'bg-amber-50' : 'hover:bg-gray-50/60',
+                                        canMarkAttendance ? 'cursor-pointer' : ''
+                                    ]">
+                                    <!-- Avatar / rank badge -->
+                                    <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-black shrink-0"
+                                        :class="rec.quiz_score !== null && rec.quiz_score !== undefined ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'">
+                                        {{ rec.full_name?.charAt(0) }}
+                                    </div>
+                                    <!-- Name -->
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-bold text-sm text-gray-900">{{ rec.full_name }}</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">
+                                            <span v-if="rec.quiz_score !== null && rec.quiz_score !== undefined" class="text-amber-700 font-bold">
+                                                Điểm: <span class="text-base">{{ rec.quiz_score }}</span>/{{ session.total_questions || 100 }}
+                                                <span class="text-gray-400 font-normal ml-1">({{ Math.round(rec.quiz_score / (session.total_questions || 100) * 100) }}%)</span>
+                                            </span>
+                                            <span v-else class="text-gray-300 italic">Chưa chấm</span>
+                                        </div>
+                                    </div>
+                                    <!-- Status badge -->
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        <span class="text-xs font-bold px-2 py-0.5 rounded-full"
+                                            :class="rec.quiz_score !== null && rec.quiz_score !== undefined ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'">
+                                            {{ rec.quiz_score !== null && rec.quiz_score !== undefined ? '✔ Đã chấm' : '◦ Chưa chấm' }}
+                                        </span>
+                                        <svg v-if="canMarkAttendance" class="w-4 h-4 text-gray-400 transition-transform"
+                                            :class="expandedMember === rec.member_id ? 'rotate-180' : ''"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                    </div>
+                                </div>
+
+                                <!-- Expanded: nhập điểm accordion -->
+                                <div v-if="expandedMember === rec.member_id && canMarkAttendance"
+                                    class="px-4 pb-4 bg-amber-50/60 border-t border-amber-100">
+                                    <div class="flex items-center gap-3 pt-3">
+                                        <div class="flex-1">
+                                            <label class="block text-xs font-black text-gray-600 mb-1 uppercase tracking-wider">Điểm số (tối đa {{ session.total_questions || 100 }})</label>
+                                            <div class="flex items-center gap-3">
+                                                <input v-model.number="rec.quiz_score"
+                                                    type="number" :min="0" :max="session.total_questions || 100"
+                                                    class="w-24 text-center text-xl font-black rounded-xl border-amber-300 focus:border-amber-500 focus:ring-amber-500 py-2 shadow-sm"
+                                                    placeholder="0"
+                                                    @keyup.enter="saveAttendanceAndClose">
+                                                <span class="text-sm text-gray-400">/ {{ session.total_questions || 100 }}</span>
+                                                <span v-if="rec.quiz_score !== null && rec.quiz_score !== undefined"
+                                                    class="text-lg font-black"
+                                                    :class="rec.quiz_score / (session.total_questions || 100) >= 0.8 ? 'text-green-600' : rec.quiz_score / (session.total_questions || 100) >= 0.5 ? 'text-amber-600' : 'text-red-600'">
+                                                    {{ Math.round(rec.quiz_score / (session.total_questions || 100) * 100) }}%
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-2 shrink-0">
+                                            <button @click="rec.quiz_score = null; rec.attendance = 'absent'; toggleExpand(rec.member_id)"
+                                                class="px-3 py-2 bg-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-gray-200 transition-colors">
+                                                Xóa
+                                            </button>
+                                            <button @click="saveAttendanceAndClose"
+                                                :disabled="attendanceLoading"
+                                                class="px-4 py-2 bg-amber-600 text-white text-xs font-black rounded-xl hover:bg-amber-700 transition-colors disabled:opacity-50">
+                                                {{ attendanceLoading ? '...' : 'Lưu' }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-2">ℹ nhập điểm và bấm Lưu — điểm số > 0 sẽ được ghi nhận là có mặt</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-100">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-2.5 text-left text-xs font-bold text-gray-600 w-8">#</th>
-                                        <th class="px-4 py-2.5 text-left text-xs font-bold text-gray-600">Học Viên</th>
-                                        <th class="px-4 py-2.5 text-center text-xs font-bold text-gray-600">Có mặt</th>
-                                        <th class="px-4 py-2.5 text-center text-xs font-bold text-gray-600 w-32">Điểm</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    <tr v-for="(rec, idx) in localRecords" :key="rec.member_id"
-                                        :class="rec.attendance === 'absent' ? 'opacity-50 bg-gray-50' : 'hover:bg-amber-50/40'">
-                                        <td class="px-4 py-2.5 text-xs text-gray-400">{{ idx + 1 }}</td>
-                                        <td class="px-4 py-2.5 text-sm font-bold text-gray-900">{{ rec.full_name }}</td>
-                                        <td class="px-4 py-2.5 text-center">
-                                            <span class="text-xs font-bold px-2 py-0.5 rounded-full"
-                                                :class="rec.attendance === 'present' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'">
-                                                {{ rec.attendance === 'present' ? '✓ Có mặt' : '✗ Vắng' }}
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-2.5 text-center">
-                                            <input v-if="rec.attendance === 'present' && canMarkAttendance"
-                                                v-model.number="rec.quiz_score"
-                                                type="number" :min="0" :max="session.total_questions || 100" step="1"
-                                                class="w-20 text-center rounded-lg border-amber-300 focus:border-amber-500 focus:ring-amber-500 text-sm font-black text-amber-800 py-1 shadow-sm"
-                                                placeholder="—">
-                                            <span v-else-if="rec.quiz_score !== null && rec.quiz_score !== undefined"
-                                                class="text-sm font-black text-amber-700 bg-amber-50 px-3 py-1 rounded-full">
-                                                {{ rec.quiz_score }}
-                                            </span>
-                                            <span v-else class="text-xs text-gray-300">—</span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- Save scores button -->
+
+                        <!-- Save all button -->
                         <div v-if="canMarkAttendance && localRecords.length > 0" class="px-5 py-4 bg-gray-50 border-t border-gray-100">
                             <button @click="saveAttendance" :disabled="attendanceLoading"
                                 class="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 text-white font-black rounded-xl hover:from-amber-700 hover:to-amber-600 transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
                                 <svg v-if="attendanceLoading" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                {{ attendanceLoading ? 'Đang lưu...' : '💾 Lưu Điểm' }}
+                                {{ attendanceLoading ? 'Đang lưu...' : '💾 Lưu Tất Cả Điểm' }}
                             </button>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Bảng xếp hạng -->
-                    <div v-if="ranking.length > 0" class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                        <div class="px-5 py-3 bg-green-900 flex items-center justify-between">
-                            <h3 class="text-sm font-black text-white">🏆 Xếp Hạng Điểm</h3>
-                            <span class="text-xs text-green-300">Điểm TB: <strong class="text-white">{{ avgScore }}</strong>/{{ session.total_questions || 100 }}</span>
+                <!-- ── TAB: XẼP HẠNG (bible_quiz) ───────────────────────── -->
+                <div v-if="activeTab === 'ranking' && eduClass.class_type === 'bible_quiz'" class="space-y-5">
+
+                    <!-- Stats summary -->
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm py-4 text-center">
+                            <div class="text-2xl font-black text-amber-600">{{ avgScore }}</div>
+                            <div class="text-[11px] text-gray-500 mt-1">Điểm TB bài này</div>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-100">
-                                <thead class="bg-green-50">
-                                    <tr>
-                                        <th class="px-4 py-2 text-center text-xs font-bold text-green-900 w-12">Hạng</th>
-                                        <th class="px-4 py-2 text-left text-xs font-bold text-green-900">Học Viên</th>
-                                        <th class="px-4 py-2 text-center text-xs font-bold text-green-900">Điểm</th>
-                                        <th class="px-4 py-2 text-center text-xs font-bold text-green-900">% Đạt</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    <tr v-for="(r, i) in ranking" :key="r.member_id"
-                                        :class="i === 0 ? 'bg-yellow-50' : i === 1 ? 'bg-gray-50' : i === 2 ? 'bg-orange-50/50' : ''">
-                                        <td class="px-4 py-2.5 text-center text-lg font-black">
-                                            {{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) }}
-                                        </td>
-                                        <td class="px-4 py-2.5 text-sm font-bold text-gray-900">{{ r.full_name }}</td>
-                                        <td class="px-4 py-2.5 text-center">
-                                            <span class="text-lg font-black" :class="r.score >= (session.total_questions || 100) * 0.8 ? 'text-green-700' : r.score >= (session.total_questions || 100) * 0.5 ? 'text-amber-700' : 'text-red-600'">
-                                                {{ r.score }}
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-2.5 text-center">
-                                            <div class="flex items-center justify-center gap-1.5">
-                                                <div class="w-20 bg-gray-200 rounded-full h-1.5">
-                                                    <div class="h-1.5 rounded-full transition-all"
-                                                        :style="`width: ${r.percent}%`"
-                                                        :class="r.percent >= 80 ? 'bg-green-500' : r.percent >= 50 ? 'bg-amber-500' : 'bg-red-500'"></div>
-                                                </div>
-                                                <span class="text-xs font-bold" :class="r.percent >= 80 ? 'text-green-700' : r.percent >= 50 ? 'text-amber-700' : 'text-red-600'">{{ r.percent }}%</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm py-4 text-center">
+                            <div class="text-2xl font-black text-green-600">{{ scoredCount }}</div>
+                            <div class="text-[11px] text-gray-500 mt-1">Đã nộp bài</div>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm py-4 text-center">
+                            <div class="text-2xl font-black text-red-500">{{ localRecords.length - scoredCount }}</div>
+                            <div class="text-[11px] text-gray-500 mt-1">Chưa nộp</div>
+                        </div>
+                    </div>
+
+                    <!-- Bảng xếp hạng bài này -->
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="px-5 py-3 bg-gradient-to-r from-amber-600 to-amber-500 flex items-center justify-between">
+                            <h3 class="text-sm font-black text-white">🏆 Xếp Hạng Bài Này</h3>
+                            <span class="text-xs text-amber-100">{{ session.total_questions || 100 }} câu</span>
+                        </div>
+                        <div v-if="ranking.length === 0" class="py-10 text-center text-gray-400 text-sm">
+                            Chưa có điểm nào được ghi nhận.
+                        </div>
+                        <div v-else class="divide-y divide-gray-100">
+                            <div v-for="(r, i) in ranking" :key="r.member_id"
+                                class="flex items-center gap-3 px-4 py-3"
+                                :class="i === 0 ? 'bg-yellow-50' : i === 1 ? 'bg-gray-50/80' : i === 2 ? 'bg-orange-50/50' : ''">
+                                <div class="w-9 text-center">
+                                    <span v-if="i < 3" class="text-xl">{{ i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉' }}</span>
+                                    <span v-else class="text-sm font-black text-gray-400">{{ i + 1 }}</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-bold text-sm text-gray-900">{{ r.full_name }}</div>
+                                    <div class="flex items-center gap-2 mt-0.5">
+                                        <div class="w-24 bg-gray-200 rounded-full h-1.5">
+                                            <div class="h-1.5 rounded-full transition-all"
+                                                :style="`width: ${r.percent}%`"
+                                                :class="r.percent >= 80 ? 'bg-green-500' : r.percent >= 50 ? 'bg-amber-500' : 'bg-red-500'"></div>
+                                        </div>
+                                        <span class="text-xs font-bold" :class="r.percent >= 80 ? 'text-green-600' : r.percent >= 50 ? 'text-amber-600' : 'text-red-500'">{{ r.percent }}%</span>
+                                    </div>
+                                </div>
+                                <div class="shrink-0 text-right">
+                                    <span class="text-xl font-black"
+                                        :class="r.percent >= 80 ? 'text-green-700' : r.percent >= 50 ? 'text-amber-700' : 'text-red-600'">
+                                        {{ r.score }}
+                                    </span>
+                                    <span class="text-xs text-gray-400">/{{ session.total_questions || 100 }}</span>
+                                </div>
+                            </div>
+                            <!-- Học viên chưa nộp -->
+                            <div v-for="rec in notSubmitted" :key="'ns-' + rec.member_id"
+                                class="flex items-center gap-3 px-4 py-3 opacity-50">
+                                <div class="w-9 text-center text-sm text-gray-400">—</div>
+                                <div class="flex-1">
+                                    <div class="font-bold text-sm text-gray-500">{{ rec.full_name }}</div>
+                                    <div class="text-xs text-gray-400">Chưa nộp bài</div>
+                                </div>
+                                <span class="text-sm font-black text-gray-300">0</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -566,11 +642,43 @@ const props = defineProps({
 });
 
 // ── State ────────────────────────────────────────────────────────
-const activeTab = ref('attendance');
+// bible_quiz mặc định tab 'scores', các loại khác 'attendance'
+const activeTab = ref(props.eduClass?.class_type === 'bible_quiz' ? 'scores' : 'attendance');
 const isSessionInfoOpen = ref(false);
 const isOfferingOpen = ref(false);
 const isQuizInfoOpen = ref(false);
 const attendanceLoading = ref(false);
+const expandedMember = ref(null);  // accordion for bible_quiz scoring
+
+const toggleExpand = (memberId) => {
+    expandedMember.value = expandedMember.value === memberId ? null : memberId;
+};
+
+// Sau khi lưu, tự đầu nhập có điểm → đánh dấu attendance='present'
+const saveAttendanceAndClose = () => {
+    // auto-mark as present if score > 0
+    localRecords.value.forEach(r => {
+        if (r.quiz_score !== null && r.quiz_score !== undefined && r.quiz_score >= 0) {
+            r.attendance = 'present';
+        }
+    });
+    attendanceLoading.value = true;
+    router.post(route('education.attendance.save', [props.eduClass.id, props.session.id]), {
+        mode: 'checkin',
+        records: localRecords.value.map(r => ({
+            member_id: r.member_id,
+            attendance: r.attendance,
+            memorized_verse: r.memorized_verse,
+            quiz_score: r.quiz_score ?? null,
+        }))
+    }, {
+        preserveScroll: true,
+        onFinish: () => {
+            attendanceLoading.value = false;
+            expandedMember.value = null;
+        },
+    });
+};
 
 // Quiz info state
 const quizBook     = ref(props.session?.book || '');
@@ -614,11 +722,11 @@ const absentCount   = computed(() => localRecords.value.filter(r => r.attendance
 const memorizedCount = computed(() => localRecords.value.filter(r => r.memorized_verse).length);
 const scoredCount   = computed(() => localRecords.value.filter(r => r.quiz_score !== null && r.quiz_score !== undefined).length);
 
-// Ranking: sort present students by quiz_score desc
+// Ranking: sort by quiz_score desc (all who have a score)
 const ranking = computed(() => {
     const maxScore = props.session?.total_questions || 100;
     return localRecords.value
-        .filter(r => r.attendance === 'present' && r.quiz_score !== null && r.quiz_score !== undefined)
+        .filter(r => r.quiz_score !== null && r.quiz_score !== undefined)
         .sort((a, b) => (b.quiz_score ?? 0) - (a.quiz_score ?? 0))
         .map(r => ({
             member_id: r.member_id,
@@ -627,6 +735,11 @@ const ranking = computed(() => {
             percent: Math.round((r.quiz_score / maxScore) * 100),
         }));
 });
+
+// Học viên chưa nộp bài (không có điểm)
+const notSubmitted = computed(() =>
+    localRecords.value.filter(r => r.quiz_score === null || r.quiz_score === undefined)
+);
 
 const avgScore = computed(() => {
     if (ranking.value.length === 0) return '—';

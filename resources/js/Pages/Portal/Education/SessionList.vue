@@ -10,7 +10,10 @@
                     </Link>
                     <div class="flex-1 min-w-0">
                         <h1 class="font-black text-lg leading-tight">{{ eduClass.name }}</h1>
-                        <p class="text-indigo-200 text-xs">Quản lý buổi học · {{ sessions.length }} buổi đã ghi nhận</p>
+                        <p class="text-indigo-200 text-xs">
+                            {{ eduClass.class_type === 'bible_quiz' ? 'Quản lý bài kiểm tra' : 'Quản lý buổi học' }}
+                            · {{ sessions.length }} {{ eduClass.class_type === 'bible_quiz' ? 'bài đã ghi nhận' : 'buổi đã ghi nhận' }}
+                        </p>
                     </div>
                     <!-- Bulk delete indicator -->
                     <div v-if="selectedIds.size > 0" class="flex items-center gap-2">
@@ -22,7 +25,7 @@
                             <button @click="bulkConfirming = true"
                                 class="flex items-center gap-1.5 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-black text-sm rounded-xl transition-colors shadow-sm">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                Xóa {{ selectedIds.size }} buổi
+                                Xóa {{ selectedIds.size }} {{ eduClass.class_type === 'bible_quiz' ? 'bài' : 'buổi' }}
                             </button>
                         </div>
                         <!-- Step 2: confirm panel -->
@@ -43,7 +46,7 @@
                     <button v-if="canManage" @click="showCreateForm = true"
                         class="flex items-center gap-2 px-4 py-2 bg-white text-indigo-700 font-black text-sm rounded-xl hover:bg-indigo-50 transition-colors shadow-sm shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        Tạo buổi học
+                        {{ eduClass.class_type === 'bible_quiz' ? '+ Thêm bài KT' : 'Tạo buổi học' }}
                     </button>
                 </div>
             </div>
@@ -71,8 +74,10 @@
                             <label for="select-all" class="text-xs font-bold text-gray-500 cursor-pointer select-none">Chọn tất cả</label>
                         </div>
                         <div class="flex-1 flex items-center justify-between">
-                            <h2 class="font-black text-gray-900 text-sm uppercase tracking-wider">Danh sách buổi học</h2>
-                            <span class="text-xs text-gray-400">Nhấn vào buổi để điểm danh</span>
+                            <h2 class="font-black text-gray-900 text-sm uppercase tracking-wider">
+                                {{ eduClass.class_type === 'bible_quiz' ? 'Danh sách bài học' : 'Danh sách buổi học' }}
+                            </h2>
+                            <span class="text-xs text-gray-400">{{ eduClass.class_type === 'bible_quiz' ? 'Nhấn để chấm điểm' : 'Nhấn vào buổi để điểm danh' }}</span>
                         </div>
                     </div>
 
@@ -123,7 +128,10 @@
                                     {{ s.topic || '(Chưa có tên bài)' }}
                                 </p>
                                 <div class="flex items-center gap-3 mt-0.5 text-xs text-gray-400">
-                                    <span class="text-green-600 font-bold">✔ {{ s.present_count }} có mặt</span>
+                                    <span class="text-green-600 font-bold">
+                                        {{ eduClass.class_type === 'bible_quiz' ? '✔ ' + s.present_count + ' làm bài' : '✔ ' + s.present_count + ' có mặt' }}
+                                    </span>
+                                    <span v-if="s.avg_score !== null && s.avg_score !== undefined" class="text-amber-600 font-bold">TB: {{ s.avg_score }}đ</span>
                                     <span v-if="s.total_income > 0" class="text-indigo-600 font-bold">{{ formatMoney(s.total_income) }}</span>
                                 </div>
                             </div>
@@ -132,7 +140,7 @@
                             <div class="flex items-center gap-2 shrink-0">
                                 <button @click="goToSession(s.id)"
                                     class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-colors">
-                                    Vào buổi
+                                    {{ eduClass.class_type === 'bible_quiz' ? 'Vào lớp' : 'Vào buổi' }}
                                 </button>
                                 <button v-if="canManage" @click="deleteSingle(s)"
                                     class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100" title="Xóa buổi này">
