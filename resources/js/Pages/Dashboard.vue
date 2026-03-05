@@ -148,22 +148,53 @@
               <thead class="bg-indigo-50">
                 <tr>
                   <th class="px-4 py-2 text-left text-xs font-bold text-indigo-900">Lớp</th>
-                  <th class="px-4 py-2 text-center text-xs font-bold text-indigo-900">Số buổi</th>
-                  <th class="px-4 py-2 text-center text-xs font-bold text-indigo-900">Tổng HD</th>
-                  <th class="px-4 py-2 text-left text-xs font-bold text-indigo-900 hidden md:table-cell">Buổi gần nhất</th>
+                  <!-- bible_quiz: Số bài | Số người tham gia | Điểm TB | Bài gần nhất -->
+                  <template v-if="key === 'bible_quiz'">
+                    <th class="px-4 py-2 text-center text-xs font-bold text-indigo-900">Số bài</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold text-indigo-900">Số người tham gia</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold text-indigo-900">Điểm Trung Bình</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold text-indigo-900 hidden md:table-cell">Bài gần nhất</th>
+                  </template>
+                  <!-- Các loại lớp khác: Số buổi | Tổng HD | Buổi gần nhất -->
+                  <template v-else>
+                    <th class="px-4 py-2 text-center text-xs font-bold text-indigo-900">Số buổi</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold text-indigo-900">Tổng HD</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold text-indigo-900 hidden md:table-cell">Buổi gần nhất</th>
+                  </template>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
                 <tr v-for="cls in cgdgGroup.classes" :key="cls.class_id" class="hover:bg-indigo-50/40">
                   <td class="px-4 py-2.5 text-xs font-bold text-gray-900">{{ cls.class_name }}</td>
-                  <td class="px-4 py-2.5 text-center text-sm text-gray-500">{{ cls.sessions.length }}</td>
-                  <td class="px-4 py-2.5 text-center text-sm font-black text-amber-700">{{ cls.total }}</td>
-                  <td class="px-4 py-2.5 text-xs text-gray-600 hidden md:table-cell">
-                    <span v-if="cls.sessions.length > 0">
-                      {{ cls.sessions[cls.sessions.length - 1].date }} — {{ cls.sessions[cls.sessions.length - 1].topic || '—' }}
-                    </span>
-                    <span v-else class="text-gray-300">—</span>
-                  </td>
+                  <!-- bible_quiz row -->
+                  <template v-if="key === 'bible_quiz'">
+                    <td class="px-4 py-2.5 text-center text-sm text-gray-500">{{ cls.sessions.length }}</td>
+                    <td class="px-4 py-2.5 text-center text-sm font-black text-indigo-700">{{ cls.scored_total ?? 0 }}</td>
+                    <td class="px-4 py-2.5 text-center text-sm font-black" :class="cls.avg_score_all ? 'text-emerald-700' : 'text-gray-300'">
+                      {{ cls.avg_score_all != null ? cls.avg_score_all + 'đ' : '—' }}
+                    </td>
+                    <td class="px-4 py-2.5 text-xs text-gray-600 hidden md:table-cell">
+                      <span v-if="cls.sessions.length > 0">
+                        {{ cls.sessions[cls.sessions.length - 1].date }}
+                        <span v-if="cls.sessions[cls.sessions.length - 1].avg_score != null" class="text-emerald-600 font-bold ml-1">
+                          · TB: {{ cls.sessions[cls.sessions.length - 1].avg_score }}đ
+                        </span>
+                        <span v-else class="text-gray-400 ml-1">· Chưa chấm</span>
+                      </span>
+                      <span v-else class="text-gray-300">—</span>
+                    </td>
+                  </template>
+                  <!-- Other class types row -->
+                  <template v-else>
+                    <td class="px-4 py-2.5 text-center text-sm text-gray-500">{{ cls.sessions.length }}</td>
+                    <td class="px-4 py-2.5 text-center text-sm font-black text-amber-700">{{ cls.total }}</td>
+                    <td class="px-4 py-2.5 text-xs text-gray-600 hidden md:table-cell">
+                      <span v-if="cls.sessions.length > 0">
+                        {{ cls.sessions[cls.sessions.length - 1].date }} — {{ cls.sessions[cls.sessions.length - 1].topic || '—' }}
+                      </span>
+                      <span v-else class="text-gray-300">—</span>
+                    </td>
+                  </template>
                 </tr>
               </tbody>
             </table>

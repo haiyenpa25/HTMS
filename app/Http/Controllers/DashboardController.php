@@ -121,18 +121,53 @@ class DashboardController extends Controller
                 }])
                 ->get();
 
-            $rows = $classes->map(function($cls) {
+        $rows = $classes->map(function($cls) use ($typeKey) {
                 $sessions = $cls->sessions;
-                return [
-                    'class_id'    => $cls->id,
-                    'class_name'  => $cls->name,
-                    'sessions'    => $sessions->map(fn($s) => [
+
+                // With eager-loaded EduSessionRecords for bible_quiz
+                $sessionRows = $sessions->map(function($s) use ($typeKey) {
+                    $row = [
                         'date'       => $s->session_date->format('d/m'),
                         'attendance' => $s->total_present ?? 0,
                         'topic'      => $s->topic ?? '',
-                    ])->values(),
+                    ];
+                    if ($typeKey === 'bible_quiz') {
+                        // Count scored (quiz_score NOT NULL) từ records
+                        $records = \App\Models\EduSessionRecord::where('edu_session_id', $s->id)
+                            ->whereNotNull('quiz_score')
+                            ->pluck('quiz_score');
+                        $row['scored_count'] = $records->count();
+                        $row['avg_score']    = $records->count() > 0 ? round($records->average(), 1) : null;
+                    }
+                    return $row;
+                })->values();
+
+                if ($typeKey === 'bible_quiz') {
+                    $allScores = $sessions->flatMap(function($s) {
+                        return \App\Models\EduSessionRecord::where('edu_session_id', $s->id)
+                            ->whereNotNull('quiz_score')
+                            ->pluck('quiz_score');
+                    });
+                    return [
+                        'class_id'     => $cls->id,
+                        'class_name'   => $cls->name,
+                        'sessions'     => $sessionRows,
+                        'total'        => $sessions->sum('total_present'),
+                        'scored_total' => $sessions->sum(function($s) {
+                            return \App\Models\EduSessionRecord::where('edu_session_id', $s->id)
+                                ->whereNotNull('quiz_score')->count();
+                        }),
+                        'avg_score_all'=> $allScores->count() > 0 ? round($allScores->average(), 1) : null,
+                        'chart_data'   => $sessionRows->pluck('scored_count')->values(),
+                        'chart_dates'  => $sessionRows->pluck('date')->values(),
+                    ];
+                }
+
+                return [
+                    'class_id'    => $cls->id,
+                    'class_name'  => $cls->name,
+                    'sessions'    => $sessionRows,
                     'total'       => $sessions->sum('total_present'),
-                    // For chart: weekly data
                     'chart_data'  => $sessions->map(fn($s) => $s->total_present ?? 0)->values(),
                     'chart_dates' => $sessions->map(fn($s) => $s->session_date->format('d/m'))->values(),
                 ];
