@@ -41,7 +41,7 @@
                Mục vụ
              </Link>
               <Link v-if="route().has('deacon.index')" :href="route('deacon.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('deacon.*') ? 'text-amber-700 bg-amber-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
-                Chap Su
+                Chấp sự
               </Link>
           </div>
         </div>

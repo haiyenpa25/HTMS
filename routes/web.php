@@ -149,6 +149,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'index'])->name('deacon.index');
         Route::post('/switch-role', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'switchRole'])->name('deacon.switch-role');
         Route::get('/attendance', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'attendance'])->name('deacon.attendance');
+        Route::get('/attendance/{meeting}', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'attendanceShow'])->name('deacon.attendance.show');
+        Route::post('/attendance/{meeting}', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'attendanceStore'])->name('deacon.attendance.store');
+        // Report
+        Route::get('/report', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'report'])->name('deacon.report');
+        Route::post('/report', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportSave'])->name('deacon.report.save');
+        // Incidents
+        Route::post('/report/incidents', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportIncidentStore'])->name('deacon.incident.store');
+        Route::put('/report/incidents/{incident}', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportIncidentUpdate'])->name('deacon.incident.update');
+        Route::delete('/report/incidents/{incident}', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportIncidentDestroy'])->name('deacon.incident.destroy');
     });
 
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');

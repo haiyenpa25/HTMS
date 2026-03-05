@@ -108,10 +108,10 @@
                 </Link>
                 <!-- Thư Ký Links -->
                 <template v-if="department?.id === 'secretary'">
-                    <Link :href="route('deacon.attendance')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('deacon.attendance') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                    <Link :href="route('deacon.attendance')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('deacon.attendance') || route().current('deacon.attendance.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                         Điểm danh
                     </Link>
-                    <Link :href="route('portal.reports.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.reports.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                    <Link :href="route('deacon.report')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('deacon.report') || route().current('deacon.report.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                         Báo cáo
                     </Link>
                 </template>
