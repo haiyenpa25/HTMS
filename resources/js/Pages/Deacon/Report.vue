@@ -291,7 +291,7 @@
     </div>
 
     <!-- ══ SLIDE-OVER: REPORT FORM ══ -->
-    <SlideOver :show="showReportForm" @close="showReportForm = false" title="Lập / Cập nhật Báo cáo">
+    <SlideOver v-model="showReportForm" title="Lập / Cập nhật Báo cáo">
       <div class="p-4 space-y-4">
         <div><label class="block text-xs font-bold text-gray-700 mb-1">Người báo cáo</label>
           <input v-model="reportForm.reporter_name" type="text" class="block w-full rounded-xl border-gray-300 shadow-sm text-sm" placeholder="CS. Nguyễn Văn A" /></div>
@@ -311,7 +311,7 @@
     </SlideOver>
 
     <!-- ══ SLIDE-OVER: INCIDENT FORM ══ -->
-    <SlideOver :show="showIncidentForm" @close="showIncidentForm = false" title="Ghi nhận Sự Cố">
+    <SlideOver v-model="showIncidentForm" title="Ghi nhận Sự Cố">
       <div class="p-4 space-y-4">
         <div><label class="block text-xs font-bold text-gray-700 mb-1">Tuần</label>
           <input v-model="incidentForm.week_label" type="text" class="block w-full rounded-xl border-gray-300 shadow-sm text-sm" placeholder="VD: Tuần 1 (01-07/01)" /></div>
@@ -337,7 +337,7 @@
     </SlideOver>
 
     <!-- Context Switcher -->
-    <SlideOver :show="isSwitchOpen" @close="isSwitchOpen = false" title="Chuyển đổi Vai Trò">
+    <SlideOver v-model="isSwitchOpen" title="Chuyển đổi Vai Trò">
       <div class="p-6 space-y-2">
         <div v-for="d in availableDepartments" :key="d.id" @click="switchDept(d.id)"
           class="p-4 rounded-xl border-2 cursor-pointer transition-all"
