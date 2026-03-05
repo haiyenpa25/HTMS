@@ -12,12 +12,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', function () {
-        if (!auth()->user()->hasRole(['Pastor', 'Super_Admin'])) {
-            return redirect()->route('portal.index');
-        }
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+    Route::get('/', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('api/members', [\App\Http\Controllers\MemberController::class, 'apiIndex'])->name('api.members.index');
     Route::resource('members', \App\Http\Controllers\MemberController::class)->except(['create', 'edit']);
