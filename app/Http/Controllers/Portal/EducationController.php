@@ -431,7 +431,7 @@ class EducationController extends Controller
             ->get()
             ->map(fn($cm) => ['id' => $cm->member_id, 'full_name' => $cm->member->full_name ?? '—']);
 
-        $eduSession->loadMissing('teacher:id,full_name');
+        $eduSession->loadMissing('teacher:id,full_name', 'grader:id,full_name');
 
         return Inertia::render('Portal/Education/Session', [
             'eduClass'          => [
@@ -440,18 +440,26 @@ class EducationController extends Controller
                 'class_type' => $eduClass->class_type ?? 'sunday_school',
             ],
             'session'           => [
-                'id'            => $eduSession->id,
-                'session_date'  => $eduSession->session_date->toDateString(),
-                'lesson_number' => $eduSession->lesson_number,
-                'lesson_series' => $eduSession->lesson_series,
-                'topic'         => $eduSession->topic,
-                'scripture'     => $eduSession->scripture,
-                'notes'         => $eduSession->notes,
-                'attendance_mode'=> $eduSession->attendance_mode ?? 'checkin',
-                'total_present' => $eduSession->total_present,
-                'total_absent'  => $eduSession->total_absent,
-                'teacher_id'    => $eduSession->teacher_id,
-                'teacher_name'  => $eduSession->teacher?->full_name,
+                'id'              => $eduSession->id,
+                'session_date'    => $eduSession->session_date->toDateString(),
+                'lesson_number'   => $eduSession->lesson_number,
+                'lesson_series'   => $eduSession->lesson_series,
+                'topic'           => $eduSession->topic,
+                'scripture'       => $eduSession->scripture,
+                'notes'           => $eduSession->notes,
+                'attendance_mode' => $eduSession->attendance_mode ?? 'checkin',
+                'total_present'   => $eduSession->total_present,
+                'total_absent'    => $eduSession->total_absent,
+                'teacher_id'      => $eduSession->teacher_id,
+                'teacher_name'    => $eduSession->teacher?->full_name,
+                // Bible quiz fields
+                'book'            => $eduSession->book,
+                'total_questions' => $eduSession->total_questions,
+                'grader_id'       => $eduSession->grader_id,
+                'grader_name'     => $eduSession->grader?->full_name,
+                'photo_path'      => $eduSession->photo_path
+                    ? asset('storage/' . $eduSession->photo_path)
+                    : null,
             ],
             'teachers'          => $teachers,
             'students'          => $students,
@@ -477,7 +485,19 @@ class EducationController extends Controller
             'scripture'      => 'nullable|string|max:255',
             'notes'          => 'nullable|string',
             'teacher_id'     => 'nullable|exists:members,id',
+            // Bible quiz fields
+            'book'           => 'nullable|string|max:100',
+            'total_questions'=> 'nullable|integer|min:1|max:200',
+            'grader_id'      => 'nullable|exists:members,id',
+            'photo'          => 'nullable|image|max:5120', // max 5MB
         ]);
+
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('edu/quiz-photos', 'public');
+            $validated['photo_path'] = $path;
+        }
+        unset($validated['photo']);
 
         $eduSession->update($validated);
 

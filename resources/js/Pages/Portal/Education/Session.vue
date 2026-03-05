@@ -81,7 +81,13 @@
                         Điểm Danh
                         <span class="bg-white/20 text-[10px] font-black px-1.5 py-0.5 rounded-full">{{ presentCount }}/{{ localRecords.length }}</span>
                     </button>
-                    <button v-if="eduClass.class_type !== 'gospel'" @click="activeTab = 'finance'" :class="activeTab === 'finance' ? 'border-b-2 border-white text-white' : 'text-indigo-300 hover:text-white'" class="px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5">
+                    <!-- Tab Chấm Điểm — chỉ cho bible_quiz -->
+                    <button v-if="eduClass.class_type === 'bible_quiz'" @click="activeTab = 'scores'" :class="activeTab === 'scores' ? 'border-b-2 border-white text-white' : 'text-indigo-300 hover:text-white'" class="px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        Chấm Điểm
+                        <span v-if="scoredCount > 0" class="bg-amber-400/30 text-amber-100 text-[10px] font-black px-1.5 py-0.5 rounded-full">{{ scoredCount }}/{{ localRecords.length }}</span>
+                    </button>
+                    <button v-if="eduClass.class_type !== 'gospel' && eduClass.class_type !== 'bible_quiz'" @click="activeTab = 'finance'" :class="activeTab === 'finance' ? 'border-b-2 border-white text-white' : 'text-indigo-300 hover:text-white'" class="px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                         Tiền Dâng
                         <span v-if="totalSessionIncome > 0" class="bg-green-400/30 text-green-100 text-[10px] font-black px-1.5 py-0.5 rounded-full">{{ formatMoney(totalSessionIncome) }}</span>
@@ -241,6 +247,137 @@
                     </div><!-- end checkin mode -->
                 </div>
 
+
+                <!-- ── TAB: CHẤM ĐIỂM (chỉ bible_quiz) ───────────────────── -->
+                <div v-if="activeTab === 'scores' && eduClass.class_type === 'bible_quiz'" class="space-y-5">
+
+                    <!-- Thông tin bài thi -->
+                    <div class="bg-white rounded-2xl border border-amber-100 shadow-sm overflow-hidden">
+                        <div class="px-5 py-3 bg-amber-50 border-b border-amber-100 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-sm font-black text-amber-900">📋 Thông Tin Bài Kiểm Tra</h3>
+                                <p class="text-xs text-amber-600 mt-0.5">
+                                    <span v-if="session.book">Sách: <strong>{{ session.book }}</strong> · </span>
+                                    <span v-if="session.total_questions">Số câu: <strong>{{ session.total_questions }}</strong> · </span>
+                                    <span v-if="session.grader_name">Chấm: <strong>{{ session.grader_name }}</strong></span>
+                                    <span v-if="!session.book && !session.total_questions" class="text-amber-400">Chưa nhập thông tin bài thi</span>
+                                </p>
+                            </div>
+                            <button v-if="canMarkAttendance" @click="isQuizInfoOpen = true"
+                                class="text-xs font-bold text-amber-700 px-3 py-1.5 bg-amber-100 rounded-lg hover:bg-amber-200 transition-colors">
+                                ✏️ Cập nhật
+                            </button>
+                        </div>
+                        <!-- Ảnh bài thi -->
+                        <div v-if="session.photo_path" class="p-4">
+                            <p class="text-xs font-bold text-gray-500 mb-2">📸 Ảnh bài kiểm tra:</p>
+                            <a :href="session.photo_path" target="_blank">
+                                <img :src="session.photo_path" class="max-h-56 rounded-xl border border-gray-200 object-contain hover:opacity-90 transition-opacity" alt="Ảnh bài KT">
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Bảng nhập điểm -->
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="px-5 py-3 bg-indigo-900 flex items-center justify-between">
+                            <h3 class="text-sm font-black text-white">✏️ Nhập Điểm Học Viên</h3>
+                            <div class="flex items-center gap-3 text-xs text-indigo-200">
+                                <span>Điểm tối đa: <strong class="text-white">{{ session.total_questions || 100 }}</strong></span>
+                                <span>Có mặt: <strong class="text-green-300">{{ presentCount }}</strong>/{{ localRecords.length }}</span>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-100">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-2.5 text-left text-xs font-bold text-gray-600 w-8">#</th>
+                                        <th class="px-4 py-2.5 text-left text-xs font-bold text-gray-600">Học Viên</th>
+                                        <th class="px-4 py-2.5 text-center text-xs font-bold text-gray-600">Có mặt</th>
+                                        <th class="px-4 py-2.5 text-center text-xs font-bold text-gray-600 w-32">Điểm</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr v-for="(rec, idx) in localRecords" :key="rec.member_id"
+                                        :class="rec.attendance === 'absent' ? 'opacity-50 bg-gray-50' : 'hover:bg-amber-50/40'">
+                                        <td class="px-4 py-2.5 text-xs text-gray-400">{{ idx + 1 }}</td>
+                                        <td class="px-4 py-2.5 text-sm font-bold text-gray-900">{{ rec.full_name }}</td>
+                                        <td class="px-4 py-2.5 text-center">
+                                            <span class="text-xs font-bold px-2 py-0.5 rounded-full"
+                                                :class="rec.attendance === 'present' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'">
+                                                {{ rec.attendance === 'present' ? '✓ Có mặt' : '✗ Vắng' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-center">
+                                            <input v-if="rec.attendance === 'present' && canMarkAttendance"
+                                                v-model.number="rec.quiz_score"
+                                                type="number" :min="0" :max="session.total_questions || 100" step="1"
+                                                class="w-20 text-center rounded-lg border-amber-300 focus:border-amber-500 focus:ring-amber-500 text-sm font-black text-amber-800 py-1 shadow-sm"
+                                                placeholder="—">
+                                            <span v-else-if="rec.quiz_score !== null && rec.quiz_score !== undefined"
+                                                class="text-sm font-black text-amber-700 bg-amber-50 px-3 py-1 rounded-full">
+                                                {{ rec.quiz_score }}
+                                            </span>
+                                            <span v-else class="text-xs text-gray-300">—</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Save scores button -->
+                        <div v-if="canMarkAttendance && localRecords.length > 0" class="px-5 py-4 bg-gray-50 border-t border-gray-100">
+                            <button @click="saveAttendance" :disabled="attendanceLoading"
+                                class="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 text-white font-black rounded-xl hover:from-amber-700 hover:to-amber-600 transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
+                                <svg v-if="attendanceLoading" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                {{ attendanceLoading ? 'Đang lưu...' : '💾 Lưu Điểm' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Bảng xếp hạng -->
+                    <div v-if="ranking.length > 0" class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="px-5 py-3 bg-green-900 flex items-center justify-between">
+                            <h3 class="text-sm font-black text-white">🏆 Xếp Hạng Điểm</h3>
+                            <span class="text-xs text-green-300">Điểm TB: <strong class="text-white">{{ avgScore }}</strong>/{{ session.total_questions || 100 }}</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-100">
+                                <thead class="bg-green-50">
+                                    <tr>
+                                        <th class="px-4 py-2 text-center text-xs font-bold text-green-900 w-12">Hạng</th>
+                                        <th class="px-4 py-2 text-left text-xs font-bold text-green-900">Học Viên</th>
+                                        <th class="px-4 py-2 text-center text-xs font-bold text-green-900">Điểm</th>
+                                        <th class="px-4 py-2 text-center text-xs font-bold text-green-900">% Đạt</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr v-for="(r, i) in ranking" :key="r.member_id"
+                                        :class="i === 0 ? 'bg-yellow-50' : i === 1 ? 'bg-gray-50' : i === 2 ? 'bg-orange-50/50' : ''">
+                                        <td class="px-4 py-2.5 text-center text-lg font-black">
+                                            {{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) }}
+                                        </td>
+                                        <td class="px-4 py-2.5 text-sm font-bold text-gray-900">{{ r.full_name }}</td>
+                                        <td class="px-4 py-2.5 text-center">
+                                            <span class="text-lg font-black" :class="r.score >= (session.total_questions || 100) * 0.8 ? 'text-green-700' : r.score >= (session.total_questions || 100) * 0.5 ? 'text-amber-700' : 'text-red-600'">
+                                                {{ r.score }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-center">
+                                            <div class="flex items-center justify-center gap-1.5">
+                                                <div class="w-20 bg-gray-200 rounded-full h-1.5">
+                                                    <div class="h-1.5 rounded-full transition-all"
+                                                        :style="`width: ${r.percent}%`"
+                                                        :class="r.percent >= 80 ? 'bg-green-500' : r.percent >= 50 ? 'bg-amber-500' : 'bg-red-500'"></div>
+                                                </div>
+                                                <span class="text-xs font-bold" :class="r.percent >= 80 ? 'text-green-700' : r.percent >= 50 ? 'text-amber-700' : 'text-red-600'">{{ r.percent }}%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- ── TAB: TIỀN DÂNG ───────────────────────────────────── -->
                 <div v-if="activeTab === 'finance'">
                     <div v-if="funds.length === 0" class="py-12 text-center text-gray-400 text-sm">Lớp chưa có quỹ nào.</div>
@@ -364,6 +501,49 @@
             </template>
         </SlideOver>
 
+        <!-- ══ QUIZ INFO SLIDEOVER (bible_quiz only) ══ -->
+        <SlideOver :show="isQuizInfoOpen" @close="isQuizInfoOpen = false" title="Thông Tin Bài Kiểm Tra">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Sách Kinh Thánh</label>
+                    <input v-model="quizBook" type="text" placeholder="VD: Giăng, Ma-thi-ơ, Rô-ma..."
+                        class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Số câu hỏi</label>
+                    <input v-model.number="quizTotalQ" type="number" min="1" max="200" placeholder="VD: 30"
+                        class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm">
+                    <p class="text-xs text-gray-400 mt-1">Dùng để tính % đạt khi xếp hạng</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Người chấm bài</label>
+                    <select v-model="quizGraderId"
+                        class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm">
+                        <option :value="null">(Không có)</option>
+                        <option v-for="t in teachers" :key="t.id" :value="t.id">{{ t.full_name }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">📸 Ảnh bài kiểm tra</label>
+                    <input type="file" accept="image/*" @change="onPhotoChange"
+                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+                    <p class="text-xs text-gray-400 mt-1">Tối đa 5MB · JPG, PNG</p>
+                    <img v-if="photoPreview" :src="photoPreview" class="mt-2 max-h-40 rounded-xl border border-gray-200 object-contain" alt="Preview">
+                    <img v-else-if="session.photo_path" :src="session.photo_path" class="mt-2 max-h-40 rounded-xl border border-gray-200 object-contain" alt="Ảnh hiện tại">
+                </div>
+            </div>
+            <template #footer>
+                <div class="flex justify-end gap-3 w-full">
+                    <button @click="isQuizInfoOpen = false" class="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50">Hủy</button>
+                    <button @click="saveQuizInfo" :disabled="quizSaving"
+                        class="px-6 py-2 bg-amber-600 text-white rounded-xl text-sm font-bold hover:bg-amber-700 disabled:opacity-50 flex items-center gap-2">
+                        <svg v-if="quizSaving" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        {{ quizSaving ? 'Đang lưu...' : 'Lưu thông tin' }}
+                    </button>
+                </div>
+            </template>
+        </SlideOver>
+
     </PortalLayout>
 </template>
 
@@ -389,7 +569,41 @@ const props = defineProps({
 const activeTab = ref('attendance');
 const isSessionInfoOpen = ref(false);
 const isOfferingOpen = ref(false);
+const isQuizInfoOpen = ref(false);
 const attendanceLoading = ref(false);
+
+// Quiz info state
+const quizBook     = ref(props.session?.book || '');
+const quizTotalQ   = ref(props.session?.total_questions || null);
+const quizGraderId = ref(props.session?.grader_id || null);
+const quizSaving   = ref(false);
+const photoFile    = ref(null);
+const photoPreview = ref(null);
+
+const onPhotoChange = (e) => {
+    photoFile.value = e.target.files[0] || null;
+    if (photoFile.value) {
+        const reader = new FileReader();
+        reader.onload = (ev) => photoPreview.value = ev.target.result;
+        reader.readAsDataURL(photoFile.value);
+    }
+};
+
+const saveQuizInfo = () => {
+    quizSaving.value = true;
+    const formData = new FormData();
+    formData.append('_method', 'PUT');
+    if (quizBook.value)     formData.append('book', quizBook.value);
+    if (quizTotalQ.value)   formData.append('total_questions', quizTotalQ.value);
+    if (quizGraderId.value) formData.append('grader_id', quizGraderId.value);
+    if (photoFile.value)    formData.append('photo', photoFile.value);
+    router.post(route('education.session.update', [props.eduClass.id, props.session.id]), formData, {
+        preserveScroll: true,
+        forceFormData: true,
+        onSuccess: () => { isQuizInfoOpen.value = false; photoFile.value = null; photoPreview.value = null; },
+        onFinish: () => quizSaving.value = false,
+    });
+};
 
 // Local copy of records for live editing
 const localRecords = ref(props.students.map(s => ({ ...s })));
@@ -398,6 +612,27 @@ const localRecords = ref(props.students.map(s => ({ ...s })));
 const presentCount  = computed(() => localRecords.value.filter(r => r.attendance === 'present').length);
 const absentCount   = computed(() => localRecords.value.filter(r => r.attendance === 'absent').length);
 const memorizedCount = computed(() => localRecords.value.filter(r => r.memorized_verse).length);
+const scoredCount   = computed(() => localRecords.value.filter(r => r.quiz_score !== null && r.quiz_score !== undefined).length);
+
+// Ranking: sort present students by quiz_score desc
+const ranking = computed(() => {
+    const maxScore = props.session?.total_questions || 100;
+    return localRecords.value
+        .filter(r => r.attendance === 'present' && r.quiz_score !== null && r.quiz_score !== undefined)
+        .sort((a, b) => (b.quiz_score ?? 0) - (a.quiz_score ?? 0))
+        .map(r => ({
+            member_id: r.member_id,
+            full_name: r.full_name,
+            score: r.quiz_score,
+            percent: Math.round((r.quiz_score / maxScore) * 100),
+        }));
+});
+
+const avgScore = computed(() => {
+    if (ranking.value.length === 0) return '—';
+    const total = ranking.value.reduce((s, r) => s + r.score, 0);
+    return (total / ranking.value.length).toFixed(1);
+});
 const totalSessionIncome = computed(() =>
     props.funds.flatMap(f => f.transactions.filter(t => t.type === 'income')).reduce((s, t) => s + t.amount, 0)
 );

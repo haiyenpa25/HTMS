@@ -11,6 +11,8 @@ class EduSession extends Model
         'topic', 'scripture', 'notes',
         'attendance_mode', 'total_present', 'total_absent',
         'teacher_id',
+        // Bible quiz fields
+        'book', 'total_questions', 'grader_id', 'photo_path',
     ];
 
     protected $casts = ['session_date' => 'date'];
@@ -33,5 +35,10 @@ class EduSession extends Model
     public function teacher()
     {
         return $this->belongsTo(Member::class, 'teacher_id');
+    }
+
+    public function grader()
+    {
+        return $this->belongsTo(Member::class, 'grader_id');
     }
 }
