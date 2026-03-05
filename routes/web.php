@@ -148,6 +148,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('deacon')->middleware(\App\Http\Middleware\EnsureDeaconContext::class)->group(function () {
         Route::get('/', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'index'])->name('deacon.index');
         Route::post('/switch-role', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'switchRole'])->name('deacon.switch-role');
+        Route::get('/attendance', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'attendance'])->name('deacon.attendance');
     });
 
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');

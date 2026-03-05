@@ -4,82 +4,104 @@ namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Member;
-use App\Models\Department;
+use Illuminate\Support\Facades\Gate;
 use App\Models\Meeting;
-use App\Models\MeetingAttendanceSummary;
+use App\Models\Member;
+use App\Models\FinanceFund;
+use App\Models\FinanceTransaction;
+use App\Models\DepartmentReport;
 use Carbon\Carbon;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\DB;
 
 class DeaconPortalController extends Controller
 {
     /**
      * Dashboard chính của Ban Chấp Sự.
-     * Hiển thị 2 card: Thư Ký / Thủ Quỹ và thông tin tổng quan.
+     * Hiển thị context switcher (Thư Ký | Thủ Quỹ) + feature grid theo role.
      */
     public function index(Request $request)
     {
         $user = $request->user();
         $activeRole = session('active_deacon_role', 'secretary');
 
-        // Nếu đang chọn Thủ Quỹ → redirect sang Finance Portal
-        if ($activeRole === 'treasurer') {
-            return redirect()->route('finance.index');
-        }
-
-        // Thống kê nhanh cho dashboard
-        $totalMembers  = Member::count();
-        $officialCount = Member::where('status', 'Chính thức')->count();
+        // Thống kê chung
+        $totalMembers = Member::count();
         $month = now()->month;
         $year  = now()->year;
         $monthStart = Carbon::create($year, $month, 1)->startOfMonth();
         $monthEnd   = $monthStart->copy()->endOfMonth();
 
-        // Báo cáo đang chờ duyệt từ tất cả ban
-        $pendingReports = \App\Models\DepartmentReport::where('status', 'submitted')
-            ->with('department')
-            ->orderBy('updated_at', 'desc')
-            ->get()
-            ->map(fn($r) => [
-                'id'           => $r->id,
-                'dept_name'    => $r->department->name ?? '—',
-                'month'        => $r->report_month,
-                'year'         => $r->report_year,
-                'submitted_at' => $r->updated_at->format('d/m/Y'),
-            ]);
+        $data = [
+            'activeRole'     => $activeRole,
+            'totalMembers'   => $totalMembers,
+            'currentMonth'   => now()->format('m/Y'),
+        ];
 
-        // Điểm danh tổng quát tháng này theo ban
-        $depts = Department::where('block', 'activities')->select('id', 'name')->get();
-        $attendanceSummary = $depts->map(function ($dept) use ($monthStart, $monthEnd) {
-            $total = Meeting::where('type', 'department')
-                ->where('department_id', $dept->id)
+        // ── THƯ KÝ data ──────────────────────────────────────────
+        if ($activeRole === 'secretary') {
+            // Số buổi nhóm hội thánh tháng này chưa điểm danh
+            $pendingAttendance = Meeting::where('type', 'church')
                 ->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()])
-                ->with('attendanceSummaries')
-                ->get()
-                ->sum(fn($m) => $m->attendanceSummaries->sum('manual_count'));
-            $sessionCount = Meeting::where('type', 'department')
-                ->where('department_id', $dept->id)
-                ->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()])
+                ->where('attendance_marked', false)
                 ->count();
-            return [
-                'dept_name'     => $dept->name,
-                'session_count' => $sessionCount,
-                'total_att'     => $total,
-            ];
-        });
 
-        return Inertia::render('Deacon/Index', [
-            'activeRole'        => $activeRole,
-            'stats'             => [
-                'total_members'  => $totalMembers,
-                'official_count' => $officialCount,
-                'pending_reports'=> $pendingReports->count(),
-            ],
-            'pendingReports'    => $pendingReports->values(),
-            'attendanceSummary' => $attendanceSummary->values(),
-            'currentMonth'      => now()->format('m/Y'),
-        ]);
+            // Buổi nhóm gần nhất
+            $lastMeeting = Meeting::where('type', 'church')
+                ->where('date', '<=', now()->toDateString())
+                ->orderBy('date', 'desc')
+                ->first();
+
+            // Báo cáo đang chờ duyệt từ tất cả ban
+            $pendingReports = DepartmentReport::where('status', 'submitted')
+                ->with('department:id,name')
+                ->orderBy('updated_at', 'desc')
+                ->get()
+                ->map(fn($r) => [
+                    'id'        => $r->id,
+                    'dept_name' => $r->department->name ?? '—',
+                    'month'     => $r->report_month,
+                    'year'      => $r->report_year,
+                ]);
+
+            $data['pendingAttendance'] = $pendingAttendance;
+            $data['lastMeeting']       = $lastMeeting ? [
+                'id'   => $lastMeeting->id,
+                'date' => $lastMeeting->date,
+                'name' => $lastMeeting->title ?? 'Buổi Nhóm HT',
+            ] : null;
+            $data['pendingReports']    = $pendingReports->values();
+        }
+
+        // ── THỦ QUỸ data ─────────────────────────────────────────
+        if ($activeRole === 'treasurer') {
+            // Quỹ hội thánh
+            $funds = FinanceFund::where('owner_type', 'church')
+                ->get(['id', 'name', 'balance'])
+                ->map(fn($f) => [
+                    'id'      => $f->id,
+                    'name'    => $f->name,
+                    'balance' => $f->balance,
+                ]);
+
+            // Tổng thu/chi tháng này
+            $fundIds = FinanceFund::where('owner_type', 'church')->pluck('id');
+            $totalIncome  = FinanceTransaction::whereIn('fund_id', $fundIds)
+                ->whereBetween('transaction_date', [$monthStart, $monthEnd])
+                ->where('status', 'approved')->where('type', 'income')->sum('amount');
+            $totalExpense = FinanceTransaction::whereIn('fund_id', $fundIds)
+                ->whereBetween('transaction_date', [$monthStart, $monthEnd])
+                ->where('status', 'approved')->where('type', 'expense')->sum('amount');
+
+            $pendingTx = FinanceTransaction::whereIn('fund_id', $fundIds)
+                ->where('status', 'pending')->count();
+
+            $data['funds']        = $funds->values();
+            $data['totalIncome']  = $totalIncome;
+            $data['totalExpense'] = $totalExpense;
+            $data['pendingTx']    = $pendingTx;
+        }
+
+        return Inertia::render('Deacon/Index', $data);
     }
 
     /**
@@ -89,11 +111,21 @@ class DeaconPortalController extends Controller
     {
         $request->validate(['role' => 'required|in:secretary,treasurer']);
         session(['active_deacon_role' => $request->role]);
-
-        if ($request->role === 'treasurer') {
-            return redirect()->route('finance.index');
-        }
-
         return redirect()->route('deacon.index');
+    }
+
+    /**
+     * Điểm danh buổi nhóm hội thánh
+     */
+    public function attendance(Request $request)
+    {
+        $meetings = Meeting::where('type', 'church')
+            ->orderBy('date', 'desc')
+            ->get(['id', 'title', 'date', 'time', 'location', 'attendance_marked']);
+
+        return Inertia::render('Deacon/Attendance', [
+            'meetings'   => $meetings,
+            'activeRole' => 'secretary',
+        ]);
     }
 }
