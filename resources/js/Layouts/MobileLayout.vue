@@ -47,13 +47,24 @@
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </Link>
           <Link :href="route('ministry.index')" @click="openMenu = null"
-            class="flex items-center gap-3 px-4 py-3.5 hover:bg-purple-50 transition-colors">
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-purple-50 transition-colors border-b border-gray-100">
             <div class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
               <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
             </div>
             <div>
               <p class="text-sm font-bold text-gray-900">Ban Ngành Mục Vụ</p>
               <p class="text-xs text-gray-400">Thăm viếng, giáo dục, mục vụ</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </Link>
+          <Link :href="route('deacon.index')" @click="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-amber-50 transition-colors">
+            <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">Chấp Sự</p>
+              <p class="text-xs text-gray-400">Thư Ký & Thủ Quỹ Hội Thánh</p>
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </Link>

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="flex h-screen bg-gray-50 overflow-hidden font-sans text-gray-900">
     <aside 
       class="hidden overflow-y-auto bg-white border-r border-gray-200 md:flex flex-col flex-shrink-0 relative transition-all duration-300"
@@ -25,7 +25,7 @@
         </Link>
         <!-- Ban ngành Accordion -->
         <div class="space-y-1">
-          <button @click="toggleDeptsMenu" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-bold transition-all group" :class="(route().current('portal.*') || route().current('ministry.*')) ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
+          <button @click="toggleDeptsMenu" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-bold transition-all group" :class="(route().current('portal.*') || route().current('ministry.*') || route().current('deacon.*')) ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
              <div class="flex items-center space-x-3">
                <svg class="w-5 h-5 shrink-0" :class="(route().current('portal.*') || route().current('ministry.*')) ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Ban ngành</span>
@@ -140,7 +140,7 @@ const page = usePage();
 
 const isSidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true');
 const isSettingsMenuOpen = ref(route().current('users.*') || route().current('roles.*') || route().current('meetings.*') || route().current('departments.*'));
-const isDeptsMenuOpen = ref(route().current('portal.*') || route().current('ministry.*') || false);
+const isDeptsMenuOpen = ref(route().current('portal.*') || route().current('ministry.*') || route().current('deacon.*') || false);
 
 const toggleSidebar = () => {
     isSidebarCollapsed.value = !isSidebarCollapsed.value;
@@ -168,3 +168,4 @@ const toggleSettingsMenu = () => {
 };
 
 </script>
+

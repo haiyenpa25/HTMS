@@ -143,5 +143,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports', [\App\Http\Controllers\Portal\FinanceReportController::class, 'index'])->name('finance.reports.index');
     });
 
+
+    // Deacon Board Portal — Ban Chấp Sự (Thư Ký + Thủ Quỹ)
+    Route::prefix('deacon')->middleware(\App\Http\Middleware\EnsureDeaconContext::class)->group(function () {
+        Route::get('/', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'index'])->name('deacon.index');
+        Route::post('/switch-role', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'switchRole'])->name('deacon.switch-role');
+    });
+
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 });
