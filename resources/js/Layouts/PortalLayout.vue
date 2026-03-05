@@ -100,6 +100,34 @@
                    Báo cáo tháng
                </Link>
             </template>
+
+            <!-- Deacon Portal Links -->
+            <template v-else-if="portalType === 'deacon'">
+                <Link :href="route('deacon.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('deacon.index') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                    Bảng điều khiển
+                </Link>
+                <!-- Thư Ký Links -->
+                <template v-if="department?.id === 'secretary'">
+                    <Link :href="route('deacon.attendance')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('deacon.attendance') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                        Điểm danh
+                    </Link>
+                    <Link :href="route('portal.reports.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.reports.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                        Báo cáo
+                    </Link>
+                </template>
+                <!-- Thủ Quỹ Links -->
+                <template v-if="department?.id === 'treasurer'">
+                    <Link v-if="route().has('finance.funds.index')" :href="route('finance.funds.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('finance.funds.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                        Quản lý Quỹ
+                    </Link>
+                    <Link :href="route('finance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('finance.index') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                        Tài chính
+                    </Link>
+                    <Link v-if="route().has('finance.reports.index')" :href="route('finance.reports.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('finance.reports.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                        Báo cáo
+                    </Link>
+                </template>
+            </template>
        </div>
     </header>
 

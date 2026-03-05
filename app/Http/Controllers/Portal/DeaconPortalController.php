@@ -31,10 +31,23 @@ class DeaconPortalController extends Controller
         $monthStart = Carbon::create($year, $month, 1)->startOfMonth();
         $monthEnd   = $monthStart->copy()->endOfMonth();
 
+        $department = [
+            'id' => $activeRole,
+            'name' => $activeRole === 'secretary' ? 'Thư Ký Hội Thánh' : 'Thủ Quỹ Hội Thánh',
+        ];
+
+        $availableDepartments = [
+            ['id' => 'secretary', 'name' => 'Thư Ký Hội Thánh'],
+            ['id' => 'treasurer', 'name' => 'Thủ Quỹ Hội Thánh'],
+        ];
+
         $data = [
-            'activeRole'     => $activeRole,
-            'totalMembers'   => $totalMembers,
-            'currentMonth'   => now()->format('m/Y'),
+            'activeRole'           => $activeRole,
+            'department'           => $department,
+            'availableDepartments' => $availableDepartments,
+            'isGlobalAdmin'        => $user->hasRole(['Pastor', 'Super_Admin']),
+            'totalMembers'         => $totalMembers,
+            'currentMonth'         => now()->format('m/Y'),
         ];
 
         // ── THƯ KÝ data ──────────────────────────────────────────
@@ -123,9 +136,20 @@ class DeaconPortalController extends Controller
             ->orderBy('date', 'desc')
             ->get(['id', 'title', 'date', 'time', 'location', 'attendance_marked']);
 
+        $department = [
+            'id' => 'secretary',
+            'name' => 'Thư Ký Hội Thánh',
+        ];
+
         return Inertia::render('Deacon/Attendance', [
             'meetings'   => $meetings,
-            'activeRole' => 'secretary',
+            'department' => $department,
+            'portalType' => 'deacon',
+            'isGlobalAdmin' => $request->user()->hasRole(['Pastor', 'Super_Admin']),
+            'availableDepartments' => [
+                ['id' => 'secretary', 'name' => 'Thư Ký Hội Thánh'],
+                ['id' => 'treasurer', 'name' => 'Thủ Quỹ Hội Thánh'],
+            ]
         ]);
     }
 }
