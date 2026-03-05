@@ -66,16 +66,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/reports/save', [\App\Http\Controllers\Portal\DeptReportController::class, 'saveReport'])->name('portal.reports.save');
         Route::post('/reports/{report}/approve', [\App\Http\Controllers\Portal\DeptReportController::class, 'approveReport'])->name('portal.reports.approve');
         Route::get('/finance', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'index'])->name('portal.finance.index');
-        // Meetings
-        Route::post('/finance/meetings', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'storeMeeting'])->name('portal.finance.meetings.store');
-        Route::put('/finance/meetings/{meeting}', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'updateMeeting'])->name('portal.finance.meetings.update');
-        Route::delete('/finance/meetings/{meeting}', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'destroyMeeting'])->name('portal.finance.meetings.destroy');
-        // Standalone Transactions
-        Route::post('/finance/transactions', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'storeTransaction'])->name('portal.finance.transactions.store');
-        Route::delete('/finance/transactions/{transaction}', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'destroyTransaction'])->name('portal.finance.transactions.destroy');
+        // Ghi tiền dâng/chi cho 1 buổi nhóm có sẵn
+        Route::post('/finance/meetings/{meeting}/finance', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'storeFinance'])->name('portal.finance.store');
+        Route::delete('/finance/meetings/{meeting}/finance', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'deleteFinance'])->name('portal.finance.delete');
         // Funds
         Route::post('/finance/funds', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'storeFund'])->name('portal.finance.funds.store');
         Route::delete('/finance/funds/{fund}', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'destroyFund'])->name('portal.finance.funds.destroy');
+
         
         // Localized Visitation Module (Activities)
         Route::get('/visitation', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'index'])->name('portal.visitation.index');

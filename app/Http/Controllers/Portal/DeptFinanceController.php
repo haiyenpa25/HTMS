@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use App\Models\Department;
 use App\Models\DepartmentFund;
-use App\Models\DepartmentMeeting;
-use App\Models\DepartmentTransaction;
+use App\Models\Meeting;
+use App\Models\MeetingFinance;
 use Carbon\Carbon;
 
 class DeptFinanceController extends Controller
@@ -37,9 +37,6 @@ class DeptFinanceController extends Controller
             return; // Full access
         }
 
-        // Must have permission and belong to the department
-        Gate::authorize('viewAny', DepartmentMeeting::class);
-
         $memberId = $user->member_id;
         if (!$memberId) {
             abort(403, 'Bạn không thuộc ban ngành này.');
@@ -60,8 +57,6 @@ class DeptFinanceController extends Controller
     // ============================================================
     public function index(Request $request)
     {
-        Gate::authorize('viewAny', DepartmentMeeting::class);
-
         $department = $this->getActiveDepartment();
         $this->authorizeForDept($department, $request);
 
@@ -70,278 +65,161 @@ class DeptFinanceController extends Controller
 
         $currentStart = Carbon::create($year, $month, 1)->startOfMonth();
         $currentEnd   = $currentStart->copy()->endOfMonth();
-        $prevStart    = $currentStart->copy()->subMonth()->startOfMonth();
-        $prevEnd      = $prevStart->copy()->endOfMonth();
+        $prevEnd      = $currentStart->copy()->subDay(); // last day of previous month
 
-        // Funds for this department
-        $funds = DepartmentFund::where('department_id', $department->id)->get();
-        $fundIds = $funds->pluck('id');
-
-        // Meetings in the month, eager-load their transactions
-        $meetings = DepartmentMeeting::where('department_id', $department->id)
-            ->whereBetween('meeting_date', [$currentStart, $currentEnd])
-            ->orderBy('meeting_date', 'asc')
-            ->with(['transactions' => fn($q) => $q->where('status', 'approved')])
+        // Meetings (type=department) in this month for this department
+        $meetings = Meeting::where('type', 'department')
+            ->where('department_id', $department->id)
+            ->whereBetween('date', [$currentStart->toDateString(), $currentEnd->toDateString()])
+            ->orderBy('date', 'asc')
+            ->with(['finances', 'attendanceSummaries' => fn($q) => $q->where('department_id', $department->id)])
             ->get()
             ->map(fn($m) => [
-                'id'                   => $m->id,
-                'meeting_date'         => $m->meeting_date->toDateString(),
-                'attendance_morning'   => $m->attendance_morning,
-                'attendance_afternoon' => $m->attendance_afternoon,
-                'total_attendance'     => $m->total_attendance,
-                'note'                 => $m->note,
-                'session_income'       => $m->transactions->where('type', 'income')->sum('amount'),
-                'session_expense'      => $m->transactions->where('type', 'expense')->sum('amount'),
-                'session_balance'      => $m->transactions->where('type', 'income')->sum('amount')
-                                        - $m->transactions->where('type', 'expense')->sum('amount'),
-                'transactions'         => $m->transactions->values(),
+                'id'             => $m->id,
+                'meeting_date'   => $m->date,
+                'topic'          => $m->topic ?? '',
+                'scripture'      => $m->scripture ?? '',
+                'memory_verse'   => $m->memory_verse ?? '',
+                'attendance'     => $m->attendanceSummaries->first()?->manual_count ?? 0,
+                'session_income' => $m->finances->where('type', 'thu')->sum('amount'),
+                'session_expense'=> $m->finances->where('type', 'chi')->sum('amount'),
+                'session_balance'=> $m->finances->where('type', 'thu')->sum('amount')
+                                  - $m->finances->where('type', 'chi')->sum('amount'),
+                'finances'       => $m->finances->map(fn($f) => [
+                    'id'          => $f->id,
+                    'type'        => $f->type,   // 'thu' or 'chi'
+                    'amount'      => $f->amount,
+                    'category'    => $f->category ?? '',
+                    'status'      => $f->status,
+                ])->values(),
             ]);
 
+        // All meeting IDs for this dept, current month
+        $meetingIds = Meeting::where('type', 'department')
+            ->where('department_id', $department->id)
+            ->whereBetween('date', [$currentStart->toDateString(), $currentEnd->toDateString()])
+            ->pluck('id');
+
         // Month totals
-        $monthIncome = DepartmentTransaction::whereIn('department_fund_id', $fundIds)
-            ->whereBetween('transaction_date', [$currentStart, $currentEnd])
-            ->where('type', 'income')->where('status', 'approved')->sum('amount');
+        $monthIncome  = MeetingFinance::whereIn('meeting_id', $meetingIds)->where('type', 'thu')->sum('amount');
+        $monthExpense = MeetingFinance::whereIn('meeting_id', $meetingIds)->where('type', 'chi')->sum('amount');
 
-        $monthExpense = DepartmentTransaction::whereIn('department_fund_id', $fundIds)
-            ->whereBetween('transaction_date', [$currentStart, $currentEnd])
-            ->where('type', 'expense')->where('status', 'approved')->sum('amount');
-
-        // Balance brought forward from previous month (all approved up to end of prev month)
-        $prevIncomeTotal = DepartmentTransaction::whereIn('department_fund_id', $fundIds)
-            ->where('transaction_date', '<=', $prevEnd)
-            ->where('type', 'income')->where('status', 'approved')->sum('amount');
-        $prevExpenseTotal = DepartmentTransaction::whereIn('department_fund_id', $fundIds)
-            ->where('transaction_date', '<=', $prevEnd)
-            ->where('type', 'expense')->where('status', 'approved')->sum('amount');
-        $openingBalance = $prevIncomeTotal - $prevExpenseTotal;
-
-        // Current month closing balance
+        // Opening balance: all dept meetings BEFORE this month
+        $allPrevMeetingIds = Meeting::where('type', 'department')
+            ->where('department_id', $department->id)
+            ->where('date', '<', $currentStart->toDateString())
+            ->pluck('id');
+        $prevIncome  = MeetingFinance::whereIn('meeting_id', $allPrevMeetingIds)->where('type', 'thu')->sum('amount');
+        $prevExpense = MeetingFinance::whereIn('meeting_id', $allPrevMeetingIds)->where('type', 'chi')->sum('amount');
+        $openingBalance = $prevIncome - $prevExpense;
         $closingBalance = $openingBalance + $monthIncome - $monthExpense;
 
-        // Attendance comparison
-        $currentAvgAttendance = $meetings->avg('total_attendance') ?? 0;
-        $prevMeetings = DepartmentMeeting::where('department_id', $department->id)
-            ->whereBetween('meeting_date', [$prevStart, $prevEnd])
-            ->get();
-        $prevAvgAttendance = $prevMeetings->avg(fn($m) => max($m->attendance_morning, $m->attendance_afternoon)) ?? 0;
-        $attendanceChange = $prevAvgAttendance > 0
-            ? round((($currentAvgAttendance - $prevAvgAttendance) / $prevAvgAttendance) * 100, 1)
-            : ($currentAvgAttendance > 0 ? 100 : 0);
-
-        // Fund balances
-        $fundsWithBalance = $funds->map(fn($f) => [
-            'id'          => $f->id,
-            'name'        => $f->name,
-            'description' => $f->description,
-            'balance'     => $f->balance,
-        ]);
+        // Funds for this department
+        $funds = DepartmentFund::where('department_id', $department->id)->get()
+            ->map(fn($f) => ['id' => $f->id, 'name' => $f->name, 'balance' => $f->balance]);
 
         // Available departments for switcher
         $availableDepts = $this->getAvailableDepartments($request->user());
 
         return Inertia::render('Portal/Finance/Index', [
-            'department'         => $department,
+            'department'           => $department,
             'availableDepartments' => $availableDepts,
-            'isGlobalAdmin'       => $request->user()->hasRole(['Super_Admin', 'Pastor']),
-            'canManage'           => $request->user()->hasPermissionTo('manage_dept_finance'),
-            'meetings'            => $meetings,
-            'funds'               => $fundsWithBalance,
-            'filters'             => ['month' => $month, 'year' => $year],
+            'isGlobalAdmin'        => $request->user()->hasRole(['Super_Admin', 'Pastor']),
+            'canManage'            => $request->user()->hasPermissionTo('manage_dept_finance'),
+            'meetings'             => $meetings,
+            'funds'                => $funds,
+            'filters'              => ['month' => $month, 'year' => $year],
             'summary' => [
-                'month_income'       => $monthIncome,
-                'month_expense'      => $monthExpense,
-                'month_balance'      => $monthIncome - $monthExpense,
-                'opening_balance'    => $openingBalance,
-                'closing_balance'    => $closingBalance,
-                'avg_attendance'     => round($currentAvgAttendance, 1),
-                'prev_avg_attendance' => round($prevAvgAttendance, 1),
-                'attendance_change'   => $attendanceChange,
-                'meeting_count'       => $meetings->count(),
+                'month_income'    => $monthIncome,
+                'month_expense'   => $monthExpense,
+                'opening_balance' => $openingBalance,
+                'closing_balance' => $closingBalance,
+                'meeting_count'   => $meetings->count(),
             ],
         ]);
     }
 
     // ============================================================
-    // STORE MEETING (with linked transactions)
+    // STORE FINANCE for a meeting (tiền dâng / chi)
     // ============================================================
-    public function storeMeeting(Request $request)
+    public function storeFinance(Request $request, Meeting $meeting)
     {
-        Gate::authorize('manageMeeting', DepartmentMeeting::class);
-
         $department = $this->getActiveDepartment();
         $this->authorizeForDept($department, $request);
 
-        $validated = $request->validate([
-            'meeting_date'         => 'required|date',
-            'attendance_morning'   => 'required|integer|min:0',
-            'attendance_afternoon' => 'required|integer|min:0',
-            'note'                 => 'nullable|string|max:500',
-            // Linked transactions
-            'transactions'         => 'nullable|array',
-            'transactions.*.department_fund_id' => 'required_with:transactions|exists:department_funds,id',
-            'transactions.*.type'               => 'required_with:transactions|in:income,expense',
-            'transactions.*.amount'             => 'required_with:transactions|integer|min:0',
-            'transactions.*.category'           => 'nullable|string|max:255',
-            'transactions.*.description'        => 'nullable|string',
+        if ($meeting->department_id !== $department->id || $meeting->type !== 'department') {
+            abort(403, 'Buổi nhóm không thuộc ban ngành này.');
+        }
+
+        $data = $request->validate([
+            'finances'              => 'required|array|min:1',
+            'finances.*.type'       => 'required|in:thu,chi',
+            'finances.*.amount'     => 'required|numeric|min:0',
+            'finances.*.category'   => 'nullable|string|max:255',
         ]);
 
-        DB::transaction(function () use ($validated, $department, $request) {
-            $meeting = DepartmentMeeting::create([
-                'department_id'        => $department->id,
-                'meeting_date'         => $validated['meeting_date'],
-                'attendance_morning'   => $validated['attendance_morning'],
-                'attendance_afternoon' => $validated['attendance_afternoon'],
-                'note'                 => $validated['note'] ?? null,
-            ]);
+        // Delete existing then re-insert (replace strategy)
+        MeetingFinance::where('meeting_id', $meeting->id)->delete();
 
-            foreach ($validated['transactions'] ?? [] as $tx) {
-                if (($tx['amount'] ?? 0) <= 0) continue;
-                DepartmentTransaction::create([
-                    'department_fund_id'   => $tx['department_fund_id'],
-                    'department_meeting_id' => $meeting->id,
-                    'type'                 => $tx['type'],
-                    'amount'               => $tx['amount'],
-                    'category'             => $tx['category'] ?? null,
-                    'description'          => $tx['description'] ?? null,
-                    'transaction_date'     => $validated['meeting_date'],
-                    'status'               => $request->user()->hasPermissionTo('manage_dept_finance') ? 'approved' : 'pending',
+        foreach ($data['finances'] as $item) {
+            if (($item['amount'] ?? 0) > 0) {
+                MeetingFinance::create([
+                    'meeting_id' => $meeting->id,
+                    'type'       => $item['type'],
+                    'amount'     => $item['amount'],
+                    'category'   => $item['category'] ?? null,
+                    'status'     => 'approved',
                 ]);
             }
-        });
+        }
 
-        return back()->with('message', 'Buổi nhóm đã được lưu thành công.');
+        return redirect()->back()->with('message', 'Đã cập nhật tài chính buổi nhóm.');
     }
 
     // ============================================================
-    // UPDATE MEETING
+    // DELETE FINANCE for a meeting (xóa tất cả thu/chi)
     // ============================================================
-    public function updateMeeting(Request $request, DepartmentMeeting $meeting)
+    public function deleteFinance(Meeting $meeting)
     {
-        Gate::authorize('manageMeeting', $meeting);
-
         $department = $this->getActiveDepartment();
-        $this->authorizeForDept($department, $request);
-
-        $validated = $request->validate([
-            'meeting_date'         => 'required|date',
-            'attendance_morning'   => 'required|integer|min:0',
-            'attendance_afternoon' => 'required|integer|min:0',
-            'note'                 => 'nullable|string|max:500',
-            'transactions'         => 'nullable|array',
-            'transactions.*.id'                 => 'nullable|exists:department_transactions,id',
-            'transactions.*.department_fund_id' => 'required_with:transactions|exists:department_funds,id',
-            'transactions.*.type'               => 'required_with:transactions|in:income,expense',
-            'transactions.*.amount'             => 'required_with:transactions|integer|min:0',
-            'transactions.*.category'           => 'nullable|string|max:255',
-            'transactions.*.description'        => 'nullable|string',
-        ]);
-
-        DB::transaction(function () use ($validated, $meeting, $request) {
-            $meeting->update([
-                'meeting_date'         => $validated['meeting_date'],
-                'attendance_morning'   => $validated['attendance_morning'],
-                'attendance_afternoon' => $validated['attendance_afternoon'],
-                'note'                 => $validated['note'] ?? null,
-            ]);
-
-            // Re-create transactions: delete existing linked ones and recreate
-            $meeting->transactions()->delete();
-            foreach ($validated['transactions'] ?? [] as $tx) {
-                if (($tx['amount'] ?? 0) <= 0) continue;
-                DepartmentTransaction::create([
-                    'department_fund_id'    => $tx['department_fund_id'],
-                    'department_meeting_id' => $meeting->id,
-                    'type'                  => $tx['type'],
-                    'amount'                => $tx['amount'],
-                    'category'              => $tx['category'] ?? null,
-                    'description'           => $tx['description'] ?? null,
-                    'transaction_date'      => $validated['meeting_date'],
-                    'status'                => $request->user()->hasPermissionTo('manage_dept_finance') ? 'approved' : 'pending',
-                ]);
-            }
-        });
-
-        return back()->with('message', 'Buổi nhóm đã được cập nhật.');
+        if ($meeting->department_id !== $department->id || $meeting->type !== 'department') {
+            abort(403);
+        }
+        MeetingFinance::where('meeting_id', $meeting->id)->delete();
+        return redirect()->back()->with('message', 'Đã xóa tài chính buổi nhóm.');
     }
 
     // ============================================================
-    // DELETE MEETING
-    // ============================================================
-    public function destroyMeeting(DepartmentMeeting $meeting)
-    {
-        Gate::authorize('manageMeeting', $meeting);
-        $meeting->transactions()->delete();
-        $meeting->delete();
-        return back()->with('message', 'Đã xóa buổi nhóm.');
-    }
-
-    // ============================================================
-    // STORE STANDALONE TRANSACTION
-    // ============================================================
-    public function storeTransaction(Request $request)
-    {
-        Gate::authorize('create', DepartmentTransaction::class);
-
-        $department = $this->getActiveDepartment();
-        $this->authorizeForDept($department, $request);
-
-        $validated = $request->validate([
-            'department_fund_id' => 'required|exists:department_funds,id',
-            'type'               => 'required|in:income,expense',
-            'amount'             => 'required|integer|min:1',
-            'category'           => 'nullable|string|max:255',
-            'description'        => 'nullable|string',
-            'transaction_date'   => 'required|date',
-        ]);
-
-        DepartmentTransaction::create(array_merge($validated, [
-            'status' => $request->user()->hasPermissionTo('manage_dept_finance') ? 'approved' : 'pending',
-        ]));
-
-        return back()->with('message', 'Giao dịch đã được lưu.');
-    }
-
-    // ============================================================
-    // DELETE STANDALONE TRANSACTION
-    // ============================================================
-    public function destroyTransaction(DepartmentTransaction $transaction)
-    {
-        Gate::authorize('delete', $transaction);
-        $transaction->delete();
-        return back()->with('message', 'Đã xóa giao dịch.');
-    }
-
-    // ============================================================
-    // FUND MANAGEMENT
+    // FUND management (kept for compatibility)
     // ============================================================
     public function storeFund(Request $request)
     {
-        Gate::authorize('create', DepartmentTransaction::class);
-
         $department = $this->getActiveDepartment();
-        $validated = $request->validate([
+        $this->authorizeForDept($department, $request);
+
+        $data = $request->validate([
             'name'        => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:1000',
         ]);
 
-        DepartmentFund::create([
-            'department_id' => $department->id,
-            'name'          => $validated['name'],
-            'description'   => $validated['description'] ?? null,
-        ]);
+        DepartmentFund::create(array_merge($data, ['department_id' => $department->id]));
 
-        return back()->with('message', 'Quỹ đã được tạo.');
+        return redirect()->back()->with('message', 'Tạo quỹ thành công!');
     }
 
     public function destroyFund(DepartmentFund $fund)
     {
-        Gate::authorize('delete', DepartmentTransaction::class);
+        $department = $this->getActiveDepartment();
+        if ($fund->department_id !== $department->id) abort(403);
+        if ($fund->balance != 0) {
+            return redirect()->back()->with('error', 'Không thể xóa quỹ còn số dư.');
+        }
         $fund->delete();
-        return back()->with('message', 'Đã xóa quỹ.');
+        return redirect()->back()->with('message', 'Đã xóa quỹ.');
     }
 
     // ============================================================
-    // PRIVATE HELPERS
+    // HELPERS
     // ============================================================
     private function getAvailableDepartments($user): \Illuminate\Support\Collection
     {
@@ -350,10 +228,10 @@ class DeptFinanceController extends Controller
         }
         $memberId = $user->member_id;
         if (!$memberId) return collect();
-        $deptIds = DB::table('org_memberships')
+        $ids = DB::table('org_memberships')
             ->where('model_type', Department::class)
             ->where('member_id', $memberId)
             ->pluck('model_id');
-        return Department::whereIn('id', $deptIds)->where('block', 'activities')->select('id', 'name')->get();
+        return Department::whereIn('id', $ids)->where('block', 'activities')->select('id', 'name')->get();
     }
 }

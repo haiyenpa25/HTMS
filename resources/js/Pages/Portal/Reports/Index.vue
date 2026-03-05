@@ -221,37 +221,7 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- Weekly summary subtotals -->
-                <div v-if="dept_meetings.length > 0" class="overflow-x-auto border-t border-gray-100">
-                    <table class="min-w-full divide-y divide-gray-100">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-5 py-2 text-left text-[10px] font-bold text-gray-500 uppercase">Theo tuần</th>
-                                <th class="px-5 py-2 text-center text-[10px] font-bold text-gray-500 uppercase">Số buổi</th>
-                                <th class="px-5 py-2 text-right text-[10px] font-bold text-gray-500 uppercase">Tiền dâng</th>
-                                <th class="px-5 py-2 text-right text-[10px] font-bold text-gray-500 uppercase">Chi</th>
-                                <th class="px-5 py-2 text-right text-[10px] font-bold text-gray-500 uppercase">Tồn lũy kế</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 bg-gray-50/50">
-                            <tr v-for="w in weekly_finance" :key="w.week" :class="w.sessions===0?'opacity-30':''">
-                                <td class="px-5 py-2 text-sm font-bold text-gray-700">{{ w.week }}</td>
-                                <td class="px-5 py-2 text-center text-sm text-gray-500">{{ w.sessions || '—' }}</td>
-                                <td class="px-5 py-2 text-right text-sm font-bold text-emerald-700">{{ w.income > 0 ? fmt(w.income) : '—' }}</td>
-                                <td class="px-5 py-2 text-right text-sm font-medium text-rose-700">{{ w.expense > 0 ? fmt(w.expense) : '—' }}</td>
-                                <td class="px-5 py-2 text-right text-sm font-black" :class="w.running_balance >= 0 ? 'text-blue-800':'text-red-700'">{{ fmt(w.running_balance) }}</td>
-                            </tr>
-                        </tbody>
-                        <tfoot class="bg-green-900">
-                            <tr>
-                                <td class="px-5 py-3 text-xs font-black text-white" colspan="2">TỔNG KẾT THÁNG</td>
-                                <td class="px-5 py-3 text-right text-sm font-black text-emerald-300">{{ fmt(summary.month_income) }}</td>
-                                <td class="px-5 py-3 text-right text-sm font-black text-rose-300">{{ fmt(summary.month_expense) }}</td>
-                                <td class="px-5 py-3 text-right text-base font-black text-white">{{ fmt(summary.closing_balance) }}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+
                 <!-- Ledger summary -->
                 <div class="px-5 py-4 bg-gray-50 border-t grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-2">
