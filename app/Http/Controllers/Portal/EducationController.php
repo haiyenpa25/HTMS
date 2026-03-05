@@ -130,7 +130,38 @@ class EducationController extends Controller
             'can_record_offering' => Gate::allows('recordOffering', $c),
         ]);
 
-        $allMembers = Member::select('id', 'full_name', 'phone')->orderBy('full_name')->get();
+        $allMembers = Member::select('id', 'full_name', 'phone', 'member_type')
+            ->orderBy('full_name')
+            ->with([]) // eager: n/a
+            ->get()
+            ->map(fn($m) => [
+                'id'          => $m->id,
+                'full_name'   => $m->full_name,
+                'phone'       => $m->phone,
+                'member_type' => $m->member_type,
+            ]);
+
+        // Departments for filter (all active)
+        $departments = Department::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'block'])
+            ->map(fn($d) => [
+                'id'    => $d->id,
+                'name'  => $d->name,
+                'block' => $d->block,
+            ]);
+
+        // Department member mapping: member_id => [dept_ids]
+        $deptMemberMap = \DB::table('org_memberships')
+            ->where('model_type', 'App\\Models\\Department')
+            ->get(['member_id', 'model_id'])
+            ->groupBy('member_id')
+            ->map(fn($rows) => $rows->pluck('model_id')->values());
+
+        $allMembers = $allMembers->map(function($m) use ($deptMemberMap) {
+            $m['department_ids'] = $deptMemberMap[$m['id']]?->toArray() ?? [];
+            return $m;
+        });
 
         return Inertia::render('Portal/Education/Index', [
             'classes'     => $classes,
@@ -140,6 +171,7 @@ class EducationController extends Controller
             'availableDepartments' => $this->getAvailableDepts($user),
             'isGlobalAdmin' => $user->hasRole(['Super_Admin', 'Pastor']),
             'allMembers'  => $allMembers,
+            'departments' => $departments,
         ]);
     }
 
@@ -192,6 +224,81 @@ class EducationController extends Controller
             'canManage' => Gate::allows('markAttendance', $eduClass),
             'portalType' => 'education',
         ]);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // STORE MEMBER — Thêm 1 thành viên vào lớp
+    // ══════════════════════════════════════════════════════════════
+    public function storeMember(Request $request, EduClass $eduClass)
+    {
+        Gate::authorize('markAttendance', $eduClass);
+
+        $data = $request->validate([
+            'member_id' => 'required|integer|exists:members,id',
+            'role'      => 'in:student,teacher',
+            'joined_at' => 'nullable|date',
+        ]);
+
+        \App\Models\EduClassMember::firstOrCreate(
+            [
+                'edu_class_id' => $eduClass->id,
+                'member_id'    => $data['member_id'],
+            ],
+            [
+                'role'      => $data['role'] ?? 'student',
+                'joined_at' => $data['joined_at'] ?? now()->toDateString(),
+            ]
+        );
+
+        return back()->with('success', 'Thêm thành viên thành công.');
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // BULK STORE MEMBERS — Thêm nhiều thành viên cùng lúc
+    // ══════════════════════════════════════════════════════════════
+    public function bulkStoreMember(Request $request, EduClass $eduClass)
+    {
+        Gate::authorize('markAttendance', $eduClass);
+
+        $data = $request->validate([
+            'member_ids'   => 'required|array|min:1',
+            'member_ids.*' => 'integer|exists:members,id',
+            'role'         => 'in:student,teacher',
+        ]);
+
+        $role  = $data['role'] ?? 'student';
+        $today = now()->toDateString();
+        $count = 0;
+
+        foreach ($data['member_ids'] as $memberId) {
+            $record = \App\Models\EduClassMember::firstOrCreate(
+                [
+                    'edu_class_id' => $eduClass->id,
+                    'member_id'    => $memberId,
+                ],
+                [
+                    'role'      => $role,
+                    'joined_at' => $today,
+                ]
+            );
+            if ($record->wasRecentlyCreated) $count++;
+        }
+
+        return back()->with('success', "Đã thêm {$count} thành viên vào lớp.");
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // DESTROY MEMBER — Xóa 1 thành viên khỏi lớp
+    // ══════════════════════════════════════════════════════════════
+    public function destroyMember(EduClass $eduClass, Member $member)
+    {
+        Gate::authorize('markAttendance', $eduClass);
+
+        \App\Models\EduClassMember::where('edu_class_id', $eduClass->id)
+            ->where('member_id', $member->id)
+            ->delete();
+
+        return back()->with('success', 'Đã xóa thành viên khỏi lớp.');
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -658,35 +765,6 @@ class EducationController extends Controller
 
         $eduClass->update($validated);
         return back()->with('success', 'Đã cập nhật lớp học.');
-    }
-
-    public function storeMember(Request $request, EduClass $eduClass)
-    {
-        Gate::authorize('update', $eduClass);
-
-        $validated = $request->validate([
-            'member_id' => 'required|exists:members,id',
-            'role'      => 'required|in:teacher,student',
-            'joined_at' => 'nullable|date',
-        ]);
-
-        EduClassMember::firstOrCreate(
-            ['edu_class_id' => $eduClass->id, 'member_id' => $validated['member_id']],
-            ['role' => $validated['role'], 'joined_at' => $validated['joined_at'] ?? now()]
-        );
-
-        return back()->with('success', 'Đã thêm thành viên vào lớp.');
-    }
-
-    public function destroyMember(EduClass $eduClass, Member $member)
-    {
-        Gate::authorize('update', $eduClass);
-
-        EduClassMember::where('edu_class_id', $eduClass->id)
-            ->where('member_id', $member->id)
-            ->delete();
-
-        return back()->with('success', 'Đã xóa thành viên khỏi lớp.');
     }
 
     // ══════════════════════════════════════════════════════════════

@@ -104,6 +104,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/{eduClass}', [\App\Http\Controllers\Portal\EducationController::class, 'update'])->name('education.update');
         // Class Members
         Route::post('/{eduClass}/members', [\App\Http\Controllers\Portal\EducationController::class, 'storeMember'])->name('education.members.store');
+        Route::post('/{eduClass}/members/bulk', [\App\Http\Controllers\Portal\EducationController::class, 'bulkStoreMember'])->name('education.members.bulk-store');
         Route::delete('/{eduClass}/members/{member}', [\App\Http\Controllers\Portal\EducationController::class, 'destroyMember'])->name('education.members.destroy');
         // Session Management — Quản lý buổi học (list, create, delete)
         Route::get('/{eduClass}/sessions', [\App\Http\Controllers\Portal\EducationController::class, 'sessions'])->name('education.sessions');

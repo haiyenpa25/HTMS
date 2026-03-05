@@ -121,16 +121,28 @@
 
         <!-- Members Management SlideOver -->
         <SlideOver v-model="isMembersOpen" :title="'Thành viên: ' + (managingClass?.name ?? '')">
-            <div class="space-y-5">
-                <!-- Search & Add -->
-                <div>
+            <div class="space-y-4">
+
+                <!-- Tab switcher: Tìm kiếm / Thêm hàng loạt -->
+                <div class="flex bg-gray-100 rounded-xl p-1">
+                    <button @click="memberTab = 'search'"
+                        :class="memberTab === 'search' ? 'bg-white shadow text-indigo-700 font-black' : 'text-gray-500 hover:text-gray-700'"
+                        class="flex-1 text-sm py-1.5 rounded-lg transition-all font-bold">🔍 Tìm kiếm</button>
+                    <button @click="memberTab = 'bulk'"
+                        :class="memberTab === 'bulk' ? 'bg-white shadow text-indigo-700 font-black' : 'text-gray-500 hover:text-gray-700'"
+                        class="flex-1 text-sm py-1.5 rounded-lg transition-all font-bold">👥 Thêm hàng loạt</button>
+                </div>
+
+                <!-- TAB: TÌM KIẾM 1 NGƯỜI -->
+                <div v-if="memberTab === 'search'">
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Thêm thành viên</label>
                     <div class="relative">
                         <input v-model="memberSearch" @input="searchMembers" type="text"
                             class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Tìm tên tín hữu...">
                         <div v-if="memberSearchResults.length > 0" class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-                            <div v-for="m in memberSearchResults" :key="m.id" @click="selectMember(m)" class="px-3 py-2.5 hover:bg-indigo-50 cursor-pointer text-sm font-medium border-b border-gray-100 last:border-0">
-                                {{ m.full_name }} <span class="text-gray-400 text-xs ml-1">{{ m.phone ?? '' }}</span>
+                            <div v-for="m in memberSearchResults" :key="m.id" @click="selectMember(m)" class="px-3 py-2.5 hover:bg-indigo-50 cursor-pointer text-sm font-medium border-b border-gray-100 last:border-0 flex items-center gap-2">
+                                <span class="flex-1">{{ m.full_name }}</span>
+                                <span class="text-gray-400 text-xs">{{ m.phone ?? '' }}</span>
                             </div>
                         </div>
                     </div>
@@ -144,35 +156,105 @@
                     </div>
                 </div>
 
-                <!-- Teachers -->
-                <div v-if="managingClass?.teachers?.length > 0">
-                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Giáo viên ({{ managingClass.teachers.length }})</label>
-                    <div class="space-y-1.5">
-                        <div v-for="t in managingClass.teachers" :key="t.id" class="flex items-center gap-2 p-2.5 bg-purple-50 rounded-xl">
-                            <span class="flex-1 text-sm font-bold text-purple-900">{{ t.full_name }}</span>
-                            <span class="text-[11px] bg-purple-200 text-purple-700 px-2 py-0.5 rounded-full font-bold">Giáo viên</span>
-                            <button @click="removeMember(t.id)" class="text-red-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition-colors">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                            </button>
+                <!-- TAB: THÊM HÀNG LOẠT -->
+                <div v-if="memberTab === 'bulk'" class="space-y-3">
+                    <!-- Bộ lọc -->
+                    <div class="space-y-2">
+                        <input v-model="bulkSearch" type="text" placeholder="🔍 Lọc theo tên..."
+                            class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                        <div class="grid grid-cols-2 gap-2">
+                            <select v-model="bulkFilterDept"
+                                class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                <option value="">Tất cả ban ngành</option>
+                                <option v-for="d in departments" :key="d.id" :value="d.id">{{ d.name }}</option>
+                            </select>
+                            <select v-model="bulkFilterType"
+                                class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                <option value="">Tất cả loại tín hữu</option>
+                                <option value="chinh_thuc">Chính thức</option>
+                                <option value="chua_chinh_thuc">Chưa chính thức</option>
+                                <option value="than_huu">Thân hữu</option>
+                                <option value="tin_huu_ht_khac">Tín hữu HT khác</option>
+                            </select>
                         </div>
                     </div>
-                </div>
 
-                <!-- Students -->
-                <div v-if="managingClass?.students_list?.length > 0">
-                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Học viên ({{ managingClass.students_list.length }})</label>
-                    <div class="space-y-1.5 max-h-72 overflow-y-auto">
-                        <div v-for="s in managingClass.students_list" :key="s.id" class="flex items-center gap-2 p-2.5 bg-blue-50 rounded-xl">
-                            <span class="flex-1 text-sm font-medium text-blue-900">{{ s.full_name }}</span>
-                            <button @click="removeMember(s.id)" class="text-red-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition-colors">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                            </button>
+                    <!-- Chọn role -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-bold text-gray-500 shrink-0">Vai trò:</label>
+                        <div class="flex bg-gray-100 rounded-lg p-0.5 flex-1">
+                            <button @click="bulkRole = 'student'"
+                                :class="bulkRole === 'student' ? 'bg-white shadow text-indigo-700' : 'text-gray-500'"
+                                class="flex-1 text-xs py-1 rounded-md font-bold transition-all">Học viên</button>
+                            <button @click="bulkRole = 'teacher'"
+                                :class="bulkRole === 'teacher' ? 'bg-white shadow text-indigo-700' : 'text-gray-500'"
+                                class="flex-1 text-xs py-1 rounded-md font-bold transition-all">Giáo viên</button>
                         </div>
                     </div>
+
+                    <!-- Số lượng & chọn tất cả -->
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">{{ filteredForBulk.length }} tín hữu · Đang chọn: <strong class="text-indigo-700">{{ bulkSelected.size }}</strong></span>
+                        <div class="flex gap-2">
+                            <button @click="selectAllBulk" class="text-xs text-indigo-600 font-bold hover:underline">Chọn tất cả</button>
+                            <button @click="clearBulk" class="text-xs text-gray-400 hover:text-gray-600 font-bold">Bỏ chọn</button>
+                        </div>
+                    </div>
+
+                    <!-- Danh sách tín hữu (checkboxes) -->
+                    <div class="border border-gray-200 rounded-xl overflow-hidden max-h-64 overflow-y-auto">
+                        <div v-if="filteredForBulk.length === 0" class="py-6 text-center text-gray-400 text-sm">Không tìm thấy tín hữu.</div>
+                        <div v-for="m in filteredForBulk" :key="m.id"
+                            @click="toggleBulkSelect(m.id)"
+                            class="flex items-center gap-3 px-3 py-2.5 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-indigo-50/50 transition-colors"
+                            :class="bulkSelected.has(m.id) ? 'bg-indigo-50' : ''">
+                            <input type="checkbox" :checked="bulkSelected.has(m.id)" class="w-4 h-4 text-indigo-600 rounded border-gray-300 pointer-events-none">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-bold text-gray-900">{{ m.full_name }}</div>
+                                <div class="text-xs text-gray-400">{{ memberTypeLabel(m.member_type) }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nút thêm hàng loạt -->
+                    <button @click="bulkAddMembers" :disabled="bulkSelected.size === 0 || bulkLoading"
+                        class="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-black rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2 text-sm">
+                        <svg v-if="bulkLoading" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        {{ bulkLoading ? 'Đang thêm...' : `+ Thêm ${bulkSelected.size} thành viên` }}
+                    </button>
                 </div>
 
-                <div v-if="!managingClass?.teachers?.length && !managingClass?.students_list?.length" class="py-6 text-center text-gray-400 text-sm italic">
-                    Lớp chưa có thành viên nào.
+                <div class="border-t border-gray-100 pt-4">
+                    <!-- Giáo viên -->
+                    <div v-if="managingClass?.teachers?.length > 0" class="mb-3">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Giáo viên ({{ managingClass.teachers.length }})</label>
+                        <div class="space-y-1.5">
+                            <div v-for="t in managingClass.teachers" :key="t.id" class="flex items-center gap-2 p-2.5 bg-purple-50 rounded-xl">
+                                <span class="flex-1 text-sm font-bold text-purple-900">{{ t.full_name }}</span>
+                                <span class="text-[11px] bg-purple-200 text-purple-700 px-2 py-0.5 rounded-full font-bold">Giáo viên</span>
+                                <button @click="removeMember(t.id)" class="text-red-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Học viên -->
+                    <div v-if="managingClass?.students_list?.length > 0">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Học viên ({{ managingClass.students_list.length }})</label>
+                        <div class="space-y-1.5 max-h-72 overflow-y-auto">
+                            <div v-for="s in managingClass.students_list" :key="s.id" class="flex items-center gap-2 p-2.5 bg-blue-50 rounded-xl">
+                                <span class="flex-1 text-sm font-medium text-blue-900">{{ s.full_name }}</span>
+                                <button @click="removeMember(s.id)" class="text-red-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="!managingClass?.teachers?.length && !managingClass?.students_list?.length" class="py-6 text-center text-gray-400 text-sm italic">
+                        Lớp chưa có thành viên nào.
+                    </div>
                 </div>
             </div>
         </SlideOver>
@@ -181,7 +263,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useForm, router, Link } from '@inertiajs/vue3';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
 import SlideOver from '@/Components/SlideOver.vue';
@@ -194,6 +276,7 @@ const props = defineProps({
     availableDepartments: Array,
     isGlobalAdmin: Boolean,
     allMembers: Array,
+    departments: { type: Array, default: () => [] },
 });
 
 // ── Class Create/Edit ────────────────────────────────────────────────
@@ -221,6 +304,16 @@ const classTypeLabel = (type) => {
     return labels[type] ?? type;
 };
 
+const memberTypeLabel = (type) => {
+    const labels = {
+        chinh_thuc: 'Chính thức',
+        chua_chinh_thuc: 'Chưa chính thức',
+        than_huu: 'Thân hữu',
+        tin_huu_ht_khac: 'Tín hữu HT khác',
+    };
+    return labels[type] ?? (type || '—');
+};
+
 const submitForm = () => {
     if (editingClass.value) {
         form.put(route('education.update', editingClass.value.id), {
@@ -242,11 +335,73 @@ const memberSearch = ref('');
 const memberSearchResults = ref([]);
 const selectedMember = ref(null);
 const newMemberRole = ref('student');
+const memberTab = ref('search'); // 'search' | 'bulk'
+
+// ── Bulk add state ────────────────────────────────────────────────────
+const bulkSearch = ref('');
+const bulkFilterDept = ref('');
+const bulkFilterType = ref('');
+const bulkRole = ref('student');
+const bulkSelected = ref(new Set());
+const bulkLoading = ref(false);
+
+// Danh sách tín hữu đã lọc cho bulk (loại ra những người đã trong lớp)
+const filteredForBulk = computed(() => {
+    const existingIds = new Set([
+        ...(managingClass.value?.teachers || []).map(t => t.id),
+        ...(managingClass.value?.students_list || []).map(s => s.id),
+    ]);
+    const deptFilter = bulkFilterDept.value ? Number(bulkFilterDept.value) : null;
+    return (props.allMembers || []).filter(m => {
+        if (existingIds.has(m.id)) return false;
+        if (bulkSearch.value && !m.full_name.toLowerCase().includes(bulkSearch.value.toLowerCase())) return false;
+        if (deptFilter && !(m.department_ids || []).includes(deptFilter)) return false;
+        if (bulkFilterType.value && m.member_type !== bulkFilterType.value) return false;
+        return true;
+    });
+});
+
+const toggleBulkSelect = (id) => {
+    const next = new Set(bulkSelected.value);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    bulkSelected.value = next;
+};
+
+const selectAllBulk = () => {
+    bulkSelected.value = new Set(filteredForBulk.value.map(m => m.id));
+};
+
+const clearBulk = () => {
+    bulkSelected.value = new Set();
+};
+
+const bulkAddMembers = () => {
+    if (bulkSelected.value.size === 0) return;
+    bulkLoading.value = true;
+    router.post(route('education.members.bulk-store', managingClass.value.id), {
+        member_ids: Array.from(bulkSelected.value),
+        role: bulkRole.value,
+    }, {
+        preserveScroll: true,
+        onSuccess: (page) => {
+            const updated = page.props.classes?.find(c => c.id === managingClass.value.id);
+            if (updated) managingClass.value = { ...updated };
+            bulkSelected.value = new Set();
+        },
+        onFinish: () => { bulkLoading.value = false; },
+    });
+};
 
 const openMembersPanel = (cls) => {
     managingClass.value = { ...cls };
     memberSearch.value = '';
     selectedMember.value = null;
+    memberTab.value = 'search';
+    bulkSearch.value = '';
+    bulkFilterDept.value = '';
+    bulkFilterType.value = '';
+    bulkSelected.value = new Set();
     isMembersOpen.value = true;
 };
 
@@ -299,3 +454,4 @@ const removeMember = (memberId) => {
     });
 };
 </script>
+
