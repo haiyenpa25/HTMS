@@ -115,9 +115,16 @@ class DashboardController extends Controller
         $cgdgData = [];
         foreach ($cgdgTypes as $typeKey => $typeLabel) {
             $classes = EduClass::where('class_type', $typeKey)
-                ->with(['sessions' => function($q) use ($monthStart, $monthEnd) {
-                    $q->whereBetween('session_date', [$monthStart->toDateString(), $monthEnd->toDateString()])
-                      ->orderBy('session_date');
+                ->where('is_active', true)
+                ->with(['sessions' => function($q) use ($monthStart, $monthEnd, $typeKey) {
+                    if ($typeKey === 'bible_quiz') {
+                        // bible_quiz: lấy tất cả sessions, sắp theo ngày
+                        $q->orderBy('session_date', 'desc')->take(10);
+                    } else {
+                        // Các loại lớp khác: filter theo tháng
+                        $q->whereBetween('session_date', [$monthStart->toDateString(), $monthEnd->toDateString()])
+                          ->orderBy('session_date');
+                    }
                 }])
                 ->get();
 

@@ -102,6 +102,7 @@ Route::middleware('auth')->group(function () {
         // Class CRUD
         Route::post('/', [\App\Http\Controllers\Portal\EducationController::class, 'store'])->name('education.store');
         Route::put('/{eduClass}', [\App\Http\Controllers\Portal\EducationController::class, 'update'])->name('education.update');
+        Route::delete('/{eduClass}', [\App\Http\Controllers\Portal\EducationController::class, 'destroy'])->name('education.destroy');
         // Class Members
         Route::post('/{eduClass}/members', [\App\Http\Controllers\Portal\EducationController::class, 'storeMember'])->name('education.members.store');
         Route::post('/{eduClass}/members/bulk', [\App\Http\Controllers\Portal\EducationController::class, 'bulkStoreMember'])->name('education.members.bulk-store');

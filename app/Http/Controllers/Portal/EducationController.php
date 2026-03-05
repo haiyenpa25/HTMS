@@ -663,10 +663,18 @@ class EducationController extends Controller
             }
         });
 
+        // Tính lại total_present từ records (để Dashboard và báo cáo hiển thị đúng)
+        $presentCount = EduSessionRecord::where('edu_session_id', $eduSession->id)
+            ->where('attendance', 'present')
+            ->count();
+        $absentCount = EduSessionRecord::where('edu_session_id', $eduSession->id)
+            ->where('attendance', '!=', 'present')
+            ->count();
+
         $eduSession->update([
             'attendance_mode' => 'checkin',
-            'total_present'   => null,
-            'total_absent'    => null,
+            'total_present'   => $presentCount,
+            'total_absent'    => $absentCount,
         ]);
 
         return back()->with('success', 'Đã lưu điểm danh thành công.');
@@ -765,6 +773,25 @@ class EducationController extends Controller
 
         $eduClass->update($validated);
         return back()->with('success', 'Đã cập nhật lớp học.');
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // DESTROY CLASS — Xóa lớp học
+    // ══════════════════════════════════════════════════════════════
+    public function destroy(Request $request, EduClass $eduClass)
+    {
+        Gate::authorize('markAttendance', $eduClass);
+
+        // Xóa tất cả records liên quan
+        $sessionIds = EduSession::where('edu_class_id', $eduClass->id)->pluck('id');
+        EduSessionRecord::whereIn('edu_session_id', $sessionIds)->delete();
+        EduSession::where('edu_class_id', $eduClass->id)->delete();
+        EduClassMember::where('edu_class_id', $eduClass->id)->delete();
+
+        $name = $eduClass->name;
+        $eduClass->delete();
+
+        return redirect()->route('education.classes')->with('success', "Đã xóa lớp \"{$name}\".");
     }
 
     // ══════════════════════════════════════════════════════════════
