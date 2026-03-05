@@ -397,18 +397,27 @@ class DeaconPortalController extends Controller
             ['status' => 'draft', 'submitted_by' => $user->id]
         );
 
-        $report->update([
-            'yt_subscribers'     => $data['subscribers_current'] ?? 0,
-            'yt_new_subscribers' => $data['subscribers_new']     ?? 0,
-            'yt_views'           => $data['views']               ?? 0,
-            'yt_watch_hours'     => $data['watch_hours']         ?? 0,
-            'reporter_name'      => $data['reporter_name'],
-            'evaluation'         => $data['evaluation'],
-            'summary_notes'      => $data['evaluation'],   // keep in sync
-            'proposals'          => $data['proposals'],
-            'notes'              => $data['notes'],
-            'announcements'      => $data['notes'],        // keep in sync
-        ]);
+        $updateData = [];
+        
+        if ($request->has('subscribers_current')) {
+            $updateData['yt_subscribers']     = $data['subscribers_current'] ?? 0;
+            $updateData['yt_new_subscribers'] = $data['subscribers_new']     ?? 0;
+            $updateData['yt_views']           = $data['views']               ?? 0;
+            $updateData['yt_watch_hours']     = $data['watch_hours']         ?? 0;
+        }
+
+        if ($request->has('reporter_name') || $request->has('evaluation') || $request->has('proposals') || $request->has('notes')) {
+            $updateData['reporter_name']      = $data['reporter_name'] ?? $report->reporter_name;
+            $updateData['evaluation']         = $data['evaluation'] ?? $report->evaluation;
+            $updateData['summary_notes']      = $data['evaluation'] ?? $report->summary_notes;   // keep in sync
+            $updateData['proposals']          = $data['proposals'] ?? $report->proposals;
+            $updateData['notes']              = $data['notes'] ?? $report->notes;
+            $updateData['announcements']      = $data['notes'] ?? $report->announcements;        // keep in sync
+        }
+
+        if (!empty($updateData)) {
+            $report->update($updateData);
+        }
 
         return back()->with('success', 'Đã lưu báo cáo!');
     }
