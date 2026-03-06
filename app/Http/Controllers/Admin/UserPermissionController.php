@@ -3,26 +3,23 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Department;
+use App\Models\Feature;
+use App\Models\User;
+use App\Models\UserDepartmentFeature;
+use App\Services\PortalService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\User;
-use App\Models\Department;
-use App\Models\OrgRole;
-use App\Models\OrgMembership;
 use Inertia\Response;
 
 class UserPermissionController extends Controller
 {
-    const DEFAULT_PERMISSIONS = [
-        'manage_members'    => true,
-        'manage_attendance' => true,
-        'manage_funds'      => false,
-        'manage_reports'    => false,
-    ];
+    public function __construct(private PortalService $service) {}
 
-    /**
-     * Display the User Permissions page.
-     */
+    // ══════════════════════════════════════════════════════════════
+    // INDEX — Trang quản lý phân quyền
+    // ══════════════════════════════════════════════════════════════
+
     public function index(Request $request): Response
     {
         $query = User::query()->orderBy('name');
@@ -30,7 +27,7 @@ class UserPermissionController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                  ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -38,25 +35,28 @@ class UserPermissionController extends Controller
             'id'    => $u->id,
             'name'  => $u->name,
             'email' => $u->email,
+            'roles' => $u->getRoleNames(),
         ]);
 
+        // Danh sách tất cả departments với features của họ
         $departments = Department::orderBy('name')->get()->map(fn ($d) => [
-            'id'                 => $d->id,
-            'name'               => $d->name,
-            'code'               => $d->code,
-            'block'              => $d->block,
-            'available_features' => $d->available_features ?? [],
+            'id'    => $d->id,
+            'name'  => $d->name,
+            'code'  => $d->code,
+            'block' => $d->block,
         ]);
 
-
-        $orgRoles = OrgRole::orderBy('level', 'desc')->get()->map(fn ($r) => [
-            'id'    => $r->id,
-            'name'  => $r->name,
-            'code'  => $r->code,
-            'level' => $r->level,
+        // Tất cả features (10 features chuẩn MAC)
+        $features = Feature::orderBy('portal_type')->orderBy('name')->get()->map(fn ($f) => [
+            'id'          => $f->id,
+            'name'        => $f->name,
+            'slug'        => $f->slug,
+            'icon'        => $f->icon,
+            'portal_type' => $f->portal_type,
+            'description' => $f->description,
         ]);
 
-        // Preselect user if user_id provided (for mobile direct link from /users)
+        // Preselect user nếu có user_id param (mobile direct link)
         $preselectUser = null;
         if ($userId = $request->input('user_id')) {
             $u = User::find($userId);
@@ -68,93 +68,99 @@ class UserPermissionController extends Controller
         return Inertia::render('Admin/UserPermissions', [
             'users'         => $users,
             'departments'   => $departments,
-            'orgRoles'      => $orgRoles,
+            'features'      => $features,
             'filters'       => ['search' => $request->input('search')],
             'preselectUser' => $preselectUser,
         ]);
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // SHOW — Lấy toàn bộ MAC matrix cho 1 user (AJAX)
+    // ══════════════════════════════════════════════════════════════
 
-    /**
-     * Get memberships + global roles for a user (AJAX endpoint)
-     */
     public function show(User $user)
     {
-        $member = $user->member;
-
-        if (!$member) {
-            return response()->json([
-                'memberships'  => [],
-                'global_roles' => $user->getRoleNames(),
-                'member'       => null,
-            ]);
-        }
-
-        $memberships = OrgMembership::where('member_id', $member->id)
-            ->where('is_active', true)
+        // Lấy tất cả dòng user_department_features của user này
+        $rows = UserDepartmentFeature::with(['department:id,name,code,block', 'feature:id,name,slug,icon,portal_type'])
+            ->where('user_id', $user->id)
             ->get()
-            ->map(fn ($m) => [
-                'id'          => $m->id,
-                'model_type'  => $m->model_type,
-                'model_id'    => $m->model_id,
-                'org_role_id' => $m->org_role_id,
-                'permissions' => $m->permissions ?? self::DEFAULT_PERMISSIONS,
+            ->map(fn ($r) => [
+                'department_id' => $r->department_id,
+                'feature_id'    => $r->feature_id,
+                'dept_type'     => $r->dept_type,
+                'is_enabled'    => $r->is_enabled,
+                'access_level'  => $r->access_level,
+                'department'    => $r->department,
+                'feature'       => $r->feature,
             ]);
 
         return response()->json([
-            'memberships'  => $memberships,
-            'global_roles' => $user->getRoleNames(),
-            'member'       => [
-                'id'        => $member->id,
-                'full_name' => $member->full_name,
-                'code'      => $member->code ?? null,
-            ],
+            'user'          => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email],
+            'global_roles'  => $user->getRoleNames(),
+            'is_super_admin' => $user->isSuperAdmin(),
+            'permissions'   => $rows,
         ]);
     }
 
-    /**
-     * Save full permission set for a user
-     */
-    public function update(Request $request, User $user)
+    // ══════════════════════════════════════════════════════════════
+    // TOGGLE — Bật/tắt 1 feature cho user (AJAX)
+    // ══════════════════════════════════════════════════════════════
+
+    public function toggle(Request $request, User $user)
     {
         $validated = $request->validate([
-            'global_roles'                => 'array',
-            'memberships'                 => 'array',
-            'memberships.*.model_type'    => 'required|string',
-            'memberships.*.model_id'      => 'required|integer',
-            'memberships.*.org_role_id'   => 'required|integer',
-            'memberships.*.permissions'   => 'nullable|array',
-            'memberships.*.permissions.*' => 'boolean',
+            'department_id' => 'required|integer|exists:departments,id',
+            'feature_id'    => 'required|integer|exists:features,id',
+            'is_enabled'    => 'required|boolean',
+            'access_level'  => 'sometimes|in:view,manage',
         ]);
 
-        // 1. Sync Spatie global roles
-        $user->syncRoles($validated['global_roles'] ?? []);
+        $dept = Department::find($validated['department_id']);
 
-        // 2. Ensure Member record exists
-        $member = $user->member;
-        if (!$member) {
-            $member = \App\Models\Member::create([
-                'user_id'   => $user->id,
-                'full_name' => $user->name,
-                'gender'    => 'male',
-            ]);
-        }
+        $row = $this->service->upsertFeature(
+            userId:      $user->id,
+            deptId:      $validated['department_id'],
+            featureId:   $validated['feature_id'],
+            isEnabled:   $validated['is_enabled'],
+            accessLevel: $validated['access_level'] ?? 'view',
+            deptType:    $dept->block ?? 'activities',
+        );
 
-        // 3. Delete old memberships, recreate with new permissions
-        OrgMembership::where('member_id', $member->id)->delete();
+        return response()->json([
+            'success'    => true,
+            'is_enabled' => $row->is_enabled,
+            'access_level' => $row->access_level,
+        ]);
+    }
 
-        foreach ($validated['memberships'] ?? [] as $mem) {
-            OrgMembership::create([
-                'member_id'   => $member->id,
-                'model_type'  => $mem['model_type'],
-                'model_id'    => $mem['model_id'],
-                'org_role_id' => $mem['org_role_id'],
-                'is_active'   => true,
-                'join_date'   => now(),
-                'permissions' => $mem['permissions'] ?? self::DEFAULT_PERMISSIONS,
-            ]);
-        }
+    // ══════════════════════════════════════════════════════════════
+    // BULK — Cập nhật roles toàn cục (Spatie)
+    // ══════════════════════════════════════════════════════════════
 
-        return redirect()->back()->with('success', 'Phân quyền đã được cập nhật thành công.');
+    public function updateRoles(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'roles' => 'array',
+            'roles.*' => 'string',
+        ]);
+
+        $user->syncRoles($validated['roles'] ?? []);
+
+        return response()->json(['success' => true, 'roles' => $user->getRoleNames()]);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // GRANT SUPER — Phân quyền full cho 1 user (Admin action)
+    // ══════════════════════════════════════════════════════════════
+
+    public function grantFull(User $user)
+    {
+        $count = $this->service->grantSuperadminFullAccess($user);
+
+        return response()->json([
+            'success' => true,
+            'granted' => $count,
+            'message' => "Đã cấp {$count} quyền truy cập đầy đủ cho {$user->name}.",
+        ]);
     }
 }

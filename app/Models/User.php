@@ -51,4 +51,36 @@ class User extends Authenticatable
     {
         return $this->hasOne(Member::class);
     }
+
+    // ── MAC: Matrix Access Control ──────────────────────────────────
+
+    /**
+     * Tất cả feature permissions của user này (qua tất cả departments).
+     */
+    public function departmentFeatures()
+    {
+        return $this->hasMany(UserDepartmentFeature::class);
+    }
+
+    /**
+     * Lấy features đã enabled cho 1 department cụ thể.
+     */
+    public function enabledFeaturesFor(int $deptId)
+    {
+        return $this->departmentFeatures()
+            ->where('department_id', $deptId)
+            ->where('is_enabled', true)
+            ->with('feature')
+            ->get();
+    }
+
+    /**
+     * Kiểm tra nhanh superadmin bypass (God Mode).
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole(['Super_Admin', 'Pastor'])
+            || $this->email === 'superadmin@httlthanhmyloi.com';
+    }
 }
+

@@ -43,12 +43,15 @@ Route::middleware('auth')->group(function () {
     
     Route::prefix('admin')->middleware(\App\Http\Middleware\EnsureSuperAdmin::class)->group(function () {
         Route::get('/users/permissions', [\App\Http\Controllers\Admin\UserPermissionController::class, 'index'])->name('admin.users.permissions');
+        // MAC APIs
         Route::get('/users/{user}/permissions', [\App\Http\Controllers\Admin\UserPermissionController::class, 'show'])->name('admin.users.permissions.show');
-        Route::post('/users/{user}/permissions', [\App\Http\Controllers\Admin\UserPermissionController::class, 'update'])->name('admin.users.permissions.update');
+        Route::post('/users/{user}/permissions/toggle', [\App\Http\Controllers\Admin\UserPermissionController::class, 'toggle'])->name('admin.users.permissions.toggle');
+        Route::post('/users/{user}/permissions/roles', [\App\Http\Controllers\Admin\UserPermissionController::class, 'updateRoles'])->name('admin.users.permissions.roles');
+        Route::post('/users/{user}/permissions/grant-full', [\App\Http\Controllers\Admin\UserPermissionController::class, 'grantFull'])->name('admin.users.permissions.grant-full');
     });
 
-    // Department Portal
-    Route::prefix('portal')->middleware(\App\Http\Middleware\CheckPortalAccess::class . ':activities')->group(function () {
+    // Department Portal (Ban Sinh Hoạt — Activities)
+    Route::prefix('portal')->middleware(\App\Http\Middleware\EnsurePortalContext::class)->group(function () {
         Route::get('/', [\App\Http\Controllers\DepartmentPortalController::class, 'index'])->name('portal.index');
         Route::post('/switch-context', [\App\Http\Controllers\DepartmentPortalController::class, 'switchContext'])->name('portal.switch-context');
         
@@ -60,26 +63,26 @@ Route::middleware('auth')->group(function () {
         });
 
         // Thành viên
-        Route::middleware('feature.access:members,activities')->group(function () {
+        Route::middleware('portal.access:members,activities')->group(function () {
             Route::get('/members', [\App\Http\Controllers\Portal\PortalMemberController::class, 'index'])->name('portal.members.index');
             Route::post('/members/{member}/role', [\App\Http\Controllers\Portal\PortalMemberController::class, 'updateRole'])->name('portal.members.update');
             Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('portal.members.bulk-assign');
         });
 
         // Phân công
-        Route::middleware('feature.access:assignments,activities')->group(function () {
+        Route::middleware('portal.access:assignments,activities')->group(function () {
             Route::get('/assignments', [\App\Http\Controllers\Portal\AssignmentsController::class, 'index'])->name('portal.assignments.index');
         });
 
         // Báo cáo
-        Route::middleware('feature.access:reports,activities')->group(function () {
+        Route::middleware('portal.access:reports,activities')->group(function () {
             Route::get('/reports', [\App\Http\Controllers\Portal\DeptReportController::class, 'index'])->name('portal.reports.index');
             Route::post('/reports/save', [\App\Http\Controllers\Portal\DeptReportController::class, 'saveReport'])->name('portal.reports.save');
             Route::post('/reports/{report}/approve', [\App\Http\Controllers\Portal\DeptReportController::class, 'approveReport'])->name('portal.reports.approve');
         });
 
         // Tài chính
-        Route::middleware('feature.access:finance,activities')->group(function () {
+        Route::middleware('portal.access:finance,activities')->group(function () {
             Route::get('/finance', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'index'])->name('portal.finance.index');
             Route::post('/finance/meetings/{meeting}/finance', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'storeFinance'])->name('portal.finance.store');
             Route::delete('/finance/meetings/{meeting}/finance', [\App\Http\Controllers\Portal\DeptFinanceController::class, 'deleteFinance'])->name('portal.finance.delete');
@@ -88,7 +91,7 @@ Route::middleware('auth')->group(function () {
         });
         
         // Thăm viếng
-        Route::middleware('feature.access:visitation,activities')->group(function () {
+        Route::middleware('portal.access:visitation,activities')->group(function () {
             Route::get('/visitation', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'index'])->name('portal.visitation.index');
             Route::post('/visitation', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'store'])->name('portal.visitation.store');
             Route::put('/visitation/{visitation}', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'update'])->name('portal.visitation.update');

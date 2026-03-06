@@ -15,9 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
         ]);
         $middleware->alias([
-            'portal.access'  => \App\Http\Middleware\CheckPortalAccess::class,
-            'feature.access' => \App\Http\Middleware\CheckFeatureAccess::class,
+            // MAC — Matrix Access Control middleware (thay thế feature.access + portal.access cũ)
+            'portal.access'  => \App\Http\Middleware\PortalAccessMiddleware::class,
         ]);
+
 
     })
     ->withExceptions(function (Exceptions $exceptions) {
