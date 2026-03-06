@@ -148,7 +148,7 @@ class VisitationController extends Controller
             'attendances' => fn($q) => $q->whereIn('meeting_id', $recentMeetingIds),
             'memberships' => fn($q) => $q->whereIn('model_id', $activityDeptIds)
                                          ->where('model_type', Department::class)
-                                         ->with('department'),
+                                         ->with('model'),
         ]);
 
         if ($deptFilter === 'other') {
@@ -207,7 +207,7 @@ class VisitationController extends Controller
                     'visit_location' => $m->visit_location,
                     'latitude' => $m->latitude,
                     'longitude' => $m->longitude,
-                    'dept_name' => $m->memberships->first()?->department?->name,
+                    'dept_name' => $m->memberships->first()?->model?->name,
                 ]);
             }
         }
