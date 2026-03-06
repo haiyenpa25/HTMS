@@ -1,22 +1,18 @@
 ﻿<script setup>
 import { ref, computed, watch, onMounted } from 'vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { Link } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import AdminPortalLayout from '@/Layouts/AdminPortalLayout.vue';
 import axios from 'axios';
 
 const props = defineProps({
-  users: Object,
-  departments: Array,
-  orgRoles: Array,
-  filters: Object,
-  preselectUser: Object, // khi mở từ /users → nút Phân Quyền
+  users:         Object,
+  departments:   Array,
+  features:      Array, // 10 MAC features from Feature table
+  filters:       Object,
+  preselectUser: Object,
 });
 
-// Ẩn sidebar khi được mở từ users với user_id
-const hideSidebar = computed(() => !!props.preselectUser);
-
-// ─── Search ──────────────────────────────────────────────────────────────────
+// ── Search ────────────────────────────────────────────────────────────────────
 const searchInput = ref(props.filters?.search || '');
 let searchTimeout;
 const handleSearch = () => {
@@ -28,446 +24,387 @@ const handleSearch = () => {
   }, 500);
 };
 
-// ─── Active User State ────────────────────────────────────────────────────────
-const activeUser = ref(null);
-const isLoading = ref(false);
-const memberInfo = ref(null);
-const isSaving = ref(false);
-const savedMsg = ref('');
+// ── Active User & MAC state ────────────────────────────────────────────────────
+const activeUser    = ref(null);
+const isLoading     = ref(false);
+const isSuperAdmin  = ref(false);
+const globalRoles   = ref([]);
+// mac: Map<`${dept_id}-${feature_id}`, { is_enabled, access_level }>
+const macMatrix     = ref({});
+const toastMsg      = ref('');
+const toastType     = ref('success'); // success | error
+const isGranting    = ref(false);
 
-const form = ref({
-  global_roles: [],
-  memberships: [],
-});
-
-// Active Chip = which dept accordion is expanded
-const activeChipId = ref(null);
-
-// featurePerms is defined as a computed below (based on active dept's available_features)
-
-// Auto-preselect user từ URL (mobile direct link)
+// Preselect on mount
 onMounted(async () => {
   if (props.preselectUser) {
     await selectUser(props.preselectUser);
   }
 });
 
+const hideSidebar = computed(() => !!props.preselectUser);
 
-const DEFAULT_PERMISSIONS = {
-  manage_members: true,
-  manage_attendance: true,
-  manage_funds: false,
-  manage_reports: false,
-};
-
-// ─── Load user permissions ────────────────────────────────────────────────────
+// ── Load user MAC matrix (AJAX) ───────────────────────────────────────────────
 const selectUser = async (user) => {
-  activeUser.value = user;
-  isLoading.value = true;
-  activeChipId.value = null;
+  activeUser.value  = user;
+  isLoading.value   = true;
+  macMatrix.value   = {};
+  globalRoles.value = [];
+  isSuperAdmin.value = false;
   try {
     const res = await axios.get(route('admin.users.permissions.show', user.id));
-    form.value.global_roles = res.data.global_roles || [];
-    form.value.memberships = (res.data.memberships || []).map(m => ({
-      model_type: m.model_type,
-      model_id: m.model_id,
-      org_role_id: m.org_role_id,
-      permissions: m.permissions ?? { ...DEFAULT_PERMISSIONS },
-    }));
-    memberInfo.value = res.data.member || null;
-    // Auto-expand first chip
-    if (form.value.memberships.length > 0) {
-      activeChipId.value = form.value.memberships[0].model_id;
+    globalRoles.value  = res.data.global_roles || [];
+    isSuperAdmin.value = res.data.is_super_admin || false;
+
+    // Build MAC matrix map from array
+    const map = {};
+    for (const row of (res.data.permissions || [])) {
+      const key = `${row.department_id}-${row.feature_id}`;
+      map[key]  = { is_enabled: row.is_enabled, access_level: row.access_level || 'view' };
     }
+    macMatrix.value = map;
   } catch (e) {
-    console.error('Failed to load permissions', e);
+    showToast('Lỗi khi tải dữ liệu phân quyền.', 'error');
   } finally {
     isLoading.value = false;
   }
 };
 
-// ─── Global Roles ─────────────────────────────────────────────────────────────
-const globalRoleOptions = [
-  { id: 'Super_Admin', label: 'Super Admin', desc: 'Toàn quyền hệ thống', color: 'from-rose-600 to-red-700' },
-  { id: 'Pastor',      label: 'Mục Sư',      desc: 'Duyệt báo cáo, quản trị toàn cục', color: 'from-purple-600 to-violet-700' },
-];
+// ── MAC Matrix helpers ────────────────────────────────────────────────────────
+const macKey = (deptId, featureId) => `${deptId}-${featureId}`;
 
-const hasGlobalRole = (id) => form.value.global_roles.includes(id);
-const toggleGlobalRole = (id) => {
-  if (hasGlobalRole(id)) {
-    form.value.global_roles = form.value.global_roles.filter(r => r !== id);
-  } else {
-    form.value.global_roles.push(id);
-  }
+const isEnabled = (deptId, featureId) => {
+  return macMatrix.value[macKey(deptId, featureId)]?.is_enabled ?? false;
 };
 
-// ─── Department Memberships ───────────────────────────────────────────────────
-const getDeptMembership = (deptId) =>
-  form.value.memberships.find(m => m.model_type === 'App\\Models\\Department' && m.model_id === deptId);
+const accessLevel = (deptId, featureId) => {
+  return macMatrix.value[macKey(deptId, featureId)]?.access_level ?? 'view';
+};
 
-const hasDept = (deptId) => !!getDeptMembership(deptId);
+// ── Toggle 1 feature for current user ─────────────────────────────────────────
+const toggleFeature = async (dept, feature, newVal) => {
+  if (!activeUser.value) return;
 
-const toggleDept = (deptId) => {
-  if (hasDept(deptId)) {
-    form.value.memberships = form.value.memberships.filter(
-      m => !(m.model_type === 'App\\Models\\Department' && m.model_id === deptId)
+  const key = macKey(dept.id, feature.id);
+  // Optimistic update
+  macMatrix.value = {
+    ...macMatrix.value,
+    [key]: {
+      is_enabled:   newVal,
+      access_level: macMatrix.value[key]?.access_level ?? 'view',
+    },
+  };
+
+  try {
+    await axios.post(
+      route('admin.users.permissions.toggle', activeUser.value.id),
+      { department_id: dept.id, feature_id: feature.id, is_enabled: newVal }
     );
-    if (activeChipId.value === deptId) {
-      activeChipId.value = form.value.memberships[0]?.model_id ?? null;
-    }
-  } else {
-    const defaultRole = props.orgRoles.find(r => r.code === 'team_member') ?? props.orgRoles[props.orgRoles.length - 1];
-    form.value.memberships.push({
-      model_type: 'App\\Models\\Department',
-      model_id: deptId,
-      org_role_id: defaultRole?.id ?? 1,
-      permissions: { ...DEFAULT_PERMISSIONS },
-    });
-    activeChipId.value = deptId;
+    showToast(newVal ? `Đã bật: ${feature.name} — ${dept.name}` : `Đã tắt: ${feature.name}`, 'success');
+  } catch {
+    // Revert
+    macMatrix.value = {
+      ...macMatrix.value,
+      [key]: { is_enabled: !newVal, access_level: macMatrix.value[key]?.access_level ?? 'view' },
+    };
+    showToast('Lỗi khi cập nhật quyền.', 'error');
   }
 };
 
-const updateDeptRole = (deptId, roleId) => {
-  const m = getDeptMembership(deptId);
-  if (m) m.org_role_id = parseInt(roleId);
-};
+// ── Toggle access level ────────────────────────────────────────────────────────
+const toggleAccess = async (dept, feature, level) => {
+  if (!activeUser.value) return;
+  const key = macKey(dept.id, feature.id);
+  const prev = macMatrix.value[key]?.access_level ?? 'view';
 
-const togglePermission = (deptId, key) => {
-  const m = getDeptMembership(deptId);
-  if (m) {
-    if (!m.permissions) m.permissions = { ...DEFAULT_PERMISSIONS };
-    m.permissions[key] = !m.permissions[key];
+  macMatrix.value = {
+    ...macMatrix.value,
+    [key]: { ...macMatrix.value[key], access_level: level },
+  };
+
+  try {
+    await axios.post(
+      route('admin.users.permissions.toggle', activeUser.value.id),
+      {
+        department_id: dept.id,
+        feature_id:    feature.id,
+        is_enabled:    macMatrix.value[key]?.is_enabled ?? false,
+        access_level:  level,
+      }
+    );
+  } catch {
+    macMatrix.value = {
+      ...macMatrix.value,
+      [key]: { ...macMatrix.value[key], access_level: prev },
+    };
+    showToast('Lỗi khi cập nhật.', 'error');
   }
 };
 
-// Active chips = depts where user has a membership
-const activeChips = computed(() =>
-  form.value.memberships
-    .filter(m => m.model_type === 'App\\Models\\Department')
-    .map(m => {
-      const dept = props.departments.find(d => d.id === m.model_id);
-      return dept ? { ...dept, membership: m } : null;
-    })
-    .filter(Boolean)
-);
-
-// Accordion = currently selected chip
-const activeChipDept = computed(() =>
-  activeChips.value.find(c => c.id === activeChipId.value) ?? null
-);
-
-// ─── Church Membership (Ban Chấp Sự) ─────────────────────────────────────────
-const churchMembership = computed(() =>
-  form.value.memberships.find(m => m.model_type === 'App\\Models\\Church')
-);
-const hasChurch = computed(() => !!churchMembership.value);
-const toggleChurch = () => {
-  if (hasChurch.value) {
-    form.value.memberships = form.value.memberships.filter(m => m.model_type !== 'App\\Models\\Church');
-  } else {
-    const dRole = props.orgRoles.find(r => r.code === 'deacon_secretary') ?? props.orgRoles[0];
-    form.value.memberships.push({
-      model_type: 'App\\Models\\Church',
-      model_id: 1,
-      org_role_id: dRole?.id ?? 1,
-      permissions: { ...DEFAULT_PERMISSIONS },
-    });
+// ── Grant Full Access ──────────────────────────────────────────────────────────
+const grantFull = async () => {
+  if (!activeUser.value || isGranting.value) return;
+  if (!confirm(`Cấp toàn quyền cho ${activeUser.value.name}? Thao tác này bật tất cả tính năng cho mọi ban ngành.`)) return;
+  isGranting.value = true;
+  try {
+    const res = await axios.post(route('admin.users.permissions.grant-full', activeUser.value.id));
+    showToast(res.data.message || 'Đã cấp toàn quyền!', 'success');
+    // Reload matrix
+    await selectUser(activeUser.value);
+  } catch {
+    showToast('Lỗi khi cấp toàn quyền.', 'error');
+  } finally {
+    isGranting.value = false;
   }
 };
-const updateChurchRole = (roleId) => {
-  if (churchMembership.value) churchMembership.value.org_role_id = parseInt(roleId);
-};
-const churchRoles = computed(() => props.orgRoles.filter(r => r.code?.startsWith('deacon_')));
-const deptRoles = computed(() => props.orgRoles.filter(r => !r.code?.startsWith('deacon_') && !['pastor', 'bts_admin'].includes(r.code)));
 
-// ─── Feature Registry — keys khớp với portal route segments ─────────────────
-const FEATURE_REGISTRY = {
-  attendance:  { label: 'Điểm danh',          icon: '📋', url: '/portal/attendance' },
-  visitation:  { label: 'Thăm viếng',          icon: '🏠', url: '/portal/visitation'  },
-  members:     { label: 'Thành viên',           icon: '👥', url: '/portal/members'      },
-  assignments: { label: 'Phân công công tác',  icon: '📌', url: '/portal/assignments'  },
-  reports:     { label: 'Báo cáo & Thống kê',  icon: '📊', url: '/portal/reports'      },
-  finance:     { label: 'Tài chính / Quỹ',     icon: '💰', url: '/portal/finance'      },
-};
-
-
-// featurePerms = features of the currently selected department chip
-const featurePerms = computed(() => {
-  if (!activeChipDept.value) return [];
-  const available = activeChipDept.value.available_features ?? [];
-  if (available.length === 0) {
-    // Fallback: all features if not configured
-    return Object.entries(FEATURE_REGISTRY).map(([key, meta]) => ({ key, ...meta }));
+// ── Feature groups by portal_type ─────────────────────────────────────────────
+const featureGroups = computed(() => {
+  const groups = {};
+  for (const f of (props.features || [])) {
+    if (!groups[f.portal_type]) groups[f.portal_type] = [];
+    groups[f.portal_type].push(f);
   }
-  return available.map(key => FEATURE_REGISTRY[key] ? { key, ...FEATURE_REGISTRY[key] } : null).filter(Boolean);
+  return groups;
 });
 
-
-// ─── Save ─────────────────────────────────────────────────────────────────────
-const save = async () => {
-  isSaving.value = true;
-  savedMsg.value = '';
-  try {
-    await axios.post(route('admin.users.permissions.update', activeUser.value.id), {
-      _method: 'POST',
-      global_roles: form.value.global_roles,
-      memberships: form.value.memberships,
-    });
-    savedMsg.value = 'Đã lưu thành công!';
-    setTimeout(() => savedMsg.value = '', 3000);
-  } catch (e) {
-    savedMsg.value = 'Lỗi khi lưu!';
-  } finally {
-    isSaving.value = false;
-  }
+const portalTypeLabel = (type) => {
+  const labels = {
+    activities: '🎯 Ban Ngành Sinh Hoạt',
+    ministry:   '⛪ Ban Ngành Mục Vụ (Cơ Đốc Giáo Dục)',
+    deacon:     '🛡 Ban Chấp Sự',
+  };
+  return labels[type] ?? type;
 };
 
-// Avatar letter
-const avatarLetter = computed(() => {
-  if (!activeUser.value) return '?';
-  return (activeUser.value.name || 'U').charAt(0).toUpperCase();
+// ── Departments by block ───────────────────────────────────────────────────────
+const deptsByBlock = computed(() => {
+  const groups = {};
+  for (const d of (props.departments || [])) {
+    const b = d.block || 'activities';
+    if (!groups[b]) groups[b] = [];
+    groups[b].push(d);
+  }
+  return groups;
+});
+
+// Active tab block
+const activeBlock = ref('activities');
+const blocks = [
+  { key: 'activities', label: '🎯 Sinh Hoạt' },
+  { key: 'ministry',   label: '⛪ Mục Vụ' },
+  { key: 'leadership', label: '🛡 Lãnh Đạo' },
+];
+
+// ── Toast ──────────────────────────────────────────────────────────────────────
+let toastTimer;
+const showToast = (msg, type = 'success') => {
+  toastMsg.value  = msg;
+  toastType.value = type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { toastMsg.value = ''; }, 3000);
+};
+
+// Re-select user when changing tab block
+watch(activeBlock, () => {
+  // nothing special, UI recalculates via computed
 });
 </script>
 
 <template>
-  <Head title="Phân Quyền Chi Tiết" />
-  <AdminPortalLayout title="Cấp Quyền Người Dùng" active-tab="permissions">
-    <div class="min-h-screen bg-gray-50 text-gray-900">
-      <div class="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8 space-y-4">
+  <Head title="Phân Quyền Người Dùng (MAC)" />
+  <AdminPortalLayout>
+    <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
-        <!-- ── TOP: User Picker Row ── -->
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
-          <div class="flex items-center gap-3">
-            <!-- Search input -->
-            <div class="relative flex-1">
-              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-              </svg>
-              <input v-model="searchInput" @input="handleSearch" type="text"
-                placeholder="Tìm tên hoặc email tài khoản..."
-                class="w-full pl-9 pr-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition" />
-            </div>
-            <!-- Back button (when opened from /users) -->
-            <a v-if="hideSidebar" :href="route('users.index')"
-              class="shrink-0 flex items-center gap-1.5 px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition-colors">
-              ← Danh sách user
-            </a>
-          </div>
-
-          <!-- Dropdown results (show when typing) -->
-          <div v-if="searchInput.length >= 2 && users.data.length" class="mt-2 bg-white border border-gray-100 rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto">
-            <button v-for="user in users.data" :key="user.id"
-              @click="selectUser(user); searchInput = ''"
-              class="w-full flex items-center gap-3 px-4 py-3 hover:bg-indigo-50 transition-colors text-left border-b border-gray-50 last:border-0"
-              :class="activeUser?.id === user.id ? 'bg-indigo-50' : ''">
-              <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-black text-sm shrink-0">
-                {{ (user.name || 'U').charAt(0).toUpperCase() }}
-              </div>
-              <div class="overflow-hidden">
-                <div class="font-bold text-sm text-gray-900 truncate">{{ user.name }}</div>
-                <div class="text-xs text-gray-400 truncate">{{ user.email }}</div>
-              </div>
-              <span v-if="activeUser?.id === user.id" class="ml-auto shrink-0 text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-bold">Đang chọn</span>
-            </button>
-          </div>
-          <div v-else-if="searchInput.length >= 2 && !users.data.length" class="mt-2 py-3 text-center text-sm text-gray-400">Không tìm thấy tài khoản.</div>
-
-          <!-- Active user chip -->
-          <div v-if="activeUser" class="mt-3 flex items-center gap-3 pt-3 border-t border-gray-50">
-            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white font-black text-sm shrink-0 shadow">
-              {{ avatarLetter }}
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="font-black text-gray-900 text-sm">{{ activeUser.name }}</div>
-              <div class="text-xs text-gray-400 truncate">{{ activeUser.email }}</div>
-            </div>
-            <div class="flex items-center gap-2">
-              <span v-if="savedMsg" class="text-sm font-bold" :class="savedMsg.includes('Lỗi') ? 'text-red-500' : 'text-green-600'">{{ savedMsg }}</span>
-              <button @click="save" :disabled="isSaving"
-                class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-sm rounded-xl shadow-sm transition-all flex items-center gap-2">
-                <svg v-if="isSaving" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                </svg>
-                Lưu
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── Empty state ── -->
-        <div v-if="!activeUser && !isLoading" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-16 flex flex-col items-center text-center">
-          <div class="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center text-3xl mb-4">🔐</div>
-          <p class="font-black text-gray-700 text-lg">Chọn tài khoản để phân quyền</p>
-          <p class="text-sm text-gray-400 mt-1">Nhập tên hoặc email vào ô tìm kiếm ở trên</p>
-        </div>
-
-        <!-- ── Loading ── -->
-        <div v-else-if="isLoading" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-16 flex justify-center">
-          <div class="w-10 h-10 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin"></div>
-        </div>
-
-        <!-- ── PERMISSIONS PANEL ── -->
-        <div v-else-if="activeUser" class="space-y-4">
-
-          <!-- 1. Global Roles -->
-          <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100">
-            <h3 class="text-xs font-black text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-              <span class="w-5 h-5 rounded bg-rose-100 text-rose-500 flex items-center justify-center">🌍</span>
-              Quyền Hệ Thống Toàn Cục
-            </h3>
-            <div class="grid grid-cols-2 gap-3">
-              <label v-for="gr in globalRoleOptions" :key="gr.id"
-                @click="toggleGlobalRole(gr.id)"
-                class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all"
-                :class="hasGlobalRole(gr.id) ? 'border-indigo-400 bg-indigo-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'">
-                <div class="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
-                  :class="hasGlobalRole(gr.id) ? 'bg-indigo-600 border-indigo-600' : 'border-gray-300'">
-                  <svg v-if="hasGlobalRole(gr.id)" class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                  </svg>
-                </div>
-                <div>
-                  <div class="font-bold text-sm text-gray-900">{{ gr.label }}</div>
-                  <div class="text-xs text-gray-500 mt-0.5">{{ gr.desc }}</div>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          <!-- 2. Ban Chấp Sự -->
-                <div class="bg-amber-50 rounded-2xl p-5 border border-amber-100">
-                  <h3 class="text-xs font-black text-amber-700 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <span>🏛️</span> Ban Chấp Sự
-                  </h3>
-                  <label @click="toggleChurch"
-                    class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all"
-                    :class="hasChurch ? 'border-amber-400 bg-amber-100' : 'border-amber-200 hover:bg-amber-100'">
-                    <div class="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
-                      :class="hasChurch ? 'bg-amber-500 border-amber-500' : 'border-amber-300'">
-                      <svg v-if="hasChurch" class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                      </svg>
-                    </div>
-                    <span class="font-bold text-sm text-amber-900">Có quyền Ban Chấp Sự (Thư ký / Thủ quỹ)</span>
-                  </label>
-                  <div v-if="hasChurch" class="mt-3 ml-8 flex items-center gap-3">
-                    <span class="text-xs text-gray-500">Chức vụ:</span>
-                    <select :value="churchMembership?.org_role_id"
-                      @change="(e) => updateChurchRole(e.target.value)"
-                      class="text-sm bg-white border border-amber-200 text-gray-700 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-amber-400 outline-none">
-                      <option v-for="r in churchRoles" :key="r.id" :value="r.id">{{ r.name }}</option>
-                    </select>
-                  </div>
-                </div>
-
-          <!-- 3. Ban Ngành -->
-                <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100">
-                  <h3 class="text-xs font-black text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <span>🏃</span> Quyền Ban Ngành
-                  </h3>
-
-                  <!-- Active Department Chips -->
-                  <div class="mb-4">
-                    <p class="text-xs text-gray-500 mb-3">Đã cấp quyền:</p>
-                    <div class="flex flex-wrap gap-2">
-                      <button v-for="chip in activeChips" :key="chip.id"
-                        @click="activeChipId = chip.id"
-                        class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all border"
-                        :class="activeChipId === chip.id ? 'bg-indigo-600 border-indigo-500 text-white shadow-md' : 'bg-white border-gray-200 text-gray-700 hover:border-indigo-300'">
-                        {{ chip.block === 'activities' ? '🏃' : '🙏' }}
-                        {{ chip.name }}
-                        <svg @click.stop="toggleDept(chip.id)" class="w-3 h-3 ml-1 opacity-60 hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                      </button>
-                      <span v-if="activeChips.length === 0" class="text-xs text-gray-400 italic">Chưa có ban ngành nào</span>
-                    </div>
-                  </div>
-
-                  <!-- Accordion: Active chip permissions -->
-                  <div v-if="activeChipDept" class="mb-4 rounded-xl bg-white border border-indigo-200 overflow-hidden shadow-sm">
-                    <div class="flex items-center justify-between px-4 py-3 bg-indigo-50 border-b border-indigo-100">
-                      <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                        </svg>
-                        <span class="font-black text-indigo-900 text-sm">{{ activeChipDept.name }}</span>
-                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-600 font-bold">Đang chỉnh sửa</span>
-                      </div>
-                      <select :value="activeChipDept.membership.org_role_id"
-                        @change="(e) => updateDeptRole(activeChipDept.id, e.target.value)"
-                        class="text-xs bg-white border border-indigo-200 text-gray-700 rounded-lg px-2 py-1 focus:ring-2 focus:ring-indigo-400 outline-none">
-                        <option v-for="r in deptRoles" :key="r.id" :value="r.id">{{ r.name }}</option>
-                      </select>
-                    </div>
-                    <!-- Feature Permissions -->
-                    <div class="divide-y divide-gray-100">
-                      <label v-for="perm in featurePerms" :key="perm.key"
-                        @click="togglePermission(activeChipDept.id, perm.key)"
-                        class="flex items-center justify-between px-5 py-3.5 hover:bg-indigo-50/50 cursor-pointer transition-colors">
-                        <div class="flex items-center gap-3">
-                          <span class="text-lg w-7">{{ perm.icon }}</span>
-                          <span class="text-sm font-medium text-gray-700">{{ perm.label }}</span>
-                        </div>
-                        <div class="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
-                          :class="activeChipDept.membership.permissions?.[perm.key] ? 'bg-indigo-600 border-indigo-600' : 'border-gray-300'">
-                          <svg v-if="activeChipDept.membership.permissions?.[perm.key]"
-                            class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                          </svg>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
-                  <!-- Other chips (collapsed) -->
-                  <div v-for="chip in activeChips.filter(c => c.id !== activeChipId)" :key="'o' + chip.id"
-                    class="mb-2 rounded-xl border border-gray-200 overflow-hidden">
-                    <button @click="activeChipId = chip.id"
-                      class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors">
-                      <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                        </svg>
-                        <span class="font-bold text-gray-700 text-sm">{{ chip.name }}</span>
-                      </div>
-                      <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                      </svg>
-                    </button>
-                  </div>
-
-                  <!-- Add Departments -->
-                  <div class="mt-4 border-t border-gray-100 pt-4">
-                    <p class="text-xs text-gray-500 mb-3">Thêm ban ngành:</p>
-                    <div class="mb-3">
-                      <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-2">🏃 Ban Sinh Hoạt</p>
-                      <div class="flex flex-wrap gap-2">
-                        <button v-for="dept in departments.filter(d => d.block === 'activities')" :key="dept.id"
-                          @click="toggleDept(dept.id)"
-                          class="px-3 py-1.5 rounded-full text-xs font-bold border transition-all"
-                          :class="hasDept(dept.id) ? 'bg-emerald-100 border-emerald-400 text-emerald-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'">
-                          {{ hasDept(dept.id) ? '✓ ' : '+ ' }}{{ dept.name }}
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <p class="text-[10px] font-bold text-purple-600 uppercase tracking-wider mb-2">🙏 Ban Mục Vụ</p>
-                      <div class="flex flex-wrap gap-2">
-                        <button v-for="dept in departments.filter(d => d.block === 'ministry')" :key="dept.id"
-                          @click="toggleDept(dept.id)"
-                          class="px-3 py-1.5 rounded-full text-xs font-bold border transition-all"
-                          :class="hasDept(dept.id) ? 'bg-purple-100 border-purple-400 text-purple-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'">
-                          {{ hasDept(dept.id) ? '✓ ' : '+ ' }}{{ dept.name }}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-black text-gray-900">🔐 Ma Trận Phân Quyền</h1>
+          <p class="text-sm text-gray-500 mt-0.5">Chọn người dùng → bật/tắt tính năng theo từng ban ngành</p>
         </div>
       </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- ══ LEFT: User Picker ══════════════════════════════════════════════ -->
+        <div v-if="!hideSidebar" class="lg:col-span-1">
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <!-- Search -->
+            <div class="px-4 py-3 border-b border-gray-100">
+              <div class="relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/></svg>
+                <input v-model="searchInput" @input="handleSearch" type="text"
+                  class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Tìm email hoặc tên...">
+              </div>
+            </div>
+
+            <!-- User list -->
+            <div class="divide-y divide-gray-50 max-h-[70vh] overflow-y-auto">
+              <button v-for="u in users.data" :key="u.id" @click="selectUser(u)"
+                class="w-full text-left px-4 py-3 hover:bg-indigo-50 transition-colors flex items-center gap-3"
+                :class="activeUser?.id === u.id ? 'bg-indigo-50 border-l-4 border-indigo-500' : ''">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-black shrink-0">
+                  {{ u.name.charAt(0).toUpperCase() }}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm font-bold text-gray-900 truncate">{{ u.name }}</p>
+                  <p class="text-xs text-gray-400 truncate">{{ u.email }}</p>
+                </div>
+                <span v-if="u.roles?.length" class="text-[10px] px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full font-bold shrink-0">
+                  {{ u.roles[0] }}
+                </span>
+              </button>
+              <div v-if="users.data.length === 0" class="py-12 text-center text-gray-400 text-sm">
+                Không tìm thấy người dùng.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ RIGHT: MAC Matrix Panel ════════════════════════════════════════ -->
+        <div :class="hideSidebar ? 'lg:col-span-3' : 'lg:col-span-2'">
+
+          <!-- Empty state -->
+          <div v-if="!activeUser" class="bg-white rounded-2xl shadow-sm border border-gray-100 py-20 flex flex-col items-center text-gray-400">
+            <svg class="w-14 h-14 mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <p class="font-bold">Chọn người dùng để phân quyền</p>
+          </div>
+
+          <!-- Loading -->
+          <div v-else-if="isLoading" class="bg-white rounded-2xl shadow-sm border border-gray-100 py-20 flex flex-col items-center text-gray-400">
+            <svg class="animate-spin w-10 h-10 text-indigo-400 mb-3" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            <p class="text-sm">Đang tải phân quyền...</p>
+          </div>
+
+          <!-- Matrix Panel -->
+          <div v-else class="space-y-4">
+            <!-- User header bar -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center justify-between flex-wrap gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-lg">
+                  {{ activeUser.name.charAt(0).toUpperCase() }}
+                </div>
+                <div>
+                  <h2 class="font-black text-gray-900 text-base">{{ activeUser.name }}</h2>
+                  <p class="text-xs text-gray-400">{{ activeUser.email }}</p>
+                  <div class="flex gap-1 mt-1 flex-wrap">
+                    <span v-for="r in globalRoles" :key="r"
+                      class="text-[10px] px-2 py-0.5 rounded-full font-bold"
+                      :class="r === 'Super_Admin' ? 'bg-rose-100 text-rose-700' : 'bg-purple-100 text-purple-700'">
+                      {{ r }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex gap-2 flex-wrap">
+                <!-- God Mode badge -->
+                <div v-if="isSuperAdmin" class="flex items-center gap-1 px-3 py-1.5 bg-rose-50 border border-rose-200 rounded-xl">
+                  <span class="text-rose-600 text-xs font-black">⚡ GOD MODE</span>
+                  <span class="text-red-400 text-[10px]">— Bypass tất cả</span>
+                </div>
+                <!-- Grant Full button -->
+                <button @click="grantFull" :disabled="isGranting"
+                  class="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-black hover:from-amber-600 hover:to-orange-600 transition-all disabled:opacity-50 shadow-sm">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  {{ isGranting ? 'Đang cấp...' : 'Cấp Toàn Quyền' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Block tabs -->
+            <div class="flex gap-2 flex-wrap">
+              <button v-for="b in blocks" :key="b.key" @click="activeBlock = b.key"
+                class="px-4 py-2 rounded-xl text-sm font-bold transition-all"
+                :class="activeBlock === b.key
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:border-indigo-300 hover:text-indigo-600'">
+                {{ b.label }}
+              </button>
+            </div>
+
+            <!-- Department × Feature matrix (active block) -->
+            <div v-for="dept in (deptsByBlock[activeBlock] || [])" :key="dept.id"
+              class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+
+              <!-- Dept header -->
+              <div class="px-5 py-3 border-b border-gray-100 flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">
+                  {{ dept.name.charAt(0) }}
+                </div>
+                <h3 class="font-black text-gray-900 text-sm">{{ dept.name }}</h3>
+                <span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full font-bold">{{ dept.code }}</span>
+              </div>
+
+              <!-- Features grid -->
+              <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div v-for="feature in features" :key="feature.id"
+                  class="flex items-center justify-between gap-3 p-3 rounded-xl border transition-all"
+                  :class="isEnabled(dept.id, feature.id)
+                    ? 'bg-green-50 border-green-200'
+                    : 'bg-gray-50 border-gray-200'">
+
+                  <!-- Feature info -->
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="text-lg shrink-0">{{ feature.icon }}</span>
+                    <div class="min-w-0">
+                      <p class="text-sm font-bold text-gray-900 truncate">{{ feature.name }}</p>
+                      <p class="text-[10px] text-gray-400 truncate">{{ feature.slug }}</p>
+                    </div>
+                  </div>
+
+                  <!-- Toggle + Access level -->
+                  <div class="flex items-center gap-2 shrink-0">
+                    <!-- Access level selector (hiện khi enabled) -->
+                    <select v-if="isEnabled(dept.id, feature.id)"
+                      :value="accessLevel(dept.id, feature.id)"
+                      @change="toggleAccess(dept, feature, $event.target.value)"
+                      class="text-[10px] border-green-200 rounded-lg font-bold bg-white focus:ring-1 focus:ring-green-500 py-0.5 px-1">
+                      <option value="view">Xem</option>
+                      <option value="manage">Quản lý</option>
+                    </select>
+                    <!-- Toggle switch -->
+                    <button @click="toggleFeature(dept, feature, !isEnabled(dept.id, feature.id))"
+                      class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
+                      :class="isEnabled(dept.id, feature.id) ? 'bg-green-500' : 'bg-gray-300'">
+                      <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                        :class="isEnabled(dept.id, feature.id) ? 'translate-x-6' : 'translate-x-1'"/>
+                    </button>
+                  </div>
+                </div>
+
+                <div v-if="features.length === 0" class="col-span-2 text-center py-8 text-gray-400 text-sm">
+                  Chưa có tính năng nào.
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty departments -->
+            <div v-if="!deptsByBlock[activeBlock]?.length"
+              class="bg-white rounded-2xl shadow-sm border border-gray-100 py-12 text-center text-gray-400 text-sm">
+              Không có ban ngành nào trong nhóm này.
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end grid -->
     </div>
+
+    <!-- Toast notification -->
+    <Transition enter-from-class="opacity-0 translate-y-2" leave-to-class="opacity-0 translate-y-2"
+      enter-active-class="transition duration-200" leave-active-class="transition duration-200">
+      <div v-if="toastMsg" class="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-bold"
+        :class="toastType === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path v-if="toastType === 'success'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        {{ toastMsg }}
+      </div>
+    </Transition>
+
   </AdminPortalLayout>
 </template>
