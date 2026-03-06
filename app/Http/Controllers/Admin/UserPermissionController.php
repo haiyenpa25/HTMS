@@ -42,6 +42,7 @@ class UserPermissionController extends Controller
                 'id' => $d->id,
                 'name' => $d->name,
                 'code' => $d->code,
+                'block' => $d->block,
             ];
         });
 

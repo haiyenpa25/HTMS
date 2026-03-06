@@ -109,14 +109,9 @@ const updateDepartmentRole = (deptId, newRoleId) => {
   }
 };
 
-// Phân tách Nhóm Ban Sinh Họat & Mục vụ theo Keyword (Tạm tính)
-const isMinistry = (name) => {
-  const kws = ['mục vụ', 'truyền thông', 'âm nhạc', 'y tế', 'thăm viếng', 'chăm sóc', 'cầu nguyện'];
-  return kws.some(kw => name.toLowerCase().includes(kw));
-};
-
-const minDeptList = computed(() => props.departments.filter(d => isMinistry(d.name)));
-const actDeptList = computed(() => props.departments.filter(d => !isMinistry(d.name)));
+// Phân tách Nhóm Ban Sinh Họat & Mục vụ theo Thuộc tính chuẩn CONFIG.md
+const actDeptList = computed(() => props.departments.filter(d => d.block === 'activities'));
+const minDeptList = computed(() => props.departments.filter(d => d.block === 'ministry'));
 
 /* ---------------- Church Level (Ban Chấp Sự / Thư Ký Giáo Hội) ---------------- */
 const getChurchMembership = () => {
@@ -152,9 +147,35 @@ const deptRolesOptions = computed(() => props.orgRoles.filter(r => !r.code.start
 
   <AuthenticatedLayout>
     <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
-      <div class="mb-8">
-        <h1 class="text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">🔐 Quản Trị Phân Quyền</h1>
-        <p class="mt-2 text-sm text-gray-500">Cấp quyền đa tầng (RBAC) cho Thành viên: Cấp Hệ Thống - Cấp Chấp Sự - Cấp Ban Ngành.</p>
+      
+      <!-- HỆ THỐNG TAB MENU NGANG -->
+      <div class="mb-8 border-b border-gray-200">
+        <nav class="-mb-px flex space-x-6 overflow-x-auto hide-scrollbar" aria-label="Tabs">
+          <Link
+            :href="route('users.index')"
+            class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+          >
+            👥 Tài khoản Người Dùng
+          </Link>
+          <Link
+            :href="route('roles.index')"
+            class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+          >
+            🛡️ Nhóm Chức vụ
+          </Link>
+          <Link
+            :href="route('admin.users.permissions')"
+            class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium border-blue-500 text-blue-600 font-bold"
+            aria-current="page"
+          >
+            🔐 Cấp Quyền Người Dùng
+          </Link>
+        </nav>
+      </div>
+
+      <div class="mb-6">
+        <h1 class="text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">🔑 Cấp Quyền Đa Tầng</h1>
+        <p class="mt-2 text-sm text-gray-500">Tìm kiếm nhân sự và tích chọn quyền truy cập vào các Ban ngành tương ứng.</p>
       </div>
 
       <div class="flex flex-col lg:flex-row gap-6 h-[800px]">

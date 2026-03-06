@@ -4,22 +4,42 @@
       Phân quyền Hệ thống
     </template>
 
-    <div class="py-4 space-y-6 max-w-7xl mx-auto">
+    <div class="py-4 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- HỆ THỐNG TAB MENU NGANG -->
+      <div class="mb-4 border-b border-gray-200">
+        <nav class="-mb-px flex space-x-6 overflow-x-auto hide-scrollbar" aria-label="Tabs">
+          <Link
+            :href="route('users.index')"
+            class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+          >
+            👥 Tài khoản Người Dùng
+          </Link>
+          <Link
+            :href="route('roles.index')"
+            class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium border-blue-500 text-blue-600 font-bold"
+            aria-current="page"
+          >
+            🛡️ Nhóm Chức vụ
+          </Link>
+          <Link
+            :href="route('admin.users.permissions')"
+            class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+          >
+            🔐 Cấp Quyền Người Dùng
+          </Link>
+        </nav>
+      </div>
+
       <!-- Intro Section -->
       <div class="bg-gradient-to-br from-indigo-700 to-blue-800 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden">
         <div class="absolute inset-0 bg-grid-white/[0.1] bg-[size:16px_16px]"></div>
         <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
            <div>
-              <h1 class="text-3xl font-black mb-2 leading-none">Nhóm Vai trò (Roles)</h1>
+              <h1 class="text-3xl font-black mb-2 leading-none">Chức vụ Toàn Cục</h1>
               <p class="text-blue-100 max-w-xl">
-                 Hệ thống phân quyền được kiểm soát chặt chẽ thông qua các Nhóm Vai trò. Bạn có thể xem và điều chỉnh quyền hạn chi tiết cho từng nhóm này.
+                 Quản lý các ranh giới chức năng của từng Vai trò nghiệp vụ trên Toàn hệ thống (Super Admin, Mục sư).
               </p>
-           </div>
-           <!-- Role Action (Tương lai có thể thêm Role Create form) -->
-           <div class="flex-shrink-0">
-              <button class="px-6 py-3 bg-white text-blue-700 rounded-2xl font-black hover:bg-blue-50 transition-colors shadow-sm">
-                 + Thêm Vai trò mới
-              </button>
            </div>
         </div>
       </div>
@@ -87,13 +107,11 @@ defineProps({
 
 const getRoleDescription = (name) => {
    const descs = {
-      'Super_Admin': 'Quản trị viên cấp cao nhất. Có toàn quyền quản lý hệ thống, phân quyền và điều chỉnh kỹ thuật.',
-      'Pastor': 'Mục sư Quản nhiệm. Được cấp quyền truy cập vào thông tin tín hữu lớp 3 (Nhạy cảm/Mục vụ).',
-      'Ban Lãnh Đạo': 'Ban Trị sự, Chấp sự. Quản lý toàn bộ tín hữu, lên kế hoạch cho các Khối.',
-      'Trưởng Ban': 'Quản lý một ban ngành cụ thể, xem danh sách tín hữu trong ban.',
-      'Thư ký Hội Thánh': 'Hỗ trợ quản lý dữ liệu, báo cáo, cập nhật hồ sơ tín hữu.',
+      'Super_Admin': 'Tệp Quản trị tối cao. Tương quyền với Root Server. Bỏ qua mọi giới hạn xác thực và kiểm tra Database.',
+      'Pastor': 'Cấp Quản nhiệm. Có khả năng duyệt bảng báo cáo và thâm nhập vào các khu vực nội dung cấp độ 3.',
+      'Administrator': 'Quản trị viên Ban điều hành. Giới hạn các quyền tuỳ biến Hệ thống lõi.',
    };
-   return descs[name] || `Vai trò nghiệp vụ ${name}. Được cấp phát các quyền tương ứng bởi quản trị viên.`;
+   return descs[name] || `Vai trò nghiệp vụ ${name}. Được cấp phát các Quyền hạn (Permissions) tương ứng trên diện rộng.`;
 };
 
 // Layout Manager

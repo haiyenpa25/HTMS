@@ -65,15 +65,8 @@
             
             <!-- Submenu Items -->
             <div v-show="!isSidebarCollapsed && isSettingsMenuOpen" class="pl-11 pr-3 py-1.5 space-y-1">
-               <Link :href="route('users.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('users.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
-                 Người dùng
-               </Link>
-               <Link :href="route('roles.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('roles.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
-                 Quản lý Chức vụ
-               </Link>
-               <Link :href="route('admin.users.permissions')" class="flex flex-col px-3 py-2 rounded-lg transition-colors" :class="route().current('admin.users.permissions*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
-                 <span class="text-sm font-bold">Phân quyền Mở rộng</span>
-                 <span class="text-[10px]">Cấp độ Ban ngành</span>
+               <Link :href="route('users.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="(route().current('users.*') || route().current('roles.*') || route().current('admin.users.permissions*')) ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
+                 Quản trị Tài khoản
                </Link>
                <Link :href="route('speakers.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('speakers.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
                  Diễn giả

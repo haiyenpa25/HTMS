@@ -4,7 +4,33 @@
       Quản lý Người dùng
     </template>
 
-    <div class="py-4 space-y-6">
+    <div class="py-4 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- HỆ THỐNG TAB MENU NGANG -->
+      <div class="mb-4 border-b border-gray-200">
+        <nav class="-mb-px flex space-x-6 overflow-x-auto hide-scrollbar" aria-label="Tabs">
+          <Link
+            :href="route('users.index')"
+            class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium border-blue-500 text-blue-600 font-bold"
+            aria-current="page"
+          >
+            👥 Tài khoản Người Dùng
+          </Link>
+          <Link
+            :href="route('roles.index')"
+            class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+          >
+            🛡️ Nhóm Chức vụ
+          </Link>
+          <Link
+            :href="route('admin.users.permissions')"
+            class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+          >
+            🔐 Cấp Quyền Người Dùng
+          </Link>
+        </nav>
+      </div>
+
       <!-- Search & Actions -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="relative w-full md:w-96">
