@@ -21,7 +21,9 @@ class EnsureMinistryContext
         if (!$user) return $next($request);
 
         $activeDeptId = session('active_ministry_dept_id');
-        $isGlobalAdmin = $user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin']);
+        $isGlobalAdmin = $user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])
+            || $user->email === 'superadmin@httlthanhmyloi.com';
+
 
         if (!$activeDeptId) {
             $memberId = $user->member_id;
