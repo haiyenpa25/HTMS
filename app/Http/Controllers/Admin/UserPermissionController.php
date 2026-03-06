@@ -41,11 +41,13 @@ class UserPermissionController extends Controller
         ]);
 
         $departments = Department::orderBy('name')->get()->map(fn ($d) => [
-            'id'    => $d->id,
-            'name'  => $d->name,
-            'code'  => $d->code,
-            'block' => $d->block,
+            'id'                 => $d->id,
+            'name'               => $d->name,
+            'code'               => $d->code,
+            'block'              => $d->block,
+            'available_features' => $d->available_features ?? [],
         ]);
+
 
         $orgRoles = OrgRole::orderBy('level', 'desc')->get()->map(fn ($r) => [
             'id'    => $r->id,

@@ -1,22 +1,53 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import AdminPortalLayout from '@/Layouts/AdminPortalLayout.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
 import UserFormModal from './FormModal.vue';
 import DeleteConfirmModal from '@/Components/DeleteConfirmModal.vue';
 
 const props = defineProps({
   users: Object,
   roles: Array,
+  departments: Array,  // [{id, name, block}]
+  blockLabels: Object, // {'activities': '🏃 Ban Sinh Hoạt', ...}
   filters: Object,
 });
 
 const search = ref(props.filters?.search || '');
+const selectedBlock = ref(props.filters?.block || '');
+const selectedDept  = ref(props.filters?.department_id ? Number(props.filters.department_id) : null);
 
-watch(search, (value) => {
-  router.get(route('users.index'), { search: value }, { preserveState: true, replace: true });
+// Departments filtered by selected block
+const filteredDepts = computed(() => {
+  if (!selectedBlock.value) return [];
+  return props.departments.filter(d => d.block === selectedBlock.value);
 });
+
+const applyFilters = () => {
+  router.get(route('users.index'), {
+    search: search.value || undefined,
+    block: selectedBlock.value || undefined,
+    department_id: selectedDept.value || undefined,
+  }, { preserveState: true, replace: true });
+};
+
+watch(search, (v) => {
+  applyFilters();
+}, { debounce: 300 });
+
+const onBlockChange = () => {
+  selectedDept.value = null;
+  applyFilters();
+};
+
+const onDeptChange = () => applyFilters();
+
+const clearFilters = () => {
+  search.value = '';
+  selectedBlock.value = '';
+  selectedDept.value = null;
+  applyFilters();
+};
 
 // Modal
 const showModal = ref(false);
@@ -42,44 +73,90 @@ const roleColor = (role) => {
   if (role === 'Guest')       return 'bg-gray-100 text-gray-700';
   return 'bg-indigo-100 text-indigo-800';
 };
+
+const blockBadge = (block) => {
+  const map = {
+    activities: 'bg-emerald-100 text-emerald-700',
+    ministry: 'bg-purple-100 text-purple-700',
+    leadership: 'bg-amber-100 text-amber-700',
+  };
+  return map[block] || 'bg-gray-100 text-gray-700';
+};
 </script>
 
 <template>
   <AdminPortalLayout title="Quản lý Tài khoản" active-tab="users">
 
-    <!-- Search & Actions -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-      <div class="relative w-full sm:w-96">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-        <input v-model="search" type="text" placeholder="Tìm theo tên, email..."
-          class="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm shadow-sm outline-none" />
+    <!-- ── Filter Panel ── -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-5">
+      <div class="flex flex-col md:flex-row gap-3">
+
+        <!-- Search -->
+        <div class="relative flex-1">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input v-model="search" type="text" placeholder="Tìm theo tên, email..."
+            class="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"/>
+        </div>
+
+        <!-- Block Filter (Loại Ban Ngành) -->
+        <select v-model="selectedBlock" @change="onBlockChange"
+          class="py-2.5 px-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white min-w-[160px]">
+          <option value="">📋 Tất cả loại ban</option>
+          <option v-for="(label, key) in blockLabels" :key="key" :value="key">{{ label }}</option>
+        </select>
+
+        <!-- Department Filter (dependent on block) -->
+        <select v-if="selectedBlock" v-model="selectedDept" @change="onDeptChange"
+          class="py-2.5 px-3 border border-indigo-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white min-w-[200px]">
+          <option :value="null">— Tất cả ban trong loại này</option>
+          <option v-for="d in filteredDepts" :key="d.id" :value="d.id">{{ d.name }}</option>
+        </select>
+
+        <!-- Clear + Create -->
+        <button v-if="selectedBlock || search" @click="clearFilters"
+          class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition-colors">
+          ✕ Xóa lọc
+        </button>
+        <button @click="openCreateModal"
+          class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-sm transition-all shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+          Tạo Tài Khoản
+        </button>
       </div>
-      <button @click="openCreateModal"
-        class="flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-md shadow-indigo-200 transition-all">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+
+      <!-- Active Filter Summary -->
+      <div v-if="selectedBlock || selectedDept" class="mt-3 flex items-center gap-2 text-xs text-indigo-600">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
         </svg>
-        Tạo Tài Khoản
-      </button>
+        <span>Đang lọc: <strong>{{ blockLabels[selectedBlock] }}</strong>
+          <span v-if="selectedDept"> → <strong>{{ filteredDepts.find(d => d.id === selectedDept)?.name }}</strong></span>
+          — <strong class="underline cursor-pointer" @click="clearFilters">bỏ lọc</strong>
+        </span>
+      </div>
     </div>
 
-    <!-- Desktop Table -->
+    <!-- ── Data Table ── -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+
+      <!-- Desktop Table -->
       <div class="hidden md:block overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-100">
           <thead class="bg-gray-50/80">
             <tr>
               <th class="px-6 py-3.5 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Tài Khoản</th>
               <th class="px-6 py-3.5 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Liên hệ</th>
-              <th class="px-6 py-3.5 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Chức vụ toàn cục</th>
+              <th class="px-6 py-3.5 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Chức vụ</th>
               <th class="px-6 py-3.5 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Ban Ngành</th>
               <th class="px-6 py-3.5 text-right text-xs font-black text-gray-500 uppercase tracking-wider">Thao tác</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-50">
-            <tr v-for="user in users.data" :key="user.id" class="hover:bg-indigo-50/30 transition-colors group">
+            <tr v-for="user in users.data" :key="user.id" class="hover:bg-indigo-50/30 transition-colors">
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                   <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-black text-sm shrink-0">
@@ -97,23 +174,18 @@ const roleColor = (role) => {
                   {{ user.role || 'Chưa phân' }}
                 </span>
               </td>
-              <td class="px-6 py-4 text-sm text-gray-500 max-w-[200px] truncate" :title="user.departments">
-                {{ user.departments || '—' }}
+              <td class="px-6 py-4 text-sm text-gray-500">
+                <span v-if="user.departments !== 'Chưa tham gia'" class="text-gray-700">{{ user.departments }}</span>
+                <span v-else class="italic text-gray-400">Chưa tham gia</span>
               </td>
               <td class="px-6 py-4 text-right whitespace-nowrap">
                 <div class="flex items-center justify-end gap-2">
-                  <Link :href="route('admin.users.permissions') + '?search=' + user.email"
-                    class="text-xs font-bold text-teal-600 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg transition-colors" title="Phân Quyền">
+                  <Link :href="route('admin.users.permissions') + '?search=' + encodeURIComponent(user.email)"
+                    class="text-xs font-bold text-teal-600 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg transition-colors">
                     🔐 Quyền
                   </Link>
-                  <button @click="openEditModal(user)"
-                    class="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors">
-                    Sửa
-                  </button>
-                  <button @click="confirmDelete(user)"
-                    class="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors">
-                    Xóa
-                  </button>
+                  <button @click="openEditModal(user)" class="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors">Sửa</button>
+                  <button @click="confirmDelete(user)" class="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors">Xóa</button>
                 </div>
               </td>
             </tr>
@@ -143,10 +215,10 @@ const roleColor = (role) => {
           </div>
           <div class="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-4">
             <div><span class="font-semibold text-gray-700">SĐT:</span> {{ user.phone || '—' }}</div>
-            <div class="truncate"><span class="font-semibold text-gray-700">Ban:</span> {{ user.departments || '—' }}</div>
+            <div><span class="font-semibold text-gray-700">Ban:</span> {{ user.departments }}</div>
           </div>
           <div class="flex gap-2 pt-3 border-t border-gray-50">
-            <Link :href="route('admin.users.permissions') + '?search=' + user.email"
+            <Link :href="route('admin.users.permissions') + '?search=' + encodeURIComponent(user.email)"
               class="flex-1 text-center text-teal-700 bg-teal-50 py-2 rounded-xl font-bold text-xs">🔐 Phân Quyền</Link>
             <button @click="openEditModal(user)" class="flex-1 text-center text-indigo-700 bg-indigo-50 py-2 rounded-xl font-bold text-xs">Sửa</button>
             <button @click="confirmDelete(user)" class="flex-1 text-center text-red-600 bg-red-50 py-2 rounded-xl font-bold text-xs">Xóa</button>

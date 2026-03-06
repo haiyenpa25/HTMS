@@ -39,13 +39,8 @@ const form = ref({
 // Active Chip = which dept accordion is expanded
 const activeChipId = ref(null);
 
-// Feature permissions labels with icons
-const featurePerms = [
-  { key: 'manage_members',    label: 'Quản lý nhân sự',    icon: '👥' },
-  { key: 'manage_attendance', label: 'Điểm danh',           icon: '📅' },
-  { key: 'manage_funds',      label: 'Quản lý Quỹ',         icon: '💵' },
-  { key: 'manage_reports',    label: 'Báo cáo & Thống kê',  icon: '📊' },
-];
+// featurePerms is defined as a computed below (based on active dept's available_features)
+
 
 const DEFAULT_PERMISSIONS = {
   manage_members: true,
@@ -173,6 +168,29 @@ const updateChurchRole = (roleId) => {
 };
 const churchRoles = computed(() => props.orgRoles.filter(r => r.code?.startsWith('deacon_')));
 const deptRoles = computed(() => props.orgRoles.filter(r => !r.code?.startsWith('deacon_') && !['pastor', 'bts_admin'].includes(r.code)));
+
+// ─── Feature Registry (ALL possible features with labels & icons) ──────────────
+const FEATURE_REGISTRY = {
+  manage_attendance:        { label: 'Điểm danh',            icon: '📋' },
+  manage_visitation:        { label: 'Thăm viếng',           icon: '🏠' },
+  manage_members:           { label: 'Quản lý nhân sự',      icon: '👥' },
+  manage_assignments:       { label: 'Phân công công tác',   icon: '📌' },
+  manage_reports:           { label: 'Báo cáo & Thống kê',   icon: '📊' },
+  manage_funds:             { label: 'Quản lý Quỹ',          icon: '💰' },
+  manage_attendance_church: { label: 'Điểm danh Hội Thánh',  icon: '⛪' },
+};
+
+// featurePerms = features of the currently selected department chip
+const featurePerms = computed(() => {
+  if (!activeChipDept.value) return [];
+  const available = activeChipDept.value.available_features ?? [];
+  if (available.length === 0) {
+    // Fallback: all features if not configured
+    return Object.entries(FEATURE_REGISTRY).map(([key, meta]) => ({ key, ...meta }));
+  }
+  return available.map(key => FEATURE_REGISTRY[key] ? { key, ...FEATURE_REGISTRY[key] } : null).filter(Boolean);
+});
+
 
 // ─── Save ─────────────────────────────────────────────────────────────────────
 const save = async () => {

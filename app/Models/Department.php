@@ -10,11 +10,12 @@ class Department extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'block', 'parent_id', 'code', 'description', 'is_active', 'feature_keys'];
+    protected $fillable = ['name', 'block', 'parent_id', 'code', 'description', 'is_active', 'feature_keys', 'available_features'];
 
     protected $casts = [
         'is_active' => 'boolean',
         'feature_keys' => 'array',
+        'available_features' => 'array',
     ];
 
     public function parent()
