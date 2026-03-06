@@ -9,6 +9,34 @@ use Illuminate\Support\Facades\Gate;
 
 class FinanceFundController extends Controller
 {
+    public function index(Request $request)
+    {
+        Gate::authorize('viewAny', FinanceFund::class);
+
+        $user = $request->user();
+        $isGlobalAdmin = $user->hasRole(['Super_Admin', 'Pastor']);
+        $activeDeptId  = session('active_finance_dept_id');
+
+        $fundsQuery = FinanceFund::query();
+        if ($activeDeptId) {
+            $fundsQuery->where('owner_type', 'department')->where('owner_id', $activeDeptId);
+        } elseif ($isGlobalAdmin) {
+            $fundsQuery->where('owner_type', 'church');
+        }
+
+        $funds = $fundsQuery->get()->map(fn($f) => [
+            'id'          => $f->id,
+            'name'        => $f->name,
+            'description' => $f->description,
+            'balance'     => $f->balance,
+        ]);
+
+        return inertia('Finance/Funds/Index', [
+            'funds'         => $funds,
+            'isGlobalAdmin' => $isGlobalAdmin,
+        ]);
+    }
+
     public function store(Request $request)
     {
         Gate::authorize('create', FinanceFund::class);
