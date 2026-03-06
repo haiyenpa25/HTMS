@@ -1,214 +1,10 @@
-<template>
-  <component :is="currentLayout">
-    <template #header>
-      Quản lý Người dùng
-    </template>
-
-    <div class="py-4 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <!-- HỆ THỐNG TAB MENU NGANG -->
-      <div class="mb-4 border-b border-gray-200">
-        <nav class="-mb-px flex space-x-6 overflow-x-auto hide-scrollbar" aria-label="Tabs">
-          <Link
-            :href="route('users.index')"
-            class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium border-blue-500 text-blue-600 font-bold"
-            aria-current="page"
-          >
-            👥 Tài khoản Người Dùng
-          </Link>
-          <Link
-            :href="route('roles.index')"
-            class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-          >
-            🛡️ Nhóm Chức vụ
-          </Link>
-          <Link
-            :href="route('admin.users.permissions')"
-            class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-          >
-            🔐 Cấp Quyền Người Dùng
-          </Link>
-        </nav>
-      </div>
-
-      <!-- Search & Actions -->
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="relative w-full md:w-96">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-          </div>
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Tìm theo tên, email..."
-            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm shadow-sm"
-          />
-        </div>
-        
-        <PrimaryButton @click="openCreateModal" class="w-full md:w-auto flex justify-center items-center">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-          Tạo Tài Khoản
-        </PrimaryButton>
-      </div>
-
-      <!-- Data View -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        
-        <!-- Desktop Table View (Hidden on mobile) -->
-        <div class="hidden md:block overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-               <tr>
-                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Họ tên & Email</th>
-                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Liên hệ</th>
-                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Phân quyền gốc (Role)</th>
-                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ban Ngành</th>
-                 <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Thao tác</th>
-               </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-100">
-               <tr v-for="user in users.data" :key="user.id" class="hover:bg-gray-50 transition-colors group">
-                 <td class="px-6 py-4 whitespace-nowrap">
-                   <div class="flex items-center">
-                     <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
-                       {{ (user.name || 'U').charAt(0) }}
-                     </div>
-                     <div class="ml-4">
-                       <div class="text-sm font-bold text-gray-900">{{ user.name }}</div>
-                       <div class="text-sm text-gray-500">{{ user.email }}</div>
-                     </div>
-                   </div>
-                 </td>
-                 <td class="px-6 py-4 whitespace-nowrap">
-                     <div class="text-sm text-gray-900">{{ user.phone || 'Chưa cập nhật' }}</div>
-                 </td>
-                 <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold"
-                          :class="{
-                            'bg-red-100 text-red-800': user.role === 'Super_Admin',
-                            'bg-purple-100 text-purple-800': user.role === 'Pastor',
-                            'bg-blue-100 text-blue-800': !['Super_Admin', 'Pastor', 'Guest'].includes(user.role),
-                            'bg-gray-100 text-gray-800': user.role === 'Guest'
-                          }">
-                      {{ user.role }}
-                    </span>
-                 </td>
-                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-48 truncate">
-                   <div class="truncate max-w-xs" :title="user.departments">{{ user.departments }}</div>
-                 </td>
-                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                   <button @click="openEditModal(user)" class="text-indigo-600 hover:text-indigo-900 font-bold bg-indigo-50 px-3 py-1 rounded-lg mr-2 transition-colors">Sửa</button>
-                   <button @click="confirmDelete(user)" class="text-red-600 hover:text-red-900 font-bold bg-red-50 px-3 py-1 rounded-lg transition-colors border border-red-100">Xóa</button>
-                 </td>
-               </tr>
-               <tr v-if="users.data.length === 0">
-                  <td colspan="5" class="px-6 py-12 text-center text-gray-500 italic">
-                     Không tìm thấy tài khoản người dùng nào.
-                  </td>
-               </tr>
-            </tbody>
-          </table>
-        </div><!-- End Desktop Table View -->
-
-        <!-- Mobile Card View (Hidden on desktop) -->
-        <div class="md:hidden divide-y divide-gray-100">
-           <div v-for="user in users.data" :key="user.id" class="p-4 bg-white hover:bg-gray-50 transition-colors">
-              <div class="flex items-start justify-between">
-                 <div class="flex items-center">
-                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
-                       {{ (user.name || 'U').charAt(0) }}
-                    </div>
-                    <div class="ml-3">
-                       <h3 class="text-sm font-bold text-gray-900">{{ user.name }}</h3>
-                       <p class="text-xs text-gray-500">{{ user.email }}</p>
-                    </div>
-                 </div>
-                 <div>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold"
-                          :class="{
-                            'bg-red-100 text-red-800': user.role === 'Super_Admin',
-                            'bg-purple-100 text-purple-800': user.role === 'Pastor',
-                            'bg-blue-100 text-blue-800': !['Super_Admin', 'Pastor', 'Guest'].includes(user.role),
-                            'bg-gray-100 text-gray-800': user.role === 'Guest'
-                          }">
-                      {{ user.role }}
-                    </span>
-                 </div>
-              </div>
-              <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-gray-600">
-                 <div>
-                    <span class="font-semibold text-gray-800">SĐT:</span> {{ user.phone || 'Chưa cập nhật' }}
-                 </div>
-                 <div class="truncate">
-                    <span class="font-semibold text-gray-800">Ban:</span> {{ user.departments }}
-                 </div>
-              </div>
-              <div class="mt-4 flex justify-end gap-2 border-t border-gray-50 pt-3">
-                 <button @click="openEditModal(user)" class="flex-1 text-center text-indigo-700 bg-indigo-50 py-2 rounded-lg font-bold text-sm">Sửa thông tin</button>
-                 <button @click="confirmDelete(user)" class="flex-1 text-center text-red-600 bg-red-50 py-2 rounded-lg font-bold text-sm shadow-sm border border-red-100">Xóa</button>
-              </div>
-           </div>
-           <div v-if="users.data.length === 0" class="p-8 text-center text-gray-500 italic">
-               Không tìm thấy người dùng.
-           </div>
-        </div><!-- End Mobile Card View -->
-
-      </div>
-      
-      <!-- Pagination -->
-      <div v-if="users.links.length > 3" class="flex justify-center mt-6">
-        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-          <template v-for="(link, k) in users.links" :key="k">
-             <Link
-               v-if="link.url"
-               :href="link.url"
-               v-html="link.label"
-               class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-               :class="{ 'bg-blue-50 text-blue-600 border-blue-500 z-10': link.active }"
-             />
-             <span
-               v-else
-               v-html="link.label"
-               class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-400"
-             />
-          </template>
-        </nav>
-      </div>
-
-    </div>
-    
-    <!-- Include User Form Modal Component -->
-    <UserFormModal 
-        v-if="showModal" 
-        :show="showModal" 
-        :roles="roles"
-        :editingUser="selectedUser"
-        @close="closeModal" 
-    />
-    
-    <!-- Include Delete Confirmation Modal -->
-    <DeleteConfirmModal
-        v-if="showDeleteModal"
-        :show="showDeleteModal"
-        :title="'Xóa Tài Khoản'"
-        :message="'Bạn có chắc chắn muốn xóa tài khoản ' + userToDelete?.name + '? Tất cả dữ liệu đăng nhập sẽ bị xóa vĩnh viễn.'"
-        @close="showDeleteModal = false"
-        @confirm="deleteUser"
-    />
-  </component>
-</template>
-
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { router } from '@inertiajs/vue3';
-import { Link } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import MobileLayout from '@/Layouts/MobileLayout.vue';
+import { ref, watch } from 'vue';
+import { router, Link } from '@inertiajs/vue3';
+import AdminPortalLayout from '@/Layouts/AdminPortalLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import UserFormModal from './FormModal.vue';
-import DeleteConfirmModal from '@/Components/DeleteConfirmModal.vue'; // We assume this exists or we create it
+import DeleteConfirmModal from '@/Components/DeleteConfirmModal.vue';
 
 const props = defineProps({
   users: Object,
@@ -216,60 +12,167 @@ const props = defineProps({
   filters: Object,
 });
 
-const search = ref(props.filters.search || '');
+const search = ref(props.filters?.search || '');
 
 watch(search, (value) => {
-  router.get(route('users.index'), { search: value }, {
-    preserveState: true,
-    replace: true,
-  });
+  router.get(route('users.index'), { search: value }, { preserveState: true, replace: true });
 });
 
-// Modal Logic
+// Modal
 const showModal = ref(false);
 const selectedUser = ref(null);
+const openCreateModal = () => { selectedUser.value = null; showModal.value = true; };
+const openEditModal = (user) => { selectedUser.value = user; showModal.value = true; };
+const closeModal = () => { showModal.value = false; selectedUser.value = null; };
 
-const openCreateModal = () => {
-    selectedUser.value = null;
-    showModal.value = true;
-};
-
-const openEditModal = (user) => {
-    selectedUser.value = user;
-    showModal.value = true;
-};
-
-const closeModal = () => {
-    showModal.value = false;
-    selectedUser.value = null;
-};
-
-// Delete Logic
+// Delete
 const showDeleteModal = ref(false);
 const userToDelete = ref(null);
-
-const confirmDelete = (user) => {
-    userToDelete.value = user;
-    showDeleteModal.value = true;
-};
-
+const confirmDelete = (user) => { userToDelete.value = user; showDeleteModal.value = true; };
 const deleteUser = () => {
-    router.delete(route('users.destroy', userToDelete.value.id), {
-        preserveScroll: true,
-        onSuccess: () => {
-            showDeleteModal.value = false;
-            userToDelete.value = null;
-        }
-    });
+  router.delete(route('users.destroy', userToDelete.value.id), {
+    preserveScroll: true,
+    onSuccess: () => { showDeleteModal.value = false; userToDelete.value = null; }
+  });
 };
 
-// Layout Manager
-const windowWidth = ref(window.innerWidth);
-const updateWidth = () => windowWidth.value = window.innerWidth;
-onMounted(() => window.addEventListener('resize', updateWidth));
-onUnmounted(() => window.removeEventListener('resize', updateWidth));
-
-const currentLayout = computed(() => {
-  return windowWidth.value >= 768 ? AuthenticatedLayout : MobileLayout;
-});
+const roleColor = (role) => {
+  if (role === 'Super_Admin') return 'bg-red-100 text-red-800';
+  if (role === 'Pastor')      return 'bg-purple-100 text-purple-800';
+  if (role === 'Guest')       return 'bg-gray-100 text-gray-700';
+  return 'bg-indigo-100 text-indigo-800';
+};
 </script>
+
+<template>
+  <AdminPortalLayout title="Quản lý Tài khoản" active-tab="users">
+
+    <!-- Search & Actions -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div class="relative w-full sm:w-96">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input v-model="search" type="text" placeholder="Tìm theo tên, email..."
+          class="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm shadow-sm outline-none" />
+      </div>
+      <button @click="openCreateModal"
+        class="flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-md shadow-indigo-200 transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        Tạo Tài Khoản
+      </button>
+    </div>
+
+    <!-- Desktop Table -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="hidden md:block overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-100">
+          <thead class="bg-gray-50/80">
+            <tr>
+              <th class="px-6 py-3.5 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Tài Khoản</th>
+              <th class="px-6 py-3.5 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Liên hệ</th>
+              <th class="px-6 py-3.5 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Chức vụ toàn cục</th>
+              <th class="px-6 py-3.5 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Ban Ngành</th>
+              <th class="px-6 py-3.5 text-right text-xs font-black text-gray-500 uppercase tracking-wider">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-50">
+            <tr v-for="user in users.data" :key="user.id" class="hover:bg-indigo-50/30 transition-colors group">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-black text-sm shrink-0">
+                    {{ (user.name || 'U').charAt(0) }}
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-gray-900">{{ user.name }}</p>
+                    <p class="text-xs text-gray-500">{{ user.email }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-600">{{ user.phone || '—' }}</td>
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold" :class="roleColor(user.role)">
+                  {{ user.role || 'Chưa phân' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-500 max-w-[200px] truncate" :title="user.departments">
+                {{ user.departments || '—' }}
+              </td>
+              <td class="px-6 py-4 text-right whitespace-nowrap">
+                <div class="flex items-center justify-end gap-2">
+                  <Link :href="route('admin.users.permissions') + '?search=' + user.email"
+                    class="text-xs font-bold text-teal-600 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg transition-colors" title="Phân Quyền">
+                    🔐 Quyền
+                  </Link>
+                  <button @click="openEditModal(user)"
+                    class="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors">
+                    Sửa
+                  </button>
+                  <button @click="confirmDelete(user)"
+                    class="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors">
+                    Xóa
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="!users.data.length">
+              <td colspan="5" class="px-6 py-16 text-center text-gray-400 italic">Không tìm thấy tài khoản nào.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Card View -->
+      <div class="md:hidden divide-y divide-gray-100">
+        <div v-for="user in users.data" :key="user.id" class="p-4">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-black text-sm">
+                {{ (user.name || 'U').charAt(0) }}
+              </div>
+              <div>
+                <p class="text-sm font-bold text-gray-900">{{ user.name }}</p>
+                <p class="text-xs text-gray-500">{{ user.email }}</p>
+              </div>
+            </div>
+            <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold" :class="roleColor(user.role)">
+              {{ user.role || '—' }}
+            </span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-4">
+            <div><span class="font-semibold text-gray-700">SĐT:</span> {{ user.phone || '—' }}</div>
+            <div class="truncate"><span class="font-semibold text-gray-700">Ban:</span> {{ user.departments || '—' }}</div>
+          </div>
+          <div class="flex gap-2 pt-3 border-t border-gray-50">
+            <Link :href="route('admin.users.permissions') + '?search=' + user.email"
+              class="flex-1 text-center text-teal-700 bg-teal-50 py-2 rounded-xl font-bold text-xs">🔐 Phân Quyền</Link>
+            <button @click="openEditModal(user)" class="flex-1 text-center text-indigo-700 bg-indigo-50 py-2 rounded-xl font-bold text-xs">Sửa</button>
+            <button @click="confirmDelete(user)" class="flex-1 text-center text-red-600 bg-red-50 py-2 rounded-xl font-bold text-xs">Xóa</button>
+          </div>
+        </div>
+        <div v-if="!users.data.length" class="p-10 text-center text-gray-400 italic text-sm">Không tìm thấy người dùng.</div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div v-if="users.links?.length > 3" class="flex justify-center mt-6">
+      <nav class="flex gap-1">
+        <template v-for="(link, k) in users.links" :key="k">
+          <Link v-if="link.url" :href="link.url" v-html="link.label"
+            class="px-3 py-2 rounded-lg text-sm border transition-colors"
+            :class="link.active ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'" />
+          <span v-else v-html="link.label" class="px-3 py-2 rounded-lg text-sm border border-gray-200 bg-white text-gray-400" />
+        </template>
+      </nav>
+    </div>
+
+    <!-- Modals -->
+    <UserFormModal v-if="showModal" :show="showModal" :roles="roles" :editingUser="selectedUser" @close="closeModal" />
+    <DeleteConfirmModal v-if="showDeleteModal" :show="showDeleteModal" title="Xóa Tài Khoản"
+      :message="'Xóa tài khoản ' + userToDelete?.name + '? Hành động này không thể hoàn tác.'"
+      @close="showDeleteModal = false" @confirm="deleteUser" />
+
+  </AdminPortalLayout>
+</template>

@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminPortalLayout from '@/Layouts/AdminPortalLayout.vue';
 import axios from 'axios';
 
 const props = defineProps({
@@ -202,7 +202,7 @@ const avatarLetter = computed(() => {
 
 <template>
   <Head title="Phân Quyền Chi Tiết" />
-  <AuthenticatedLayout>
+  <AdminPortalLayout title="Cấp Quyền Người Dùng" active-tab="permissions">
     <div class="min-h-screen bg-slate-950 text-white">
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
@@ -496,5 +496,5 @@ const avatarLetter = computed(() => {
         </div>
       </div>
     </div>
-  </AuthenticatedLayout>
+  </AdminPortalLayout>
 </template>
