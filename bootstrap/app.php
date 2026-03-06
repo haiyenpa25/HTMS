@@ -15,8 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
         ]);
         $middleware->alias([
-            'portal.access' => \App\Http\Middleware\CheckPortalAccess::class,
+            'portal.access'  => \App\Http\Middleware\CheckPortalAccess::class,
+            'feature.access' => \App\Http\Middleware\CheckFeatureAccess::class,
         ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

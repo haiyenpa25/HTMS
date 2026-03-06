@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
 import AdminPortalLayout from '@/Layouts/AdminPortalLayout.vue';
@@ -10,7 +10,11 @@ const props = defineProps({
   departments: Array,
   orgRoles: Array,
   filters: Object,
+  preselectUser: Object, // khi mở từ /users → nút Phân Quyền
 });
+
+// Ẩn sidebar khi được mở từ users với user_id
+const hideSidebar = computed(() => !!props.preselectUser);
 
 // ─── Search ──────────────────────────────────────────────────────────────────
 const searchInput = ref(props.filters?.search || '');
@@ -40,6 +44,13 @@ const form = ref({
 const activeChipId = ref(null);
 
 // featurePerms is defined as a computed below (based on active dept's available_features)
+
+// Auto-preselect user từ URL (mobile direct link)
+onMounted(async () => {
+  if (props.preselectUser) {
+    await selectUser(props.preselectUser);
+  }
+});
 
 
 const DEFAULT_PERMISSIONS = {
@@ -169,16 +180,16 @@ const updateChurchRole = (roleId) => {
 const churchRoles = computed(() => props.orgRoles.filter(r => r.code?.startsWith('deacon_')));
 const deptRoles = computed(() => props.orgRoles.filter(r => !r.code?.startsWith('deacon_') && !['pastor', 'bts_admin'].includes(r.code)));
 
-// ─── Feature Registry (ALL possible features with labels & icons) ──────────────
+// ─── Feature Registry — keys khớp với portal route segments ─────────────────
 const FEATURE_REGISTRY = {
-  manage_attendance:        { label: 'Điểm danh',            icon: '📋' },
-  manage_visitation:        { label: 'Thăm viếng',           icon: '🏠' },
-  manage_members:           { label: 'Quản lý nhân sự',      icon: '👥' },
-  manage_assignments:       { label: 'Phân công công tác',   icon: '📌' },
-  manage_reports:           { label: 'Báo cáo & Thống kê',   icon: '📊' },
-  manage_funds:             { label: 'Quản lý Quỹ',          icon: '💰' },
-  manage_attendance_church: { label: 'Điểm danh Hội Thánh',  icon: '⛪' },
+  attendance:  { label: 'Điểm danh',          icon: '📋', url: '/portal/attendance' },
+  visitation:  { label: 'Thăm viếng',          icon: '🏠', url: '/portal/visitation'  },
+  members:     { label: 'Thành viên',           icon: '👥', url: '/portal/members'      },
+  assignments: { label: 'Phân công công tác',  icon: '📌', url: '/portal/assignments'  },
+  reports:     { label: 'Báo cáo & Thống kê',  icon: '📊', url: '/portal/reports'      },
+  finance:     { label: 'Tài chính / Quỹ',     icon: '💰', url: '/portal/finance'      },
 };
+
 
 // featurePerms = features of the currently selected department chip
 const featurePerms = computed(() => {
@@ -225,10 +236,10 @@ const avatarLetter = computed(() => {
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
         <!-- ── Main Layout: Sidebar + Detail ── -->
-        <div class="flex gap-5 h-[calc(100vh-180px)] min-h-[600px]">
+        <div class="flex gap-5" :class="hideSidebar ? '' : 'h-[calc(100vh-180px)] min-h-[600px]'">
 
-          <!-- ── LEFT: User List ── -->
-          <div class="w-76 flex-shrink-0 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <!-- ── LEFT: User List (ẩn khi mở từ /users với user_id) ── -->
+          <div v-if="!hideSidebar" class="w-76 flex-shrink-0 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <!-- Search -->
             <div class="p-4 border-b border-gray-100">
               <div class="relative">

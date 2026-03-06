@@ -180,7 +180,7 @@ const blockBadge = (block) => {
               </td>
               <td class="px-6 py-4 text-right whitespace-nowrap">
                 <div class="flex items-center justify-end gap-2">
-                  <Link :href="route('admin.users.permissions') + '?search=' + encodeURIComponent(user.email)"
+                  <Link :href="route('admin.users.permissions') + '?user_id=' + user.id"
                     class="text-xs font-bold text-teal-600 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg transition-colors">
                     🔐 Quyền
                   </Link>

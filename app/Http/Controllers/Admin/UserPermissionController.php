@@ -56,13 +56,24 @@ class UserPermissionController extends Controller
             'level' => $r->level,
         ]);
 
+        // Preselect user if user_id provided (for mobile direct link from /users)
+        $preselectUser = null;
+        if ($userId = $request->input('user_id')) {
+            $u = User::find($userId);
+            if ($u) {
+                $preselectUser = ['id' => $u->id, 'name' => $u->name, 'email' => $u->email];
+            }
+        }
+
         return Inertia::render('Admin/UserPermissions', [
-            'users'       => $users,
-            'departments' => $departments,
-            'orgRoles'    => $orgRoles,
-            'filters'     => ['search' => $request->input('search')],
+            'users'         => $users,
+            'departments'   => $departments,
+            'orgRoles'      => $orgRoles,
+            'filters'       => ['search' => $request->input('search')],
+            'preselectUser' => $preselectUser,
         ]);
     }
+
 
     /**
      * Get memberships + global roles for a user (AJAX endpoint)
