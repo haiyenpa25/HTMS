@@ -13,7 +13,14 @@ class OrgMembership extends Model
 
     protected $fillable = [
         'member_id', 'org_role_id', 'model_id', 'model_type', 
-        'join_date', 'leave_date', 'is_active'
+        'join_date', 'leave_date', 'is_active', 'permissions'
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'permissions' => 'array',
+        'join_date' => 'date',
+        'leave_date' => 'date',
     ];
 
     public function member()
