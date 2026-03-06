@@ -22,10 +22,10 @@ class EnsurePortalContext
 
         $activeDeptId = session('active_portal_dept_id');
         $isGlobalAdmin = clone $user;
-        $isGlobalAdmin = $isGlobalAdmin->hasAnyRole(['Pastor', 'BTS_Admin', 'Super_Admin']);
+        $isGlobalAdmin = $isGlobalAdmin->hasAnyRole(['Pastor', 'BTS_Admin', 'Super_Admin']) || $user->email === 'superadmin@httlthanhmyloi.com';
 
         if (!$activeDeptId) {
-            $memberId = $user->member_id;
+            $memberId = $user->member->id ?? null;
             
             if ($isGlobalAdmin) {
                 $firstDepart = Department::where('block', 'activities')->first();
