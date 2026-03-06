@@ -79,6 +79,17 @@
           <div class="px-4 py-3 bg-slate-700">
             <p class="text-xs font-black text-slate-300 uppercase tracking-wider">Cài Đặt</p>
           </div>
+          <Link :href="route('users.index')" @click="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-slate-50 transition-colors border-b border-gray-100">
+            <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">Quản lý User</p>
+              <p class="text-xs text-gray-400">Danh sách tài khoản hệ thống</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </Link>
           <Link :href="route('meetings.index')" @click="openMenu = null"
             class="flex items-center gap-3 px-4 py-3.5 hover:bg-slate-50 transition-colors border-b border-gray-100">
             <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">

@@ -40,6 +40,12 @@ Route::middleware('auth')->group(function () {
     // System Settings (Users & Roles)
     Route::resource('users', \App\Http\Controllers\UserController::class);
     Route::resource('roles', \App\Http\Controllers\RoleController::class);
+    
+    Route::prefix('admin')->middleware(\App\Http\Middleware\EnsureSuperAdmin::class)->group(function () {
+        Route::get('/users/permissions', [\App\Http\Controllers\Admin\UserPermissionController::class, 'index'])->name('admin.users.permissions');
+        Route::get('/users/{user}/permissions', [\App\Http\Controllers\Admin\UserPermissionController::class, 'show'])->name('admin.users.permissions.show');
+        Route::post('/users/{user}/permissions', [\App\Http\Controllers\Admin\UserPermissionController::class, 'update'])->name('admin.users.permissions.update');
+    });
 
     // Department Portal
     Route::prefix('portal')->middleware(\App\Http\Middleware\EnsurePortalContext::class)->group(function () {

@@ -55,9 +55,9 @@
         <div class="pt-4 mt-4 border-t border-gray-100">
           <p v-if="!isSidebarCollapsed" class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Cài đặt hệ thống</p>
           <div class="space-y-1">
-            <button @click="toggleSettingsMenu" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-bold transition-all group" :class="(route().current('users.*') || route().current('roles.*') || route().current('meetings.*')) ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
+            <button @click="toggleSettingsMenu" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-bold transition-all group" :class="(route().current('users.*') || route().current('roles.*') || route().current('meetings.*') || route().current('admin.users.*')) ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
                <div class="flex items-center space-x-3">
-                 <svg class="w-5 h-5 shrink-0" :class="(route().current('users.*') || route().current('roles.*') || route().current('meetings.*')) ? 'text-indigo-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                 <svg class="w-5 h-5 shrink-0" :class="(route().current('users.*') || route().current('roles.*') || route().current('meetings.*') || route().current('admin.users.*')) ? 'text-indigo-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                  <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Hệ thống</span>
                </div>
                <svg v-if="!isSidebarCollapsed" class="w-4 h-4 text-gray-400 transition-transform duration-200" :class="isSettingsMenuOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -69,7 +69,11 @@
                  Người dùng
                </Link>
                <Link :href="route('roles.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('roles.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
-                 Phân quyền
+                 Quản lý Chức vụ
+               </Link>
+               <Link :href="route('admin.users.permissions')" class="flex flex-col px-3 py-2 rounded-lg transition-colors" :class="route().current('admin.users.permissions*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
+                 <span class="text-sm font-bold">Phân quyền Mở rộng</span>
+                 <span class="text-[10px]">Cấp độ Ban ngành</span>
                </Link>
                <Link :href="route('speakers.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('speakers.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
                  Diễn giả
@@ -142,7 +146,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 const page = usePage();
 
 const isSidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true');
-const isSettingsMenuOpen = ref(route().current('users.*') || route().current('roles.*') || route().current('meetings.*') || route().current('departments.*'));
+const isSettingsMenuOpen = ref(route().current('users.*') || route().current('roles.*') || route().current('meetings.*') || route().current('departments.*') || route().current('admin.users.*'));
 const isDeptsMenuOpen = ref(route().current('portal.*') || route().current('ministry.*') || route().current('deacon.*') || false);
 
 const toggleSidebar = () => {

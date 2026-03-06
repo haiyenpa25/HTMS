@@ -21,7 +21,8 @@ class EnsurePortalContext
         if (!$user) return $next($request);
 
         $activeDeptId = session('active_portal_dept_id');
-        $isGlobalAdmin = $user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin']);
+        $isGlobalAdmin = clone $user;
+        $isGlobalAdmin = $isGlobalAdmin->hasAnyRole(['Pastor', 'BTS_Admin', 'Super_Admin']);
 
         if (!$activeDeptId) {
             $memberId = $user->member_id;
@@ -35,7 +36,7 @@ class EnsurePortalContext
             } else if ($memberId) {
                 $firstMembership = OrgMembership::where('member_id', $memberId)
                                                 ->where('model_type', Department::class)
-                                                ->whereHas('department', function ($query) {
+                                                ->whereHasMorph('model', [Department::class], function ($query) {
                                                     $query->where('block', 'activities');
                                                 })
                                                 ->first();

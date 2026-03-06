@@ -27,58 +27,108 @@
         </PrimaryButton>
       </div>
 
-      <!-- Users Table -->
+      <!-- Data View -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="overflow-x-auto">
+        
+        <!-- Desktop Table View (Hidden on mobile) -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
-              <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Họ tên & Email</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Phân quyền gốc (Role)</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ngày tạo</th>
-                <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Thao tác</th>
-              </tr>
+               <tr>
+                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Họ tên & Email</th>
+                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Liên hệ</th>
+                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Phân quyền gốc (Role)</th>
+                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ban Ngành</th>
+                 <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Thao tác</th>
+               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-100">
-              <tr v-for="user in users.data" :key="user.id" class="hover:bg-gray-50 transition-colors group">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
-                      {{ (user.name || 'U').charAt(0) }}
-                    </div>
-                    <div class="ml-4">
-                      <div class="text-sm font-bold text-gray-900">{{ user.name }}</div>
-                      <div class="text-sm text-gray-500">{{ user.email }}</div>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold"
-                         :class="{
-                           'bg-red-100 text-red-800': user.role === 'Super_Admin',
-                           'bg-purple-100 text-purple-800': user.role === 'Pastor',
-                           'bg-blue-100 text-blue-800': !['Super_Admin', 'Pastor', 'Guest'].includes(user.role),
-                           'bg-gray-100 text-gray-800': user.role === 'Guest'
-                         }">
-                     {{ user.role }}
-                   </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ user.created_at }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button @click="openEditModal(user)" class="text-indigo-600 hover:text-indigo-900 font-bold bg-indigo-50 px-3 py-1 rounded-lg mr-2 transition-colors">Sửa</button>
-                  <button @click="confirmDelete(user)" class="text-red-600 hover:text-red-900 font-bold bg-red-50 px-3 py-1 rounded-lg transition-colors">Xóa</button>
-                </td>
-              </tr>
-              <tr v-if="users.data.length === 0">
-                 <td colspan="4" class="px-6 py-12 text-center text-gray-500 italic">
-                    Không tìm thấy tài khoản người dùng nào.
+               <tr v-for="user in users.data" :key="user.id" class="hover:bg-gray-50 transition-colors group">
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <div class="flex items-center">
+                     <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                       {{ (user.name || 'U').charAt(0) }}
+                     </div>
+                     <div class="ml-4">
+                       <div class="text-sm font-bold text-gray-900">{{ user.name }}</div>
+                       <div class="text-sm text-gray-500">{{ user.email }}</div>
+                     </div>
+                   </div>
                  </td>
-              </tr>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                     <div class="text-sm text-gray-900">{{ user.phone || 'Chưa cập nhật' }}</div>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold"
+                          :class="{
+                            'bg-red-100 text-red-800': user.role === 'Super_Admin',
+                            'bg-purple-100 text-purple-800': user.role === 'Pastor',
+                            'bg-blue-100 text-blue-800': !['Super_Admin', 'Pastor', 'Guest'].includes(user.role),
+                            'bg-gray-100 text-gray-800': user.role === 'Guest'
+                          }">
+                      {{ user.role }}
+                    </span>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-48 truncate">
+                   <div class="truncate max-w-xs" :title="user.departments">{{ user.departments }}</div>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                   <button @click="openEditModal(user)" class="text-indigo-600 hover:text-indigo-900 font-bold bg-indigo-50 px-3 py-1 rounded-lg mr-2 transition-colors">Sửa</button>
+                   <button @click="confirmDelete(user)" class="text-red-600 hover:text-red-900 font-bold bg-red-50 px-3 py-1 rounded-lg transition-colors border border-red-100">Xóa</button>
+                 </td>
+               </tr>
+               <tr v-if="users.data.length === 0">
+                  <td colspan="5" class="px-6 py-12 text-center text-gray-500 italic">
+                     Không tìm thấy tài khoản người dùng nào.
+                  </td>
+               </tr>
             </tbody>
           </table>
-        </div>
+        </div><!-- End Desktop Table View -->
+
+        <!-- Mobile Card View (Hidden on desktop) -->
+        <div class="md:hidden divide-y divide-gray-100">
+           <div v-for="user in users.data" :key="user.id" class="p-4 bg-white hover:bg-gray-50 transition-colors">
+              <div class="flex items-start justify-between">
+                 <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                       {{ (user.name || 'U').charAt(0) }}
+                    </div>
+                    <div class="ml-3">
+                       <h3 class="text-sm font-bold text-gray-900">{{ user.name }}</h3>
+                       <p class="text-xs text-gray-500">{{ user.email }}</p>
+                    </div>
+                 </div>
+                 <div>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold"
+                          :class="{
+                            'bg-red-100 text-red-800': user.role === 'Super_Admin',
+                            'bg-purple-100 text-purple-800': user.role === 'Pastor',
+                            'bg-blue-100 text-blue-800': !['Super_Admin', 'Pastor', 'Guest'].includes(user.role),
+                            'bg-gray-100 text-gray-800': user.role === 'Guest'
+                          }">
+                      {{ user.role }}
+                    </span>
+                 </div>
+              </div>
+              <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-gray-600">
+                 <div>
+                    <span class="font-semibold text-gray-800">SĐT:</span> {{ user.phone || 'Chưa cập nhật' }}
+                 </div>
+                 <div class="truncate">
+                    <span class="font-semibold text-gray-800">Ban:</span> {{ user.departments }}
+                 </div>
+              </div>
+              <div class="mt-4 flex justify-end gap-2 border-t border-gray-50 pt-3">
+                 <button @click="openEditModal(user)" class="flex-1 text-center text-indigo-700 bg-indigo-50 py-2 rounded-lg font-bold text-sm">Sửa thông tin</button>
+                 <button @click="confirmDelete(user)" class="flex-1 text-center text-red-600 bg-red-50 py-2 rounded-lg font-bold text-sm shadow-sm border border-red-100">Xóa</button>
+              </div>
+           </div>
+           <div v-if="users.data.length === 0" class="p-8 text-center text-gray-500 italic">
+               Không tìm thấy người dùng.
+           </div>
+        </div><!-- End Mobile Card View -->
+
       </div>
       
       <!-- Pagination -->

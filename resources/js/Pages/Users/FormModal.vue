@@ -42,16 +42,25 @@
                 <p v-if="form.errors.email" class="mt-1 text-sm text-red-600">{{ form.errors.email }}</p>
               </div>
 
+              <!-- Điện thoại -->
+              <div>
+                <label for="phone" class="block text-sm font-bold text-gray-700">Số Điện thoại</label>
+                <div class="mt-1">
+                  <input type="text" id="phone" v-model="form.phone" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="09xxxxxxxx">
+                </div>
+                <p v-if="form.errors.phone" class="mt-1 text-sm text-red-600">{{ form.errors.phone }}</p>
+              </div>
+
               <!-- Phân quyền (Role) -->
               <div>
-                <label for="role" class="block text-sm font-bold text-gray-700">Vai trò (Role)</label>
+                <label for="role" class="block text-sm font-bold text-gray-700">Vai trò chung Toàn Cục (Role)</label>
                 <div class="mt-1">
                   <select id="role" v-model="form.role" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white">
-                    <option value="">-- Guest (Không phân quyền) --</option>
+                    <option value="">-- Guest (Không phần quyền) --</option>
                     <option v-for="role in roles" :key="role" :value="role">{{ role }}</option>
                   </select>
                 </div>
-                <p class="mt-1.5 text-xs text-gray-500">Vai trò quyết định nhóm quyền hạn mà người này có thể truy cập.</p>
+                <p class="mt-1.5 text-xs text-gray-500">Người dùng sẽ cần được thiết lập phân quyền mở rộng sâu hơn thông qua trang Cài đặt Phân Quyền.</p>
                 <p v-if="form.errors.role" class="mt-1 text-sm text-red-600">{{ form.errors.role }}</p>
               </div>
 
@@ -106,6 +115,7 @@ const isEditing = computed(() => !!props.editingUser);
 const form = useForm({
   name: '',
   email: '',
+  phone: '',
   role: '',
   password: '',
 });
@@ -115,6 +125,7 @@ watch(() => props.editingUser, (user) => {
   if (user) {
     form.name = user.name;
     form.email = user.email;
+    form.phone = user.phone || '';
     form.role = user.role === 'Guest' ? '' : user.role;
     form.password = '';
   } else {

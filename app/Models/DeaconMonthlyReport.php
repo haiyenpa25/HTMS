@@ -15,7 +15,7 @@ class DeaconMonthlyReport extends Model
         // New fields (reporter, evaluation, plans)
         'reporter_name', 'evaluation', 'proposals', 'notes',
         // Meta
-        'status', 'submitted_by',
+        'status', 'submitted_by', 'unlock_requested',
     ];
 
     public function incidents()

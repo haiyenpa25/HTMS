@@ -19,7 +19,7 @@ class UserController extends Controller
     {
         $search = $request->input('search');
 
-        $users = User::with('roles')
+        $users = User::with(['roles', 'member.memberships.model'])
             ->when($search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%");
@@ -28,11 +28,20 @@ class UserController extends Controller
             ->paginate(15)
             ->withQueryString()
             ->through(function ($user) {
+                $departments = [];
+                if ($user->member && $user->member->memberships) {
+                    $departments = $user->member->memberships->map(function ($m) {
+                        return $m->model && class_basename($m->model_type) === 'Department' ? $m->model->name : null;
+                    })->filter()->unique()->values()->toArray();
+                }
+
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'phone' => $user->member->phone ?? '',
                     'role' => $user->roles->first()?->name ?? 'Guest',
+                    'departments' => count($departments) > 0 ? implode(', ', $departments) : 'Chưa tham gia',
                     'created_at' => $user->created_at->format('d/m/Y'),
                 ];
             });
@@ -54,6 +63,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
+            'phone' => 'nullable|string|max:20',
             'password' => 'required|string|min:8',
             'role' => 'nullable|string|exists:roles,name',
         ]);
@@ -62,6 +72,14 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+        ]);
+
+        \App\Models\Member::create([
+            'user_id' => $user->id,
+            'full_name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'] ?? null,
+            'gender' => 'male', // default value
         ]);
 
         if (!empty($validated['role'])) {
@@ -79,6 +97,7 @@ class UserController extends Controller
          $validated = $request->validate([
              'name' => 'required|string|max:255',
              'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+             'phone' => 'nullable|string|max:20',
              'password' => 'nullable|string|min:8',
              'role' => 'nullable|string|exists:roles,name',
          ]);
@@ -91,6 +110,15 @@ class UserController extends Controller
          }
          
          $user->save();
+
+         $member = \App\Models\Member::firstOrCreate(
+            ['user_id' => $user->id],
+            ['full_name' => $validated['name'], 'email' => $validated['email'], 'gender' => 'male']
+         );
+         $member->full_name = $validated['name'];
+         $member->email = $validated['email'];
+         $member->phone = $validated['phone'] ?? null;
+         $member->save();
  
          // Update Role
          if (!empty($validated['role'])) {
