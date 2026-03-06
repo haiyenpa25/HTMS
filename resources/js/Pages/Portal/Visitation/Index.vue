@@ -234,15 +234,25 @@
             </div>
 
             <!-- Mobile FAB -->
-            <div v-if="canManage" class="fixed bottom-6 right-4 flex flex-col gap-3 md:hidden z-40">
-                <button @click="openEmergencyForm"
-                    class="w-12 h-12 flex items-center justify-center rounded-full shadow-lg bg-red-500 text-white hover:bg-red-600 transition-all active:scale-95">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div v-if="canManage || isGlobalAdmin || portalType === 'ministry'" class="fixed bottom-6 right-4 flex flex-col gap-3 md:hidden z-40">
+                <!-- Suggestion Button -->
+                <button v-if="isGlobalAdmin || portalType === 'ministry'" @click="isSuggOpen = true"
+                    class="relative w-12 h-12 flex items-center justify-center rounded-full shadow-lg bg-white border border-amber-200 text-amber-600 hover:bg-amber-50 transition-all active:scale-95">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <span v-if="suggCount > 0" class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white">
+                        {{ suggCount }}
+                    </span>
                 </button>
-                <button @click="openForm"
-                    class="w-14 h-14 flex items-center justify-center rounded-full shadow-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 transition-all active:scale-95">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
-                </button>
+                <template v-if="canManage">
+                    <button @click="openEmergencyForm"
+                        class="w-12 h-12 flex items-center justify-center rounded-full shadow-lg bg-red-500 text-white hover:bg-red-600 transition-all active:scale-95">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </button>
+                    <button @click="openForm"
+                        class="w-14 h-14 flex items-center justify-center rounded-full shadow-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 transition-all active:scale-95">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    </button>
+                </template>
             </div>
         </div>
 

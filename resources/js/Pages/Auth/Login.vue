@@ -1,21 +1,22 @@
 <template>
-  <div class="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
-    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+  <div class="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 z-0 opacity-40 mix-blend-multiply" style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;"></div>
+    
+    <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
       <div class="text-center">
-        <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">
-          CMS<span class="text-blue-600">HT</span>
+        <img src="/LOGO.png" alt="CMS Logo" class="mx-auto h-24 sm:h-28 object-contain drop-shadow-md hover:scale-105 transition-transform duration-300" />
+        <h1 class="mt-4 text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          CMS <span class="text-blue-600 font-medium text-xl sm:text-2xl opacity-90 block mt-1">(Church Manage System)</span>
         </h1>
-        <h2 class="mt-6 text-2xl font-bold text-slate-800">
-          Đăng nhập vào hệ thống
-        </h2>
-        <p class="mt-2 text-sm text-slate-500">
+        <p class="mt-3 text-sm font-medium text-slate-500">
           Hệ thống quản lý dữ liệu Hội Thánh
         </p>
       </div>
     </div>
 
-    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-      <div class="bg-white py-8 px-6 shadow-xl rounded-2xl border border-slate-100 backdrop-blur-sm">
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0 relative z-10">
+      <div class="bg-white/90 py-8 px-6 shadow-2xl shadow-slate-200/50 rounded-2xl border border-white backdrop-blur-md">
         <form @submit.prevent="submit" class="space-y-6">
           <div>
             <label for="email" class="block text-sm font-semibold text-slate-700">
