@@ -48,7 +48,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Department Portal
-    Route::prefix('portal')->middleware(\App\Http\Middleware\EnsurePortalContext::class)->group(function () {
+    Route::prefix('portal')->middleware(\App\Http\Middleware\CheckPortalAccess::class . ':activities')->group(function () {
         Route::get('/', [\App\Http\Controllers\DepartmentPortalController::class, 'index'])->name('portal.index');
         Route::post('/switch-context', [\App\Http\Controllers\DepartmentPortalController::class, 'switchContext'])->name('portal.switch-context');
         

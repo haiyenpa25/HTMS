@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
         ]);
+        $middleware->alias([
+            'portal.access' => \App\Http\Middleware\CheckPortalAccess::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
