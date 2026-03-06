@@ -3,6 +3,7 @@
       :department="activeDepartment" 
       :available-departments="availableDepartments"
       :is-global-admin="isGlobalAdmin"
+      portal-type="activities"
       @open-switcher="isSwitchOpen = true"
   >
        <!-- Empty State (No Department Selected or No Access) -->
