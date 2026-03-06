@@ -22,13 +22,40 @@
             <input v-model="localYear" @change="updatePeriod" type="number"
               class="w-16 text-sm border-none focus:ring-0 p-0 text-center font-medium" min="2020" max="2099" />
           </div>
-          <span v-if="report" class="px-3 py-1.5 rounded-xl text-xs font-bold"
-            :class="report.status==='approved'?'bg-green-100 text-green-800':report.status==='submitted'?'bg-amber-100 text-amber-800':'bg-gray-100 text-gray-600'">
-            {{ statusLabel(report.status) }}
-          </span>
-          <button @click="openReportForm" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-xl shadow-sm">
-            ✏️ {{ report ? 'Cập nhật BC' : 'Lập Báo cáo' }}
-          </button>
+          <div class="flex items-center gap-2" v-if="report">
+            <span class="px-3 py-1.5 rounded-xl text-xs font-bold"
+              :class="report.status==='approved'?'bg-green-100 text-green-800':report.status==='submitted'?'bg-amber-100 text-amber-800':'bg-gray-100 text-gray-600'">
+              {{ statusLabel(report.status) }}
+            </span>
+            <span v-if="report.unlock_requested" class="px-2 py-1 bg-red-100 text-red-700 text-[10px] rounded-lg font-bold animate-pulse">🔓 Xin mở khoá</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Edit button (Thư ký nếu chưa khoá, Leader thì có thể thoải mái) -->
+            <button v-if="!isLocked || isLeader" @click="openReportForm" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-xl shadow-sm transition">
+              ✏️ {{ report ? 'Cập nhật BC' : 'Lập Báo cáo' }}
+            </button>
+            
+            <!-- Submit (Thư ký) -->
+            <button v-if="report && report.status === 'draft' && !isLeader" @click="updateReportStatus('submit')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-sm transition">
+              📤 Nộp
+            </button>
+
+            <!-- Approve/Lock (Leader) -->
+            <button v-if="report && report.status !== 'approved' && isLeader" @click="updateReportStatus('approve')" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl shadow-sm transition">
+              🔒 Phê Duyệt & Khoá
+            </button>
+
+            <!-- Request Unlock (Thư ký) -->
+            <button v-if="report && report.status === 'approved' && !report.unlock_requested && !isLeader" @click="updateReportStatus('request_unlock')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-sm transition">
+              🔓 Xin mở khoá
+            </button>
+
+            <!-- Approve Unlock (Leader) -->
+            <button v-if="report && report.unlock_requested && isLeader" @click="updateReportStatus('approve_unlock')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl shadow-sm transition">
+              ✅ Duyệt mở khoá
+            </button>
+          </div>
         </div>
       </div>
 
@@ -130,7 +157,7 @@
               />
             </div>
           </div>
-          <div class="flex justify-end">
+          <div class="flex justify-end" v-if="!isLocked || isLeader">
             <button @click="saveYoutube" :disabled="ytSaving"
               class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-sm disabled:opacity-50 transition-colors flex items-center gap-2">
               <svg v-if="ytSaving" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -163,7 +190,7 @@
             <h3 class="text-sm font-black text-white">D. SỰ CỐ & KHẮC PHỤC</h3>
             <p class="text-[10px] text-rose-300">Ghi nhận sự cố và giải pháp trong tháng</p>
           </div>
-          <button @click="openIncidentForm(null)"
+          <button v-if="!isLocked || isLeader" @click="openIncidentForm(null)"
             class="bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -189,7 +216,7 @@
                 <p v-if="incident.resolution" class="text-xs text-gray-500 mt-1">📌 Giải pháp: {{ incident.resolution }}</p>
                 <p v-if="incident.direction" class="text-xs text-blue-600 mt-0.5">→ {{ incident.direction }}</p>
               </div>
-              <div class="flex items-center gap-2 shrink-0">
+              <div class="flex items-center gap-2 shrink-0" v-if="!isLocked || isLeader">
                 <button @click="openIncidentForm(incident)"
                   class="w-7 h-7 rounded-full bg-gray-100 hover:bg-blue-50 hover:text-blue-600 text-gray-400 flex items-center justify-center transition-colors">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,7 +286,7 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
           <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
             <h3 class="text-sm font-bold text-gray-900">📋 Nhận Xét & Kế Hoạch</h3>
-            <button @click="openReportForm" class="text-xs font-bold text-purple-600 hover:text-purple-800">
+            <button v-if="!isLocked || isLeader" @click="openReportForm" class="text-xs font-bold text-purple-600 hover:text-purple-800">
               {{ report ? 'Chỉnh sửa' : 'Lập báo cáo' }} →
             </button>
           </div>
@@ -373,13 +400,23 @@ const props = defineProps({
 });
 
 const isSwitchOpen   = ref(false);
-const showReportForm = ref(false);
+const showReportForm   = ref(false);
 const showIncidentForm = ref(false);
-const reportSaving   = ref(false);
-const ytSaving       = ref(false);
-const incidentSaving = ref(false);
-const editingIncident = ref(null);
-const localIncidents  = ref([...props.incidents]);
+const reportSaving     = ref(false);
+const ytSaving         = ref(false);
+const incidentSaving   = ref(false);
+const editingIncident  = ref(null);
+const localIncidents   = ref([...props.incidents]);
+
+const isLeader = computed(() => props.isGlobalAdmin);
+const isLocked = computed(() => props.report?.status === 'approved');
+
+const updateReportStatus = (action) => {
+  if (!confirm('Xác nhận cập nhật trạng thái báo cáo?')) return;
+  router.post(route('deacon.report.status', props.report.id), { action }, {
+    preserveScroll: true
+  });
+};
 
 const localMonth = ref(props.filters?.month || new Date().getMonth() + 1);
 const localYear  = ref(props.filters?.year  || new Date().getFullYear());

@@ -154,6 +154,7 @@ Route::middleware('auth')->group(function () {
         // Report
         Route::get('/report', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'report'])->name('deacon.report');
         Route::post('/report', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportSave'])->name('deacon.report.save');
+        Route::post('/report/{report}/status', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportStatusUpdate'])->name('deacon.report.status');
         // Incidents
         Route::post('/report/incidents', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportIncidentStore'])->name('deacon.incident.store');
         Route::put('/report/incidents/{incident}', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportIncidentUpdate'])->name('deacon.incident.update');

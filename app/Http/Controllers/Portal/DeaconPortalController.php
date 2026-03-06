@@ -251,6 +251,38 @@ class DeaconPortalController extends Controller
             ['status' => 'draft', 'submitted_by' => $request->user()->id]
         );
 
+        // Bắt sự kiện: NẾU BÁO CÁO NÀY VỪA ĐƯỢC TẠO MỚI TINH (CHƯA CÓ BÁO CÁO TRƯỚC ĐÓ)
+        // CHÚNG TA SẼ CARRY-OVER (MANG THEO) NHỮNG SỰ CỐ ĐANG XỬ LÝ / CHỜ XỬ LÝ TỪ THÁNG TRƯỚC SANG.
+        if ($report->wasRecentlyCreated) {
+            $prevMonthDate = Carbon::create($year, $month, 1)->subMonth();
+            $prevReport = DeaconMonthlyReport::where('report_month', $prevMonthDate->month)
+                ->where('report_year', $prevMonthDate->year)
+                ->first();
+
+            if ($prevReport) {
+                $unresolvedIncidents = DeaconReportIncident::where('deacon_report_id', $prevReport->id)
+                    ->whereIn('status', ['pending', 'in_progress'])
+                    ->get();
+
+                foreach ($unresolvedIncidents as $inc) {
+                    // Đánh dấu để người dùng nhận biết đây là Tồn đọng
+                    $label = $inc->week_label;
+                    if (!str_contains(mb_strtolower($label), 'tồn đọng')) {
+                        $label .= ' (Tồn đọng)';
+                    }
+
+                    DeaconReportIncident::create([
+                        'deacon_report_id'     => $report->id,
+                        'week_label'           => $label,
+                        'incident_description' => $inc->incident_description,
+                        'resolution'           => $inc->resolution,
+                        'direction'            => $inc->direction,
+                        'status'               => $inc->status,
+                    ]);
+                }
+            }
+        }
+
         // Incidents for this report
         $incidents = DeaconReportIncident::where('deacon_report_id', $report->id)
             ->orderBy('created_at')
@@ -349,14 +381,15 @@ class DeaconPortalController extends Controller
 
         // Report data for frontend
         $reportData = [
-            'id'            => $report->id,
-            'report_month'  => $report->report_month,
-            'report_year'   => $report->report_year,
-            'status'        => $report->status,
-            'reporter_name' => $report->reporter_name,
-            'evaluation'    => $report->evaluation ?? $report->summary_notes,
-            'proposals'     => $report->proposals,
-            'notes'         => $report->notes ?? $report->announcements,
+            'id'               => $report->id,
+            'report_month'     => $report->report_month,
+            'report_year'      => $report->report_year,
+            'reporter_name'    => $report->reporter_name,
+            'evaluation'       => $report->evaluation,
+            'proposals'        => $report->proposals,
+            'notes'            => $report->notes,
+            'status'           => $report->status,
+            'unlock_requested' => $report->unlock_requested,
         ];
 
         return Inertia::render('Deacon/Report', array_merge($this->deaconMeta($request), [
@@ -494,4 +527,37 @@ class DeaconPortalController extends Controller
         $incident->delete();
         return back()->with('success', 'Đã xóa sự cố!');
     }
+
+    /* ─────────────────────────────────────────────────────────────
+     |  REPORT — Update Status (Khoá, Nộp, Mở khoá)
+     */
+    public function reportStatusUpdate(Request $request, DeaconMonthlyReport $report)
+    {
+        $action = $request->input('action'); 
+        $user = $request->user();
+        $role = session('deacon_role', 'secretary');
+        $isLeader = in_array($role, ['head', 'pastor']) || $user->hasRole('super_admin');
+
+        switch ($action) {
+            case 'submit':
+                $report->update(['status' => 'submitted']);
+                break;
+            case 'approve':
+                if (!$isLeader) abort(403, 'Chỉ Trưởng Ban/Mục sư mới được duyệt.');
+                $report->update(['status' => 'approved', 'unlock_requested' => false]);
+                break;
+            case 'request_unlock':
+                $report->update(['unlock_requested' => true]);
+                break;
+            case 'approve_unlock':
+                if (!$isLeader) abort(403, 'Chỉ Trưởng Ban/Mục sư mới có quyền mở khoá.');
+                $report->update(['status' => 'draft', 'unlock_requested' => false]);
+                break;
+            default:
+                abort(400, 'Invalid action');
+        }
+
+        return back()->with('success', 'Cập nhật trạng thái báo cáo thành công.');
+    }
 }
+
