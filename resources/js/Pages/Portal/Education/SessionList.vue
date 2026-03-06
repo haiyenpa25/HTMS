@@ -5,7 +5,7 @@
             <!-- Header -->
             <div class="bg-gradient-to-r from-indigo-700 to-indigo-600 text-white">
                 <div class="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">
-                    <Link :href="route('education.classes')" class="p-1.5 rounded-lg hover:bg-white/10 transition-colors shrink-0">
+                    <Link :href="route(props.routePrefix + '.classes')" class="p-1.5 rounded-lg hover:bg-white/10 transition-colors shrink-0">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </Link>
                     <div class="flex-1 min-w-0">
@@ -229,7 +229,9 @@ const props = defineProps({
     sessions: Array,
     canManage: Boolean,
     portalType: String,
+    routePrefix: { type: String, default: 'education' },
 });
+
 
 // ── Create form ────────────────────────────────────────────────────
 const showCreateForm = ref(false);
@@ -269,12 +271,14 @@ const clearSelection = () => {
 
 // ── Actions ────────────────────────────────────────────────────────
 const goToSession = (sessionId) => {
-    router.get(route('education.session.view', [props.eduClass.id, sessionId]));
+    router.get(route(props.routePrefix + '.session.view', [props.eduClass.id, sessionId]));
 };
+
 
 const deleteSingle = (session) => {
     // Direct delete without confirm dialog - just a trash icon click
-    router.delete(route('education.sessions.destroy', [props.eduClass.id, session.id]), {
+    router.delete(route(props.routePrefix + '.sessions.destroy', [props.eduClass.id, session.id]), {
+
         preserveScroll: true,
         onSuccess: () => {
             selectedIds.value.delete(session.id);
@@ -283,7 +287,8 @@ const deleteSingle = (session) => {
 };
 
 const bulkDelete = () => {
-    router.delete(route('education.sessions.bulk-destroy', props.eduClass.id), {
+    router.delete(route(props.routePrefix + '.sessions.bulk-destroy', props.eduClass.id), {
+
         data: { ids: Array.from(selectedIds.value) },
         preserveScroll: true,
         onSuccess: () => {
@@ -318,7 +323,8 @@ const upcomingSundays = computed(() => {
 });
 
 const submitCreate = () => {
-    createForm.post(route('education.sessions.store', props.eduClass.id), {
+    createForm.post(route(props.routePrefix + '.sessions.store', props.eduClass.id), {
+
         preserveScroll: true,
         onSuccess: () => { showCreateForm.value = false; createForm.reset(); },
     });

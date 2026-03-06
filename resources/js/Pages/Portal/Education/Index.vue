@@ -5,7 +5,7 @@
             <!-- Header -->
             <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-3">
-                    <Link :href="route('education.index')" class="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-gray-500">
+                    <Link :href="route(routePrefix + '.index')" class="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-gray-500">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </Link>
                     <div>
@@ -72,7 +72,7 @@
                     </div>
                     <!-- Actions -->
                     <div class="px-5 py-3 border-t border-gray-100 flex gap-2">
-                        <Link :href="route('education.sessions', cls.id)"
+                        <Link :href="route(routePrefix + '.sessions', cls.id)"
                             class="flex-1 text-center text-sm font-black py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-sm flex items-center justify-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                             Quản lý buổi học
@@ -276,11 +276,13 @@ const props = defineProps({
     department: Object,
     isAdmin: Boolean,
     portalType: String,
+    routePrefix: { type: String, default: 'education' },
     availableDepartments: Array,
     isGlobalAdmin: Boolean,
     allMembers: Array,
     departments: { type: Array, default: () => [] },
 });
+
 
 // ── Class Create/Edit ────────────────────────────────────────────────
 const isFormOpen = ref(false);
@@ -319,12 +321,14 @@ const memberTypeLabel = (type) => {
 
 const submitForm = () => {
     if (editingClass.value) {
-        form.put(route('education.update', editingClass.value.id), {
+        form.put(route(props.routePrefix + '.update', editingClass.value.id), {
+
             preserveScroll: true,
             onSuccess: () => { isFormOpen.value = false; },
         });
     } else {
-        form.post(route('education.store'), {
+        form.post(route(props.routePrefix + '.store'), {
+
             preserveScroll: true,
             onSuccess: () => { isFormOpen.value = false; form.reset(); },
         });
@@ -382,7 +386,8 @@ const clearBulk = () => {
 const bulkAddMembers = () => {
     if (bulkSelected.value.size === 0) return;
     bulkLoading.value = true;
-    router.post(route('education.members.bulk-store', managingClass.value.id), {
+    router.post(route(props.routePrefix + '.members.bulk-store', managingClass.value.id), {
+
         member_ids: Array.from(bulkSelected.value),
         role: bulkRole.value,
     }, {
@@ -431,7 +436,8 @@ const selectMember = (m) => {
 
 const addMember = () => {
     if (!selectedMember.value) return;
-    router.post(route('education.members.store', managingClass.value.id), {
+    router.post(route(props.routePrefix + '.members.store', managingClass.value.id), {
+
         member_id: selectedMember.value.id,
         role: newMemberRole.value,
         joined_at: new Date().toISOString().split('T')[0],
@@ -448,7 +454,8 @@ const addMember = () => {
 
 const removeMember = (memberId) => {
     if (!confirm('Xóa thành viên này khỏi lớp?')) return;
-    router.delete(route('education.members.destroy', [managingClass.value.id, memberId]), {
+    router.delete(route(props.routePrefix + '.members.destroy', [managingClass.value.id, memberId]), {
+
         preserveScroll: true,
         onSuccess: (page) => {
             const updated = page.props.classes?.find(c => c.id === managingClass.value.id);
@@ -459,7 +466,8 @@ const removeMember = (memberId) => {
 
 const deleteClass = (cls) => {
     if (!confirm(`Bạn có chắc muốn xóa lớp "${cls.name}"?\n\nLưu ý: Tất cả bài học, điểm danh và thành viên trong lớp này sẽ bị xóa vĩnh viễn.`)) return;
-    router.delete(route('education.destroy', cls.id), {
+    router.delete(route(props.routePrefix + '.destroy', cls.id), {
+
         preserveScroll: true,
     });
 };

@@ -72,6 +72,7 @@ class EducationController extends Controller
             'availableDepartments' => $this->getAvailableDepts($user),
             'isGlobalAdmin'      => $user->hasRole(['Super_Admin', 'Pastor']),
             'isAdmin'            => $isAdmin,
+            'routePrefix'        => $this->getRoutePrefix(),
         ]);
     }
 
@@ -168,6 +169,7 @@ class EducationController extends Controller
             'department'  => $department,
             'isAdmin'     => $isAdmin,
             'portalType'  => 'education',
+            'routePrefix' => $this->getRoutePrefix(),
             'availableDepartments' => $this->getAvailableDepts($user),
             'isGlobalAdmin' => $user->hasRole(['Super_Admin', 'Pastor']),
             'allMembers'  => $allMembers,
@@ -215,16 +217,18 @@ class EducationController extends Controller
             });
 
         return Inertia::render('Portal/Education/SessionList', [
-            'eduClass'  => [
+            'eduClass'   => [
                 'id'         => $eduClass->id,
                 'name'       => $eduClass->name,
                 'class_type' => $eduClass->class_type,
             ],
-            'sessions'  => $sessions,
-            'canManage' => Gate::allows('markAttendance', $eduClass),
+            'sessions'   => $sessions,
+            'canManage'  => Gate::allows('markAttendance', $eduClass),
             'portalType' => 'education',
+            'routePrefix' => $this->getRoutePrefix(),
         ]);
     }
+
 
     // ══════════════════════════════════════════════════════════════
     // STORE MEMBER — Thêm 1 thành viên vào lớp
@@ -1001,4 +1005,16 @@ class EducationController extends Controller
             ->select('id', 'name')
             ->get();
     }
+
+    /**
+     * Detect route prefix based on current URL path.
+     * Returns 'ministry.education' when accessed via /ministry/education,
+     * otherwise returns 'education'.
+     */
+    private function getRoutePrefix(): string
+    {
+        $path = request()->path();
+        return str_starts_with($path, 'ministry/') ? 'ministry.education' : 'education';
+    }
 }
+
