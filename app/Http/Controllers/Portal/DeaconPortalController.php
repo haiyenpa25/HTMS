@@ -90,7 +90,7 @@ class DeaconPortalController extends Controller
 
         if ($activeRole === 'treasurer') {
             $funds = FinanceFund::where('owner_type', 'church')
-                ->get(['id', 'name', 'balance'])
+                ->get(['id', 'name'])
                 ->map(fn($f) => ['id' => $f->id, 'name' => $f->name, 'balance' => $f->balance]);
 
             $fundIds      = FinanceFund::where('owner_type', 'church')->pluck('id');
