@@ -97,7 +97,7 @@ class SystemFeatureController extends Controller
             }
         }
 
-        return back()->with('success', 'Đã lưu cấu hình tính năng thành công.');
+        return response()->json(['success' => true, 'message' => 'Đã lưu cấu hình tính năng thành công.']);
     }
 
 
