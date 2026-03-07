@@ -4,83 +4,83 @@ namespace App\Policies;
 
 use App\Models\Meeting;
 use App\Models\User;
+use App\Models\UserDepartmentFeature;
+use App\Models\Department;
+use App\Models\OrgMembership;
 use Illuminate\Auth\Access\Response;
 
 class MeetingPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        return true; // The scopeAccessibleBy handles row-level filtering already
+        return true; 
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Handle [Meeting::class, $meeting] or just $meeting
      */
-    public function view(User $user, Meeting $meeting): bool
+    public function view(User $user, $arg1, $arg2 = null): bool
     {
         if ($user->hasRole(['BTS_Admin', 'Pastor', 'Super_Admin'])) {
             return true;
         }
 
+        $meeting = ($arg1 instanceof Meeting) ? $arg1 : $arg2;
+        if (!$meeting) return false;
+
         if (!$meeting->department_id) {
             return true;
         }
 
-        return \App\Models\OrgMembership::where('member_id', $user->member_id)
-            ->where('model_type', \App\Models\Department::class)
-            ->where('model_id', $meeting->department_id)
+        // MAC path
+        $hasMac = UserDepartmentFeature::where('user_id', $user->id)
+            ->where('department_id', $meeting->department_id)
+            ->where('is_enabled', true)
+            ->exists();
+        if ($hasMac) return true;
+
+        // Legacy OrgMembership
+        $memberId = $user->member?->id ?? $user->member_id;
+        if ($memberId) {
+            return OrgMembership::where('member_id', $memberId)
+                ->where('model_type', Department::class)
+                ->where('model_id', $meeting->department_id)
+                ->exists();
+        }
+
+        return false;
+    }
+
+    public function create(User $user): bool
+    {
+        if ($user->hasRole(['BTS_Admin', 'Pastor', 'Super_Admin'])) return true;
+        return UserDepartmentFeature::where('user_id', $user->id)
+            ->where('is_enabled', true)
             ->exists();
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
+    public function update(User $user, $arg1, $arg2 = null): bool
     {
-        return $user->hasRole(['BTS_Admin', 'Pastor']) || $user->supervisedDepartments()->exists();
+        return $this->view($user, $arg1, $arg2);
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, Meeting $meeting): bool
+    public function delete(User $user, $arg1, $arg2 = null): bool
     {
-        return $this->view($user, $meeting);
+        return $this->view($user, $arg1, $arg2);
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Meeting $meeting): bool
-    {
-        return $this->view($user, $meeting);
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Meeting $meeting): bool
+    public function restore(User $user, $arg1, $arg2 = null): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Meeting $meeting): bool
+    public function forceDelete(User $user, $arg1, $arg2 = null): bool
     {
         return false;
     }
 
-    /**
-     * Determine if user can approve meeting finances.
-     */
-    public function approveFinances(User $user, Meeting $meeting): bool
+    public function approveFinances(User $user, $arg1, $arg2 = null): bool
     {
-        return $user->hasRole(['BTS_Admin', 'Pastor']);
+        return $user->hasRole(['BTS_Admin', 'Pastor', 'Super_Admin']);
     }
 }
-

@@ -4,34 +4,66 @@ namespace App\Policies;
 
 use App\Models\DepartmentReport;
 use App\Models\User;
+use App\Models\UserDepartmentFeature;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class DepartmentReportPolicy
 {
     use HandlesAuthorization;
 
-    public function viewAny(?User $user = null): bool
+    public function viewAny(User $user): bool
     {
-        return $user?->hasPermissionTo('view_reports') ?? false;
+        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+        
+        return UserDepartmentFeature::where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->whereHas('feature', fn($q) => $q->where('slug', 'reports'))
+            ->exists();
     }
 
-    public function view(User $user, ?DepartmentReport $report = null): bool
+    public function view(User $user, $arg1 = null, $arg2 = null): bool
     {
+        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+
+        $deptId = session('active_portal_dept_id');
+        if ($deptId && $this->hasMacAccess($user, $deptId, 'reports')) return true;
+
         return $user->hasPermissionTo('view_reports');
     }
 
-    public function create(?User $user = null): bool
+    public function create(User $user): bool
     {
-        return $user?->hasPermissionTo('create_reports') ?? false;
-    }
+        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
 
-    public function update(User $user, ?DepartmentReport $report = null): bool
-    {
+        $deptId = session('active_portal_dept_id');
+        if ($deptId && $this->hasMacAccess($user, $deptId, 'reports')) return true;
+
         return $user->hasPermissionTo('create_reports');
     }
 
-    public function approve(User $user, ?DepartmentReport $report = null): bool
+    public function update(User $user, $arg1 = null, $arg2 = null): bool
     {
+        return $this->create($user);
+    }
+
+    public function approve(User $user, $arg1 = null, $arg2 = null): bool
+    {
+        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+
+        // NOTE: In some systems, only Lead can approve. 
+        // If MAC allows 'reports', we assume they can manage it unless we split 'reports-view' vs 'reports-approve'.
+        $deptId = session('active_portal_dept_id');
+        if ($deptId && $this->hasMacAccess($user, $deptId, 'reports')) return true;
+
         return $user->hasPermissionTo('approve_reports');
+    }
+
+    private function hasMacAccess(User $user, int $deptId, string $slug): bool
+    {
+        return UserDepartmentFeature::where('user_id', $user->id)
+            ->where('department_id', $deptId)
+            ->where('is_enabled', true)
+            ->whereHas('feature', fn($q) => $q->where('slug', $slug))
+            ->exists();
     }
 }

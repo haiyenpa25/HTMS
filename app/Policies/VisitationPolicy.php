@@ -4,82 +4,80 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Visitation;
+use App\Models\UserDepartmentFeature;
 
 class VisitationPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('view_visitations');
+        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+        
+        // MAC: has any visitation permission
+        return UserDepartmentFeature::where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->whereHas('feature', fn($q) => $q->where('slug', 'visitation'))
+            ->exists();
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, ?Visitation $visitation = null): bool
+    public function view(User $user, $arg1 = null, $arg2 = null): bool
     {
-        if (!$user->hasPermissionTo('view_visitations')) {
-            return false;
-        }
+        if ($user->hasRole(['Pastor', 'Super_Admin'])) return true;
 
-        if (!$visitation) {
+        $visitation = ($arg1 instanceof Visitation) ? $arg1 : $arg2;
+        
+        // MAC check
+        $deptId = $visitation?->department_id ?? session('active_portal_dept_id');
+        if ($deptId && $this->hasMacAccess($user, $deptId, 'visitation')) {
             return true;
         }
 
-        if ($user->hasRole(['Pastor', 'Super_Admin', 'Visitation_Staff'])) {
-            return true;
-        }
-
-        // Department Leads can only view visitations for their current portal department context
-        $activePortalDeptId = session('active_portal_dept_id');
-        if ($activePortalDeptId && $visitation->department_id === $activePortalDeptId) {
-            return true;
+        // Legacy Spatie fallback
+        if ($user->hasPermissionTo('view_visitations')) {
+            if (!$visitation) return true;
+            if ($user->hasRole('Visitation_Staff')) return true;
+            if ($visitation->department_id === (int)session('active_portal_dept_id')) return true;
         }
 
         return false;
     }
 
-    /**
-     * Determine whether the user can see sensitive content of a visitation
-     */
     public function viewSensitiveContent(User $user, Visitation $visitation): bool
     {
-        if ($user->hasPermissionTo('view_sensitive_visitation_content')) {
-            return true; // Pastor, Super Admin
-        }
+        if ($user->hasPermissionTo('view_sensitive_visitation_content')) return true;
+        if ($user->hasRole(['Super_Admin', 'Pastor'])) return true;
 
-        // If the user's member profile was one of the visitors
-        if ($user->member) {
-            return $visitation->visitors->contains('id', $user->member->id);
+        // Visitors can see their own reports
+        if ($user->member_id && $visitation->visitors->contains('id', $user->member_id)) {
+            return true;
         }
 
         return false;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('create_visitation_requests') || $user->hasPermissionTo('manage_visitations');
+        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+        
+        $deptId = session('active_portal_dept_id');
+        return $deptId && $this->hasMacAccess($user, $deptId, 'visitation');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, ?Visitation $visitation = null): bool
+    public function update(User $user, Visitation $visitation = null): bool
     {
-        return $user->hasPermissionTo('manage_visitations');
+        return $this->create($user);
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, ?Visitation $visitation = null): bool
+    public function delete(User $user, Visitation $visitation = null): bool
     {
-        return $user->hasPermissionTo('manage_visitations');
+        return $this->create($user);
+    }
+
+    private function hasMacAccess(User $user, int $deptId, string $slug): bool
+    {
+        return UserDepartmentFeature::where('user_id', $user->id)
+            ->where('department_id', $deptId)
+            ->where('is_enabled', true)
+            ->whereHas('feature', fn($q) => $q->where('slug', $slug))
+            ->exists();
     }
 }
-

@@ -286,15 +286,82 @@ class PortalMemberController extends Controller
     {
         $isMinistry = request()->is('ministry/*');
         $block = $isMinistry ? 'ministry' : 'activities';
+        return app(\App\Services\PortalService::class)->getAvailableDepartments(auth()->user(), $block);
+    }
 
-        if (auth()->user()->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) {
-            return Department::where('block', $block)->get();
-        } 
-        
-        return Department::where('block', $block)
-            ->whereHas('memberships', function($q) {
-                $q->where('member_id', auth()->user()->member_id ?? 0);
-            })->get();
+    /**
+     * Remove a member from the current department portal
+     */
+    public function removeMember(Request $request, Member $member)
+    {
+        $context = $this->getContext();
+        $departmentId = tap(session($context['session_key']), function ($id) use ($context) {
+            if (!$id) abort(redirect()->route($context['base_route']));
+        });
+
+        Gate::authorize('portal_manage_board', Member::class);
+
+        \DB::transaction(function () use ($departmentId, $member) {
+            // Remove from department
+            OrgMembership::where('member_id', $member->id)
+                ->where('model_type', Department::class)
+                ->where('model_id', $departmentId)
+                ->delete();
+
+            // Remove from teams within department
+            $department = Department::findOrFail($departmentId);
+            $departmentTeamIds = $department->teams()->pluck('id')->toArray();
+            
+            if (!empty($departmentTeamIds)) {
+                OrgMembership::where('member_id', $member->id)
+                    ->where('model_type', \App\Models\Team::class)
+                    ->whereIn('model_id', $departmentTeamIds)
+                    ->delete();
+            }
+        });
+
+        return back()->with('success', 'Đã xóa tín hữu khỏi ban ngành.');
+    }
+
+    /**
+     * Bulk remove members from the current department portal
+     */
+    public function bulkRemove(Request $request)
+    {
+        $context = $this->getContext();
+        $departmentId = tap(session($context['session_key']), function ($id) use ($context) {
+            if (!$id) abort(redirect()->route($context['base_route']));
+        });
+
+        Gate::authorize('portal_manage_board', Member::class);
+
+        $validated = $request->validate([
+            'member_ids' => 'required|array',
+            'member_ids.*' => 'integer|exists:members,id'
+        ]);
+
+        \DB::transaction(function () use ($departmentId, $validated) {
+            $memberIds = $validated['member_ids'];
+
+            // Remove from department
+            OrgMembership::whereIn('member_id', $memberIds)
+                ->where('model_type', Department::class)
+                ->where('model_id', $departmentId)
+                ->delete();
+
+            // Remove from teams within department
+            $department = Department::findOrFail($departmentId);
+            $departmentTeamIds = $department->teams()->pluck('id')->toArray();
+            
+            if (!empty($departmentTeamIds)) {
+                OrgMembership::whereIn('member_id', $memberIds)
+                    ->where('model_type', \App\Models\Team::class)
+                    ->whereIn('model_id', $departmentTeamIds)
+                    ->delete();
+            }
+        });
+
+        return back()->with('success', 'Đã xóa hàng loạt tín hữu khỏi ban ngành.');
     }
 }
 

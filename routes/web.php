@@ -48,6 +48,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/{user}/permissions/toggle', [\App\Http\Controllers\Admin\UserPermissionController::class, 'toggle'])->name('admin.users.permissions.toggle');
         Route::post('/users/{user}/permissions/roles', [\App\Http\Controllers\Admin\UserPermissionController::class, 'updateRoles'])->name('admin.users.permissions.roles');
         Route::post('/users/{user}/permissions/grant-full', [\App\Http\Controllers\Admin\UserPermissionController::class, 'grantFull'])->name('admin.users.permissions.grant-full');
+
+        // Feature System Configuration (Tab Tính Năng)
+        Route::get('/features', [\App\Http\Controllers\Admin\SystemFeatureController::class, 'index'])->name('admin.features.index');
+        Route::post('/features/assign', [\App\Http\Controllers\Admin\SystemFeatureController::class, 'assign'])->name('admin.features.assign');
+        Route::post('/features/store', [\App\Http\Controllers\Admin\SystemFeatureController::class, 'storeFeature'])->name('admin.features.store');
     });
 
     // Department Portal (Ban Sinh Hoạt — Activities)
@@ -67,6 +72,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/members', [\App\Http\Controllers\Portal\PortalMemberController::class, 'index'])->name('portal.members.index');
             Route::post('/members/{member}/role', [\App\Http\Controllers\Portal\PortalMemberController::class, 'updateRole'])->name('portal.members.update');
             Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('portal.members.bulk-assign');
+            Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('portal.members.remove');
+            Route::delete('/members/bulk/remove', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkRemove'])->name('portal.members.bulk-remove');
         });
 
         // Phân công
@@ -115,6 +122,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/members', [\App\Http\Controllers\Portal\PortalMemberController::class, 'index'])->name('ministry.members.index');
         Route::post('/members/{member}/role', [\App\Http\Controllers\Portal\PortalMemberController::class, 'updateRole'])->name('ministry.members.update');
         Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('ministry.members.bulk-assign');
+        Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('ministry.members.remove');
+        Route::delete('/members/bulk/remove', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkRemove'])->name('ministry.members.bulk-remove');
 
         // ─── Ban Cơ Đốc Giáo Dục — Education sub-portal ──────────────────────
         Route::prefix('education')->group(function () {

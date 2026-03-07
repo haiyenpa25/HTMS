@@ -2,38 +2,40 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\UserDepartmentFeature;
 use App\Services\PortalService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * PortalAccessMiddleware — Thay thế CheckFeatureAccess + CheckPortalAccess cũ.
- * Kiểm tra quyền truy cập tính năng dựa vào bảng user_department_features.
+ * PortalAccessMiddleware — Kiểm tra quyền tính năng cụ thể.
  *
- * God Mode: Super_Admin, Pastor → luôn pass.
+ * God Mode: Super_Admin → luôn pass.
+ * Normal user: Kiểm tra xem user có ít nhất 1 dept trong block này
+ * có quyền truy cập tính năng đó không.
  *
- * Usage trong routes:
- *   Route::middleware('portal.access:attendance,activities')->get('/attendance', ...);
- *   Route::middleware('portal.access:visitation,ministry')->get('/visitation', ...);
+ * Usage:
+ *   Route::middleware('portal.access:attendance,activities')
  */
 class PortalAccessMiddleware
 {
-    const SUPER_ADMIN_EMAIL = 'superadmin@httlthanhmyloi.com';
-
     const SESSION_DEPT_KEY = [
         'activities' => 'active_portal_dept_id',
         'ministry'   => 'active_ministry_dept_id',
         'deacon'     => 'active_deacon_dept_id',
-        'education'  => 'active_ministry_dept_id', // Education dùng chung với ministry
+        'education'  => 'active_ministry_dept_id',
+    ];
+
+    const BLOCK_MAP = [
+        'activities' => 'activities',
+        'ministry'   => 'ministry',
+        'deacon'     => 'leadership',
+        'education'  => 'ministry',
     ];
 
     public function __construct(private PortalService $service) {}
 
-    /**
-     * @param  string  $featureSlug  e.g. 'attendance', 'visitation', 'education-classes'
-     * @param  string  $portalType   e.g. 'activities', 'ministry', 'deacon'
-     */
     public function handle(Request $request, Closure $next, string $featureSlug, string $portalType = 'activities'): Response
     {
         $user = $request->user();
@@ -41,29 +43,45 @@ class PortalAccessMiddleware
             return redirect()->route('login');
         }
 
-        // ════════════════════════════════════════
-        // GOD MODE: Super_Admin / Pastor bypass ALL
-        // ════════════════════════════════════════
+        // God Mode bypass
         if ($user->isSuperAdmin()) {
             return $next($request);
         }
 
-        // Lấy active department từ session
+        $block       = self::BLOCK_MAP[$portalType] ?? $portalType;
         $sessionKey  = self::SESSION_DEPT_KEY[$portalType] ?? 'active_portal_dept_id';
         $activeDeptId = session($sessionKey);
 
-        if (!$activeDeptId) {
-            abort(403, 'Chưa có ban ngành được chọn. Vui lòng chọn ban ngành trước.');
+        // Strategy: try the active dept first, then scan all user depts in this block
+        if ($activeDeptId && $this->service->canAccess($user, (int) $activeDeptId, $featureSlug)) {
+            return $next($request);
         }
 
-        // Check bảng user_department_features
-        if (!$this->service->canAccess($user, (int) $activeDeptId, $featureSlug)) {
-            abort(403, sprintf(
-                'Bạn chưa được cấp quyền truy cập tính năng "%s". Liên hệ quản trị viên để được phân quyền.',
-                $featureSlug
-            ));
+        // Fallback: look for ANY department the user has this feature enabled in
+        $hasAccessInAnyDept = UserDepartmentFeature::where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->whereHas('feature', fn ($q) => $q->where('slug', $featureSlug))
+            ->whereHas('department', fn ($q) => $q->where('block', $block))
+            ->exists();
+
+        if ($hasAccessInAnyDept) {
+            // Update the active dept to one where user has this feature (so they can actually use it)
+            $validDeptId = UserDepartmentFeature::where('user_id', $user->id)
+                ->where('is_enabled', true)
+                ->whereHas('feature', fn ($q) => $q->where('slug', $featureSlug))
+                ->whereHas('department', fn ($q) => $q->where('block', $block))
+                ->value('department_id');
+
+            if ($validDeptId) {
+                session([$sessionKey => $validDeptId]);
+            }
+
+            return $next($request);
         }
 
-        return $next($request);
+        abort(403, sprintf(
+            'Bạn chưa được cấp quyền tính năng "%s". Liên hệ quản trị viên.',
+            $featureSlug
+        ));
     }
 }

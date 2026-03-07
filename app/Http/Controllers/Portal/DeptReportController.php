@@ -87,11 +87,11 @@ class DeptReportController extends Controller
     // ============================================================
     public function index(Request $request)
     {
-        Gate::authorize('viewAny', DepartmentReport::class);
-
         $deptId = session('active_portal_dept_id');
         if (!$deptId) return redirect()->route('portal.index');
         $department = Department::findOrFail($deptId);
+
+        Gate::authorize('view_reports', [Department::class, $department]);
 
         $month = (int) $request->input('month', now()->month);
         $year  = (int) $request->input('year',  now()->year);
@@ -294,12 +294,6 @@ class DeptReportController extends Controller
 
     private function getAvailableDepartments($user): \Illuminate\Support\Collection
     {
-        if ($user->hasRole(['Super_Admin', 'Pastor'])) {
-            return Department::where('block', 'activities')->select('id', 'name')->get();
-        }
-        $memberId = $user->member_id;
-        if (!$memberId) return collect();
-        $ids = DB::table('org_memberships')->where('model_type', Department::class)->where('member_id', $memberId)->pluck('model_id');
-        return Department::whereIn('id', $ids)->where('block', 'activities')->select('id', 'name')->get();
+        return app(\App\Services\PortalService::class)->getAvailableDepartments($user, 'activities');
     }
 }

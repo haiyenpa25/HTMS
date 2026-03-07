@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Department;
 use App\Models\Feature;
 use App\Models\UserDepartmentFeature;
+use App\Services\FeatureAssignmentService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 /**
- * DepartmentPortalController — MAC version.
- * Không dùng OrgMembership. Dùng user_department_features trực tiếp.
+ * DepartmentPortalController — Two-Tier MAC version.
+ * Level 1: System-wide feature_department mapping (FeatureAssignmentService)
+ * Level 2: User-specific user_department_features mapping
+ * SuperAdmin overrides everything.
  */
 class DepartmentPortalController extends Controller
 {
@@ -18,6 +21,7 @@ class DepartmentPortalController extends Controller
     {
         $user         = $request->user();
         $isSuperAdmin = $user->isSuperAdmin();
+        $service      = app(FeatureAssignmentService::class);
 
         $activeDeptId = session('active_portal_dept_id');
 
@@ -26,13 +30,39 @@ class DepartmentPortalController extends Controller
             $availableDepartments = Department::where('block', 'activities')
                 ->select('id', 'name', 'code')->orderBy('name')->get();
         } else {
-            $allowedIds = UserDepartmentFeature::where('user_id', $user->id)
+            // Lấy tất cả quyền Level 2 của user này
+            $userFeatureRecords = UserDepartmentFeature::where('user_id', $user->id)
                 ->where('is_enabled', true)
                 ->whereHas('department', fn ($q) => $q->where('block', 'activities'))
-                ->pluck('department_id')
-                ->unique();
+                ->with(['feature', 'department'])
+                ->get()
+                ->groupBy('department_id');
 
-            $availableDepartments = Department::whereIn('id', $allowedIds)
+            $validDeptIds = [];
+            
+            foreach ($userFeatureRecords as $deptId => $ufRecords) {
+                $dept = $ufRecords->first()->department;
+                if (!$dept) continue;
+                
+                $level1Map = $service->getAvailableFeaturesForDepartment($dept);
+                
+                $hasValidFeature = false;
+                foreach ($ufRecords as $uf) {
+                    if (!$uf->feature) continue;
+                    $slug = $uf->feature->slug;
+                    // default-allow: if no Level 1 config exists for this slug, assume allowed
+                    if ($level1Map[$slug] ?? true) {
+                        $hasValidFeature = true;
+                        break;
+                    }
+                }
+                
+                if ($hasValidFeature) {
+                    $validDeptIds[] = $deptId;
+                }
+            }
+
+            $availableDepartments = Department::whereIn('id', $validDeptIds)
                 ->where('block', 'activities')
                 ->select('id', 'name', 'code')->orderBy('name')->get();
         }
@@ -45,23 +75,34 @@ class DepartmentPortalController extends Controller
 
         $activeDepartment = $activeDeptId ? Department::find($activeDeptId) : null;
 
-        // ── Lấy feature permissions từ user_department_features ────────
-        if ($isSuperAdmin) {
-            // Super Admin có tất cả features
-            $userPermissions = Feature::pluck('slug')->mapWithKeys(fn ($s) => [$s => true])->toArray();
-        } else {
-            $enabledFeatures = UserDepartmentFeature::where('user_id', $user->id)
-                ->where('department_id', $activeDeptId)
-                ->where('is_enabled', true)
-                ->with('feature')
-                ->get()
-                ->pluck('feature.slug')
-                ->filter()
-                ->values();
+        // ── Lấy feature permissions (Giao lộ Level 1 & Level 2) ────────
+        $allSlugs = ['attendance', 'visitation', 'members', 'assignments', 'reports', 'finance'];
 
-            // Map tới dạng boolean cho frontend
-            $allSlugs = ['attendance', 'visitation', 'members', 'assignments', 'reports', 'finance'];
-            $userPermissions = collect($allSlugs)->mapWithKeys(fn ($s) => [$s => $enabledFeatures->contains($s)])->toArray();
+        if ($isSuperAdmin) {
+            // Super Admin bypass tất cả, thấy đủ 100% features hiện có
+            $userPermissions = collect($allSlugs)->mapWithKeys(fn ($s) => [$s => true])->toArray();
+        } else {
+            if ($activeDepartment) {
+                $level1Map = $service->getAvailableFeaturesForDepartment($activeDepartment);
+                
+                $enabledFeaturesLevel2 = UserDepartmentFeature::where('user_id', $user->id)
+                    ->where('department_id', $activeDeptId)
+                    ->where('is_enabled', true)
+                    ->with('feature')
+                    ->get()
+                    ->pluck('feature.slug')
+                    ->filter()
+                    ->values();
+
+                $userPermissions = collect($allSlugs)->mapWithKeys(function ($s) use ($level1Map, $enabledFeaturesLevel2) {
+                    // Level 1: If no config exists for this feature, default to ALLOW (backward compat)
+                    $l1 = $level1Map[$s] ?? true;
+                    $l2 = $enabledFeaturesLevel2->contains($s);
+                    return [$s => ($l1 && $l2)];
+                })->toArray();
+            } else {
+                $userPermissions = collect($allSlugs)->mapWithKeys(fn ($s) => [$s => false])->toArray();
+            }
         }
 
         // ── Dashboard stats ─────────────────────────────────────────────
@@ -102,14 +143,29 @@ class DepartmentPortalController extends Controller
             abort(403, 'Ban ngành này không thuộc Cổng Sinh Hoạt.');
         }
 
-        // MAC check: user phải có ít nhất 1 feature enabled trong dept này (hoặc superadmin)
         if (!$user->isSuperAdmin()) {
-            $ok = UserDepartmentFeature::where('user_id', $user->id)
+            $service = app(FeatureAssignmentService::class);
+            $level1Map = $service->getAvailableFeaturesForDepartment($dept);
+            
+            $userFeatures = UserDepartmentFeature::where('user_id', $user->id)
                 ->where('department_id', $deptId)
                 ->where('is_enabled', true)
-                ->exists();
-            if (!$ok) {
-                abort(403, 'Bạn chưa được cấp quyền trong ban ngành này.');
+                ->with('feature')
+                ->get();
+                
+            $hasValidFeature = false;
+            foreach ($userFeatures as $uf) {
+                if (!$uf->feature) continue;
+                $slug = $uf->feature->slug;
+                // Default allow if no Level 1 config exists for this feature
+                if ($level1Map[$slug] ?? true) {
+                    $hasValidFeature = true;
+                    break;
+                }
+            }
+            
+            if (!$hasValidFeature) {
+                abort(403, 'Ban ngành này hiện không có tính năng nào được phép truy cập cho bạn.');
             }
         }
 

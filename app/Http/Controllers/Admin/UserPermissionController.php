@@ -71,6 +71,7 @@ class UserPermissionController extends Controller
             'features'      => $features,
             'filters'       => ['search' => $request->input('search')],
             'preselectUser' => $preselectUser,
+            'systemConfig'  => \App\Models\FeatureDepartment::all(),
         ]);
     }
 

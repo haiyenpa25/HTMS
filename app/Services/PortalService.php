@@ -70,6 +70,18 @@ class PortalService
             return true;
         }
 
+        // Level 1: Check System Configuration (feature_department)
+        $department = Department::find($deptId);
+        if (!$department) return false;
+        
+        $systemAccess = app(\App\Services\FeatureAssignmentService::class)
+            ->isFeatureEnabledForDepartment($department, $featureSlug);
+            
+        if (!$systemAccess) {
+            return false;
+        }
+
+        // Level 2: Check User Permission (user_department_features)
         // Cache slugToId để tránh lookup DB mỗi request
         $featureId = $this->resolveFeatureId($featureSlug);
         if (!$featureId) return false;
@@ -142,11 +154,45 @@ class PortalService
 
     private ?array $slugMap = null;
 
-    private function resolveFeatureId(string $slug): ?int
+    public function resolveFeatureId(string $slug): ?int
     {
         if ($this->slugMap === null) {
             $this->slugMap = Feature::pluck('id', 'slug')->toArray();
         }
         return $this->slugMap[$slug] ?? null;
+    }
+
+    /**
+     * Lấy danh sách departments user có quyền truy cập (theo Block).
+     * Kết hợp cả Membership (legacy) và MAC (UserDepartmentFeature).
+     */
+    public function getAvailableDepartments(User $user, string $block = 'activities'): Collection
+    {
+        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) {
+            return Department::where('block', $block)->orderBy('name')->get();
+        }
+
+        $deptIds = collect();
+
+        // 1. MAC path
+        $macDeptIds = UserDepartmentFeature::where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->whereHas('department', fn($q) => $q->where('block', $block))
+            ->pluck('department_id');
+        $deptIds = $deptIds->merge($macDeptIds);
+
+        // 2. Legacy Membership path
+        if ($user->member_id) {
+            $memberDeptIds = \App\Models\OrgMembership::where('member_id', $user->member_id)
+                ->where('model_type', Department::class)
+                ->whereHasMorph('model', [Department::class], fn($q) => $q->where('block', $block))
+                ->pluck('model_id');
+            $deptIds = $deptIds->merge($memberDeptIds);
+        }
+
+        return Department::whereIn('id', $deptIds->unique())
+            ->where('block', $block)
+            ->orderBy('name')
+            ->get();
     }
 }

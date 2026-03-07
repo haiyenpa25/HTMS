@@ -74,12 +74,25 @@ class UserController extends Controller
             'leadership' => '🏛️ Ban Chấp Sự',
         ];
 
+        $features = \App\Models\Feature::orderBy('name')->get()->map(fn ($f) => [
+            'id'          => $f->id,
+            'name'        => $f->name,
+            'slug'        => $f->slug,
+            'icon'        => $f->icon,
+            'portal_type' => $f->portal_type,
+            'description' => $f->description,
+        ]);
+
+        $systemConfig = \App\Models\FeatureDepartment::all();
+
         return Inertia::render('Users/Index', [
-            'users'       => $users,
-            'roles'       => $roles,
-            'departments' => $departments,
-            'blockLabels' => $blockLabels,
-            'filters'     => $request->only(['search', 'block', 'department_id']),
+            'users'        => $users,
+            'roles'        => $roles,
+            'departments'  => $departments,
+            'blockLabels'  => $blockLabels,
+            'filters'      => $request->only(['search', 'block', 'department_id']),
+            'features'     => $features,
+            'systemConfig' => $systemConfig,
         ]);
     }
 

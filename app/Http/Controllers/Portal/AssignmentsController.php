@@ -20,20 +20,8 @@ class AssignmentsController extends Controller
         $department = Department::findOrFail($departmentId);
         Gate::authorize('access_portal', [Department::class, $department]);
 
-        $availableDepartments = [];
-        if (auth()->user()->hasRole(['Pastor', 'Super_Admin'])) {
-            $availableDepartments = Department::where('block', 'activities')->get();
-        } else {
-            $memberId = auth()->user()->member_id;
-            if ($memberId) {
-                $availableDepartments = Department::whereIn('id', function($query) use ($memberId) {
-                    $query->select('model_id')
-                          ->from('org_memberships')
-                          ->where('model_type', Department::class)
-                          ->where('member_id', $memberId);
-                })->where('block', 'activities')->get();
-            }
-        }
+        $availableDepartments = app(\App\Services\PortalService::class)->getAvailableDepartments(auth()->user(), 'activities');
+
 
         return Inertia::render('Portal/Assignments/Index', [
             'department' => $department,

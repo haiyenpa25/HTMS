@@ -21,14 +21,35 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     // DASHBOARD — Portal tổng quan của Ban CĐGD
     // ══════════════════════════════════════════════════════════════
+    /**
+     * Detect if user is an Education Admin for the specific department or globally.
+     */
+    private function isEducationAdmin(\App\Models\User $user, ?int $deptId = null): bool
+    {
+        if ($user->hasRole(['Super_Admin', 'Pastor', 'BTS_Admin'])) return true;
+        if ($user->hasPermissionTo('manage_edu_classes')) return true;
+
+        // MAC: has education-classes in the active department or ANY department (if no deptId)
+        $q = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->whereHas('feature', fn($f) => $f->where('slug', 'education-classes'));
+        
+        if ($deptId) {
+            $q->where('department_id', $deptId);
+        }
+
+        return $q->exists();
+    }
+
     public function dashboard(Request $request)
     {
         $user = $request->user();
         Gate::authorize('viewAny', EduClass::class);
 
-        $departmentId = session('active_ministry_dept_id');
+        $departmentId = (int)session('active_ministry_dept_id');
         $department   = $departmentId ? Department::find($departmentId) : null;
-        $isAdmin = $user->hasRole(['Super_Admin', 'Pastor']) || $user->hasPermissionTo('manage_edu_classes');
+        
+        $isAdmin = $this->isEducationAdmin($user, $departmentId);
 
         $classQuery = EduClass::with([
             'teachers.member:id,full_name',
@@ -42,9 +63,10 @@ class EducationController extends Controller
             $classQuery->where('department_id', $departmentId);
         }
 
-        if (!$isAdmin && $user->member_id) {
+        // If not an admin for this dept, only show classes where they are a teacher
+        if (!$isAdmin) {
             $classQuery->whereHas('classMembers', fn($q) =>
-                $q->where('member_id', $user->member_id)->where('role', 'teacher')
+                $q->where('member_id', $user->member_id ?? 0)->where('role', 'teacher')
             );
         }
 
@@ -84,11 +106,10 @@ class EducationController extends Controller
         $user = $request->user();
         Gate::authorize('viewAny', EduClass::class);
 
-        $departmentId = session('active_ministry_dept_id');
+        $departmentId = (int)session('active_ministry_dept_id');
         $department   = $departmentId ? Department::find($departmentId) : null;
 
-        $isAdmin = $user->hasRole(['Super_Admin', 'Pastor'])
-                || $user->hasPermissionTo('manage_edu_classes');
+        $isAdmin = $this->isEducationAdmin($user, $departmentId);
 
         $classQuery = EduClass::with([
             'teachers.member:id,full_name,phone',
@@ -100,9 +121,9 @@ class EducationController extends Controller
             $classQuery->where('department_id', $departmentId);
         }
 
-        if (!$isAdmin && $user->member_id) {
+        if (!$isAdmin) {
             $classQuery->whereHas('classMembers', fn($q) =>
-                $q->where('member_id', $user->member_id)->where('role', 'teacher')
+                $q->where('member_id', $user->member_id ?? 0)->where('role', 'teacher')
             );
         }
 
@@ -133,7 +154,6 @@ class EducationController extends Controller
 
         $allMembers = Member::select('id', 'full_name', 'phone', 'member_type')
             ->orderBy('full_name')
-            ->with([]) // eager: n/a
             ->get()
             ->map(fn($m) => [
                 'id'          => $m->id,
@@ -1001,9 +1021,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     private function getAvailableDepts($user): \Illuminate\Support\Collection
     {
-        return Department::where('block', 'ministry')
-            ->select('id', 'name')
-            ->get();
+        return app(\App\Services\PortalService::class)->getAvailableDepartments($user, 'ministry');
     }
 
     /**

@@ -92,6 +92,9 @@
                             <span class="text-sm font-bold text-blue-900">thành viên đang được chọn</span>
                         </div>
                         <div class="flex items-center space-x-3">
+                            <button @click="bulkDeleteMembers" class="px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-xl hover:bg-red-700 transition-colors shadow-sm">
+                                Xóa Hàng Loạt
+                            </button>
                             <button @click="openBulkAssignSlideOver" class="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-sm">
                                 Phân Tổ Hàng Loạt
                             </button>
@@ -136,7 +139,10 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button @click="openMemberSlideOver(member)" class="text-blue-600 hover:text-blue-900">Chi tiết / Chức danh</button>
+                                    <div class="flex items-center space-x-3">
+                                        <button @click="openMemberSlideOver(member)" class="text-blue-600 hover:text-blue-900">Chi tiết / Chức danh</button>
+                                        <button @click="deleteMember(member.id)" class="text-red-500 hover:text-red-700 font-medium">Khỏi Ban</button>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -154,6 +160,9 @@
                             <span class="text-sm font-bold text-blue-900">Đã chọn</span>
                         </div>
                         <div class="flex items-center space-x-2">
+                            <button @click="bulkDeleteMembers" class="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg hover:bg-red-700 transition-colors">
+                                Xóa
+                            </button>
                             <button @click="openBulkAssignSlideOver" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors">
                                 Phân Tổ
                             </button>
@@ -195,7 +204,8 @@
                           </div>
                           
                           <!-- Mobile action button -->
-                          <div class="mt-3 pt-3 border-t border-gray-50 flex justify-end">
+                          <div class="mt-3 pt-3 border-t border-gray-50 flex justify-between items-center">
+                              <button @click.stop="deleteMember(member.id)" class="text-xs font-bold text-red-500 hover:text-red-700 block">Rời Ban</button>
                               <button @click.stop="openMemberSlideOver(member)" class="text-xs font-bold text-blue-600 hover:text-blue-800">Cập nhật >></button>
                           </div>
                      </div>
@@ -415,6 +425,29 @@ const submitBulkAssign = () => {
             clearSelection();
         }
     });
+};
+
+const deleteMember = (memberId) => {
+    if (confirm('Bạn có chắc chắn muốn xóa tín hữu này khỏi Ban không? Dữ liệu điểm danh không bị mất.')) {
+        router.delete(route(`${props.routePrefix}.remove`, memberId), {
+            preserveScroll: true,
+            onSuccess: () => {
+                selectedMemberIds.value = selectedMemberIds.value.filter(id => id !== memberId);
+            }
+        });
+    }
+};
+
+const bulkDeleteMembers = () => {
+    if (confirm(`Bạn có chắc chắn muốn xóa ${selectedMemberIds.value.length} tín hữu này khỏi Ban không?`)) {
+        router.delete(route(`${props.routePrefix}.bulk-remove`), {
+            data: { member_ids: selectedMemberIds.value },
+            preserveScroll: true,
+            onSuccess: () => {
+                clearSelection();
+            }
+        });
+    }
 };
 
 const getRoleName = (roleKey) => {

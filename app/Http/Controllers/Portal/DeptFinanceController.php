@@ -33,23 +33,31 @@ class DeptFinanceController extends Controller
     private function authorizeForDept(Department $department, Request $request): void
     {
         $user = $request->user();
-        if ($user->hasRole(['Super_Admin', 'Pastor'])) {
+        if ($user->hasRole(['Super_Admin', 'Pastor', 'BTS_Admin'])) {
             return; // Full access
         }
 
-        $memberId = $user->member_id;
-        if (!$memberId) {
-            abort(403, 'Bạn không thuộc ban ngành này.');
-        }
-        $belongs = DB::table('org_memberships')
-            ->where('model_type', Department::class)
-            ->where('model_id', $department->id)
-            ->where('member_id', $memberId)
+        // 1. MAC check
+        $hasMac = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
+            ->where('department_id', $department->id)
+            ->where('is_enabled', true)
+            ->whereHas('feature', fn($q) => $q->where('slug', 'finance'))
             ->exists();
+        if ($hasMac) return;
 
-        if (!$belongs) {
-            abort(403, 'Bạn không thuộc ban ngành này.');
+        // 2. Legacy Membership check
+        $memberId = $user->member_id;
+        if ($memberId) {
+            $belongs = DB::table('org_memberships')
+                ->where('model_type', Department::class)
+                ->where('model_id', $department->id)
+                ->where('member_id', $memberId)
+                ->exists();
+
+            if ($belongs) return;
         }
+
+        abort(403, 'Bạn chưa được cấp quyền Tài chính cho ban ngành này.');
     }
 
     // ============================================================
@@ -223,15 +231,6 @@ class DeptFinanceController extends Controller
     // ============================================================
     private function getAvailableDepartments($user): \Illuminate\Support\Collection
     {
-        if ($user->hasRole(['Super_Admin', 'Pastor'])) {
-            return Department::where('block', 'activities')->select('id', 'name')->get();
-        }
-        $memberId = $user->member_id;
-        if (!$memberId) return collect();
-        $ids = DB::table('org_memberships')
-            ->where('model_type', Department::class)
-            ->where('member_id', $memberId)
-            ->pluck('model_id');
-        return Department::whereIn('id', $ids)->where('block', 'activities')->select('id', 'name')->get();
+        return app(\App\Services\PortalService::class)->getAvailableDepartments($user, 'activities');
     }
 }

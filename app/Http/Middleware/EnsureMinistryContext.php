@@ -2,58 +2,65 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Department;
+use App\Models\OrgMembership;
+use App\Models\UserDepartmentFeature;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\Department;
-use App\Models\OrgMembership;
 
+/**
+ * EnsureMinistryContext — Sets active_ministry_dept_id session.
+ * Access granted via OrgMembership OR explicit UserDepartmentFeature (MAC).
+ */
 class EnsureMinistryContext
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
         if (!$user) return $next($request);
 
-        $activeDeptId = session('active_ministry_dept_id');
+        $activeDeptId  = session('active_ministry_dept_id');
         $isGlobalAdmin = $user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])
             || $user->email === 'superadmin@httlthanhmyloi.com';
 
+        if ($activeDeptId) {
+            return $next($request);
+        }
 
-        if (!$activeDeptId) {
-            $memberId = $user->member_id;
-            
-            if ($isGlobalAdmin) {
-                $firstDepart = Department::where('block', 'ministry')->first();
-                if ($firstDepart) {
-                    $activeDeptId = $firstDepart->id;
-                    session(['active_ministry_dept_id' => $activeDeptId]);
-                }
-            } else if ($memberId) {
-                $firstMembership = OrgMembership::where('member_id', $memberId)
-                                                ->where('model_type', Department::class)
-                                                ->whereHas('department', function ($query) {
-                                                    $query->where('block', 'ministry');
-                                                })
-                                                ->first();
-                if ($firstMembership) {
-                    $activeDeptId = $firstMembership->model_id;
-                    session(['active_ministry_dept_id' => $activeDeptId]);
-                } else {
-                    // No access to any ministry department
-                    abort(403, 'Bạn không thuộc Ban mục vụ nào để truy cập.');
-                }
-            } else {
-                abort(403, 'Bạn không thuộc Ban mục vụ nào.');
+        // 1. Global Admin
+        if ($isGlobalAdmin) {
+            $firstDept = Department::where('block', 'ministry')->orderBy('name')->first();
+            if ($firstDept) {
+                session(['active_ministry_dept_id' => $firstDept->id]);
+            }
+            return $next($request);
+        }
+
+        // 2. OrgMembership path
+        $memberId = $user->member?->id ?? null;
+        if ($memberId) {
+            $membership = OrgMembership::where('member_id', $memberId)
+                ->where('model_type', Department::class)
+                ->whereHas('department', fn($q) => $q->where('block', 'ministry'))
+                ->first();
+            if ($membership) {
+                session(['active_ministry_dept_id' => $membership->model_id]);
+                return $next($request);
             }
         }
 
-        return $next($request);
+        // 3. MAC path — explicit permission without membership
+        $macDeptId = UserDepartmentFeature::where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->whereHas('department', fn($q) => $q->where('block', 'ministry'))
+            ->value('department_id');
+
+        if ($macDeptId) {
+            session(['active_ministry_dept_id' => $macDeptId]);
+            return $next($request);
+        }
+
+        abort(403, 'Bạn chưa được cấp quyền truy cập cổng Mục Vụ.');
     }
 }
-

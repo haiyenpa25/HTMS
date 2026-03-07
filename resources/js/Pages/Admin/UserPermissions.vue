@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { Head, router, Link } from '@inertiajs/vue3';
 import AdminPortalLayout from '@/Layouts/AdminPortalLayout.vue';
+import SystemFeaturesTab from '@/Pages/Admin/SystemFeaturesTab.vue';
 import axios from 'axios';
 
 const props = defineProps({
@@ -10,7 +11,10 @@ const props = defineProps({
   features:      Array,   // 10 MAC features
   filters:       Object,
   preselectUser: Object,
+  systemConfig:  Array,   // System-level Feature Config (Level 1)
 });
+
+const activeTab = ref('users'); // 'users' or 'system'
 
 // ── Search ────────────────────────────────────────────────────────────────────
 const searchInput = ref(props.filters?.search || '');
@@ -240,12 +244,27 @@ const featureIcon = (slug) => ({
 </script>
 
 <template>
-  <Head title="Cấp Quyền Người Dùng" />
+  <Head title="Quản Lý Tính Năng & Phân Quyền" />
   <AdminPortalLayout>
-    <div class="max-w-3xl mx-auto px-4 py-6">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+      
+      <!-- Tabs Navigation -->
+      <div class="flex space-x-6 border-b border-gray-200 mb-6">
+        <button @click="activeTab = 'users'" 
+          :class="['py-3 px-1 border-b-2 font-black text-sm transition-all outline-none', activeTab === 'users' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-gray-400 hover:text-gray-700 hover:border-gray-300']">
+          Phân Quyền Cá Nhân (User Matrix)
+        </button>
+        <button @click="activeTab = 'system'" 
+          :class="['py-3 px-1 border-b-2 font-black text-sm transition-all outline-none flex items-center gap-2', activeTab === 'system' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-gray-400 hover:text-gray-700 hover:border-gray-300']">
+          Cấu Hình Tính Năng (Hệ Thống)
+          <span class="bg-indigo-100 text-indigo-700 py-0.5 px-2 rounded-full text-[10px] hidden sm:inline-block">MỚI</span>
+        </button>
+      </div>
 
-      <!-- ══ User Picker / Header ══════════════════════════════════════════ -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-5 overflow-hidden">
+      <!-- Tab 1: User Matrix -->
+      <div v-show="activeTab === 'users'">
+        <!-- ══ User Picker / Header ══════════════════════════════════════════ -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-5 overflow-hidden">
         <!-- Search bar -->
         <div class="px-4 py-3 flex items-center gap-3 border-b border-gray-100">
           <div class="relative flex-1">
@@ -440,6 +459,17 @@ const featureIcon = (slug) => ({
         </div>
 
       </div><!-- end permission panel -->
+      </div><!-- end v-show -->
+
+      <!-- Tab 2: System Features Config -->
+      <div v-if="activeTab === 'system'" class="mt-4">
+        <SystemFeaturesTab 
+            :features="features" 
+            :departments="departments" 
+            :systemConfig="systemConfig" 
+        />
+      </div>
+
     </div>
 
     <!-- Toast -->

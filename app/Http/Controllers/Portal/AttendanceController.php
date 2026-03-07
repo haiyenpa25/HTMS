@@ -164,20 +164,7 @@ class AttendanceController extends Controller
 
     private function getAvailableDepartments()
     {
-        if (auth()->user()->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) {
-            return Department::where('block', 'activities')->get();
-        } 
-        
-        $memberId = auth()->user()->member_id;
-        if ($memberId) {
-            return Department::whereIn('id', function($query) use ($memberId) {
-                $query->select('model_id')
-                      ->from('org_memberships')
-                      ->where('model_type', Department::class)
-                      ->where('member_id', $memberId);
-            })->where('block', 'activities')->get();
-        }
-        return collect([]);
+        return app(\App\Services\PortalService::class)->getAvailableDepartments(auth()->user(), 'activities');
     }
 }
 

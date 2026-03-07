@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\EduClass;
 use App\Models\User;
+use App\Models\UserDepartmentFeature;
 
 class EduClassPolicy
 {
@@ -12,67 +13,115 @@ class EduClassPolicy
      */
     public function before(User $user, string $ability): ?bool
     {
-        if ($user->hasRole(['Super_Admin', 'Pastor'])) {
+        if ($user->hasRole(['Super_Admin', 'Pastor', 'BTS_Admin'])) {
             return true;
         }
         return null;
     }
 
     /**
-     * View list of classes — anyone with view_edu_classes or a teacher/student of any class.
+     * View list of classes — anyone with view_edu_classes, a teacher/student, OR MAC access to education-classes.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('view_edu_classes')
-            || $this->isAnyClassMember($user);
+        if ($user->hasPermissionTo('view_edu_classes')) return true;
+
+        // MAC: has any education-related permission in any department
+        $hasMac = UserDepartmentFeature::where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->whereHas('feature', fn($q) => $q->where('slug', 'like', 'education-%'))
+            ->exists();
+        
+        if ($hasMac) return true;
+
+        return $this->isAnyClassMember($user);
     }
 
     /**
-     * View a specific class — must be a member OR have view_edu_classes.
+     * View a specific class.
      */
-    public function view(User $user, EduClass $class): bool
+    public function view(User $user, $arg1, $arg2 = null): bool
     {
-        return $user->hasPermissionTo('view_edu_classes')
-            || $this->isClassMember($user, $class);
+        $class = ($arg1 instanceof EduClass) ? $arg1 : $arg2;
+        if (!$class) return false;
+
+        if ($user->hasPermissionTo('view_edu_classes')) return true;
+
+        // MAC
+        if ($this->hasMacAccess($user, $class->department_id, 'education-classes')) return true;
+
+        return $this->isClassMember($user, $class);
     }
 
-    /**
-     * Create/manage classes — only with manage_edu_classes.
-     */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('manage_edu_classes');
+        if ($user->hasPermissionTo('manage_edu_classes')) return true;
+        
+        // MAC: allow creation if they have education-classes in ANY department
+        return UserDepartmentFeature::where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->whereHas('feature', fn($q) => $q->where('slug', 'education-classes'))
+            ->exists();
     }
 
-    public function update(User $user, EduClass $class): bool
+    public function update(User $user, $arg1, $arg2 = null): bool
     {
-        return $user->hasPermissionTo('manage_edu_classes');
+        $class = ($arg1 instanceof EduClass) ? $arg1 : $arg2;
+        if (!$class) return false;
+
+        if ($user->hasPermissionTo('manage_edu_classes')) return true;
+        
+        return $this->hasMacAccess($user, $class->department_id, 'education-classes');
     }
 
-    public function delete(User $user, EduClass $class): bool
+    public function delete(User $user, $arg1, $arg2 = null): bool
     {
-        return $user->hasPermissionTo('manage_edu_classes');
+        return $this->update($user, $arg1, $arg2);
     }
 
     /**
-     * Mark attendance — only teachers of THAT specific class.
+     * Mark attendance.
      */
-    public function markAttendance(User $user, EduClass $class): bool
+    public function markAttendance(User $user, $arg1, $arg2 = null): bool
     {
+        $class = ($arg1 instanceof EduClass) ? $arg1 : $arg2;
+        if (!$class) return false;
+
+        // MAC
+        if ($this->hasMacAccess($user, $class->department_id, 'education-attendance')) return true;
+
+        // Legacy: teacher of class
         if (!$user->member_id) return false;
         return $class->hasTeacher($user->member_id);
     }
 
     /**
-     * Record offering/transaction — only teachers of that class.
+     * Record offering/transaction.
      */
-    public function recordOffering(User $user, EduClass $class): bool
+    public function recordOffering(User $user, $arg1, $arg2 = null): bool
     {
+        $class = ($arg1 instanceof EduClass) ? $arg1 : $arg2;
+        if (!$class) return false;
+
+        // MAC
+        if ($this->hasMacAccess($user, $class->department_id, 'education-offering')) return true;
+
+        // Legacy: teacher
         if (!$user->member_id) return false;
         return $class->hasTeacher($user->member_id);
     }
 
     // ── Private helpers ──────────────────────────────────────────────
+
+    private function hasMacAccess(User $user, ?int $deptId, string $slug): bool
+    {
+        if (!$deptId) return false;
+        return UserDepartmentFeature::where('user_id', $user->id)
+            ->where('department_id', $deptId)
+            ->where('is_enabled', true)
+            ->whereHas('feature', fn($q) => $q->where('slug', $slug))
+            ->exists();
+    }
 
     private function isClassMember(User $user, EduClass $class): bool
     {

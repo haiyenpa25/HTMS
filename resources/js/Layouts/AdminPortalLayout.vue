@@ -4,14 +4,16 @@ import { Link, router } from '@inertiajs/vue3';
 import { Head } from '@inertiajs/vue3';
 
 const props = defineProps({
-    title: { type: String, default: 'Quản trị Hệ thống' },
-    activeTab: { type: String, default: 'users' }, // users | roles | permissions
+    title:     { type: String, default: 'Quản trị Hệ thống' },
+    activeTab: { type: String, default: 'users' }, // used when no slot override
+    hideTabs:  { type: Boolean, default: false },   // hide default tab bar
 });
 
-const tabs = [
-    { key: 'users',       label: '👥 Tài khoản',    route: 'users.index' },
-    { key: 'roles',       label: '🛡️ Chức vụ',       route: 'roles.index' },
-    { key: 'permissions', label: '🔐 Phân Quyền',   route: 'admin.users.permissions' },
+// Default tabs shown when no #tabs slot is provided
+const defaultTabs = [
+    { key: 'users',       label: '👥 Tài khoản',  route: 'users.index' },
+    { key: 'roles',       label: '🛡️ Quyền',       route: 'roles.index' },
+    { key: 'permissions', label: '🔐 Phân Quyền', route: 'admin.users.permissions' },
 ];
 </script>
 
@@ -36,7 +38,7 @@ const tabs = [
           </div>
         </div>
 
-        <!-- Right: Admin back + Logout -->
+        <!-- Right: Dashboard + Logout -->
         <div class="flex items-center gap-2">
           <Link :href="route('dashboard')"
             class="text-xs font-bold bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg flex items-center transition-colors">
@@ -54,18 +56,21 @@ const tabs = [
         </div>
       </div>
 
-      <!-- Tab Navigation -->
+      <!-- Tab Navigation: Use slot if provided, otherwise default tabs -->
       <div class="px-2 pb-0 flex overflow-x-auto no-scrollbar border-t border-white/10 max-w-7xl mx-auto w-full">
-        <Link
-          v-for="tab in tabs"
-          :key="tab.key"
-          :href="route(tab.route)"
-          class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2"
-          :class="activeTab === tab.key
-            ? 'border-white text-white'
-            : 'border-transparent text-indigo-200 hover:text-white hover:border-indigo-300'">
-          {{ tab.label }}
-        </Link>
+        <!-- Slot override (e.g., Users/Index.vue overrides with its own tabs) -->
+        <slot name="tabs">
+          <!-- Default tabs (Tài khoản | Quyền | Phân Quyền) -->
+          <Link v-if="!hideTabs"
+            v-for="tab in defaultTabs" :key="tab.key"
+            :href="route(tab.route)"
+            class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2"
+            :class="activeTab === tab.key
+              ? 'border-white text-white'
+              : 'border-transparent text-indigo-200 hover:text-white hover:border-indigo-300'">
+            {{ tab.label }}
+          </Link>
+        </slot>
       </div>
     </header>
 
@@ -77,3 +82,8 @@ const tabs = [
     </main>
   </div>
 </template>
+
+<style scoped>
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>

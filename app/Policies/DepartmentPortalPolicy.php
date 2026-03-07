@@ -4,33 +4,94 @@ namespace App\Policies;
 
 use App\Models\Department;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use App\Models\UserDepartmentFeature;
 
 class DepartmentPortalPolicy
 {
     /**
      * Determine whether the user can access the department portal.
-     * We use a nullable $department parameter to prevent missing argument errors 
-     * when the system blindly injects it or calls without it initially.
+     * Note: Controllers pass [Department::class, $department], so we must handle 
+     * the optional class name argument if passed via array.
      */
-    public function access_portal(User $user, ?Department $department = null): bool
+    public function access_portal(User $user, $arg1 = null, $arg2 = null): bool
     {
-        // 1. Global Admins can access any portal
+        // Handle Laravel's Gate::authorize('ability', [Class::class, $instance]) pattern
+        $department = ($arg1 instanceof Department) ? $arg1 : $arg2;
+
+        // 1. Global Admins bypass all checks
         if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) {
             return true;
         }
 
-        // 2. If no department is provided (e.g. checking global permission), 
-        // they must at least have the baseline portal access permission
+        // 2. No department specified — check for any enabled MAC permission
         if (!$department) {
-            return $user->hasPermissionTo('access_department_portal');
+            return UserDepartmentFeature::where('user_id', $user->id)
+                ->where('is_enabled', true)
+                ->exists();
         }
 
-        // 3. Must be a member of this specific department
-        $memberId = $user->member_id;
-        if (!$memberId) {
-            return false;
+        // 3. MAC path: explicit user_department_features grant
+        $hasAnyMacAccess = UserDepartmentFeature::where('user_id', $user->id)
+            ->where('department_id', $department->id)
+            ->where('is_enabled', true)
+            ->exists();
+
+        if ($hasAnyMacAccess) {
+            return true;
         }
+
+        // 4. Legacy: OrgMembership path
+        return $this->userIsMemberOf($user, $department);
+    }
+
+    /**
+     * Specifically for managing finances via DeptFinanceController
+     */
+    public function manage_finance(User $user, $arg1 = null, $arg2 = null): bool
+    {
+        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+
+        $department = ($arg1 instanceof Department) ? $arg1 : $arg2;
+        if (!$department) return false;
+
+        // MAC path
+        $hasMac = UserDepartmentFeature::where('user_id', $user->id)
+            ->where('department_id', $department->id)
+            ->where('is_enabled', true)
+            ->whereHas('feature', fn($q) => $q->where('slug', 'finance'))
+            ->exists();
+
+        if ($hasMac) return true;
+
+        return $this->userIsMemberOf($user, $department);
+    }
+
+    /**
+     * Specifically for viewing reports via DeptReportController
+     */
+    public function view_reports(User $user, $arg1 = null, $arg2 = null): bool
+    {
+        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+
+        $department = ($arg1 instanceof Department) ? $arg1 : $arg2;
+        if (!$department) return false;
+
+        // MAC path
+        $hasMac = UserDepartmentFeature::where('user_id', $user->id)
+            ->where('department_id', $department->id)
+            ->where('is_enabled', true)
+            ->whereHas('feature', fn($q) => $q->where('slug', 'reports'))
+            ->exists();
+
+        if ($hasMac) return true;
+
+        return $this->userIsMemberOf($user, $department);
+    }
+
+    private function userIsMemberOf(User $user, Department $department): bool
+    {
+        $memberId = $user->member?->id ?? $user->member_id;
+        if (!$memberId) return false;
 
         return \App\Models\OrgMembership::where('member_id', $memberId)
             ->where('model_type', Department::class)
@@ -38,4 +99,3 @@ class DepartmentPortalPolicy
             ->exists();
     }
 }
-

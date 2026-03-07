@@ -260,6 +260,8 @@ Route::prefix('deacon')->name('deacon.')->group(...)
 6. **Seeder:** Luôn kiểm tra enum values khớp với migration trước khi `create()`.
 7. **Chart:** Dùng `vue3-apexcharts` — import trong `<script setup>` của từng page.
 8. **Thiết kế đồng nhất:** Xem `/portal` (Activities) làm chuẩn → nhân ra cho Ministry và Deacon.
+9. **Phân quyền (MAC):** Mọi tính năng mới AI code **PHẢI** nhắc người dùng thêm danh mục vào bảng `features` và cấu hình phân quyền trong Tab Hệ Thống (User Matrix) để tránh lỗi 403. Không được hardcode quyền Bypass.
+10. **Đồng bộ Giao diện (UI Consistency):** Luôn kiểm tra chéo các component hiện có (các nút bấm, layout form, slide-over) để tái sử dụng và giữ nguyên khối giao diện chuẩn của file `CONFIG.md`.
 
 ---
 

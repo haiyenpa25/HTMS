@@ -4,14 +4,14 @@ namespace App\Http\Middleware;
 
 use App\Models\Department;
 use App\Models\UserDepartmentFeature;
+use App\Services\FeatureAssignmentService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * CheckPortalAccess — MAC version.
- * KHÔNG dùng OrgMembership. Chỉ dùng user_department_features.
- * User có bất kỳ feature nào is_enabled=true trong block này → được vào.
+ * CheckPortalAccess — Two-Tier MAC version.
+ * Kiểm tra xem user có bất kỳ tính năng nào hợp lệ (giao điểm Level 1 & Level 2) trong block này hay không.
  */
 class CheckPortalAccess
 {
@@ -41,22 +41,47 @@ class CheckPortalAccess
         $block      = self::BLOCK_MAP[$portalType] ?? 'activities';
         $sessionKey = self::SESSION_DEPT_KEY[$portalType] ?? 'active_portal_dept_id';
 
-        // Lấy dept IDs mà user có ít nhất 1 feature enabled
-        $allowedDeptIds = UserDepartmentFeature::where('user_id', $user->id)
+        // Lấy tất cả quyền Level 2 của user trong block này
+        $userFeatureRecords = UserDepartmentFeature::where('user_id', $user->id)
             ->where('is_enabled', true)
             ->whereHas('department', fn ($q) => $q->where('block', $block))
-            ->pluck('department_id')
-            ->unique()
-            ->values();
+            ->with(['feature', 'department'])
+            ->get()
+            ->groupBy('department_id');
 
-        if ($allowedDeptIds->isEmpty()) {
-            abort(403, 'Bạn chưa được cấp quyền truy cập cổng này. Liên hệ quản trị viên.');
+        $validDeptIds = [];
+        $service = app(FeatureAssignmentService::class);
+
+        foreach ($userFeatureRecords as $deptId => $ufRecords) {
+            $dept = $ufRecords->first()->department;
+            if (!$dept) continue;
+            
+            $level1Map = $service->getAvailableFeaturesForDepartment($dept);
+            
+            $hasValidFeature = false;
+            foreach ($ufRecords as $uf) {
+                if (!$uf->feature) continue;
+                $slug = $uf->feature->slug;
+                // If Level 1 allows (true by default when no config), accept this department
+                if ($level1Map[$slug] ?? true) {
+                    $hasValidFeature = true;
+                    break;
+                }
+            }
+            
+            if ($hasValidFeature) {
+                $validDeptIds[] = $deptId;
+            }
         }
 
-        // Auto-set session nếu chưa có hoặc session dept không thuộc allowed list
+        if (empty($validDeptIds)) {
+            abort(403, 'Bạn chưa được cấp quyền truy cập tính năng nào trong cổng này. Vui lòng liên hệ quản trị viên.');
+        }
+
+        // Auto-set session nếu chưa có hoặc session dept không thuộc valid list
         $activeDeptId = session($sessionKey);
-        if (!$activeDeptId || !$allowedDeptIds->contains($activeDeptId)) {
-            $activeDeptId = $allowedDeptIds->first();
+        if (!$activeDeptId || !in_array($activeDeptId, $validDeptIds)) {
+            $activeDeptId = $validDeptIds[0];
             session([$sessionKey => $activeDeptId]);
         }
 

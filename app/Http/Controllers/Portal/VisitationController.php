@@ -15,7 +15,7 @@ class VisitationController extends Controller
 {
     public function index(Request $request)
     {
-        Gate::authorize('view_visitations');
+        Gate::authorize('viewAny', Visitation::class);
 
         $user = auth()->user();
         $departmentId = session('active_ministry_dept_id');
