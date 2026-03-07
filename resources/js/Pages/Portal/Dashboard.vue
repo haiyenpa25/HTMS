@@ -1,8 +1,11 @@
 <script setup>
-import { ref } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import SlideOver from '@/Components/SlideOver.vue';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
+
+const page = usePage();
+const deptFeatures = computed(() => page.props.departmentFeatures || {});
 
 const props = defineProps({
     activeDepartment: Object,
@@ -25,7 +28,8 @@ const switchDept = (deptId) => {
 // Kiểm tra quyền tính năng (SuperAdmin luôn có quyền)
 const can = (key) => {
     if (props.isGlobalAdmin) return true;
-    const pageProps = router.page.props;
+    const pageProps = page.props;
+    if (key === 'members' && pageProps.userPermissions?.['thanh-vien'] === true) return true;
     return pageProps.userPermissions?.[key] === true;
 };
 
@@ -124,9 +128,12 @@ const colorMap = {
           <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             <template v-for="card in featureCards" :key="card.key">
               
-              <!-- UNLOCKED: User has permission -->
-              <Link v-if="can(card.key)"
-                :href="route(card.route)"
+              <!-- MUST wrap cards in departmentFeature check to hide completely if department lacks the feature -->
+              <template v-if="deptFeatures && (deptFeatures[card.key] || (card.key === 'members' && deptFeatures['thanh-vien']))">
+
+                <!-- UNLOCKED: User has permission -->
+                <Link v-if="can(card.key)"
+                  :href="route(card.route)"
                 class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md transition-all active:scale-95 duration-200"
                 :class="`${colorMap[card.color]?.hoverBorder}`">
                 <div class="w-16 h-16 mb-3 rounded-2xl flex items-center justify-center transition-colors duration-300 group-hover:text-white"
@@ -159,7 +166,8 @@ const colorMap = {
                   <span class="text-xs font-medium text-gray-400">Chưa được cấp quyền</span>
                 </h3>
               </div>
-
+              
+              </template>
             </template>
           </div>
 

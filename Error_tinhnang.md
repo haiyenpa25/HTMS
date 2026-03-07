@@ -1,0 +1,9 @@
+# Báo Cáo Lỗi Quản Lý Tính Năng (MAC Portal Errors) - FIXED
+
+| Thời gian | Hệ thống | Khu vực | Mô tả | Trạng thái |
+|---|---|---|---|---|
+| 07/03/2026 | MAC Backend | `/users` -> Cấu Hình Tính Năng | **[Đã Xong]** Đã cập nhật `Cấu hình tính năng` gộp chung vào bảng User Permissions hiện tại, theo đúng luồng UI/UX yêu cầu. Database Migration đã được chạy để `block_type` cho phép giá trị null (cho tính năng Global). Lỗi UI gán phân quyền theo block/specific hoạt động hoàn hảo. | Hoàn thành |
+| 07/03/2026 | Activities Portal | Middleware `CheckPortalAccess` | **[CRITICAL]** Lỗi 500 khi truy cập portal do tham chiếu nhầm model `App\Models\SystemFeature` thay vì `App\Models\Feature`. Gây tê liệt portal. | **ĐÃ SỬA:** Cập nhật file `CheckPortalAccess.php` sử dụng đúng Model `Feature`. |
+| 07/03/2026 | Ministry Portal | Vue Frontend `PortalLayout.vue` | Màn hình trắng hoàn toàn không tải được UI do lỗi không tìm thấy định nghĩa của prop `userPermissions` để dùng cho v-if trên Navigation bar. | **ĐÃ SỬA:** Loại bỏ prop local và đổi toàn bộ component sang sử dụng global `$page.props.userPermissions` từ thư viện Inertia. |
+| 07/03/2026 | Education Feature | `EducationController.php` | Lỗi 500 Undefined array key 2 khi xử lý mảng thành viên. Collection trả về dạng Object khiến mapping mảng kiểu mảng báo lỗi do missing index. | **ĐÃ SỬA:** Sử dụng phương thức Collection `->get()` thay vì bracket `[]` và thêm Nullsafe operator `?->`. |
+| 07/03/2026 | Ministry Portal | Bảng Điều Khiển | Tính năng (VD Lớp Học) bị ẩn sai trên các Portal card vì prop Vue bị thất lạc giữa các component lồng nhau qua Middleware Inertia. | **ĐÃ SỬA:** Template `Ministry/Dashboard.vue` và `Portal/Dashboard.vue` hiện được trực tiếp map vào biến `$page.props.userPermissions`. Các ban ngành giờ hiển thị chính xác các card. |

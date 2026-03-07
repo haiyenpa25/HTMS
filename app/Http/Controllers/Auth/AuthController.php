@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Department;
+use App\Models\Member;
+use App\Models\OrgMembership;
+use App\Models\UserDepartmentFeature;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -36,11 +40,57 @@ class AuthController extends Controller
 
             $user = Auth::user();
             
+            // Super Admin / Pastor → admin dashboard
             if ($user->hasRole(['Pastor', 'Super_Admin'])) {
                 return redirect()->intended(route('dashboard'));
-            } else {
+            }
+            
+            // Deacon role → deacon portal
+            if ($user->hasRole(['Deacon', 'BTS_Admin']) || $user->hasPermissionTo('view_deacon')) {
+                return redirect()->intended(route('deacon.index'));
+            }
+            
+            // Check if user has any ministry memberships (OrgMembership in ministry block)
+            $hasMinistry = false;
+            $member = Member::where('user_id', $user->id)->first();
+            if ($member) {
+                $hasMinistry = OrgMembership::where('member_id', $member->id)
+                    ->where('model_type', Department::class)
+                    ->whereHas('department', fn($q) => $q->where('block', 'ministry'))
+                    ->exists();
+            }
+            // Also check MAC UserDepartmentFeature
+            if (!$hasMinistry) {
+                $hasMinistry = UserDepartmentFeature::where('user_id', $user->id)
+                    ->where('is_enabled', true)
+                    ->whereHas('department', fn($q) => $q->where('block', 'ministry'))
+                    ->exists();
+            }
+            
+            if ($hasMinistry) {
+                return redirect()->intended(route('ministry.index'));
+            }
+            
+            // Check activities (default portal)
+            $hasActivities = false;
+            if ($member) {
+                $hasActivities = $member->departments()
+                    ->where('block', 'activities')
+                    ->exists();
+            }
+            if (!$hasActivities) {
+                $hasActivities = UserDepartmentFeature::where('user_id', $user->id)
+                    ->where('is_enabled', true)
+                    ->whereHas('department', fn($q) => $q->where('block', 'activities'))
+                    ->exists();
+            }
+            
+            if ($hasActivities) {
                 return redirect()->intended(route('portal.index'));
             }
+            
+            // Fallback: send to dashboard with a message (no portal access)
+            return redirect()->route('dashboard');
         }
 
         return back()->withErrors([

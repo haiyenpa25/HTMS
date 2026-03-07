@@ -41,19 +41,19 @@
                <Link :href="route('portal.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.index') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                    Bảng điều khiển
                </Link>
-               <Link v-if="$page.props.userPermissions && $page.props.userPermissions['attendance']" :href="route('portal.attendance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.attendance.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="deptFeatures && deptFeatures['attendance']" :href="route('portal.attendance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('portal.attendance.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['attendance']) ? 'opacity-50 pointer-events-none' : '']">
                    Điểm danh
                </Link>
-               <Link v-if="$page.props.userPermissions && $page.props.userPermissions['visitation']" :href="route('portal.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="deptFeatures && deptFeatures['visitation']" :href="route('portal.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('portal.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['visitation']) ? 'opacity-50 pointer-events-none' : '']">
                    Thăm viếng
                </Link>
-               <Link v-if="$page.props.userPermissions && $page.props.userPermissions['members']" :href="route('portal.members.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.members.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="deptFeatures && (deptFeatures['members'] || deptFeatures['thanh-vien'])" :href="route('portal.members.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('portal.members.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !(authPermissions['members'] || authPermissions['thanh-vien'])) ? 'opacity-50 pointer-events-none' : '']">
                    Thành viên
                </Link>
-               <Link v-if="$page.props.userPermissions && $page.props.userPermissions['reports']" :href="route('portal.reports.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.reports.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="deptFeatures && deptFeatures['reports']" :href="route('portal.reports.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('portal.reports.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['reports']) ? 'opacity-50 pointer-events-none' : '']">
                    Báo cáo
                </Link>
-               <Link v-if="$page.props.userPermissions && $page.props.userPermissions['finance']" :href="route('portal.finance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.finance.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="deptFeatures && deptFeatures['finance']" :href="route('portal.finance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('portal.finance.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['finance']) ? 'opacity-50 pointer-events-none' : '']">
                    Tài chính
                </Link>
            </template>
@@ -63,10 +63,10 @@
                <Link :href="route('ministry.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('ministry.index') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                    Bảng điều khiển
                </Link>
-               <Link v-if="$page.props.userPermissions && $page.props.userPermissions['members']" :href="route('ministry.members.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('ministry.members.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="deptFeatures && (deptFeatures['members'] || deptFeatures['thanh-vien'])" :href="route('ministry.members.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('ministry.members.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !(authPermissions['members'] || authPermissions['thanh-vien'])) ? 'opacity-50 pointer-events-none' : '']">
                    Thành viên
                </Link>
-               <Link v-if="$page.props.userPermissions && $page.props.userPermissions['visitation']" :href="route('ministry.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('ministry.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="deptFeatures && deptFeatures['visitation']" :href="route('ministry.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('ministry.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['visitation']) ? 'opacity-50 pointer-events-none' : '']">
                    Thăm viếng
                </Link>
            </template>
@@ -127,6 +127,18 @@
                         Báo cáo
                     </Link>
                 </template>
+
+                <!-- MAC: Thành viên (Global link available in Deacon too) -->
+                <template v-if="deptFeatures && (deptFeatures['members'] || deptFeatures['thanh-vien'])">
+                    <Link :href="route('ministry.members.index')" 
+                        class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" 
+                        :class="[
+                            route().current('ministry.members.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white',
+                            (!authPermissions || !(authPermissions['members'] || authPermissions['thanh-vien'])) ? 'opacity-50 grayscale pointer-events-none' : ''
+                        ]">
+                        Thành viên
+                    </Link>
+                </template>
             </template>
        </div>
     </header>
@@ -140,7 +152,12 @@
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+const page = usePage();
+const deptFeatures = computed(() => page.props.departmentFeatures || {});
+const authPermissions = computed(() => page.props.userPermissions || {});
 
 const props = defineProps({
     department: Object,

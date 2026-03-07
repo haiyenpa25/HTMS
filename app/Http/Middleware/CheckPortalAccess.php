@@ -35,13 +35,18 @@ class CheckPortalAccess
         // ── God Mode bypass ──────────────────────────────────────────────
         if ($user->isSuperAdmin()) {
             $activeDeptId = $this->ensureSessionContext($user, $portalType);
+            $activeDept = $activeDeptId ? Department::find($activeDeptId) : null;
             
             // Allow all features
             $allFeatures = \App\Models\Feature::pluck('slug');
             $userPermissions = collect($allFeatures)->mapWithKeys(fn($f) => [$f => true])->toArray();
             
+            $service = app(FeatureAssignmentService::class);
+            $departmentFeatures = $activeDept ? $service->getAvailableFeaturesForDepartment($activeDept) : [];
+            
+            \Inertia\Inertia::share('departmentFeatures', $departmentFeatures);
             \Inertia\Inertia::share('userPermissions', $userPermissions);
-            \Inertia\Inertia::share('activeDepartment', $activeDeptId ? Department::find($activeDeptId) : null);
+            \Inertia\Inertia::share('activeDepartment', $activeDept);
             
             return $next($request);
         }
@@ -49,41 +54,29 @@ class CheckPortalAccess
         $block      = self::BLOCK_MAP[$portalType] ?? 'activities';
         $sessionKey = self::SESSION_DEPT_KEY[$portalType] ?? 'active_portal_dept_id';
 
-        // Lấy tất cả quyền Level 2 của user trong block này
-        $userFeatureRecords = UserDepartmentFeature::where('user_id', $user->id)
-            ->where('is_enabled', true)
-            ->whereHas('department', fn ($q) => $q->where('block', $block))
-            ->with(['feature', 'department'])
-            ->get()
-            ->groupBy('department_id');
-
         $validDeptIds = [];
-        $service = app(FeatureAssignmentService::class);
 
-        foreach ($userFeatureRecords as $deptId => $ufRecords) {
-            $dept = $ufRecords->first()->department;
-            if (!$dept) continue;
-            
-            $level1Map = $service->getAvailableFeaturesForDepartment($dept);
-            
-            $hasValidFeature = false;
-            foreach ($ufRecords as $uf) {
-                if (!$uf->feature) continue;
-                $slug = $uf->feature->slug;
-                // If Level 1 allows (true by default when no config), accept this department
-                if ($level1Map[$slug] ?? true) {
-                    $hasValidFeature = true;
-                    break;
-                }
-            }
-            
-            if ($hasValidFeature) {
-                $validDeptIds[] = $deptId;
-            }
+        // 1. Các ban mà user là thành viên
+        $member = \App\Models\Member::where('user_id', $user->id)->first();
+        if ($member) {
+            $validDeptIds = $member->departments()->where('block', $block)->pluck('departments.id')->toArray();
         }
 
+        // 2. Các ban mà user được cấp quyền tính năng (nhưng có thể chưa gán membership)
+        $featureDeptIds = UserDepartmentFeature::where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->whereHas('department', fn ($q) => $q->where('block', $block))
+            ->pluck('department_id')
+            ->toArray();
+            
+        $validDeptIds = array_unique(array_merge($validDeptIds, $featureDeptIds));
+
         if (empty($validDeptIds)) {
-            abort(403, 'Bạn chưa được cấp quyền truy cập tính năng nào trong cổng này. Vui lòng liên hệ quản trị viên.');
+            // No portal access: log out and redirect to login with a message
+            // instead of abort(403) which causes a blank screen with Inertia
+            return redirect()->route('login')->withErrors([
+                'email' => 'Bạn chưa được cấp quyền truy cập tính năng nào trong cổng này. Vui lòng liên hệ quản trị viên.',
+            ]);
         }
 
         // Auto-set session nếu chưa có hoặc session dept không thuộc valid list
@@ -93,20 +86,27 @@ class CheckPortalAccess
             session([$sessionKey => $activeDeptId]);
         }
         $activeDept = Department::find($activeDeptId);
+        
+        $departmentFeatures = [];
         $userPermissions = collect(\App\Models\Feature::pluck('slug'))->mapWithKeys(fn($s) => [$s => false])->toArray();
+        
         if ($activeDept) {
-            $level1Map = $service->getAvailableFeaturesForDepartment($activeDept);
-            $activeRecords = $userFeatureRecords->get($activeDeptId) ?? collect();
+            $service = app(FeatureAssignmentService::class);
+            $departmentFeatures = $service->getAvailableFeaturesForDepartment($activeDept);
             
+            $activeRecords = UserDepartmentFeature::where('user_id', $user->id)
+                ->where('department_id', $activeDeptId)
+                ->where('is_enabled', true)
+                ->with('feature')
+                ->get();
+                
             foreach ($activeRecords as $uf) {
                 if (!$uf->feature) continue;
-                $slug = $uf->feature->slug;
-                if ($level1Map[$slug] ?? true) {
-                    $userPermissions[$slug] = true;
-                }
+                $userPermissions[$uf->feature->slug] = true;
             }
         }
 
+        \Inertia\Inertia::share('departmentFeatures', $departmentFeatures);
         \Inertia\Inertia::share('userPermissions', $userPermissions);
         \Inertia\Inertia::share('activeDepartment', $activeDept);
 

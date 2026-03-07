@@ -24,43 +24,76 @@ class EnsureMinistryContext
         $isGlobalAdmin = $user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])
             || $user->email === 'superadmin@httlthanhmyloi.com';
 
-        if ($activeDeptId) {
-            return $next($request);
+        // 1. Determine active department
+        if (!$activeDeptId) {
+            if ($isGlobalAdmin) {
+                $firstDept = Department::where('block', 'ministry')->orderBy('name')->first();
+                if ($firstDept) {
+                    $activeDeptId = $firstDept->id;
+                    session(['active_ministry_dept_id' => $activeDeptId]);
+                }
+            } else {
+                // OrgMembership path
+                $memberId = $user->member?->id ?? null;
+                if ($memberId) {
+                    $membership = OrgMembership::where('member_id', $memberId)
+                        ->where('model_type', Department::class)
+                        ->whereHas('department', fn($q) => $q->where('block', 'ministry'))
+                        ->first();
+                    if ($membership) {
+                        $activeDeptId = $membership->model_id;
+                        session(['active_ministry_dept_id' => $activeDeptId]);
+                    }
+                }
+
+                if (!$activeDeptId) {
+                    // MAC path
+                    $macDeptId = UserDepartmentFeature::where('user_id', $user->id)
+                        ->where('is_enabled', true)
+                        ->whereHas('department', fn($q) => $q->where('block', 'ministry'))
+                        ->value('department_id');
+
+                    if ($macDeptId) {
+                        $activeDeptId = $macDeptId;
+                        session(['active_ministry_dept_id' => $activeDeptId]);
+                    }
+                }
+            }
         }
 
-        // 1. Global Admin
+        if (!$activeDeptId) {
+            return redirect()->route('login')->withErrors([
+                'email' => 'Bạn chưa được cấp quyền truy cập cổng Mục Vụ. Vui lòng liên hệ quản trị viên.',
+            ]);
+        }
+
+        $activeDept = Department::find($activeDeptId);
+        
+        // ── MAC: Matrix Access Control Prop Sharing ─────────────────────
+        $service = app(\App\Services\FeatureAssignmentService::class);
+        $departmentFeatures = $activeDept ? $service->getAvailableFeaturesForDepartment($activeDept) : [];
+        
+        $userPermissions = collect(\App\Models\Feature::pluck('slug'))->mapWithKeys(fn($s) => [$s => false])->toArray();
         if ($isGlobalAdmin) {
-            $firstDept = Department::where('block', 'ministry')->orderBy('name')->first();
-            if ($firstDept) {
-                session(['active_ministry_dept_id' => $firstDept->id]);
-            }
-            return $next($request);
-        }
-
-        // 2. OrgMembership path
-        $memberId = $user->member?->id ?? null;
-        if ($memberId) {
-            $membership = OrgMembership::where('member_id', $memberId)
-                ->where('model_type', Department::class)
-                ->whereHas('department', fn($q) => $q->where('block', 'ministry'))
-                ->first();
-            if ($membership) {
-                session(['active_ministry_dept_id' => $membership->model_id]);
-                return $next($request);
+            $userPermissions = array_map(fn() => true, $userPermissions);
+        } else {
+            $activeRecords = UserDepartmentFeature::where('user_id', $user->id)
+                ->where('department_id', $activeDeptId)
+                ->where('is_enabled', true)
+                ->with('feature')
+                ->get();
+                
+            foreach ($activeRecords as $uf) {
+                if (!$uf->feature) continue;
+                $userPermissions[$uf->feature->slug] = true;
             }
         }
 
-        // 3. MAC path — explicit permission without membership
-        $macDeptId = UserDepartmentFeature::where('user_id', $user->id)
-            ->where('is_enabled', true)
-            ->whereHas('department', fn($q) => $q->where('block', 'ministry'))
-            ->value('department_id');
+        \Inertia\Inertia::share('departmentFeatures', $departmentFeatures);
+        \Inertia\Inertia::share('userPermissions', $userPermissions);
+        \Inertia\Inertia::share('activeDepartment', $activeDept);
+        \Inertia\Inertia::share('isGlobalAdmin', $isGlobalAdmin);
 
-        if ($macDeptId) {
-            session(['active_ministry_dept_id' => $macDeptId]);
-            return $next($request);
-        }
-
-        abort(403, 'Bạn chưa được cấp quyền truy cập cổng Mục Vụ.');
+        return $next($request);
     }
 }

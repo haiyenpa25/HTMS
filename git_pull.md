@@ -1,29 +1,40 @@
-# Nhật Ký Lệnh Deploy Lên Server (Production)
+# Hướng dẫn Deploy lên Server Production
 
-> **Lưu ý Deploy từ máy Windows (Local):**
-> ❌ Không dùng `&&` để ghép lệnh trên PowerShell.
-> Các lệnh cần chạy từng bước:
-> 1. `git add -A`
-> 2. `git commit -m "..."`
-> 3. `npm run build`
-> 4. `git add public/build`
-> 5. `git commit -m "update build"`
-> 6. `git push origin main`
+Sau khi tính năng đã được đẩy lên nhánh `main` trên Github, hãy truy cập vào terminal (SSH) trên server production của bạn và chạy lần lượt các lệnh sau:
 
----
-
-## Tính năng: Phân quyền MAC và Xoá Thành Viên
-*Ngày hoàn thành: 2026-03-07*
-
-Chạy các lệnh sau trên **Server Linux (Terminal SSH)**:
-
+### 1. Di chuyển vào thư mục dự án
 ```bash
 cd ~/public_html
+```
+
+### 2. Cập nhật code mới nhất từ Github
+```bash
 git pull origin main
+```
+
+### 3. Cài đặt các gói phụ thuộc (nếu có cập nhật package.json hoặc composer.json)
+```bash
+composer install --no-dev --optimize-autoloader
+npm install
+```
+
+### 4. Build lại giao diện Frontend (Inertia/Vue)
+Vì lần này chúng ta đã sửa đổi các file `Dashboard.vue`, `PortalLayout.vue`, v.v... CẦN PHẢI build lại phân hệ frontend:
+```bash
+npm run build
+```
+
+### 5. Cập nhật Database
+Chạy migrate với cờ `--force` để cập nhật bảng phân quyền, các block loại ban ngành.
+```bash
 php artisan migrate --force
+```
+
+### 6. Xóa cache và Tối ưu hệ thống
+Cuối cùng, xóa toàn bộ cache cũ để hệ thống nhận diện Middleware và cấu hình mới:
+```bash
+php artisan optimize:clear
 php artisan optimize
 ```
-*(Bạn có thể copy lệnh gộp: `cd ~/public_html && git pull origin main && php artisan migrate --force && php artisan optimize`)*
 
----
-*Ghi chú: Khi AI hoàn tất các tính năng tiếp theo và bạn báo "Ok qua tính năng khác", lệnh pull/migrate tương ứng sẽ được tự động nối tiếp vào file này.*
+> **Lưu ý:** Đừng quên kiểm tra truy cập Admin (`/users`) và phần **Cấu Hình Tính Năng** sau khi deploy để đảm bảo database mới hoạt động ổn định trên hosting.
