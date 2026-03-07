@@ -31,18 +31,23 @@ Stored in the database and manageable via the Admin Panel -> "Cấu Hình Tính 
 
 Here is how a user arrives at a Portal dashboard and only sees the cards they have permission for:
 
-1. **Routing**: User requests `/ministry`.
-2. **Context Resolution Middleware (`CheckPortalAccess.php`)**:
-   - Evaluates the user's active session ID for the portal (resolved from URL attributes or session).
-   - Generates `$userPermissions` mapping for the specific context by querying `FeatureAssignmentService::getAvailableFeaturesForDepartment()`.
-   - Distributes globally to Vue using `\Inertia\Inertia::share('userPermissions', $permissions)`.
+1. **Authentication Redirect (`AuthController.php`)**:
+   - Upon login, the system detects the user's primary "Sphere of Influence".
+   - `SuperAdmin/Pastor` → Redirected to `/admin`.
+   - `Deacon` role owners → Redirected to `/deacon`.
+   - Users with `Ministry` memberships/features → Redirected to `/ministry`.
+   - Users with `Activities` memberships/features → Redirected to `/portal` (Standard).
+2. **Context Resolution Middleware (`CheckPortalAccess.php`, `EnsureMinistryContext.php`)**:
+   - Evaluates the user's active session ID for the portal.
+   - Generates `$userPermissions` and `$departmentFeatures` mapping.
+   - **Error Handling**: Instead of `abort(403)` (which causes a blank screen in Inertia), the middleware redirects to `/login` with an error message in the session.
 3. **Inertia Frontend (`Dashboard.vue` / `PortalLayout.vue`)**:
-   - Extracts permissions natively directly from `$page.props.userPermissions`.
+   - Extracts permissions natively directly from `usePage().props`.
    - Uses `v-if` directives to conditionally lock/unlock UI tabs and feature cards seamlessly.
 
 ## 4. Notable Tech Debt & Refactors
 - **Removal of Legacy Role Calculation**: Previously, arrays comparing generic OrgRoles inside individual controllers caused bugs. Refactoring centralized logic entirely to `CheckPortalAccess.php`.
-- **Dynamic Vue Props**: We bypass prop-drilling errors by retrieving the shared Laravel HTTP data directly via `$page.props` instead of nested child `defineProps`.
+- **Safe Prop Access**: We use `usePage().props` (Inertia Hook) instead of direct `$page.props` or `router.page.props` to prevent "Cannot read properties of undefined" during initial hydration.
 - **SuperAdmin Override**: System overrides allow `SuperAdmins` unfettered access across all features without explicitly creating `FeatureDepartment` mapping records for them.
 
-*Last Updated during MAC Standardization Refactoring cycle.*
+*Last Updated: 2026-03-07 (Portal Access Stability Fixes)*

@@ -260,9 +260,10 @@ Route::prefix('deacon')->name('deacon.')->group(...)
 6. **Seeder:** Luôn kiểm tra enum values khớp với migration trước khi `create()`.
 7. **Chart:** Dùng `vue3-apexcharts` — import trong `<script setup>` của từng page.
 8. **Thiết kế đồng nhất:** Xem `/portal` (Activities) làm chuẩn → nhân ra cho Ministry và Deacon.
-9. **Phân quyền (MAC):** Mọi tính năng mới AI code **PHẢI** nhắc người dùng thêm danh mục vào bảng `features` và cấu hình phân quyền trong Tab Hệ Thống (User Matrix) để tránh lỗi 403. Không được hardcode quyền Bypass.
-10. **Đồng bộ Giao diện (UI Consistency):** Luôn kiểm tra chéo các component hiện có (các nút bấm, layout form, slide-over) để tái sử dụng và giữ nguyên khối giao diện chuẩn của file `CONFIG.md`.
+9. **Phân quyền (MAC):** Mọi tính năng mới AI code **PHẢI** nhắc người dùng thêm danh mục vào bảng `features` và cấu hình phân quyền trong Tab Hệ Thống (User Matrix).
+10. **Safe Prop Access (Bắt buộc):** Để tránh lỗi "White Screen", **KHÔNG** dùng `$page.props` hoặc `router.page.props` trực tiếp trong template. Luôn dùng `const page = usePage()` và khai báo `computed` để truy cập props một cách an toàn. (VD: `const userPermissions = computed(() => page.props.userPermissions)`).
+11. **Smart Redirect:** `AuthController` tự động điều hướng user về đúng portal theo Ban/Role. Không được thay đổi logic này thành redirect cứng về `/portal`.
 
 ---
 
-*File này được cập nhật lần cuối: 2026-03-06*
+*File này được cập nhật lần cuối: 2026-03-07*
