@@ -75,6 +75,13 @@ const showToast = (msg, err = false) => {
     setTimeout(() => toastMsg.value = '', 3000);
 };
 
+// ── Watch for prop updates (from router.reload) ───────────────────────────────
+watch(() => props.systemConfig, () => {
+    if (activeFeatureId.value && !isCreating.value) {
+        selectFeature(activeFeatureId.value);
+    }
+}, { deep: true });
+
 // ── Save ───────────────────────────────────────────────────────────────────────
 const isSaving = ref(false);
 const saveConfig = async () => {

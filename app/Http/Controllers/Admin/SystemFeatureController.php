@@ -45,9 +45,11 @@ class SystemFeatureController extends Controller
         $blockType  = $validated['block_type'] ?? null;
         $isActive   = $validated['is_active'];
 
+        // 1. DELETE ALL existing configs for this feature to prevent "ghost" records
+        FeatureDepartment::where('feature_id', $featureId)->delete();
+
+        // 2. Insert new configuration based on scope
         if ($scope === 'global') {
-            // Remove all existing global + block + specific configs for this feature, then add global
-            FeatureDepartment::where('feature_id', $featureId)->delete();
             FeatureDepartment::create([
                 'feature_id'    => $featureId,
                 'block_type'    => null,
@@ -55,15 +57,7 @@ class SystemFeatureController extends Controller
                 'scope'         => 'global',
                 'is_active'     => $isActive,
             ]);
-
         } elseif ($scope === 'block') {
-            // Remove global + same block configs for this feature, then add block-level
-            FeatureDepartment::where('feature_id', $featureId)
-                ->where(function ($q) use ($blockType) {
-                    $q->where('block_type', $blockType)
-                      ->orWhereNull('block_type');
-                })
-                ->delete();
             FeatureDepartment::create([
                 'feature_id'    => $featureId,
                 'block_type'    => $blockType,
@@ -71,28 +65,24 @@ class SystemFeatureController extends Controller
                 'scope'         => 'block',
                 'is_active'     => $isActive,
             ]);
-
         } else { // specific
-            // Remove existing specific configs for this feature + block, then insert new ones
-            FeatureDepartment::where('feature_id', $featureId)
-                ->where('block_type', $blockType)
-                ->whereNotNull('department_id')
-                ->delete();
-
-            $deptIds = $request->input('department_ids', []);
-            $rows = [];
-            foreach ($deptIds as $deptId) {
-                $rows[] = [
-                    'feature_id'    => $featureId,
-                    'block_type'    => $blockType,
-                    'department_id' => $deptId,
-                    'scope'         => 'specific',
-                    'is_active'     => true,
-                    'created_at'    => now(),
-                    'updated_at'    => now(),
-                ];
-            }
-            if (!empty($rows)) {
+            $deptIds = $validated['department_ids'] ?? [];
+            if (empty($deptIds)) {
+                 // Even if specific, if no depts are selected, we just don't have records
+                 // but we already deleted old ones, so it effectively disables the feature.
+            } else {
+                $rows = [];
+                foreach ($deptIds as $deptId) {
+                    $rows[] = [
+                        'feature_id'    => $featureId,
+                        'block_type'    => $blockType,
+                        'department_id' => $deptId,
+                        'scope'         => 'specific',
+                        'is_active'     => true,
+                        'created_at'    => now(),
+                        'updated_at'    => now(),
+                    ];
+                }
                 FeatureDepartment::insert($rows);
             }
         }
