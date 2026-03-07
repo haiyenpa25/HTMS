@@ -34,7 +34,15 @@ class CheckPortalAccess
 
         // ── God Mode bypass ──────────────────────────────────────────────
         if ($user->isSuperAdmin()) {
-            $this->ensureSessionContext($user, $portalType);
+            $activeDeptId = $this->ensureSessionContext($user, $portalType);
+            
+            // Allow all features
+            $allFeatures = \App\Models\Feature::pluck('slug');
+            $userPermissions = collect($allFeatures)->mapWithKeys(fn($f) => [$f => true])->toArray();
+            
+            \Inertia\Inertia::share('userPermissions', $userPermissions);
+            \Inertia\Inertia::share('activeDepartment', $activeDeptId ? Department::find($activeDeptId) : null);
+            
             return $next($request);
         }
 
@@ -84,11 +92,28 @@ class CheckPortalAccess
             $activeDeptId = $validDeptIds[0];
             session([$sessionKey => $activeDeptId]);
         }
+        $activeDept = Department::find($activeDeptId);
+        $userPermissions = collect(\App\Models\Feature::pluck('slug'))->mapWithKeys(fn($s) => [$s => false])->toArray();
+        if ($activeDept) {
+            $level1Map = $service->getAvailableFeaturesForDepartment($activeDept);
+            $activeRecords = $userFeatureRecords->get($activeDeptId) ?? collect();
+            
+            foreach ($activeRecords as $uf) {
+                if (!$uf->feature) continue;
+                $slug = $uf->feature->slug;
+                if ($level1Map[$slug] ?? true) {
+                    $userPermissions[$slug] = true;
+                }
+            }
+        }
+
+        \Inertia\Inertia::share('userPermissions', $userPermissions);
+        \Inertia\Inertia::share('activeDepartment', $activeDept);
 
         return $next($request);
     }
 
-    private function ensureSessionContext($user, string $portalType): void
+    private function ensureSessionContext($user, string $portalType): ?int
     {
         $block      = self::BLOCK_MAP[$portalType] ?? 'activities';
         $sessionKey = self::SESSION_DEPT_KEY[$portalType] ?? 'active_portal_dept_id';
@@ -97,7 +122,10 @@ class CheckPortalAccess
             $firstDept = Department::where('block', $block)->orderBy('name')->first();
             if ($firstDept) {
                 session([$sessionKey => $firstDept->id]);
+                return $firstDept->id;
             }
+            return null;
         }
+        return session($sessionKey);
     }
 }

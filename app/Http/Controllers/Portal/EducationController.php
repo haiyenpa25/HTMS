@@ -180,7 +180,7 @@ class EducationController extends Controller
             ->map(fn($rows) => $rows->pluck('model_id')->values());
 
         $allMembers = $allMembers->map(function($m) use ($deptMemberMap) {
-            $m['department_ids'] = $deptMemberMap[$m['id']]?->toArray() ?? [];
+            $m['department_ids'] = $deptMemberMap->get($m['id'])?->toArray() ?? [];
             return $m;
         });
 

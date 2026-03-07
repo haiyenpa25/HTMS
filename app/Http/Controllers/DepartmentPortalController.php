@@ -73,37 +73,7 @@ class DepartmentPortalController extends Controller
             session(['active_portal_dept_id' => $activeDeptId]);
         }
 
-        $activeDepartment = $activeDeptId ? Department::find($activeDeptId) : null;
-
-        // ── Lấy feature permissions (Giao lộ Level 1 & Level 2) ────────
-        $allSlugs = ['attendance', 'visitation', 'members', 'assignments', 'reports', 'finance'];
-
-        if ($isSuperAdmin) {
-            // Super Admin bypass tất cả, thấy đủ 100% features hiện có
-            $userPermissions = collect($allSlugs)->mapWithKeys(fn ($s) => [$s => true])->toArray();
-        } else {
-            if ($activeDepartment) {
-                $level1Map = $service->getAvailableFeaturesForDepartment($activeDepartment);
-                
-                $enabledFeaturesLevel2 = UserDepartmentFeature::where('user_id', $user->id)
-                    ->where('department_id', $activeDeptId)
-                    ->where('is_enabled', true)
-                    ->with('feature')
-                    ->get()
-                    ->pluck('feature.slug')
-                    ->filter()
-                    ->values();
-
-                $userPermissions = collect($allSlugs)->mapWithKeys(function ($s) use ($level1Map, $enabledFeaturesLevel2) {
-                    // Level 1: If no config exists for this feature, default to ALLOW (backward compat)
-                    $l1 = $level1Map[$s] ?? true;
-                    $l2 = $enabledFeaturesLevel2->contains($s);
-                    return [$s => ($l1 && $l2)];
-                })->toArray();
-            } else {
-                $userPermissions = collect($allSlugs)->mapWithKeys(fn ($s) => [$s => false])->toArray();
-            }
-        }
+        $activeDepartment = $request->attributes->get('activeDepartment') ?? Department::find($activeDeptId);
 
         // ── Dashboard stats ─────────────────────────────────────────────
         $nextMeeting     = null;
@@ -123,7 +93,6 @@ class DepartmentPortalController extends Controller
             'activeDepartment'     => $activeDepartment,
             'availableDepartments' => $availableDepartments,
             'isGlobalAdmin'        => $isSuperAdmin,
-            'userPermissions'      => $userPermissions,
             'nextMeeting'          => $nextMeeting,
             'recentAttendance'     => $recentAttendance,
         ]);

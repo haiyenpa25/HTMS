@@ -15,56 +15,65 @@ class MinistryPortalController extends Controller
      */
     public function index(Request $request)
     {
-        Gate::authorize('access_department_portal');
+        $user         = $request->user();
+        $isSuperAdmin = $user->isSuperAdmin();
+        $service      = app(\App\Services\FeatureAssignmentService::class);
 
-        $user = $request->user();
         $activeDeptId = session('active_ministry_dept_id');
-        $isGlobalAdmin = $user->hasRole(['Pastor', 'Super_Admin']);
 
-        if (!$activeDeptId) {
-            $memberId = $user->member_id;
+        // ── Lấy danh sách departments user có quyền vào ────────────────
+        if ($isSuperAdmin) {
+            $availableDepartments = Department::where('block', 'ministry')
+                ->select('id', 'name', 'code')->orderBy('name')->get();
+        } else {
+            // Lấy tất cả quyền Level 2 của user này
+            $userFeatureRecords = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
+                ->where('is_enabled', true)
+                ->whereHas('department', fn ($q) => $q->where('block', 'ministry'))
+                ->with(['feature', 'department'])
+                ->get()
+                ->groupBy('department_id');
+
+            $validDeptIds = [];
             
-            if ($isGlobalAdmin) {
-                $firstDepart = Department::where('block', 'ministry')->first();
-                if ($firstDepart) {
-                    $activeDeptId = $firstDepart->id;
-                    session(['active_ministry_dept_id' => $activeDeptId]);
+            foreach ($userFeatureRecords as $deptId => $ufRecords) {
+                $dept = $ufRecords->first()->department;
+                if (!$dept) continue;
+                
+                $level1Map = $service->getAvailableFeaturesForDepartment($dept);
+                
+                $hasValidFeature = false;
+                foreach ($ufRecords as $uf) {
+                    if (!$uf->feature) continue;
+                    $slug = $uf->feature->slug;
+                    if ($level1Map[$slug] ?? true) {
+                        $hasValidFeature = true;
+                        break;
+                    }
                 }
-            } else if ($memberId) {
-                $firstMembership = OrgMembership::where('member_id', $memberId)
-                                                ->where('model_type', Department::class)
-                                                ->whereHas('department', function ($query) {
-                                                    $query->where('block', 'ministry');
-                                                })
-                                                ->first();
-                if ($firstMembership) {
-                    $activeDeptId = $firstMembership->model_id;
-                    session(['active_ministry_dept_id' => $activeDeptId]);
+                
+                if ($hasValidFeature) {
+                    $validDeptIds[] = $deptId;
                 }
             }
+
+            $availableDepartments = Department::whereIn('id', $validDeptIds)
+                ->where('block', 'ministry')
+                ->select('id', 'name', 'code')->orderBy('name')->get();
         }
 
-        // Available departments for the user to switch between (ONLY 'ministry' block)
-        if ($isGlobalAdmin) {
-            $availableDepartments = Department::where('block', 'ministry')->select('id', 'name', 'code')->orderBy('name')->get();
-        } else {
-             $availableDepartments = Department::where('block', 'ministry')->whereIn('id', function($query) use ($user) {
-                 $query->select('model_id')
-                       ->from('org_memberships')
-                       ->where('model_type', Department::class)
-                       ->where('member_id', $user->member_id);
-             })->select('id', 'name', 'code')->orderBy('name')->get();
+        // Auto-set active dept
+        if (!$activeDeptId && $availableDepartments->isNotEmpty()) {
+            $activeDeptId = $availableDepartments->first()->id;
+            session(['active_ministry_dept_id' => $activeDeptId]);
         }
 
-        $activeDepartment = null;
-        if ($activeDeptId) {
-            $activeDepartment = Department::find($activeDeptId);
-        }
+        $activeDepartment = $request->attributes->get('activeDepartment') ?? Department::find($activeDeptId);
 
         return Inertia::render('Ministry/Dashboard', [
-            'activeDepartment' => $activeDepartment,
+            'activeDepartment'     => $activeDepartment,
             'availableDepartments' => $availableDepartments,
-            'isGlobalAdmin' => $isGlobalAdmin,
+            'isGlobalAdmin'        => $isSuperAdmin,
         ]);
     }
 
@@ -73,8 +82,6 @@ class MinistryPortalController extends Controller
      */
     public function switchContext(Request $request)
     {
-        Gate::authorize('access_department_portal');
-
         $validated = $request->validate([
             'department_id' => 'required|exists:departments,id'
         ]);
@@ -87,14 +94,29 @@ class MinistryPortalController extends Controller
             abort(403, 'Ban ngành này không thuộc hệ thống Cổng Mục vụ.');
         }
 
-        // If not global admin, verify they belong to this department
-        if (!$user->hasRole(['Pastor', 'Super_Admin'])) {
-            $belongs = tap(OrgMembership::where('member_id', $user->member_id)
-                         ->where('model_type', Department::class)
-                         ->where('model_id', $deptId)
-                         ->exists(), function($exists) {
-                             if(!$exists) abort(403, 'Bạn không có quyền truy cập ban mục vụ này.');
-                         });
+        if (!$user->isSuperAdmin()) {
+            $service = app(\App\Services\FeatureAssignmentService::class);
+            $level1Map = $service->getAvailableFeaturesForDepartment($dept);
+            
+            $userFeatures = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
+                ->where('department_id', $deptId)
+                ->where('is_enabled', true)
+                ->with('feature')
+                ->get();
+                
+            $hasValidFeature = false;
+            foreach ($userFeatures as $uf) {
+                if (!$uf->feature) continue;
+                $slug = $uf->feature->slug;
+                if ($level1Map[$slug] ?? true) {
+                    $hasValidFeature = true;
+                    break;
+                }
+            }
+            
+            if (!$hasValidFeature) {
+                abort(403, 'Bạn không có quyền truy cập tính năng nào trong ban mục vụ này.');
+            }
         }
 
         session(['active_ministry_dept_id' => $deptId]);

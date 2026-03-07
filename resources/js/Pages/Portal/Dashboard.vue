@@ -25,7 +25,8 @@ const switchDept = (deptId) => {
 // Kiểm tra quyền tính năng (SuperAdmin luôn có quyền)
 const can = (key) => {
     if (props.isGlobalAdmin) return true;
-    return props.userPermissions?.[key] === true;
+    const pageProps = router.page.props;
+    return pageProps.userPermissions?.[key] === true;
 };
 
 // Danh sách tất cả Feature Cards

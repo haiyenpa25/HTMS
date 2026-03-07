@@ -41,19 +41,19 @@
                <Link :href="route('portal.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.index') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                    Bảng điều khiển
                </Link>
-               <Link :href="route('portal.attendance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.attendance.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="$page.props.userPermissions && $page.props.userPermissions['attendance']" :href="route('portal.attendance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.attendance.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                    Điểm danh
                </Link>
-               <Link :href="route('portal.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="$page.props.userPermissions && $page.props.userPermissions['visitation']" :href="route('portal.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                    Thăm viếng
                </Link>
-               <Link :href="route('portal.members.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.members.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="$page.props.userPermissions && $page.props.userPermissions['members']" :href="route('portal.members.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.members.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                    Thành viên
                </Link>
-               <Link :href="route('portal.reports.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.reports.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="$page.props.userPermissions && $page.props.userPermissions['reports']" :href="route('portal.reports.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.reports.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                    Báo cáo
                </Link>
-               <Link :href="route('portal.finance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.finance.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="$page.props.userPermissions && $page.props.userPermissions['finance']" :href="route('portal.finance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.finance.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                    Tài chính
                </Link>
            </template>
@@ -63,10 +63,10 @@
                <Link :href="route('ministry.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('ministry.index') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                    Bảng điều khiển
                </Link>
-               <Link :href="route('ministry.members.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('ministry.members.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="$page.props.userPermissions && $page.props.userPermissions['members']" :href="route('ministry.members.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('ministry.members.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                    Thành viên
                </Link>
-               <Link v-if="department?.code === 'BTV' || isGlobalAdmin" :href="route('ministry.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('ministry.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+               <Link v-if="$page.props.userPermissions && $page.props.userPermissions['visitation']" :href="route('ministry.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('ministry.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
                    Thăm viếng
                </Link>
            </template>
@@ -146,6 +146,10 @@ const props = defineProps({
     department: Object,
     availableDepartments: Array,
     isGlobalAdmin: Boolean,
+    userPermissions: {
+        type: Object,
+        default: () => ({})
+    },
     portalType: {
         type: String,
         default: 'activities'

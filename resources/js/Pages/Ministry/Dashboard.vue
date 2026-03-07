@@ -28,15 +28,15 @@
            <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               
               <!-- Card: Thành viên (Tất cả ban) -->
-              <Link :href="route('ministry.members.index')" class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-blue-200 transition-all active:scale-95">
+              <Link v-if="$page.props.userPermissions && $page.props.userPermissions['members']" :href="route('ministry.members.index')" class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-blue-200 transition-all active:scale-95">
                   <div class="w-16 h-16 mb-3 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
                       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"></path></svg>
                   </div>
                   <h3 class="font-bold text-gray-900 leading-tight">Thành viên<br><span class="text-xs font-medium text-blue-600">Thông tin ban viên</span></h3>
               </Link>
 
-              <!-- Cards chỉ cho Ban Thăm Viếng (code = BTV) -->
-              <template v-if="deptCode === 'BTV'">
+              <!-- Cards Thăm Viếng -->
+              <template v-if="$page.props.userPermissions && $page.props.userPermissions['visitation']">
                   <Link :href="route('ministry.visitation.index')" class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-amber-200 transition-all active:scale-95">
                       <div class="w-16 h-16 mb-3 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
                           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"></path></svg>
@@ -51,8 +51,8 @@
                   </Link>
               </template>
 
-              <!-- Cards chỉ cho Ban Cơ Đốc Giáo Dục (code = BCĐGD) -->
-              <template v-if="deptCode === 'BCĐGD'">
+              <!-- Cards Cơ Đốc Giáo Dục -->
+              <template v-if="$page.props.userPermissions && $page.props.userPermissions['education-classes']">
                   <!-- Quản lý lớp -->
                   <Link :href="route('ministry.education.classes')" class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-indigo-200 transition-all active:scale-95">
                       <div class="w-16 h-16 mb-3 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
@@ -67,13 +67,19 @@
                       </div>
                       <h3 class="font-bold text-gray-900 leading-tight">Điểm Danh<br><span class="text-xs font-medium text-green-600">Vào lớp → Chọn buổi</span></h3>
                   </Link>
+              </template>
+              
+              <template v-if="$page.props.userPermissions && $page.props.userPermissions['finance']">
                   <!-- Tiền dâng -->
                   <Link :href="route('ministry.education.classes')" class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-emerald-200 transition-all active:scale-95">
                       <div class="w-16 h-16 mb-3 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"/></svg>
                       </div>
-                      <h3 class="font-bold text-gray-900 leading-tight">Tiền Dâng<br><span class="text-xs font-medium text-emerald-600">Thu chi theo lớp</span></h3>
+                      <h3 class="font-bold text-gray-900 leading-tight">Tài Chính<br><span class="text-xs font-medium text-emerald-600">Thu chi các lớp</span></h3>
                   </Link>
+              </template>
+
+              <template v-if="$page.props.userPermissions && $page.props.userPermissions['reports']">
                   <!-- Báo cáo -->
                   <Link :href="route('ministry.education.report')" class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-blue-200 transition-all active:scale-95">
                       <div class="w-16 h-16 mb-3 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
@@ -83,12 +89,11 @@
                   </Link>
               </template>
 
-
-              <!-- Khi là Admin: hiện tất cả cards của mọi ban -->
-              <template v-if="isGlobalAdmin && deptCode !== 'BTV' && deptCode !== 'BCĐGD'">
-                  <div class="col-span-2 lg:col-span-2 bg-blue-50/40 border border-blue-100 rounded-2xl p-4 text-center text-sm text-blue-600">
-                      <svg class="w-5 h-5 mx-auto mb-1 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                      Ban này chưa có tính năng đặc thù. Chỉ có thể quản lý thành viên.
+              <!-- Khi không có tính năng nào -->
+              <template v-if="!$page.props.userPermissions || Object.values($page.props.userPermissions).filter(Boolean).length === 0">
+                  <div class="col-span-2 lg:col-span-3 bg-gray-50/40 border border-gray-200 rounded-2xl p-6 text-center text-sm text-gray-500 font-medium">
+                      <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      Ban này hiện chưa có tính năng nào được phép truy cập.
                   </div>
               </template>
 
@@ -144,6 +149,7 @@ const props = defineProps({
     activeDepartment: Object,
     availableDepartments: Array,
     isGlobalAdmin: Boolean,
+    userPermissions: { type: Object, default: () => ({}) },
 });
 
 // Shortcut to department code for template conditions
