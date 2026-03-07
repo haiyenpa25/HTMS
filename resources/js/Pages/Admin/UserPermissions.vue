@@ -57,6 +57,13 @@ const activeDept = computed(() =>
   props.departments?.find(d => d.id === activeDeptId.value) ?? null
 );
 
+// Features available for the currently active department (filtered by block mapping)
+const activeDeptFeatures = computed(() => {
+  if (!activeDept.value) return [];
+  const block = activeDept.value.block || 'activities';
+  return props.features.filter(f => f.portal_type === block);
+});
+
 // Dept groups for "Thêm ban ngành" section
 const deptGroups = computed(() => {
   const groups = {};
@@ -164,10 +171,13 @@ const setAccessLevel = async (deptId, featureId, level) => {
 const isGrantingAll = ref(false);
 const grantAllForDept = async (dept) => {
   isGrantingAll.value = true;
-  const allEnabled = props.features.every(f => isEnabled(dept.id, f.id));
+  const block = dept.block || 'activities';
+  const validFeatures = props.features.filter(f => f.portal_type === block);
+  
+  const allEnabled = validFeatures.every(f => isEnabled(dept.id, f.id));
   // Toggle all to opposite
   const newVal = !allEnabled;
-  for (const feature of props.features) {
+  for (const feature of validFeatures) {
     await toggleFeature(dept.id, feature.id, newVal);
   }
   showToast(newVal ? `Đã cấp toàn bộ quyền cho ${dept.name}` : `Đã thu hồi toàn bộ quyền`);
@@ -402,13 +412,13 @@ const featureIcon = (slug) => ({
                 <span class="text-base">🏢</span>
                 <span class="font-black text-gray-900 text-sm">{{ activeDept.name }}</span>
                 <span class="text-[10px] px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full font-bold">
-                  {{ features.filter(f => isEnabled(activeDept.id, f.id)).length }}/{{ features.length }} tính năng
+                  {{ activeDeptFeatures.filter(f => isEnabled(activeDept.id, f.id)).length }}/{{ activeDeptFeatures.length }} tính năng
                 </span>
               </div>
               <!-- Access level per dept (top-level) -->
               <select
                 class="text-xs border border-gray-200 rounded-lg font-bold bg-white focus:ring-1 focus:ring-indigo-400 py-1 px-2 text-gray-600"
-                @change="features.forEach(f => isEnabled(activeDept.id, f.id) && setAccessLevel(activeDept.id, f.id, $event.target.value))">
+                @change="activeDeptFeatures.forEach(f => isEnabled(activeDept.id, f.id) && setAccessLevel(activeDept.id, f.id, $event.target.value))">
                 <option value="view">Lý Lịch (xem)</option>
                 <option value="manage">Quản lý</option>
               </select>
@@ -416,7 +426,7 @@ const featureIcon = (slug) => ({
 
             <!-- Feature rows -->
             <div class="divide-y divide-gray-100">
-              <label v-for="feature in features" :key="feature.id"
+              <label v-for="feature in activeDeptFeatures" :key="feature.id"
                 class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors">
                 <div class="flex items-center gap-3">
                   <span class="text-lg w-6 text-center">{{ featureIcon(feature.slug) }}</span>
