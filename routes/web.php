@@ -221,7 +221,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/report/incidents', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportIncidentStore'])->name('deacon.incident.store');
         Route::put('/report/incidents/{incident}', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportIncidentUpdate'])->name('deacon.incident.update');
         Route::delete('/report/incidents/{incident}', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportIncidentDestroy'])->name('deacon.incident.destroy');
+        // Members (tái sử dụng PortalMemberController với context 'deacon')
+        Route::get('/members', [\App\Http\Controllers\Portal\PortalMemberController::class, 'index'])->name('deacon.members.index');
+        Route::put('/members/{member}/role', [\App\Http\Controllers\Portal\PortalMemberController::class, 'updateRole'])->name('deacon.members.update-role');
+        Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('deacon.members.remove');
+        Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('deacon.members.bulk-assign-team');
+        Route::post('/members/bulk-remove', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkRemove'])->name('deacon.members.bulk-remove');
     });
+
 
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 });

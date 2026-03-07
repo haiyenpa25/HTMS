@@ -19,9 +19,16 @@ class EnsureDeaconContext
         $isGlobalAdmin = $user->hasRole(['Super_Admin', 'Pastor', 'BTS_Admin'])
             || $user->email === 'superadmin@httlthanhmyloi.com';
 
-        $allowed = $isGlobalAdmin 
+        $hasDeaconPerm = false;
+        try {
+            $hasDeaconPerm = $user->hasPermissionTo('view_deacon');
+        } catch (\Spatie\Permission\Exceptions\PermissionDoesNotExist $e) {
+            // Permission 'view_deacon' chưa được seed — bỏ qua, dùng role check
+        }
+
+        $allowed = $isGlobalAdmin
             || $user->hasRole('Deacon')
-            || $user->hasPermissionTo('view_deacon');
+            || $hasDeaconPerm;
 
         if (!$allowed) {
             return redirect()->route('login')->withErrors([

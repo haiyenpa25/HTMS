@@ -45,12 +45,36 @@ class PortalMemberController extends Controller
     private function getContext()
     {
         $isMinistry = request()->is('ministry/*');
+        $isDeacon   = request()->is('deacon/*');
+
+        if ($isDeacon) {
+            return [
+                'type'         => 'deacon',
+                'session_key'  => 'active_deacon_dept_id',
+                'route_prefix' => 'deacon.members',
+                'base_route'   => 'deacon.index',
+            ];
+        }
+
         return [
-            'type' => $isMinistry ? 'ministry' : 'activities',
-            'session_key' => $isMinistry ? 'active_ministry_dept_id' : 'active_portal_dept_id',
+            'type'         => $isMinistry ? 'ministry' : 'activities',
+            'session_key'  => $isMinistry ? 'active_ministry_dept_id' : 'active_portal_dept_id',
             'route_prefix' => $isMinistry ? 'ministry.members' : 'portal.members',
-            'base_route' => $isMinistry ? 'ministry.index' : 'portal.index',
+            'base_route'   => $isMinistry ? 'ministry.index' : 'portal.index',
         ];
+    }
+
+    /**
+     * Helper: get the current dept ID based on portal context
+     */
+    private function getDeptId(array $context): int
+    {
+        if ($context['type'] === 'deacon') {
+            return (int) session($context['session_key'], 1);
+        }
+        return tap(session($context['session_key']), function ($id) use ($context) {
+            if (!$id) abort(redirect()->route($context['base_route']));
+        });
     }
 
     /**
@@ -59,9 +83,15 @@ class PortalMemberController extends Controller
     public function index(Request $request)
     {
         $context = $this->getContext();
-        $departmentId = tap(session($context['session_key']), function ($id) use ($context) {
-            if (!$id) abort(redirect()->route($context['base_route']));
-        });
+
+        // Deacon portal: fallback sang dept cứng (Ban Chấp Sự ID=1) nếu chưa set session
+        if ($context['type'] === 'deacon') {
+            $departmentId = session($context['session_key'], 1); // mặc định Ban Chấp Sự
+        } else {
+            $departmentId = tap(session($context['session_key']), function ($id) use ($context) {
+                if (!$id) abort(redirect()->route($context['base_route']));
+            });
+        }
 
         $department = Department::findOrFail($departmentId);
         
@@ -170,12 +200,8 @@ class PortalMemberController extends Controller
     public function updateRole(Request $request, Member $member)
     {
         $context = $this->getContext();
-        $departmentId = tap(session($context['session_key']), function ($id) use ($context) {
-            if (!$id) abort(redirect()->route($context['base_route']));
-        });
+        $departmentId = $this->getDeptId($context);
 
-        // Check permission to manage the board
-        Gate::authorize('portal_manage_board', Member::class);
 
         $validated = $request->validate([
             'org_role' => 'required|string|in:TruongBan,PhoBan,ThuKy,ThuQuy,UyVien,Member',
@@ -231,11 +257,10 @@ class PortalMemberController extends Controller
     public function bulkAssignTeam(Request $request)
     {
         $context = $this->getContext();
-        $departmentId = tap(session($context['session_key']), function ($id) use ($context) {
-            if (!$id) abort(redirect()->route($context['base_route']));
-        });
+        $departmentId = $this->getDeptId($context);
 
         Gate::authorize('portal_manage_board', Member::class);
+
 
         $validated = $request->validate([
             'member_ids' => 'required|array',
@@ -285,7 +310,16 @@ class PortalMemberController extends Controller
     private function getAvailableDepartments()
     {
         $isMinistry = request()->is('ministry/*');
-        $block = $isMinistry ? 'ministry' : 'activities';
+        $isDeacon   = request()->is('deacon/*');
+
+        if ($isDeacon) {
+            $block = 'leadership';
+        } elseif ($isMinistry) {
+            $block = 'ministry';
+        } else {
+            $block = 'activities';
+        }
+
         return app(\App\Services\PortalService::class)->getAvailableDepartments(auth()->user(), $block);
     }
 
@@ -295,11 +329,10 @@ class PortalMemberController extends Controller
     public function removeMember(Request $request, Member $member)
     {
         $context = $this->getContext();
-        $departmentId = tap(session($context['session_key']), function ($id) use ($context) {
-            if (!$id) abort(redirect()->route($context['base_route']));
-        });
+        $departmentId = $this->getDeptId($context);
 
         Gate::authorize('portal_manage_board', Member::class);
+
 
         \DB::transaction(function () use ($departmentId, $member) {
             // Remove from department
@@ -329,9 +362,7 @@ class PortalMemberController extends Controller
     public function bulkRemove(Request $request)
     {
         $context = $this->getContext();
-        $departmentId = tap(session($context['session_key']), function ($id) use ($context) {
-            if (!$id) abort(redirect()->route($context['base_route']));
-        });
+        $departmentId = $this->getDeptId($context);
 
         Gate::authorize('portal_manage_board', Member::class);
 
