@@ -29,28 +29,53 @@ class SystemFeatureController extends Controller
         ]);
     }
 
-    /**
-     * Upsert a feature assignment configuration.
-     */
     public function assign(Request $request)
     {
         $validated = $request->validate([
             'feature_id' => 'required|exists:features,id',
             'block_type' => 'required|string',
-            'department_id' => 'nullable|exists:departments,id',
+            'target_mode' => 'required|in:all,specific',
             'is_active' => 'required|boolean',
+            'department_ids' => 'array',
+            'department_ids.*' => 'integer|exists:departments,id',
         ]);
 
-        $assignment = FeatureDepartment::updateOrCreate(
-            [
-                'feature_id' => $validated['feature_id'],
-                'block_type' => $validated['block_type'],
-                'department_id' => $validated['department_id'],
-            ],
-            [
-                'is_active' => $validated['is_active'],
-            ]
-        );
+        $featureId = $validated['feature_id'];
+        $blockType = $validated['block_type'];
+        $targetMode = $validated['target_mode'];
+        $isActive = $validated['is_active'];
+
+        // Start by clearing old config for this feature + block
+        FeatureDepartment::where('feature_id', $featureId)
+            ->where('block_type', $blockType)
+            ->delete();
+
+        if ($targetMode === 'all') {
+            // mode = all -> specific record where department_id is null
+            FeatureDepartment::create([
+                'feature_id' => $featureId,
+                'block_type' => $blockType,
+                'department_id' => null,
+                'is_active' => $isActive,
+            ]);
+        } else {
+            // mode = specific -> create record for each selected dept ID (always true if selected)
+            $deptIds = $request->input('department_ids', []);
+            $insertData = [];
+            foreach ($deptIds as $deptId) {
+                $insertData[] = [
+                    'feature_id' => $featureId,
+                    'block_type' => $blockType,
+                    'department_id' => $deptId,
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+            if (!empty($insertData)) {
+                FeatureDepartment::insert($insertData);
+            }
+        }
 
         return back()->with('success', 'Đã lưu cấu hình tính năng thành công.');
     }

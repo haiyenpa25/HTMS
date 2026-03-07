@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { Head, router, Link } from '@inertiajs/vue3';
 import AdminPortalLayout from '@/Layouts/AdminPortalLayout.vue';
 import SystemFeaturesTab from '@/Pages/Admin/SystemFeaturesTab.vue';
@@ -53,19 +53,15 @@ const grantedDeptIds = computed(() => {
 // Active dept chip (expanded)
 const activeDeptId = ref(null);
 
-// State for the selected feature block filter
-const selectedFeatureBlock = ref('activities');
+const activeDept = computed(() =>
+  props.departments?.find(d => d.id === activeDeptId.value) ?? null
+);
 
-watch(activeDept, (newDept) => {
-  if (newDept) {
-    selectedFeatureBlock.value = newDept.block || 'activities';
-  }
-});
-
-// Features available for the currently active department (filtered by user selection)
+// Features filtered by the active department's block type
 const activeDeptFeatures = computed(() => {
   if (!activeDept.value) return [];
-  return props.features.filter(f => f.portal_type === selectedFeatureBlock.value);
+  const block = activeDept.value.block || 'activities';
+  return props.features.filter(f => f.portal_type === block);
 });
 
 // Dept groups for "Thêm ban ngành" section
@@ -418,21 +414,13 @@ const featureIcon = (slug) => ({
                   {{ activeDeptFeatures.filter(f => isEnabled(activeDept.id, f.id)).length }}/{{ activeDeptFeatures.length }} tính năng
                 </span>
               </div>
-              <!-- Filter and Access level per dept -->
-              <div class="flex items-center gap-2">
-                <select v-model="selectedFeatureBlock"
-                  class="text-xs border border-gray-200 rounded-lg font-bold bg-white focus:ring-1 focus:ring-indigo-400 py-1 px-2 text-gray-600">
-                  <option value="activities">Các tính năng Sinh Hoạt</option>
-                  <option value="ministry">Các tính năng Mục Vụ</option>
-                  <option value="leadership">Các tính năng Chấp Sự</option>
-                </select>
-                <select
-                  class="text-xs border border-gray-200 rounded-lg font-bold bg-white focus:ring-1 focus:ring-indigo-400 py-1 px-2 text-gray-600"
-                  @change="activeDeptFeatures.forEach(f => isEnabled(activeDept.id, f.id) && setAccessLevel(activeDept.id, f.id, $event.target.value))">
-                  <option value="view">Lý Lịch (xem)</option>
-                  <option value="manage">Quản lý</option>
-                </select>
-              </div>
+              <!-- Access level per dept (top-level) -->
+              <select
+                class="text-xs border border-gray-200 rounded-lg font-bold bg-white focus:ring-1 focus:ring-indigo-400 py-1 px-2 text-gray-600"
+                @change="activeDeptFeatures.forEach(f => isEnabled(activeDept.id, f.id) && setAccessLevel(activeDept.id, f.id, $event.target.value))">
+                <option value="view">Lý Lịch (xem)</option>
+                <option value="manage">Quản lý</option>
+              </select>
             </div>
 
             <!-- Feature rows -->
