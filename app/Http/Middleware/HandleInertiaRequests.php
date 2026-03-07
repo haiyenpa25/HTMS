@@ -37,6 +37,52 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
         
+        $homePortal = '/dashboard'; // default
+        if ($user) {
+            if ($user->hasRole(['Super_Admin', 'Pastor'])) {
+                $homePortal = '/dashboard';
+            } elseif ($user->hasRole(['Deacon', 'BTS_Admin'])) {
+                $homePortal = '/deacon';
+            } else {
+                // Check Ministry
+                $hasMinistry = false;
+                $member = \App\Models\Member::where('user_id', $user->id)->first();
+                if ($member) {
+                    $hasMinistry = \App\Models\OrgMembership::where('member_id', $member->id)
+                        ->where('model_type', \App\Models\Department::class)
+                        ->whereHas('model', fn($q) => $q->where('block', 'ministry'))
+                        ->exists();
+                }
+                if (!$hasMinistry) {
+                    $hasMinistry = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
+                        ->where('is_enabled', true)
+                        ->whereHas('department', fn($q) => $q->where('block', 'ministry'))
+                        ->exists();
+                }
+                
+                if ($hasMinistry) {
+                    $homePortal = '/ministry';
+                } else {
+                    // Check Activities
+                    $hasActivities = false;
+                    if ($member) {
+                        $hasActivities = $member->departments()
+                            ->where('block', 'activities')
+                            ->exists();
+                    }
+                    if (!$hasActivities) {
+                        $hasActivities = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
+                            ->where('is_enabled', true)
+                            ->whereHas('department', fn($q) => $q->where('block', 'activities'))
+                            ->exists();
+                    }
+                    if ($hasActivities) {
+                        $homePortal = '/portal';
+                    }
+                }
+            }
+        }
+        
         return [
             ...parent::share($request),
             'auth' => [
@@ -46,6 +92,7 @@ class HandleInertiaRequests extends Middleware
                     'email' => $user->email,
                     'role' => $user->getRoleNames()->first() ?? 'Guest',
                     'permissions' => $user->getAllPermissions()->pluck('name'),
+                    'home_portal' => $homePortal,
                 ] : null,
             ],
             'pending_approvals_count' => $user ? \App\Models\ApprovalRequest::where('status', 'pending')->count() : 0,

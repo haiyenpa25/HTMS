@@ -129,6 +129,16 @@
               <p class="text-xs text-gray-400">{{ page.props.auth?.user?.email || '' }}</p>
             </div>
           </div>
+          <Link v-if="page.props.auth?.user?.home_portal" :href="page.props.auth.user.home_portal" @click="openMenu = null"
+            class="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-blue-50 transition-colors text-left border-b border-gray-100">
+            <div class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-blue-600">Cổng Nội Bộ</p>
+              <p class="text-xs text-gray-400">Vào khu vực quản lý</p>
+            </div>
+          </Link>
           <Link :href="route('logout')" method="post" as="button" @click="openMenu = null"
             class="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-red-50 transition-colors text-left">
             <div class="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center shrink-0">

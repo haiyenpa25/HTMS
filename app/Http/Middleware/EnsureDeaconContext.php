@@ -40,20 +40,22 @@ class EnsureDeaconContext
         $service = app(\App\Services\FeatureAssignmentService::class);
         $departmentFeatures = $deaconDept ? $service->getAvailableFeaturesForDepartment($deaconDept) : [];
         
-        $userPermissions = collect(\App\Models\Feature::pluck('slug'))->mapWithKeys(fn($s) => [$s => false])->toArray();
+        // Level 2: bắt đầu từ departmentFeatures, UserDepartmentFeature chỉ là override
+        $userPermissions = collect(\App\Models\Feature::pluck('slug'))
+            ->mapWithKeys(fn($s) => [$s => $departmentFeatures[$s] ?? false])
+            ->toArray();
+
         if ($isGlobalAdmin) {
             $userPermissions = array_map(fn() => true, $userPermissions);
         } else {
-            // Đối với Deacon, thướng gán quyền qua ID=1 (Ban Chấp sự)
-            $activeRecords = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
-                ->where('department_id', 1) 
-                ->where('is_enabled', true)
+            $overrideRecords = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
+                ->where('department_id', 1)
                 ->with('feature')
                 ->get();
                 
-            foreach ($activeRecords as $uf) {
+            foreach ($overrideRecords as $uf) {
                 if (!$uf->feature) continue;
-                $userPermissions[$uf->feature->slug] = true;
+                $userPermissions[$uf->feature->slug] = (bool) $uf->is_enabled;
             }
         }
 
@@ -61,6 +63,7 @@ class EnsureDeaconContext
         \Inertia\Inertia::share('userPermissions', $userPermissions);
         \Inertia\Inertia::share('activeDepartment', $deaconDept);
         \Inertia\Inertia::share('isGlobalAdmin', $isGlobalAdmin);
+        \Inertia\Inertia::share('activeDeaconRole', session('active_deacon_role', 'secretary'));
 
         return $next($request);
     }

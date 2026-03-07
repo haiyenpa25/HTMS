@@ -28,7 +28,7 @@
       <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
         <!-- Banner -->
         <div class="h-32 sm:h-40 bg-gradient-to-br from-indigo-600 via-blue-600 to-sky-500 relative">
-          <div class="absolute inset-0 opacity-10" style="background-image: url(&quot;data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E&quot;);"></div>
+          <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%221%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
           <div class="absolute bottom-4 right-5 flex gap-2">
             <span class="px-3 py-1 bg-white/20 backdrop-blur text-white text-[10px] uppercase font-black rounded-full border border-white/30">{{ member.member_code }}</span>
             <span class="px-3 py-1 rounded-full text-xs font-bold border border-white/30 backdrop-blur"
@@ -414,26 +414,27 @@ const props = defineProps({
 const isEditing = ref(false);
 
 const form = useForm({
-  full_name: props.member.full_name,
-  email: props.member.email,
-  phone: props.member.phone,
-  date_of_birth: props.member.date_of_birth ? String(props.member.date_of_birth).split('T')[0] : '',
-  gender: props.member.gender,
-  address: props.member.address,
-  status: props.member.status,
-  is_baptized: props.member.is_baptized,
-  faith_date: props.member.faith_date ? String(props.member.faith_date).split('T')[0] : '',
-  baptism_date: props.member.baptism_date ? String(props.member.baptism_date).split('T')[0] : '',
-  general_notes: props.member.general_notes,
-  marital_status: props.member.sensitive_info?.marital_status || 'Độc thân',
-  prayer_concerns: props.member.sensitive_info?.prayer_concerns || '',
-  pastoral_notes: props.member.sensitive_info?.pastoral_notes || '',
-  occupation: props.member.sensitive_info?.occupation || '',
+  full_name: props.member?.full_name || '',
+  email: props.member?.email || '',
+  phone: props.member?.phone || '',
+  date_of_birth: props.member?.date_of_birth ? String(props.member.date_of_birth).split('T')[0] : '',
+  gender: props.member?.gender || '',
+  address: props.member?.address || '',
+  status: props.member?.status || 'Chưa rõ',
+  is_baptized: props.member?.is_baptized || false,
+  faith_date: props.member?.faith_date ? String(props.member.faith_date).split('T')[0] : '',
+  baptism_date: props.member?.baptism_date ? String(props.member.baptism_date).split('T')[0] : '',
+  general_notes: props.member?.general_notes || '',
+  marital_status: props.member?.sensitive_info?.marital_status || 'Độc thân',
+  prayer_concerns: props.member?.sensitive_info?.prayer_concerns || '',
+  pastoral_notes: props.member?.sensitive_info?.pastoral_notes || '',
+  occupation: props.member?.sensitive_info?.occupation || '',
 });
 
 const startEditing = () => { isEditing.value = true; };
 const cancelEditing = () => { form.reset(); isEditing.value = false; };
 const submit = () => {
+  if (!props.member?.id) return;
   form.put(route('members.update', props.member.id), {
     preserveScroll: true,
     onSuccess: () => { isEditing.value = false; },

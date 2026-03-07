@@ -46,17 +46,26 @@ class AuthController extends Controller
             }
             
             // Deacon role → deacon portal
-            if ($user->hasRole(['Deacon', 'BTS_Admin']) || $user->hasPermissionTo('view_deacon')) {
+            if ($user->hasRole(['Deacon', 'BTS_Admin'])) {
+                return redirect()->intended(route('deacon.index'));
+            }
+            
+            // Church membership (Thư ký HT, Thủ Quỹ HT) → deacon/leadership portal
+            // Những người có OrgMembership model_type=Church (không phải Department) là lãnh đạo HT
+            $member = Member::where('user_id', $user->id)->first();
+            $hasChurchRole = $member && OrgMembership::where('member_id', $member->id)
+                ->where('model_type', \App\Models\Church::class)
+                ->exists();
+            if ($hasChurchRole) {
                 return redirect()->intended(route('deacon.index'));
             }
             
             // Check if user has any ministry memberships (OrgMembership in ministry block)
             $hasMinistry = false;
-            $member = Member::where('user_id', $user->id)->first();
             if ($member) {
                 $hasMinistry = OrgMembership::where('member_id', $member->id)
                     ->where('model_type', Department::class)
-                    ->whereHas('department', fn($q) => $q->where('block', 'ministry'))
+                    ->whereHasMorph('model', [Department::class], fn($q) => $q->where('block', 'ministry'))
                     ->exists();
             }
             // Also check MAC UserDepartmentFeature

@@ -88,21 +88,25 @@ class CheckPortalAccess
         $activeDept = Department::find($activeDeptId);
         
         $departmentFeatures = [];
-        $userPermissions = collect(\App\Models\Feature::pluck('slug'))->mapWithKeys(fn($s) => [$s => false])->toArray();
+        $userPermissions = [];
         
         if ($activeDept) {
             $service = app(FeatureAssignmentService::class);
             $departmentFeatures = $service->getAvailableFeaturesForDepartment($activeDept);
             
-            $activeRecords = UserDepartmentFeature::where('user_id', $user->id)
+            // Level 2: bắt đầu từ departmentFeatures, UserDepartmentFeature chỉ là override
+            $userPermissions = collect(\App\Models\Feature::pluck('slug'))
+                ->mapWithKeys(fn($s) => [$s => $departmentFeatures[$s] ?? false])
+                ->toArray();
+
+            $overrideRecords = UserDepartmentFeature::where('user_id', $user->id)
                 ->where('department_id', $activeDeptId)
-                ->where('is_enabled', true)
                 ->with('feature')
                 ->get();
                 
-            foreach ($activeRecords as $uf) {
+            foreach ($overrideRecords as $uf) {
                 if (!$uf->feature) continue;
-                $userPermissions[$uf->feature->slug] = true;
+                $userPermissions[$uf->feature->slug] = (bool) $uf->is_enabled;
             }
         }
 

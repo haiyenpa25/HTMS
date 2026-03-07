@@ -38,7 +38,7 @@ class EnsureMinistryContext
                 if ($memberId) {
                     $membership = OrgMembership::where('member_id', $memberId)
                         ->where('model_type', Department::class)
-                        ->whereHas('department', fn($q) => $q->where('block', 'ministry'))
+                        ->whereHasMorph('model', [Department::class], fn($q) => $q->where('block', 'ministry'))
                         ->first();
                     if ($membership) {
                         $activeDeptId = $membership->model_id;
@@ -73,19 +73,28 @@ class EnsureMinistryContext
         $service = app(\App\Services\FeatureAssignmentService::class);
         $departmentFeatures = $activeDept ? $service->getAvailableFeaturesForDepartment($activeDept) : [];
         
-        $userPermissions = collect(\App\Models\Feature::pluck('slug'))->mapWithKeys(fn($s) => [$s => false])->toArray();
+        // ── Level 2: User-level permissions ───────────────────────────────
+        // Logic: 
+        //   1. Bắt đầu từ departmentFeatures (Level 1) — feature nào dept có = user có theo mặc định
+        //   2. UserDepartmentFeature chỉ dùng để OVERRIDE (tắt riêng cho user cụ thể, hoặc bật thêm)
+        //   3. Super Admin → tất cả true
+        $userPermissions = collect(\App\Models\Feature::pluck('slug'))
+            ->mapWithKeys(fn($s) => [$s => $departmentFeatures[$s] ?? false])
+            ->toArray();
+
         if ($isGlobalAdmin) {
             $userPermissions = array_map(fn() => true, $userPermissions);
         } else {
-            $activeRecords = UserDepartmentFeature::where('user_id', $user->id)
+            // Áp dụng explicit overrides từ UserDepartmentFeature (nếu có)
+            $overrideRecords = UserDepartmentFeature::where('user_id', $user->id)
                 ->where('department_id', $activeDeptId)
-                ->where('is_enabled', true)
                 ->with('feature')
                 ->get();
                 
-            foreach ($activeRecords as $uf) {
+            foreach ($overrideRecords as $uf) {
                 if (!$uf->feature) continue;
-                $userPermissions[$uf->feature->slug] = true;
+                // Override theo is_enabled (có thể true hoặc false)
+                $userPermissions[$uf->feature->slug] = (bool) $uf->is_enabled;
             }
         }
 

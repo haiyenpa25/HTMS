@@ -44,6 +44,10 @@ class FeatureAssignmentService
         $finalAccess = [];
         $features = Feature::all();
 
+        // Lấy tất cả feature_id đã có config trong hệ thống (bất kỳ block/dept nào)
+        // Dùng để phân biệt "chưa cấu hình bao giờ" vs "cấu hình cho block khác"
+        $configuredFeatureIds = FeatureDepartment::pluck('feature_id')->unique()->flip();
+
         foreach ($features as $feature) {
             $hasDeptConfig   = $deptAssignments->has($feature->id);
             $hasBlockConfig  = $blockAssignments->has($feature->id);
@@ -51,12 +55,19 @@ class FeatureAssignmentService
             $hasAnyConfig    = $hasDeptConfig || $hasBlockConfig || $hasGlobalConfig;
 
             if (!$hasAnyConfig) {
-                // NO config at all → default ALLOW (backward compat)
-                $finalAccess[$feature->slug] = true;
+                if ($configuredFeatureIds->has($feature->id)) {
+                    // Tính năng đã được cấu hình cho block/dept KHÁC nhưng không phải cho dept này
+                    // → DENY: ẩn card. VD: "members" cho activities, ban ministry sẽ không thấy
+                    $finalAccess[$feature->slug] = false;
+                } else {
+                    // Tính năng hoàn toàn chưa được cấu hình ở bất kỳ đâu
+                    // → ALLOW (backward compat: hiển thị mặc định cho tất cả)
+                    $finalAccess[$feature->slug] = true;
+                }
                 continue;
             }
 
-            // Apply in priority order
+            // Áp dụng theo thứ tự ưu tiên: specific > block > global
             if ($hasDeptConfig) {
                 $finalAccess[$feature->slug] = (bool) $deptAssignments->get($feature->id)->is_active;
             } elseif ($hasBlockConfig) {
