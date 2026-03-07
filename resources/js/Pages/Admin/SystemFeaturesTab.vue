@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, router } from '@inertiajs/vue3';
 import axios from 'axios';
 
 const props = defineProps({
@@ -88,9 +88,12 @@ const saveConfig = async () => {
             is_active:      form.value.is_active,
             department_ids: form.value.scope === 'specific' ? form.value.department_ids : [],
         });
-        showToast('✅ Đã lưu cấu hình thành công!');
-    } catch {
-        showToast('❌ Có lỗi xảy ra', true);
+        // Reload Inertia page props so systemConfig reflects new save
+        router.reload({ only: ['systemConfig'], onSuccess: () => {
+            showToast('✅ Đã lưu thành công!');
+        }});
+    } catch (err) {
+        showToast('❌ Lỗi khi lưu: ' + (err?.response?.data?.message || err.message), true);
     } finally {
         isSaving.value = false;
     }
