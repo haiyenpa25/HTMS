@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { Head, router, Link } from '@inertiajs/vue3';
 import AdminPortalLayout from '@/Layouts/AdminPortalLayout.vue';
 import SystemFeaturesTab from '@/Pages/Admin/SystemFeaturesTab.vue';
@@ -52,17 +52,29 @@ const grantedDeptIds = computed(() => {
 
 // Active dept chip (expanded)
 const activeDeptId = ref(null);
+// Block dropdown for feature list (defaults to dept's own block)
+const selectedBlock = ref('activities');
 
 const activeDept = computed(() =>
   props.departments?.find(d => d.id === activeDeptId.value) ?? null
 );
 
-// Features filtered by the active department's block type
-const activeDeptFeatures = computed(() => {
-  if (!activeDept.value) return [];
-  const block = activeDept.value.block || 'activities';
-  return props.features.filter(f => f.portal_type === block);
+// When dept changes, auto-set the dropdown to that dept's block
+watch(activeDeptId, (newId) => {
+  const dept = props.departments?.find(d => d.id === newId);
+  selectedBlock.value = dept?.block || 'activities';
 });
+
+// Features for the selected block type (controlled by dropdown)
+const activeDeptFeatures = computed(() =>
+  props.features.filter(f => f.portal_type === selectedBlock.value)
+);
+
+const blockOptions = [
+  { value: 'activities', label: '🎯 Sinh Hoạt' },
+  { value: 'ministry',   label: '⛪ Mục Vụ' },
+  { value: 'leadership', label: '🛡 Chấp Sự' },
+];
 
 // Dept groups for "Thêm ban ngành" section
 const deptGroups = computed(() => {
@@ -406,7 +418,7 @@ const featureIcon = (slug) => ({
           <!-- Expanded dept → feature list -->
           <div v-if="activeDept" class="border-t border-gray-100 mx-4 mb-4 rounded-xl border border-gray-200 overflow-hidden">
             <!-- Dept card header -->
-            <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+            <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200 flex-wrap gap-2">
               <div class="flex items-center gap-2">
                 <span class="text-base">🏢</span>
                 <span class="font-black text-gray-900 text-sm">{{ activeDept.name }}</span>
@@ -414,13 +426,20 @@ const featureIcon = (slug) => ({
                   {{ activeDeptFeatures.filter(f => isEnabled(activeDept.id, f.id)).length }}/{{ activeDeptFeatures.length }} tính năng
                 </span>
               </div>
-              <!-- Access level per dept (top-level) -->
-              <select
-                class="text-xs border border-gray-200 rounded-lg font-bold bg-white focus:ring-1 focus:ring-indigo-400 py-1 px-2 text-gray-600"
-                @change="activeDeptFeatures.forEach(f => isEnabled(activeDept.id, f.id) && setAccessLevel(activeDept.id, f.id, $event.target.value))">
-                <option value="view">Lý Lịch (xem)</option>
-                <option value="manage">Quản lý</option>
-              </select>
+              <div class="flex items-center gap-2 flex-wrap">
+                <!-- Block type dropdown -->
+                <select v-model="selectedBlock"
+                  class="text-xs border border-indigo-200 rounded-lg font-bold bg-indigo-50 text-indigo-700 focus:ring-1 focus:ring-indigo-400 py-1.5 px-2.5">
+                  <option v-for="b in blockOptions" :key="b.value" :value="b.value">{{ b.label }}</option>
+                </select>
+                <!-- Access level select -->
+                <select
+                  class="text-xs border border-gray-200 rounded-lg font-bold bg-white focus:ring-1 focus:ring-indigo-400 py-1.5 px-2 text-gray-600"
+                  @change="activeDeptFeatures.forEach(f => isEnabled(activeDept.id, f.id) && setAccessLevel(activeDept.id, f.id, $event.target.value))">
+                  <option value="view">Chỉ xem</option>
+                  <option value="manage">Quản lý</option>
+                </select>
+              </div>
             </div>
 
             <!-- Feature rows -->

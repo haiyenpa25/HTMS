@@ -123,7 +123,25 @@ const permToastError  = ref(false);
 const showPermList    = ref(true);
 const activeDeptId    = ref(null);
 const permSearch      = ref('');
+const permSelectedBlock = ref('activities');
 let permSearchTimeout;
+
+// When dept changes, auto-set the feature block dropdown
+watch(activeDeptId, (newId) => {
+  const dept = props.departments?.find(d => d.id === newId);
+  if (dept) permSelectedBlock.value = dept.block || 'activities';
+});
+
+// Features visible based on selected block
+const permDeptFeatures = computed(() =>
+  (props.features || []).filter(f => f.portal_type === permSelectedBlock.value)
+);
+
+const blockOptions = [
+  { value: 'activities', label: '🎯 Sinh Hoạt' },
+  { value: 'ministry',   label: '⛪ Mục Vụ' },
+  { value: 'leadership', label: '🛡 Chấp Sự' },
+];
 
 const grantedDeptIds = computed(() => {
   const ids = new Set();
@@ -533,17 +551,22 @@ const addDept = (dept) => { activeDeptId.value = dept.id; };
           <div v-if="activeDept" class="p-4">
             <div class="rounded-xl border border-gray-200 overflow-hidden">
               <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
-                <div class="flex items-center gap-2">
-                  <span class="text-base">🏢</span>
+                <div class="flex items-center gap-2 flex-wrap">
                   <span class="font-black text-gray-900 text-sm">{{ activeDept.name }}</span>
                   <span class="text-[10px] px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full font-bold ml-1">
-                    {{ features.filter(f => isEnabled(activeDept.id, f.id)).length }}/{{ features.length }}
+                    {{ permDeptFeatures.filter(f => isEnabled(activeDept.id, f.id)).length }}/{{ permDeptFeatures.length }}
                   </span>
                 </div>
-                <button @click="activeDeptId = null" class="text-xs text-gray-400 hover:text-gray-600">✕ Đóng</button>
+                <div class="flex items-center gap-2">
+                  <select v-model="permSelectedBlock"
+                    class="text-xs border border-indigo-200 bg-indigo-50 text-indigo-700 rounded-lg font-bold py-1.5 px-2.5">
+                    <option v-for="b in blockOptions" :key="b.value" :value="b.value">{{ b.label }}</option>
+                  </select>
+                  <button @click="activeDeptId = null" class="text-xs text-gray-400 hover:text-gray-600 px-2 py-1">✕ Đóng</button>
+                </div>
               </div>
               <div class="divide-y divide-gray-100 bg-white">
-                <label v-for="feature in features" :key="feature.id"
+                <label v-for="feature in permDeptFeatures" :key="feature.id"
                   class="flex items-center justify-between gap-3 px-4 py-3.5 hover:bg-gray-50 cursor-pointer transition-colors">
                   <div class="flex items-center gap-3">
                     <span class="text-xl w-7 text-center">{{ featureIcon(feature.slug) }}</span>
