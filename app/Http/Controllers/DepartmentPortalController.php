@@ -2,46 +2,42 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Department;
-use App\Models\OrgMembership;
+use App\Models\Feature;
+use App\Models\UserDepartmentFeature;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+/**
+ * DepartmentPortalController — MAC version.
+ * Không dùng OrgMembership. Dùng user_department_features trực tiếp.
+ */
 class DepartmentPortalController extends Controller
 {
-    const SUPER_ADMIN_EMAIL = 'superadmin@httlthanhmyloi.com';
-
-    const DEFAULT_PERMISSIONS = [
-        'manage_attendance' => true,
-        'manage_visitation'  => true,
-        'manage_members'     => true,
-        'manage_assignments' => true,
-        'manage_reports'     => true,
-        'manage_funds'       => false,
-    ];
-
     public function index(Request $request)
     {
-        $user = $request->user();
-        $isSuperAdmin = ($user->email === self::SUPER_ADMIN_EMAIL) || $user->hasRole('Super_Admin');
+        $user         = $request->user();
+        $isSuperAdmin = $user->isSuperAdmin();
 
         $activeDeptId = session('active_portal_dept_id');
 
-        // Available departments for switcher
+        // ── Lấy danh sách departments user có quyền vào ────────────────
         if ($isSuperAdmin) {
             $availableDepartments = Department::where('block', 'activities')
                 ->select('id', 'name', 'code')->orderBy('name')->get();
         } else {
-            $memberId = $user->member?->id;
-            $availableDepartments = Department::where('block', 'activities')
-                ->whereIn('id', OrgMembership::where('member_id', $memberId)
-                    ->where('is_active', true)
-                    ->where('model_type', Department::class)
-                    ->pluck('model_id'))
+            $allowedIds = UserDepartmentFeature::where('user_id', $user->id)
+                ->where('is_enabled', true)
+                ->whereHas('department', fn ($q) => $q->where('block', 'activities'))
+                ->pluck('department_id')
+                ->unique();
+
+            $availableDepartments = Department::whereIn('id', $allowedIds)
+                ->where('block', 'activities')
                 ->select('id', 'name', 'code')->orderBy('name')->get();
         }
 
-        // If no active dept, pick first available
+        // Auto-set active dept
         if (!$activeDeptId && $availableDepartments->isNotEmpty()) {
             $activeDeptId = $availableDepartments->first()->id;
             session(['active_portal_dept_id' => $activeDeptId]);
@@ -49,24 +45,27 @@ class DepartmentPortalController extends Controller
 
         $activeDepartment = $activeDeptId ? Department::find($activeDeptId) : null;
 
-        // ── Resolve user permissions for the active department ──────────
-        $userPermissions = self::DEFAULT_PERMISSIONS;
+        // ── Lấy feature permissions từ user_department_features ────────
+        if ($isSuperAdmin) {
+            // Super Admin có tất cả features
+            $userPermissions = Feature::pluck('slug')->mapWithKeys(fn ($s) => [$s => true])->toArray();
+        } else {
+            $enabledFeatures = UserDepartmentFeature::where('user_id', $user->id)
+                ->where('department_id', $activeDeptId)
+                ->where('is_enabled', true)
+                ->with('feature')
+                ->get()
+                ->pluck('feature.slug')
+                ->filter()
+                ->values();
 
-        if ($activeDeptId && !$isSuperAdmin) {
-            $memberId = $user->member?->id;
-            $membership = OrgMembership::where('member_id', $memberId)
-                ->where('model_type', Department::class)
-                ->where('model_id', $activeDeptId)
-                ->where('is_active', true)
-                ->first();
-
-            if ($membership && !empty($membership->permissions)) {
-                $userPermissions = array_merge(self::DEFAULT_PERMISSIONS, $membership->permissions);
-            }
+            // Map tới dạng boolean cho frontend
+            $allSlugs = ['attendance', 'visitation', 'members', 'assignments', 'reports', 'finance'];
+            $userPermissions = collect($allSlugs)->mapWithKeys(fn ($s) => [$s => $enabledFeatures->contains($s)])->toArray();
         }
 
         // ── Dashboard stats ─────────────────────────────────────────────
-        $nextMeeting = null;
+        $nextMeeting     = null;
         $recentAttendance = null;
 
         if ($activeDeptId) {
@@ -95,24 +94,23 @@ class DepartmentPortalController extends Controller
             'department_id' => 'required|integer|exists:departments,id'
         ]);
 
-        $user = $request->user();
+        $user   = $request->user();
         $deptId = $validated['department_id'];
-        $dept = Department::findOrFail($deptId);
+        $dept   = Department::findOrFail($deptId);
 
         if ($dept->block !== 'activities') {
             abort(403, 'Ban ngành này không thuộc Cổng Sinh Hoạt.');
         }
 
-        $isSuperAdmin = ($user->email === self::SUPER_ADMIN_EMAIL) || $user->hasRole('Super_Admin');
-
-        if (!$isSuperAdmin) {
-            $memberId = $user->member?->id;
-            $ok = OrgMembership::where('member_id', $memberId)
-                ->where('model_type', Department::class)
-                ->where('model_id', $deptId)
-                ->where('is_active', true)
+        // MAC check: user phải có ít nhất 1 feature enabled trong dept này (hoặc superadmin)
+        if (!$user->isSuperAdmin()) {
+            $ok = UserDepartmentFeature::where('user_id', $user->id)
+                ->where('department_id', $deptId)
+                ->where('is_enabled', true)
                 ->exists();
-            if (!$ok) abort(403, 'Bạn không thuộc Ban Ngành này.');
+            if (!$ok) {
+                abort(403, 'Bạn chưa được cấp quyền trong ban ngành này.');
+            }
         }
 
         session(['active_portal_dept_id' => $deptId]);

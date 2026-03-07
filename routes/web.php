@@ -51,12 +51,12 @@ Route::middleware('auth')->group(function () {
     });
 
     // Department Portal (Ban Sinh Hoạt — Activities)
-    Route::prefix('portal')->middleware(\App\Http\Middleware\EnsurePortalContext::class)->group(function () {
+    Route::prefix('portal')->middleware(\App\Http\Middleware\CheckPortalAccess::class . ':activities')->group(function () {
         Route::get('/', [\App\Http\Controllers\DepartmentPortalController::class, 'index'])->name('portal.index');
         Route::post('/switch-context', [\App\Http\Controllers\DepartmentPortalController::class, 'switchContext'])->name('portal.switch-context');
         
         // Điểm danh
-        Route::middleware('feature.access:attendance,activities')->group(function () {
+        Route::middleware('portal.access:attendance,activities')->group(function () {
             Route::get('/attendance', [\App\Http\Controllers\Portal\AttendanceController::class, 'index'])->name('portal.attendance.index');
             Route::get('/attendance/{meeting}', [\App\Http\Controllers\Portal\AttendanceController::class, 'show'])->name('portal.attendance.show');
             Route::post('/attendance/{meeting}', [\App\Http\Controllers\Portal\AttendanceController::class, 'store'])->name('portal.attendance.store');

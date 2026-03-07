@@ -2,84 +2,70 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Department;
+use App\Models\UserDepartmentFeature;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\Department;
-use App\Models\OrgMembership;
 
 /**
- * CheckPortalAccess — Middleware thống nhất kiểm tra & thiết lập context
- * cho tất cả 3 portal: /portal (activities), /ministry (ministry), /deacon (leadership).
+ * CheckPortalAccess — MAC version.
+ * KHÔNG dùng OrgMembership. Chỉ dùng user_department_features.
+ * User có bất kỳ feature nào is_enabled=true trong block này → được vào.
  */
 class CheckPortalAccess
 {
-    /** Email Super Admin bypass tất cả kiểm tra */
-    const SUPER_ADMIN_EMAIL = 'superadmin@httlthanhmyloi.com';
-
-    /** Mapping portal type → block trong bảng departments */
     const BLOCK_MAP = [
         'activities' => 'activities',
         'ministry'   => 'ministry',
         'deacon'     => 'leadership',
     ];
 
-    /** Session keys per portal */
     const SESSION_DEPT_KEY = [
         'activities' => 'active_portal_dept_id',
         'ministry'   => 'active_ministry_dept_id',
         'deacon'     => 'active_deacon_dept_id',
     ];
 
-    /**
-     * @param  string  $portalType  activities | ministry | deacon
-     */
     public function handle(Request $request, Closure $next, string $portalType = 'activities'): Response
     {
         $user = $request->user();
         if (!$user) return redirect()->route('login');
 
-        // ── Super Admin bypass ────────────────────────────────────────────
-        $isSuperAdmin = ($user->email === self::SUPER_ADMIN_EMAIL)
-            || $user->hasRole('Super_Admin');
-
-        if ($isSuperAdmin) {
-            $this->ensureSessionContext($request, $user, $portalType, true);
+        // ── God Mode bypass ──────────────────────────────────────────────
+        if ($user->isSuperAdmin()) {
+            $this->ensureSessionContext($user, $portalType);
             return $next($request);
         }
 
-        // ── Regular users: Kiểm tra membership ──────────────────────────
-        $member = $user->member;
-        if (!$member) {
-            abort(403, 'Tài khoản chưa được liên kết với Tín hữu. Vui lòng liên hệ Quản trị viên.');
-        }
-
-        $block = self::BLOCK_MAP[$portalType] ?? 'activities';
+        $block      = self::BLOCK_MAP[$portalType] ?? 'activities';
         $sessionKey = self::SESSION_DEPT_KEY[$portalType] ?? 'active_portal_dept_id';
-        $activeDeptId = session($sessionKey);
 
-        // Kiểm tra user có membership ở block này không
-        $memberships = OrgMembership::where('member_id', $member->id)
-            ->where('is_active', true)
-            ->whereHasMorph('model', [Department::class], fn ($q) => $q->where('block', $block))
-            ->get();
+        // Lấy dept IDs mà user có ít nhất 1 feature enabled
+        $allowedDeptIds = UserDepartmentFeature::where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->whereHas('department', fn ($q) => $q->where('block', $block))
+            ->pluck('department_id')
+            ->unique()
+            ->values();
 
-        if ($memberships->isEmpty()) {
-            abort(403, 'Bạn không có quyền truy cập vào cổng này.');
+        if ($allowedDeptIds->isEmpty()) {
+            abort(403, 'Bạn chưa được cấp quyền truy cập cổng này. Liên hệ quản trị viên.');
         }
 
-        // Nếu chưa có active dept, chọn cái đầu tiên
-        if (!$activeDeptId || !$memberships->contains('model_id', $activeDeptId)) {
-            $activeDeptId = $memberships->first()->model_id;
+        // Auto-set session nếu chưa có hoặc session dept không thuộc allowed list
+        $activeDeptId = session($sessionKey);
+        if (!$activeDeptId || !$allowedDeptIds->contains($activeDeptId)) {
+            $activeDeptId = $allowedDeptIds->first();
             session([$sessionKey => $activeDeptId]);
         }
 
         return $next($request);
     }
 
-    private function ensureSessionContext(Request $request, $user, string $portalType, bool $isSuperAdmin): void
+    private function ensureSessionContext($user, string $portalType): void
     {
-        $block = self::BLOCK_MAP[$portalType] ?? 'activities';
+        $block      = self::BLOCK_MAP[$portalType] ?? 'activities';
         $sessionKey = self::SESSION_DEPT_KEY[$portalType] ?? 'active_portal_dept_id';
 
         if (!session()->has($sessionKey)) {
