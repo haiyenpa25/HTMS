@@ -13,8 +13,9 @@ class FeatureDepartment extends Model
 
     protected $fillable = [
         'feature_id',
-        'block_type',   // 'activities', 'ministry', 'leadership'
-        'department_id', // nullable (null = all depts in block)
+        'block_type',    // 'activities', 'ministry', 'leadership', or null (global)
+        'department_id', // null = all depts in block or global
+        'scope',         // 'global', 'block', 'specific'
         'is_active',
     ];
 

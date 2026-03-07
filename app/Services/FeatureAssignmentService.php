@@ -11,13 +11,11 @@ class FeatureAssignmentService
     /**
      * Resolve the final feature access map for a given department.
      *
-     * Rule:
-     * - If a feature has NO Level 1 config at all → default ALLOWED (backward compat).
-     * - If a feature has Level 1 config:
-     *     - Department-specific config wins over Block-level config.
-     *     - If is_active = false, it's restricted.
-     *
-     * Return: [ 'attendance' => true, 'finance' => false, ... ]
+     * Priority (highest → lowest):
+     *  1. Specific department rule (scope = 'specific', dept = ID)
+     *  2. Block-level rule (scope = 'block', block_type = X, dept = null)
+     *  3. Global rule (scope = 'global', block_type = null, dept = null)
+     *  4. Default: ALLOW (backward compat — no config at all)
      *
      * @param Department $department
      * @return array<string, bool>
@@ -26,15 +24,20 @@ class FeatureAssignmentService
     {
         $block = $department->block;
 
-        // 1. Get Category (Block) Assignments (where department_id is null = applies to all in block)
-        $categoryAssignments = FeatureDepartment::where('block_type', $block)
+        // -- Priority 3: Global configs (block_type IS NULL, department_id IS NULL) --
+        $globalAssignments = FeatureDepartment::whereNull('block_type')
             ->whereNull('department_id')
             ->get()
             ->keyBy('feature_id');
 
-        // 2. Get Specific Department Assignments (overrides block-level)
-        $deptAssignments = FeatureDepartment::where('block_type', $block)
-            ->where('department_id', $department->id)
+        // -- Priority 2: Block-level configs (block_type = X, department_id IS NULL) --
+        $blockAssignments = FeatureDepartment::where('block_type', $block)
+            ->whereNull('department_id')
+            ->get()
+            ->keyBy('feature_id');
+
+        // -- Priority 1: Specific department configs (department_id = X) --
+        $deptAssignments = FeatureDepartment::where('department_id', $department->id)
             ->get()
             ->keyBy('feature_id');
 
@@ -42,23 +45,24 @@ class FeatureAssignmentService
         $features = Feature::all();
 
         foreach ($features as $feature) {
-            $hasDeptConfig      = $deptAssignments->has($feature->id);
-            $hasCategoryConfig  = $categoryAssignments->has($feature->id);
-            $hasAnyConfig       = $hasDeptConfig || $hasCategoryConfig;
+            $hasDeptConfig   = $deptAssignments->has($feature->id);
+            $hasBlockConfig  = $blockAssignments->has($feature->id);
+            $hasGlobalConfig = $globalAssignments->has($feature->id);
+            $hasAnyConfig    = $hasDeptConfig || $hasBlockConfig || $hasGlobalConfig;
 
             if (!$hasAnyConfig) {
-                // NO Level 1 config exists → default ALLOW (backward compat, don't break existing permissions)
+                // NO config at all → default ALLOW (backward compat)
                 $finalAccess[$feature->slug] = true;
                 continue;
             }
 
-            // Specific Department Override check first
+            // Apply in priority order
             if ($hasDeptConfig) {
-                $finalAccess[$feature->slug] = $deptAssignments->get($feature->id)->is_active;
-            } 
-            // Fallback to Category (Block) check
-            elseif ($hasCategoryConfig) {
-                $finalAccess[$feature->slug] = $categoryAssignments->get($feature->id)->is_active;
+                $finalAccess[$feature->slug] = (bool) $deptAssignments->get($feature->id)->is_active;
+            } elseif ($hasBlockConfig) {
+                $finalAccess[$feature->slug] = (bool) $blockAssignments->get($feature->id)->is_active;
+            } elseif ($hasGlobalConfig) {
+                $finalAccess[$feature->slug] = (bool) $globalAssignments->get($feature->id)->is_active;
             }
         }
 
@@ -71,6 +75,6 @@ class FeatureAssignmentService
     public function isFeatureEnabledForDepartment(Department $department, string $featureSlug): bool
     {
         $accessMap = $this->getAvailableFeaturesForDepartment($department);
-        return $accessMap[$featureSlug] ?? true; // Default: allow if no config
+        return $accessMap[$featureSlug] ?? true;
     }
 }
