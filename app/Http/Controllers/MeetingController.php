@@ -6,6 +6,7 @@ use App\Models\Meeting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Exports\MeetingsExport;
+use App\Imports\MeetingsImport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MeetingController extends Controller
@@ -149,8 +150,35 @@ class MeetingController extends Controller
      */
     public function export(Request $request)
     {
-        $filters = $request->only(['type', 'date_from', 'date_to']);
+        $filters  = $request->only(['type', 'date_from', 'date_to']);
+        $ids      = $request->has('ids') ? array_filter(array_map('intval', explode(',', $request->ids))) : [];
         $filename = 'danh-sach-buoi-nhom-' . now()->format('Ymd-His') . '.xlsx';
-        return Excel::download(new MeetingsExport($filters), $filename);
+        return Excel::download(new MeetingsExport($filters, $ids), $filename);
+    }
+
+    /**
+     * Import meetings from Excel to bulk-update topic, scripture, etc.
+     */
+    public function import(Request $request)
+    {
+        Gate::authorize('create', Meeting::class);
+
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls|max:10240',
+        ]);
+
+        try {
+            $import = new MeetingsImport();
+            Excel::import($import, $request->file('file'));
+
+            $msg = "Đã cập nhật thành công {$import->updatedCount} buổi nhóm.";
+            if ($import->skippedCount > 0) {
+                $msg .= " Bỏ qua {$import->skippedCount} dòng.";
+            }
+
+            return back()->with('success', $msg)->with('import_errors', $import->errors);
+        } catch (\Exception $e) {
+            return back()->withErrors(['file' => 'Lỗi import: ' . $e->getMessage()]);
+        }
     }
 }

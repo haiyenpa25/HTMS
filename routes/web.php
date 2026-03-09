@@ -30,9 +30,10 @@ Route::middleware('auth')->group(function () {
     
     Route::put('departments/{department}/features', [\App\Http\Controllers\DepartmentController::class, 'updateFeatures'])->name('departments.features.update');
 
-    // Meetings
-    Route::resource('meetings', \App\Http\Controllers\MeetingController::class);
+    // Meetings — export/import MUST be before resource() to avoid {meeting} route conflict
     Route::get('meetings/export', [\App\Http\Controllers\MeetingController::class, 'export'])->name('meetings.export');
+    Route::post('meetings/import', [\App\Http\Controllers\MeetingController::class, 'import'])->name('meetings.import');
+    Route::resource('meetings', \App\Http\Controllers\MeetingController::class);
 
     // Speakers
     Route::get('api/speakers', [\App\Http\Controllers\SpeakerController::class, 'apiIndex'])->name('api.speakers.index');

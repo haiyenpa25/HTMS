@@ -15,18 +15,21 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 class MeetingsExport implements FromCollection, WithHeadings, WithStyles, WithColumnWidths, WithTitle
 {
     protected $filters;
+    protected $ids;
 
-    public function __construct(array $filters = [])
+    public function __construct(array $filters = [], array $ids = [])
     {
         $this->filters = $filters;
+        $this->ids     = $ids;
     }
 
     public function collection()
     {
         $query = Meeting::with('department')
-            ->when(!empty($this->filters['type']), fn($q) => $q->where('type', $this->filters['type']))
-            ->when(!empty($this->filters['date_from']), fn($q) => $q->whereDate('date', '>=', $this->filters['date_from']))
-            ->when(!empty($this->filters['date_to']), fn($q) => $q->whereDate('date', '<=', $this->filters['date_to']))
+            ->when(!empty($this->ids), fn($q) => $q->whereIn('id', $this->ids))
+            ->when(empty($this->ids) && !empty($this->filters['type']), fn($q) => $q->where('type', $this->filters['type']))
+            ->when(empty($this->ids) && !empty($this->filters['date_from']), fn($q) => $q->whereDate('date', '>=', $this->filters['date_from']))
+            ->when(empty($this->ids) && !empty($this->filters['date_to']),   fn($q) => $q->whereDate('date', '<=', $this->filters['date_to']))
             ->orderBy('date')
             ->orderBy('time');
 

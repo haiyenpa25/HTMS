@@ -24,6 +24,10 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             Xuất Excel
           </a>
+          <button @click="showMeetingImportModal = true" class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-sm font-bold hover:bg-amber-100 transition-colors mr-2" title="Import cập nhật buổi nhóm từ Excel">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            Import Excel
+          </button>
           <a :href="route('education.index')" class="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg text-sm font-bold hover:bg-indigo-100 transition-colors mr-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
             Buổi CĐGD
@@ -65,6 +69,26 @@
          </div>
       </div>
 
+      <!-- Selection Action Bar -->
+      <div
+        v-if="selectedIds.length > 0"
+        class="flex items-center justify-between bg-indigo-600 text-white rounded-2xl px-5 py-3 shadow-md"
+      >
+        <div class="flex items-center gap-3">
+          <button @click="selectedIds = []" class="text-indigo-200 hover:text-white transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+          <span class="text-sm font-bold">Đã chọn <span class="font-black bg-white/20 px-2 py-0.5 rounded-full">{{ selectedIds.length }}</span> buổi nhóm</span>
+        </div>
+        <a
+          :href="exportUrl"
+          class="inline-flex items-center gap-2 px-4 py-1.5 bg-white text-indigo-700 text-sm font-bold rounded-lg hover:bg-indigo-50 transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Xuất {{ selectedIds.length }} buổi nhóm
+        </a>
+      </div>
+
       <!-- Data List -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         
@@ -73,6 +97,15 @@
           <table class="min-w-full divide-y divide-gray-200 hidden md:table">
             <thead class="bg-gray-50/50">
               <tr>
+                <th scope="col" class="pl-6 pr-2 py-4 w-10">
+                  <input
+                    type="checkbox"
+                    :checked="isAllSelected"
+                    :indeterminate="isIndeterminate"
+                    @change="toggleSelectAll"
+                    class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  />
+                </th>
                 <th scope="col" class="px-6 py-4 text-left text-[11px] font-black text-gray-500 uppercase tracking-widest">Ngày / Giờ</th>
                 <th scope="col" class="px-6 py-4 text-left text-[11px] font-black text-gray-500 uppercase tracking-widest">Loại / Chủ đề</th>
                 <th scope="col" class="px-6 py-4 text-left text-[11px] font-black text-gray-500 uppercase tracking-widest">Diễn giả</th>
@@ -81,7 +114,19 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-100">
-              <tr v-for="meeting in meetings" :key="meeting.id" class="hover:bg-blue-50/50 transition-colors group cursor-pointer" @click="goToMeeting(meeting.id)">
+              <tr v-for="meeting in meetings" :key="meeting.id"
+                class="hover:bg-blue-50/50 transition-colors group cursor-pointer"
+                :class="{ 'bg-indigo-50/50': selectedIds.includes(meeting.id) }"
+                @click="goToMeeting(meeting.id)"
+              >
+                <td class="pl-6 pr-2 py-5" @click.stop>
+                  <input
+                    type="checkbox"
+                    :value="meeting.id"
+                    v-model="selectedIds"
+                    class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  />
+                </td>
                 <td class="px-6 py-5 whitespace-nowrap">
                   <div class="text-sm font-bold text-gray-900 border border-gray-200 px-3 py-1 rounded w-max bg-gray-50">{{ formatDate(meeting.date) }}</div>
                   <div class="text-xs text-gray-500 font-medium mt-1">{{ meeting.time }}</div>
@@ -113,7 +158,7 @@
                 </td>
               </tr>
               <tr v-if="meetings.length === 0">
-                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                   <div class="flex flex-col items-center justify-center space-y-3">
                      <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                      <p class="text-sm font-medium">Không tìm thấy buổi nhóm nào.</p>
@@ -195,6 +240,65 @@
       </div>
     </div>
 
+    <!-- Import Modal -->
+    <div v-if="showMeetingImportModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 space-y-5">
+        <!-- Header -->
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-black text-gray-900">Import cập nhật Buổi nhóm</h3>
+            <p class="text-xs text-gray-500 mt-0.5">Cập nhật hàng loạt từ file Excel</p>
+          </div>
+          <button @click="showMeetingImportModal = false" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- Info Box -->
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 space-y-1">
+          <p class="font-bold">Hướng dẫn:</p>
+          <ol class="list-decimal ml-4 space-y-1 text-xs">
+            <li>Xuất danh sách buổi nhóm ra Excel (nút <strong>Xuất Excel</strong>)</li>
+            <li>Sửa các cột: <strong>Chủ đề, Câu gốc, Phân đoạn, Diễn giả</strong>...</li>
+            <li>Giữ nguyên cột <strong>ID Buổi Nhóm</strong> (cột A), không xóa</li>
+            <li>Để trống ô = giữ nguyên giá trị cũ | Gõ <code class="bg-amber-100 px-1 rounded">-</code> = xóa nội dung</li>
+            <li>Import lại file ở đây</li>
+          </ol>
+        </div>
+
+        <!-- File Input -->
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1.5">Chọn file Excel (.xlsx)</label>
+          <input
+            type="file"
+            accept=".xlsx,.xls"
+            @change="e => meetingImportFile = e.target.files[0]"
+            class="w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
+          />
+        </div>
+
+        <!-- Import Errors from last import -->
+        <div v-if="$page.props.flash?.import_errors?.length" class="bg-red-50 border border-red-200 rounded-xl p-4">
+          <p class="text-sm font-bold text-red-700 mb-2">Các dòng bỏ qua:</p>
+          <ul class="text-xs text-red-600 space-y-0.5 list-disc ml-4">
+            <li v-for="(e, i) in $page.props.flash.import_errors" :key="i">{{ e }}</li>
+          </ul>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-end gap-3 pt-1">
+          <button type="button" @click="showMeetingImportModal = false" class="px-4 py-2 text-sm font-bold text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition-colors">Hủy</button>
+          <button
+            @click="submitMeetingsImport"
+            :disabled="!meetingImportFile || meetingImportLoading"
+            class="px-5 py-2 bg-amber-600 text-white text-sm font-bold rounded-xl hover:bg-amber-700 transition-colors disabled:opacity-50"
+          >
+            {{ meetingImportLoading ? 'Đang import...' : '🚀 Import và cập nhật' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Khung tạo/sửa trượt từ phải (SlideOver) -->
     <SlideOver 
       v-model="isSlideOverOpen" 
@@ -255,12 +359,38 @@ const activeFilterCount = computed(() => {
   return count;
 });
 
-// Export URL reacts to current filters
+// Checkbox selection
+const selectedIds = ref([]);
+
+const isAllSelected = computed(() =>
+  props.meetings.length > 0 && selectedIds.value.length === props.meetings.length
+);
+const isIndeterminate = computed(() =>
+  selectedIds.value.length > 0 && selectedIds.value.length < props.meetings.length
+);
+const toggleSelectAll = () => {
+  if (isAllSelected.value) {
+    selectedIds.value = [];
+  } else {
+    selectedIds.value = props.meetings.map(m => m.id);
+  }
+};
+
+// Reset selection when meetings list changes
+watch(() => props.meetings, () => { selectedIds.value = []; });
+
+// Export URL reacts to selection + filters
 const exportUrl = computed(() => {
   const params = new URLSearchParams();
-  if (filterForm.value.type) params.set('type', filterForm.value.type);
-  if (filterForm.value.date_from) params.set('date_from', filterForm.value.date_from);
-  if (filterForm.value.date_to) params.set('date_to', filterForm.value.date_to);
+  if (selectedIds.value.length > 0) {
+    // Export only selected
+    params.set('ids', selectedIds.value.join(','));
+  } else {
+    // Export all with current filters
+    if (filterForm.value.type) params.set('type', filterForm.value.type);
+    if (filterForm.value.date_from) params.set('date_from', filterForm.value.date_from);
+    if (filterForm.value.date_to) params.set('date_to', filterForm.value.date_to);
+  }
   const qs = params.toString();
   return route('meetings.export') + (qs ? '?' + qs : '');
 });
@@ -308,5 +438,29 @@ const handleSuccess = () => {
 
 const goToMeeting = (id) => {
   router.get(route('meetings.show', id));
+};
+
+// ─── Meeting Import ───────────────────────────────────────────────────────────
+const showMeetingImportModal = ref(false);
+const meetingImportFile      = ref(null);
+const meetingImportLoading   = ref(false);
+
+const submitMeetingsImport = () => {
+  if (!meetingImportFile.value) return;
+  meetingImportLoading.value = true;
+
+  const data = new FormData();
+  data.append('file', meetingImportFile.value);
+
+  router.post(route('meetings.import'), data, {
+    forceFormData: true,
+    onSuccess: () => {
+      showMeetingImportModal.value = false;
+      meetingImportFile.value = null;
+      router.reload({ only: ['meetings'] });
+    },
+    onError: () => {},
+    onFinish: () => { meetingImportLoading.value = false; },
+  });
 };
 </script>
