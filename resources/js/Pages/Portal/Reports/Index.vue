@@ -5,7 +5,14 @@
         <div class="py-4 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <!-- ══ HEADER ══ -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <!-- Print-only letterhead (hidden on screen) -->
+            <div class="print-only hidden print-letterhead">
+                <h1>HỘI THÁNH TIN LÀNH THANH MỸ LỢI</h1>
+                <p>BÁO CÁO TÌNH HÌNH SINH HOẠT — {{ department?.name }}</p>
+                <p>Tháng {{ localMonth }}/{{ localYear }}</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 no-print">
                 <div>
                     <h2 class="text-xl font-black text-gray-900">📑 BÁO CÁO TÌNH HÌNH SINH HOẠT</h2>
                     <p class="text-xs text-gray-500 mt-0.5">{{ department?.name }} · Tháng {{ localMonth }}/{{ localYear }}</p>
@@ -24,6 +31,11 @@
                     <button v-if="canApprove && report?.status==='submitted'" @click="approveReport" class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-xl">✓ Duyệt</button>
                     <button v-if="canCreate" @click="openReportForm" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-xl shadow-sm">
                         ✏️ {{ report ? 'Cập nhật BC' : 'Lập Báo cáo' }}
+                    </button>
+                    <!-- Print button -->
+                    <button @click="printReport" class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-800 text-white text-sm font-bold rounded-xl hover:bg-gray-900 transition-colors shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        In / PDF
                     </button>
                 </div>
             </div>
@@ -359,7 +371,7 @@
             </div>
 
             <!-- ══ AI + NARRATIVE ══ -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 no-print">
                 <div class="bg-gradient-to-br from-violet-700 to-purple-800 rounded-2xl p-5 shadow-xl text-white text-xs leading-relaxed">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-base">🤖</div>
@@ -423,9 +435,36 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Print-only: Nhận xét section -->
+            <div v-if="report" class="print-only hidden bg-white border border-gray-200 rounded-xl p-5 mt-4">
+                <h3 class="font-black text-gray-900 mb-3 text-sm uppercase border-b pb-2">G. NHẬN XÉT & KẾ HOẠCH</h3>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div v-if="report.evaluation"><p class="font-bold text-gray-500 text-[9pt] uppercase mb-1">Nhận xét chung</p><p class="text-gray-800">{{ report.evaluation }}</p></div>
+                    <div v-if="report.request"><p class="font-bold text-gray-500 text-[9pt] uppercase mb-1">Yêu cầu</p><p class="text-gray-800">{{ report.request }}</p></div>
+                    <div v-if="report.proposals"><p class="font-bold text-gray-500 text-[9pt] uppercase mb-1">Đề nghị / Kế hoạch</p><p class="text-gray-800">{{ report.proposals }}</p></div>
+                    <div v-if="report.activities_notes"><p class="font-bold text-gray-500 text-[9pt] uppercase mb-1">Ghi chú hoạt động</p><p class="text-gray-800">{{ report.activities_notes }}</p></div>
+                </div>
+                <p v-if="report.reporter_name" class="text-xs text-gray-400 mt-3">Người báo cáo: <strong>{{ report.reporter_name }}</strong></p>
+            </div>
+
+            <!-- Print-only footer -->
+            <div class="print-only hidden print-footer">
+                <div class="sign-block">
+                    <p class="sign-label">Người Lập Báo Cáo</p>
+                    <div class="sign-line"></div>
+                    <p class="mt-1 text-xs text-gray-500">{{ report?.reporter_name || '...................' }}</p>
+                </div>
+                <div class="sign-block">
+                    <p class="sign-label">Ban Quản Nhiệm</p>
+                    <div class="sign-line"></div>
+                    <p class="mt-1 text-xs text-gray-500">Ký tên, đóng dấu</p>
+                </div>
+            </div>
         </div>
 
         <!-- ══ SLIDE-OVER: REPORT FORM ══ -->
+
         <SlideOver :show="showReportForm" @close="showReportForm = false" title="Lập / Cập nhật Báo cáo">
             <form class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
@@ -607,4 +646,7 @@ const approveReport = () => {
 const switchDept = (id) => {
     router.post(route('portal.switch-context'), { department_id: id }, { preserveScroll: true, onSuccess: () => { isSwitchOpen.value = false; } });
 };
+
+// ── Print ─────────────────────────────────────────────────────────────────
+const printReport = () => window.print();
 </script>

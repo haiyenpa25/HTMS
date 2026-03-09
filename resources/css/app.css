@@ -5,3 +5,161 @@
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   PRINT STYLES — In báo cáo đẹp (A4, không header nav)
+   ═══════════════════════════════════════════════════════════════════ */
+@media print {
+  /* ── Page setup ── */
+  @page {
+    size: A4 portrait;
+    margin: 1.2cm 1.5cm 1.5cm 1.5cm;
+  }
+
+  /* ── Hide everything by default ── */
+  body { background: white !important; }
+
+  /* Hide nav, sidebar, buttons, charts, AI box, modals */
+  nav,
+  header:not(.print-header),
+  aside,
+  .no-print,
+  button,
+  [role="dialog"],
+  .apexcharts-canvas,
+  canvas,
+  svg.chart-svg,
+  .fixed,
+  .sticky,
+  [class*="slide-over"],
+  [class*="SlideOver"] {
+    display: none !important;
+  }
+
+  /* ── Show the report content ── */
+  #report-content,
+  .print-content {
+    display: block !important;
+  }
+
+  /* ── Letterhead ── */
+  .print-letterhead {
+    text-align: center;
+    border-bottom: 2px solid #1e3a5f;
+    padding-bottom: 10pt;
+    margin-bottom: 14pt;
+  }
+  .print-letterhead h1 {
+    font-size: 14pt;
+    font-weight: 900;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .print-letterhead p {
+    font-size: 9pt;
+    color: #555;
+    margin-top: 2pt;
+  }
+
+  /* ── Remove backgrounds, shadows, rounded corners for print ── */
+  .rounded-2xl, .rounded-xl, .rounded-lg, .rounded-full {
+    border-radius: 4pt !important;
+    border: 1pt solid #e5e7eb !important;
+    box-shadow: none !important;
+  }
+
+  /* ── Section cards ── */
+  .bg-white {
+    background: white !important;
+  }
+  .shadow-sm, .shadow-md, .shadow-xl, .shadow-lg {
+    box-shadow: none !important;
+  }
+
+  /* ── Section header bars (keep colored background) ── */
+  [class*="bg-blue-9"],
+  [class*="bg-indigo-9"],
+  [class*="bg-green-9"],
+  [class*="bg-purple-8"],
+  [class*="bg-amber-7"],
+  [class*="bg-gradient"] {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* ── Tables: always full width, no truncation ── */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 8pt !important;
+    page-break-inside: auto;
+  }
+  th, td {
+    padding: 4pt 6pt !important;
+    border: 0.5pt solid #e5e7eb !important;
+  }
+  thead {
+    display: table-header-group;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  tr { page-break-inside: avoid; }
+
+  /* Show hidden columns on print */
+  .hidden, .md\:table-cell, .lg\:table-cell, .xl\:table-cell,
+  .sm\:table-cell, .hidden.md\:table-cell, .hidden.lg\:table-cell {
+    display: table-cell !important;
+  }
+
+  /* ── KPI cards ── */
+  .grid {
+    display: grid !important;
+  }
+
+  /* ── Page breaks ── */
+  .page-break-before { page-break-before: always; }
+  .page-break-inside-avoid { page-break-inside: avoid; }
+
+  /* Section cards avoid breaks where possible */
+  .bg-white.rounded-2xl,
+  .bg-white.rounded-xl {
+    page-break-inside: avoid;
+  }
+
+  /* ── Typography for print ── */
+  h2, h3 { font-size: 11pt !important; font-weight: 900 !important; color: #111 !important; }
+  p, span, td { color: #222 !important; }
+
+  /* ── Hide chart placeholders ── */
+  [class*="apexchart"],
+  [class*="apexcharts"],
+  canvas { display: none !important; }
+
+  /* ── Show print-only elements ── */
+  .print-only { display: block !important; }
+  .screen-only { display: none !important; }
+
+  /* ── Footer with signature line ── */
+  .print-footer {
+    margin-top: 20pt;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20pt;
+    font-size: 9pt;
+    border-top: 1pt solid #ccc;
+    padding-top: 10pt;
+  }
+  .print-footer .sign-block {
+    text-align: center;
+  }
+  .print-footer .sign-block .sign-label {
+    font-weight: bold;
+    margin-bottom: 30pt;
+  }
+  .print-footer .sign-line {
+    border-top: 1pt solid #666;
+    width: 80%;
+    margin: 0 auto;
+  }
+}

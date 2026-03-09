@@ -8,8 +8,15 @@
   >
     <div class="py-4 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
+      <!-- Print-only letterhead -->
+      <div class="print-only hidden print-letterhead">
+        <h1>HỘI THÁNH TIN LÀNH THANH MỸ LỢI</h1>
+        <p>BÁO CÁO THƯ KÝ HỘI THÁNH</p>
+        <p>Tháng {{ localMonth }}/{{ localYear }}</p>
+      </div>
+
       <!-- ══ HEADER ══ -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 no-print">
         <div>
           <h2 class="text-xl font-black text-gray-900">📑 BÁO CÁO HỘI THÁNH</h2>
           <p class="text-xs text-gray-500 mt-0.5">Thư Ký Hội Thánh · Tháng {{ localMonth }}/{{ localYear }}</p>
@@ -55,11 +62,18 @@
             <button v-if="report && report.unlock_requested && isLeader" @click="updateReportStatus('approve_unlock')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl shadow-sm transition">
               ✅ Duyệt mở khoá
             </button>
+
+            <!-- Print button -->
+            <button @click="printReport" class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-800 text-white text-sm font-bold rounded-xl hover:bg-gray-900 transition-colors shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+              In / PDF
+            </button>
           </div>
         </div>
       </div>
 
       <!-- ══ KPI CARDS ══ -->
+
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div v-for="card in kpiCards" :key="card.label" class="rounded-2xl p-4 shadow-sm" :class="card.bg">
           <p class="text-[10px] font-bold uppercase tracking-wider" :class="card.labelColor">{{ card.label }}</p>
@@ -311,6 +325,46 @@
               <p class="text-sm text-gray-400">Chưa có báo cáo tháng {{ localMonth }}/{{ localYear }}</p>
               <button @click="openReportForm" class="mt-3 px-4 py-2 bg-purple-600 text-white text-xs font-bold rounded-xl">Lập Báo Cáo</button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Print-only AI summary & report notes for print -->
+      <div class="print-only hidden" v-if="report || church_meetings.length > 0">
+        <div class="bg-white border border-gray-200 rounded-xl p-5 mt-4">
+          <h3 class="font-black text-gray-900 text-sm uppercase border-b pb-2 mb-3">TÓM TẮT TÌNH HÌNH</h3>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="font-bold text-gray-500 text-[9pt] uppercase mb-1">Buổi Nhóm Hội Thánh</p>
+              <p class="text-gray-800">{{ church_meetings.length }} buổi · TB {{ summary.avg_church ?? 0 }} người</p>
+            </div>
+            <div>
+              <p class="font-bold text-gray-500 text-[9pt] uppercase mb-1">YouTube</p>
+              <p class="text-gray-800">Đăng ký: {{ ytForm.subscribers_current }} (+{{ ytForm.subscribers_new }}) · Xem: {{ ytForm.views }}’</p>
+            </div>
+            <div v-if="report?.evaluation">
+              <p class="font-bold text-gray-500 text-[9pt] uppercase mb-1">Nhận xét</p>
+              <p class="text-gray-800">{{ report.evaluation }}</p>
+            </div>
+            <div v-if="report?.proposals">
+              <p class="font-bold text-gray-500 text-[9pt] uppercase mb-1">Đề nghị / Kế hoạch</p>
+              <p class="text-gray-800">{{ report.proposals }}</p>
+            </div>
+          </div>
+          <p v-if="report?.reporter_name" class="text-xs text-gray-400 mt-3">Người báo cáo: <strong>{{ report.reporter_name }}</strong></p>
+        </div>
+
+        <!-- Print signature footer -->
+        <div class="print-footer mt-6">
+          <div class="sign-block">
+            <p class="sign-label">Thư Ký Hội Thánh</p>
+            <div class="sign-line"></div>
+            <p class="mt-1 text-xs text-gray-500">{{ report?.reporter_name || '...................' }}</p>
+          </div>
+          <div class="sign-block">
+            <p class="sign-label">Mục Sư / Quản Nhiệm</p>
+            <div class="sign-line"></div>
+            <p class="mt-1 text-xs text-gray-500">Ký tên, đóng dấu</p>
           </div>
         </div>
       </div>
@@ -584,4 +638,7 @@ const switchDept = (roleId) => {
     onSuccess: () => { isSwitchOpen.value = false; }
   });
 };
+
+// ── Print ─────────────────────────────────────────────────────────────────
+const printReport = () => window.print();
 </script>
