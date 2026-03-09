@@ -10,24 +10,53 @@
             </div>
 
             <!-- Filters -->
-            <div class="bg-white rounded-2xl shadow-sm p-4 border border-gray-100 flex items-center space-x-4 overflow-x-auto">
-                <div class="flex items-center space-x-2 shrink-0">
-                    <span class="text-sm font-bold text-gray-700">Tháng:</span>
-                    <select 
-                        v-model="filters.month" 
-                        class="border-gray-200 rounded-xl text-sm font-medium focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50 py-2 pl-3 pr-8"
-                    >
-                        <option v-for="m in 12" :key="m" :value="m">Tháng {{ m }}</option>
-                    </select>
-                </div>
-                <div class="flex items-center space-x-2 shrink-0">
-                    <span class="text-sm font-bold text-gray-700">Năm:</span>
-                    <select 
-                        v-model="filters.year" 
-                        class="border-gray-200 rounded-xl text-sm font-medium focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50 py-2 pl-3 pr-8"
-                    >
-                        <option v-for="y in availableYears" :key="y" :value="y">{{ y }}</option>
-                    </select>
+            <div class="bg-white rounded-2xl shadow-sm p-4 border border-gray-100">
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Tháng -->
+                    <div class="flex items-center space-x-2 shrink-0">
+                        <span class="text-sm font-bold text-gray-700">Tháng:</span>
+                        <select 
+                            v-model="filters.month" 
+                            class="border-gray-200 rounded-xl text-sm font-medium focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50 py-2 pl-3 pr-8"
+                        >
+                            <option v-for="m in 12" :key="m" :value="m">Tháng {{ m }}</option>
+                        </select>
+                    </div>
+                    <!-- Năm -->
+                    <div class="flex items-center space-x-2 shrink-0">
+                        <span class="text-sm font-bold text-gray-700">Năm:</span>
+                        <select 
+                            v-model="filters.year" 
+                            class="border-gray-200 rounded-xl text-sm font-medium focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50 py-2 pl-3 pr-8"
+                        >
+                            <option v-for="y in availableYears" :key="y" :value="y">{{ y }}</option>
+                        </select>
+                    </div>
+                    <!-- Loại buổi nhóm -->
+                    <div class="flex items-center space-x-2 shrink-0">
+                        <span class="text-sm font-bold text-gray-700">Loại:</span>
+                        <select 
+                            v-model="filters.type"
+                            class="border-gray-200 rounded-xl text-sm font-medium focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50 py-2 pl-3 pr-8"
+                        >
+                            <option value="">Tất cả</option>
+                            <option value="church">Hội Thánh chung</option>
+                            <option value="department">Ban Ngành</option>
+                            <option value="holiday">Sự kiện / Lễ</option>
+                        </select>
+                    </div>
+                    <!-- Tìm kiếm nâng cao -->
+                    <div class="flex-1 min-w-[180px] relative">
+                        <input
+                            v-model="filters.search"
+                            type="text"
+                            placeholder="Chủ đề, câu gốc..."
+                            class="w-full pl-9 border-gray-200 rounded-xl text-sm font-medium focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50 py-2 pr-3"
+                        >
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -56,20 +85,17 @@
                                 <span class="text-lg font-black leading-none">{{ new Date(meeting.date).getDate() }}</span>
                             </div>
                             
-                            <!-- Info -->
                             <div>
                                 <h3 class="font-bold text-gray-900 text-base sm:text-lg group-hover:text-emerald-700 transition-colors">{{ meeting.topic || 'Buổi nhóm định kỳ' }}</h3>
-                                <div class="flex items-center text-xs text-gray-500 font-medium mt-1 space-x-3">
+                                <div class="flex items-center text-xs text-gray-500 font-medium mt-1 space-x-2 flex-wrap gap-y-1">
                                     <span class="flex items-center">
-                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                         {{ meeting.time ? meeting.time.substring(0,5) : '--:--' }}
                                     </span>
-                                    <span v-if="meeting.department_id === null" class="flex items-center text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
-                                        Chung Hội Thánh
-                                    </span>
-                                    <span v-else class="flex items-center text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
-                                        Ban ngành
-                                    </span>
+                                    <span v-if="meeting.type === 'church'" class="flex items-center text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">Hội Thánh chung</span>
+                                    <span v-else-if="meeting.type === 'department'" class="flex items-center text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Ban Ngành</span>
+                                    <span v-else-if="meeting.type === 'holiday'" class="flex items-center text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Sự kiện / Lễ</span>
+                                    <span v-if="meeting.memory_verse" class="flex items-center text-gray-500 italic truncate max-w-[160px]">📖 {{ meeting.memory_verse }}</span>
                                 </div>
                             </div>
                         </div>
@@ -184,8 +210,10 @@ const handleMeetingSuccess = () => {
 
 // Filter Logic
 const filters = reactive({
-    month: props.filters?.month || new Date().getMonth() + 1,
-    year: props.filters?.year || new Date().getFullYear(),
+    month:  props.filters?.month  || new Date().getMonth() + 1,
+    year:   props.filters?.year   || new Date().getFullYear(),
+    type:   props.filters?.type   || '',
+    search: props.filters?.search || '',
 });
 
 const currentYear = new Date().getFullYear();
@@ -193,8 +221,10 @@ const availableYears = [currentYear - 2, currentYear - 1, currentYear, currentYe
 
 watch(filters, debounce(() => {
     router.get(route('portal.attendance.index'), {
-        month: filters.month,
-        year: filters.year,
+        month:  filters.month,
+        year:   filters.year,
+        type:   filters.type,
+        search: filters.search,
     }, {
         preserveState: true,
         replace: true,

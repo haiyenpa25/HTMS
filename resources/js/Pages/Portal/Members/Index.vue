@@ -67,16 +67,39 @@
 
             <!-- All Members Tab -->
             <div v-if="activeTab === 'all'" class="animate-fade-in space-y-4">
-                 <div class="bg-white rounded-2xl shadow-sm p-4 border border-gray-100 flex items-center justify-between">
-                    <div class="relative w-full max-w-sm">
-                        <input 
-                            type="text" 
-                            v-model="searchQuery" 
-                            placeholder="Tìm tín hữu..." 
-                            class="pl-10 block w-full border-gray-200 rounded-xl text-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-50 py-2.5 transition-colors"
-                        >
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                 <!-- Filter + Search bar -->
+                 <div class="bg-white rounded-2xl shadow-sm p-4 border border-gray-100">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <!-- Search -->
+                        <div class="relative flex-1 min-w-[160px]">
+                            <input 
+                                type="text" 
+                                v-model="searchQuery" 
+                                placeholder="Tìm tín hữu..." 
+                                class="pl-10 block w-full border-gray-200 rounded-xl text-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-50 py-2.5 transition-colors"
+                            >
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </div>
+                        </div>
+                        <!-- Lọc Tổ -->
+                        <div v-if="teams && teams.length > 0" class="min-w-[130px]">
+                            <select v-model="teamFilter" class="w-full border-gray-200 rounded-xl text-sm font-medium focus:ring-blue-500 focus:border-blue-500 bg-gray-50 py-2.5 pl-3 pr-8">
+                                <option value="">Tất cả Tổ</option>
+                                <option v-for="t in teams" :key="t.id" :value="t.id">{{ t.name }}</option>
+                            </select>
+                        </div>
+                        <!-- Lọc Chức danh -->
+                        <div class="min-w-[150px]">
+                            <select v-model="roleFilter" class="w-full border-gray-200 rounded-xl text-sm font-medium focus:ring-blue-500 focus:border-blue-500 bg-gray-50 py-2.5 pl-3 pr-8">
+                                <option value="">Tất cả chức danh</option>
+                                <option value="TruongBan">Trưởng Ban</option>
+                                <option value="PhoBan">Phó Ban</option>
+                                <option value="ThuKy">Thư Ký</option>
+                                <option value="ThuQuy">Thủ Quỹ</option>
+                                <option value="UyVien">Ụy Viên</option>
+                                <option value="Member">Ban Viên</option>
+                            </select>
                         </div>
                     </div>
                  </div>
@@ -336,6 +359,8 @@ const props = defineProps({
 const isSwitchOpen = ref(false);
 const activeTab = ref('board');
 const searchQuery = ref(props.filters?.search || '');
+const teamFilter  = ref(props.filters?.team_id  || '');
+const roleFilter  = ref(props.filters?.org_role || '');
 const isMemberSlideOpen = ref(false);
 const selectedMember = ref(null);
 
@@ -383,15 +408,19 @@ const switchDept = (deptId) => {
     router.post(route(contextRoute), { department_id: deptId }, { preserveScroll: true, onSuccess: () => isSwitchOpen.value = false });
 };
 
-watch(searchQuery, debounce((value) => {
+
+
+watch([searchQuery, teamFilter, roleFilter], debounce(([search, teamId, orgRole]) => {
     router.get(route(`${props.routePrefix}.index`), {
-        search: value
+        search:   search  || undefined,
+        team_id:  teamId  || undefined,
+        org_role: orgRole || undefined,
     }, {
         preserveState: true,
         replace: true,
     });
-    if (value && activeTab.value !== 'all') {
-         activeTab.value = 'all';
+    if ((search || teamId || orgRole) && activeTab.value !== 'all') {
+        activeTab.value = 'all';
     }
 }, 300));
 

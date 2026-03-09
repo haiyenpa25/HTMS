@@ -93,12 +93,38 @@
                         </div>
                     </div>
 
-                    <!-- Tab 2: Named Check-in (Department Only) -->
                     <div v-if="(meeting.type === 'department' || meeting.type === 'holiday')" v-show="activeTab === 'named'" class="space-y-4 animate-fade-in">
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 px-1 gap-2">
                             <p class="text-xs text-gray-500 font-medium">Đánh dấu thành viên có mặt. Các thành viên không được chọn sẽ tự động tính là Vắng mặt.</p>
-                            <!-- Team Filter -->
-                            <div v-if="teams && teams.length > 0" class="w-full sm:w-64">
+                        </div>
+                        <!-- Advanced Filter Row -->
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <!-- Tìm tên -->
+                            <div class="relative flex-1 min-w-[140px]">
+                                <input
+                                    v-model="nameSearch"
+                                    type="text"
+                                    placeholder="Tìm tên..."
+                                    class="w-full pl-8 border-gray-200 rounded-xl text-sm focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50 py-2 pr-3"
+                                >
+                                <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                                    <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                </div>
+                            </div>
+                            <!-- Tìm SĐT -->
+                            <div class="relative min-w-[120px]">
+                                <input
+                                    v-model="phoneSearch"
+                                    type="text"
+                                    placeholder="SĐT..."
+                                    class="w-full pl-8 border-gray-200 rounded-xl text-sm focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50 py-2 pr-3"
+                                >
+                                <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                                    <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                </div>
+                            </div>
+                            <!-- Lọc Tổ -->
+                            <div v-if="teams && teams.length > 0" class="min-w-[140px]">
                                 <select 
                                     v-model="selectedTeamId"
                                     class="w-full border-gray-200 rounded-xl text-sm font-medium focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50 py-2 pl-3 pr-8"
@@ -241,7 +267,7 @@ const activeTab = ref('manual');
 
 // Initialize form
 const form = useForm({
-    manual_count: props.summary.manual_count || '',
+    manual_count: props.summary.manual_count ?? '',
     notes: props.summary.notes || '',
     attendances: JSON.parse(JSON.stringify(props.members)) // deep copy
 });
@@ -251,11 +277,34 @@ watch(() => props.members, (newMembers) => {
     form.attendances = JSON.parse(JSON.stringify(newMembers));
 }, { deep: true });
 
+// Watch for summary updates (e.g. after successful save)
+watch(() => props.summary, (newSummary) => {
+    form.manual_count = newSummary.manual_count ?? '';
+    form.notes = newSummary.notes || '';
+}, { deep: true });
+
 const selectedTeamId = ref(null);
+const nameSearch = ref('');
+const phoneSearch = ref('');
 
 const filteredMembers = computed(() => {
-    if (!selectedTeamId.value) return form.attendances;
-    return form.attendances.filter(m => m.team_id === selectedTeamId.value);
+    let list = [...form.attendances];
+    // Sort ABC
+    list.sort((a, b) => a.full_name.localeCompare(b.full_name, 'vi'));
+    // Filter by team
+    if (selectedTeamId.value) {
+        list = list.filter(m => m.team_id === selectedTeamId.value);
+    }
+    // Filter by name
+    if (nameSearch.value.trim()) {
+        const q = nameSearch.value.toLowerCase();
+        list = list.filter(m => m.full_name.toLowerCase().includes(q));
+    }
+    // Filter by phone
+    if (phoneSearch.value.trim()) {
+        list = list.filter(m => m.phone && m.phone.includes(phoneSearch.value.trim()));
+    }
+    return list;
 });
 
 // Computed Check-in count
@@ -284,20 +333,14 @@ const formattedDate = computed(() => {
 });
 
 const submit = () => {
-    // Basic validation / Auto-fill manual count if empty and there are check-ins
-    let finalManualCount = parseInt(form.manual_count);
-    if (isNaN(finalManualCount) || finalManualCount < checkedInCount.value) {
-        if (isNaN(finalManualCount)) finalManualCount = checkedInCount.value;
+    const finalManualCount = parseInt(form.manual_count);
+    // Chỉ tự fill nếu không nhập gì (trống hoàn toàn)
+    if (form.manual_count === '' || form.manual_count === null) {
+        form.manual_count = checkedInCount.value;
     }
-    
-    form.manual_count = finalManualCount;
     form.post(route('portal.attendance.store', props.meeting.id), {
         preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            // Inertia will automatically update props.members on success,
-            // and our watch() will sync them back into the form.
-        }
+        preserveState: false, // reload để lấy summary mới từ server
     });
 };
 </script>

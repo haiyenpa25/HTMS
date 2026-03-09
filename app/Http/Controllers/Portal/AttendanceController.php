@@ -27,35 +27,41 @@ class AttendanceController extends Controller
         $availableDepartments = $this->getAvailableDepartments();
 
         // Filters
-        $month = $request->input('month', now()->month);
-        $year = $request->input('year', now()->year);
+        $month  = $request->input('month', now()->month);
+        $year   = $request->input('year', now()->year);
+        $type   = $request->input('type', '');   // '' = all, or 'church'/'department'/'holiday'
+        $search = $request->input('search', '');
 
-        // Get Meetings relevant to this department (either Church wide or specific to this department)
+        // Get Meetings relevant to this department
         $meetings = Meeting::where(function($query) use ($departmentId) {
                 $query->where('department_id', $departmentId)
                       ->orWhereNull('department_id');
             })
-            ->when($month, function($query, $month) {
-                $query->whereMonth('date', $month);
-            })
-            ->when($year, function($query, $year) {
-                $query->whereYear('date', $year);
-            })
+            ->when($month, fn($q) => $q->whereMonth('date', $month))
+            ->when($year,  fn($q) => $q->whereYear('date', $year))
+            ->when($type,  fn($q) => $q->where('type', $type))
+            ->when($search, fn($q) => $q->where(function($sq) use ($search) {
+                $sq->where('topic', 'like', "%{$search}%")
+                   ->orWhere('memory_verse', 'like', "%{$search}%")
+                   ->orWhere('scripture', 'like', "%{$search}%");
+            }))
             ->orderBy('date', 'desc')
             ->orderBy('time', 'desc')
-            ->paginate(10)
+            ->paginate(15)
             ->withQueryString();
 
         return Inertia::render('Portal/Attendance/Index', [
-            'department' => $department,
-            'departments' => Department::select('id', 'name')->get(),
+            'department'           => $department,
+            'departments'          => Department::select('id', 'name')->get(),
             'availableDepartments' => $availableDepartments,
-            'isGlobalAdmin' => auth()->user()->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin']),
-            'meetings' => $meetings,
-            'filters' => [
-                'month' => $month,
-                'year' => $year
-            ]
+            'isGlobalAdmin'        => auth()->user()->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin']),
+            'meetings'             => $meetings,
+            'filters'              => [
+                'month'  => $month,
+                'year'   => $year,
+                'type'   => $type,
+                'search' => $search,
+            ],
         ]);
     }
 

@@ -165,6 +165,18 @@
             <div v-if="form.errors.memory_verse" class="text-xs text-red-500 font-medium mt-1">{{ form.errors.memory_verse }}</div>
           </div>
 
+          <!-- Phân đoạn Đố Kinh Thánh -->
+          <div class="space-y-2">
+            <label class="text-sm font-black text-gray-900">Phân đoạn Đố Kinh Thánh</label>
+            <textarea 
+              v-model="form.quiz_passage"
+              rows="3"
+              class="w-full text-sm border-gray-300 rounded-xl shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3 placeholder:text-gray-400 bg-gray-50 resize-none"
+              placeholder="VD: Ma-thi-ơ 5:1-12 — Bài giảng trên núi..."
+            ></textarea>
+            <div v-if="form.errors.quiz_passage" class="text-xs text-red-500 font-medium mt-1">{{ form.errors.quiz_passage }}</div>
+          </div>
+
           <!-- Speaker (Diễn giả) -->
           <div class="space-y-2 relative">
             <label class="text-sm font-black text-gray-900">Diễn giả / Người hướng dẫn</label>
@@ -302,6 +314,7 @@ const form = useForm({
   time: '08:30',
   topic: '',
   memory_verse: '',
+  quiz_passage: '',
   scripture: '',
   speaker_id: null,
   bulk_weeks: 4,
@@ -363,6 +376,7 @@ watch(() => props.meeting, (newVal) => {
     form.time = newVal.time ? newVal.time.substring(0,5) : '08:30';
     form.topic = newVal.topic || '';
     form.memory_verse = newVal.memory_verse || '';
+    form.quiz_passage = newVal.quiz_passage || '';
     form.scripture = newVal.scripture || '';
     form.speaker_id = newVal.speaker_id || null;
     if (newVal.speaker) {

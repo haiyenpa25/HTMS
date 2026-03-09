@@ -8,7 +8,7 @@ class Meeting extends Model
 {
     protected $fillable = [
         'type', 'department_id', 'date', 'time',
-        'topic', 'memory_verse', 'scripture', 'preacher', 'speaker_id',
+        'topic', 'memory_verse', 'quiz_passage', 'scripture', 'preacher', 'speaker_id',
         'attendance_marked',
     ];
 

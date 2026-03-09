@@ -62,6 +62,7 @@ class MeetingController extends Controller
             'time' => 'required',
             'topic' => 'nullable|string|max:255',
             'memory_verse' => 'nullable|string|max:255',
+            'quiz_passage' => 'nullable|string',
             'scripture' => 'nullable|string|max:255',
             'preacher' => 'nullable|string|max:255',
             'bulk_weeks' => 'nullable|integer|min:1|max:52'
@@ -107,6 +108,7 @@ class MeetingController extends Controller
             'time' => 'required',
             'topic' => 'nullable|string|max:255',
             'memory_verse' => 'nullable|string|max:255',
+            'quiz_passage' => 'nullable|string',
             'scripture' => 'nullable|string|max:255',
             'preacher' => 'nullable|string|max:255',
         ]);

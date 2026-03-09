@@ -141,10 +141,24 @@ class PortalMemberController extends Controller
         });
 
         // 2. All Members of this department (Paginated, Filterable)
-        $search = $request->input('search');
-        $allMembersQuery = Member::whereHas('memberships', function($q) use ($departmentId) {
+        $search  = $request->input('search');
+        $teamId  = $request->input('team_id');
+        $orgRole = $request->input('org_role'); // frontend key (TruongBan, PhoBan, ...)
+
+        // Map frontend role key → backend org_role code
+        $roleCodeMap = [
+            'TruongBan' => 'tb', 'PhoBan' => 'pb', 'ThuKy' => 'tk',
+            'ThuQuy' => 'tq', 'UyVien' => 'uv', 'Member' => 'bv',
+        ];
+        $roleCode = $orgRole ? ($roleCodeMap[$orgRole] ?? null) : null;
+
+        $allMembersQuery = Member::whereHas('memberships', function($q) use ($departmentId, $teamId, $roleCode) {
             $q->where('model_type', Department::class)
               ->where('model_id', $departmentId);
+            // Filter by org_role code
+            if ($roleCode) {
+                $q->whereHas('role', fn($r) => $r->where('code', $roleCode));
+            }
         })->with(['memberships' => function($q) use ($departmentId) {
              $q->where('model_type', Department::class)
                ->where('model_id', $departmentId)
@@ -158,6 +172,14 @@ class PortalMemberController extends Controller
                 $q->where('full_name', 'like', "%{$search}%")
                   ->orWhere('phone', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by team
+        if ($teamId) {
+            $allMembersQuery->whereHas('teams', function($q) use ($teamId, $departmentId) {
+                $q->where('teams.id', $teamId)
+                  ->where('department_id', $departmentId);
             });
         }
 
@@ -187,7 +209,9 @@ class PortalMemberController extends Controller
             'boardMembers' => $boardMembers,
             'members' => $allMembers,
             'filters' => [
-                'search' => $search
+                'search'   => $search,
+                'team_id'  => $teamId ?? null,
+                'org_role' => $orgRole ?? null,
             ],
             'routePrefix' => $context['route_prefix'],
             'portalType' => $context['type'],
