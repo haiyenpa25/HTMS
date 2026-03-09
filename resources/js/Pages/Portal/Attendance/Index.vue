@@ -7,7 +7,62 @@
                     <h2 class="text-xl font-black text-gray-900 tracking-tight">Điểm danh Buổi nhóm</h2>
                     <p class="text-sm text-gray-500 font-medium mt-1">Chọn buổi nhóm để ghi nhận chuyên cần.</p>
                 </div>
+                <!-- Import Excel Button -->
+                <button
+                    @click="showImportModal = true"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    Import Excel
+                </button>
             </div>
+
+            <!-- Import Modal -->
+            <div v-if="showImportModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-black text-gray-900">Import Điểm Danh từ Excel</h3>
+                        <button @click="showImportModal = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    <form @submit.prevent="submitImport" enctype="multipart/form-data" class="space-y-4">
+                        <!-- Meeting ID -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Buổi nhóm *</label>
+                            <select v-model="importForm.meeting_id" class="w-full border-gray-200 rounded-xl text-sm focus:ring-emerald-500 focus:border-emerald-500" required>
+                                <option value="">-- Chọn buổi nhóm --</option>
+                                <option v-for="m in meetings.data" :key="m.id" :value="m.id">
+                                    [#{{ m.id }}] {{ m.date }} – {{ m.topic || 'Buổi nhóm' }}
+                                </option>
+                            </select>
+                            <p class="text-xs text-gray-400 mt-1">💡 Lọc tháng/năm bên trên để tìm buổi nhóm nhanh hơn</p>
+                        </div>
+                        <!-- File -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">File Excel (.xlsx) *</label>
+                            <input
+                                type="file"
+                                accept=".xlsx,.xls"
+                                @change="e => importForm.file = e.target.files[0]"
+                                class="w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                                required
+                            />
+                            <p class="text-xs text-gray-400 mt-1">Dùng file template xuất từ nút 📥 trong từng buổi nhóm</p>
+                        </div>
+                        <!-- Error -->
+                        <div v-if="importError" class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">{{ importError }}</div>
+                        <!-- Buttons -->
+                        <div class="flex items-center justify-end gap-3 pt-2">
+                            <button type="button" @click="showImportModal = false" class="px-4 py-2 text-sm font-bold text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition-colors">Hủy</button>
+                            <button type="submit" :disabled="importLoading" class="px-5 py-2 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 transition-colors disabled:opacity-60">
+                                {{ importLoading ? 'Đang import...' : 'Import' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
 
             <!-- Filters -->
             <div class="bg-white rounded-2xl shadow-sm p-4 border border-gray-100">
@@ -100,9 +155,18 @@
                             </div>
                         </div>
                         
-                        <!-- Actions Container: Edit Button + Arrow -->
+                        <!-- Actions Container: Edit Button + Export + Arrow -->
                         <div class="shrink-0 flex items-center space-x-2 relative z-10">
-                            <!-- Edit Meeting Button (Click event must stop propagation so it doesn't trigger the Router link) -->
+                            <!-- Export Template Button -->
+                            <a
+                                :href="route('portal.attendance.export', meeting.id)"
+                                @click.stop
+                                class="w-8 h-8 rounded-full bg-white text-gray-400 hover:bg-emerald-50 hover:text-emerald-600 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 shadow-sm border border-gray-100"
+                                title="Xuất template điểm danh Excel"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            </a>
+                            <!-- Edit Meeting Button -->
                             <button 
                                 @click.stop="openEditMeeting(meeting)" 
                                 class="w-8 h-8 rounded-full bg-white text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 shadow-sm border border-gray-100"
@@ -230,5 +294,37 @@ watch(filters, debounce(() => {
         replace: true,
     });
 }, 300));
+
+// Import Modal Logic
+const showImportModal = ref(false);
+const importLoading = ref(false);
+const importError = ref('');
+const importForm = ref({ meeting_id: '', file: null });
+
+const submitImport = () => {
+    if (!importForm.value.meeting_id || !importForm.value.file) {
+        importError.value = 'Vui lòng chọn buổi nhóm và file Excel.';
+        return;
+    }
+    importError.value = '';
+    importLoading.value = true;
+
+    const data = new FormData();
+    data.append('meeting_id', importForm.value.meeting_id);
+    data.append('file', importForm.value.file);
+
+    router.post(route('portal.attendance.import'), data, {
+        forceFormData: true,
+        onSuccess: () => {
+            showImportModal.value = false;
+            importForm.value = { meeting_id: '', file: null };
+            router.reload({ only: ['meetings'] });
+        },
+        onError: (errors) => {
+            importError.value = errors.file || 'Có lỗi xảy ra khi import.';
+        },
+        onFinish: () => { importLoading.value = false; },
+    });
+};
 
 </script>

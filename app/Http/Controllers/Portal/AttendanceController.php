@@ -10,6 +10,9 @@ use App\Models\Meeting;
 use App\Models\MeetingAttendance;
 use App\Models\MeetingAttendanceSummary;
 use Illuminate\Support\Facades\Gate;
+use App\Exports\AttendanceTemplateExport;
+use App\Imports\AttendanceImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AttendanceController extends Controller
 {
@@ -171,6 +174,61 @@ class AttendanceController extends Controller
     private function getAvailableDepartments()
     {
         return app(\App\Services\PortalService::class)->getAvailableDepartments(auth()->user(), 'activities');
+    }
+
+    /**
+     * Export attendance template for a specific meeting to Excel.
+     */
+    public function exportTemplate(Meeting $meeting)
+    {
+        $departmentId = session('active_portal_dept_id');
+        if (!$departmentId) {
+            return redirect()->route('portal.index');
+        }
+
+        Gate::authorize('view_attendance', [Meeting::class, $meeting]);
+
+        $deptName = Department::find($departmentId)?->name ?? 'ban-nganh';
+        $dateStr  = is_string($meeting->date) ? $meeting->date : $meeting->date->format('Y-m-d');
+        $filename = "diem-danh_{$meeting->id}_{$dateStr}.xlsx";
+
+        return Excel::download(
+            new AttendanceTemplateExport($meeting, $departmentId),
+            $filename
+        );
+    }
+
+    /**
+     * Import attendance from Excel file.
+     */
+    public function import(Request $request)
+    {
+        $departmentId = session('active_portal_dept_id');
+        if (!$departmentId) {
+            return redirect()->route('portal.index');
+        }
+
+        $request->validate([
+            'file'       => 'required|file|mimes:xlsx,xls|max:5120',
+            'meeting_id' => 'required|exists:meetings,id',
+        ]);
+
+        $meeting = Meeting::findOrFail($request->meeting_id);
+        Gate::authorize('mark_attendance', [Meeting::class, $meeting]);
+
+        try {
+            $import = new AttendanceImport($meeting->id, $departmentId);
+            Excel::import($import, $request->file('file'));
+
+            $msg = "Import thành công {$import->importedCount} thành viên.";
+            if (!empty($import->errors)) {
+                $msg .= ' Bỏ qua ' . $import->skippedCount . ' dòng lỗi.';
+            }
+
+            return back()->with('success', $msg)->with('import_errors', $import->errors);
+        } catch (\Exception $e) {
+            return back()->withErrors(['file' => 'Lỗi import: ' . $e->getMessage()]);
+        }
     }
 }
 

@@ -9,7 +9,9 @@
 
 - **Framework:** Laravel 11 + Inertia.js + Vue 3
 - **CSS:** TailwindCSS
-- **Database:** MySQL (production), SQLite (local dev)
+- **Database:** MySQL (cả local lẫn production)
+  - Local: `cms_db` | phpMyAdmin: http://localhost/phpmyadmin
+  - Server: cấu hình qua `.env` SSH
 - **Build tool:** Vite
 - **Server:** `~/public_html` | SSH user: `quanl3363@conasihosting...`
 - **URL Production:** https://quanly.httlthanhmyloi.com
@@ -20,40 +22,45 @@
 ## 2. QUY TẮC DEPLOY
 
 ### 🪟 Windows (Local → GitHub)
-> ❌ Không dùng `&&` để ghép lệnh trên PowerShell. Chạy từng lệnh riêng lẻ.
+> ❌ PowerShell **không** dùng `&&` để ghép lệnh. Chạy từng lệnh riêng lẻ.
 
 ```powershell
-# Bước 1: Stage thay đổi
+# 1. Stage thay đổi
 git add -A
 
-# Bước 2: Commit
+# 2. Commit
 git commit -m "feat: mô tả tính năng"
 
-# Bước 3: Build Vite (bắt buộc khi có thay đổi Vue/JS/CSS)
+# 3. Build Vite (khi có thay đổi Vue/JS/CSS)
 npm run build
 
-# Bước 4: Stage và commit bản build
+# 4. Stage và commit bản build
 git add public/build
 git commit -m "deploy: update vite assets"
 
-# Bước 5: Push
+# 5. Push
 git push origin main
 ```
 
-### 🐧 Linux (Server — Sau khi push)
+### 🐧 Linux Server (sau khi push từ local)
+> ✅ Linux dùng `&&` để ghép lệnh cho tiện.
+
 ```bash
-cd ~/public_html
+# Pull + migrate + clear cache (1 lệnh)
+cd ~/public_html && git pull origin main && php artisan migrate --force && php artisan optimize:clear && php artisan optimize
+```
 
-# Pull code mới
-git pull origin main
+> 💡 **Lưu ý `--force`:** Luôn dùng `php artisan migrate --force` trên server (production mode sẽ hỏi xác nhận nếu không có `--force`).
+> Trên local XAMPP cũng nên dùng `--force` vì đôi khi bảng đã tồn tại một phần.
 
-# Nếu có migration mới
-php artisan migrate --force
+### 🗄️ Seed lại dữ liệu sau khi migrate sạch
+```bash
+# Trên server Linux
+php artisan db:seed --class=DatabaseSeeder --force && php artisan db:seed --class=BanThanhTrangSeeder --force
 
-# Clear tất cả cache
-php artisan optimize
-
-# Nếu font/giao diện vẫn sai: Xóa cache trình duyệt hoặc mở Incognito
+# Trên Windows (chạy từng lệnh)
+php artisan db:seed --class=DatabaseSeeder --force
+php artisan db:seed --class=BanThanhTrangSeeder --force
 ```
 
 ---

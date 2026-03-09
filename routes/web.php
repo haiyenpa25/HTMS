@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
 
     // Meetings
     Route::resource('meetings', \App\Http\Controllers\MeetingController::class);
+    Route::get('meetings/export', [\App\Http\Controllers\MeetingController::class, 'export'])->name('meetings.export');
 
     // Speakers
     Route::get('api/speakers', [\App\Http\Controllers\SpeakerController::class, 'apiIndex'])->name('api.speakers.index');
@@ -63,6 +64,8 @@ Route::middleware('auth')->group(function () {
         // Điểm danh
         Route::middleware('portal.access:attendance,activities')->group(function () {
             Route::get('/attendance', [\App\Http\Controllers\Portal\AttendanceController::class, 'index'])->name('portal.attendance.index');
+            Route::get('/attendance/{meeting}/export', [\App\Http\Controllers\Portal\AttendanceController::class, 'exportTemplate'])->name('portal.attendance.export');
+            Route::post('/attendance/import', [\App\Http\Controllers\Portal\AttendanceController::class, 'import'])->name('portal.attendance.import');
             Route::get('/attendance/{meeting}', [\App\Http\Controllers\Portal\AttendanceController::class, 'show'])->name('portal.attendance.show');
             Route::post('/attendance/{meeting}', [\App\Http\Controllers\Portal\AttendanceController::class, 'store'])->name('portal.attendance.store');
         });

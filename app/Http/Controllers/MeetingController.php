@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Meeting;
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Gate;
+use App\Exports\MeetingsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MeetingController extends Controller
 {
@@ -141,5 +142,15 @@ class MeetingController extends Controller
 
         $meeting->delete();
         return redirect()->route('meetings.index')->with('success', 'Đã xóa buổi nhóm.');
+    }
+
+    /**
+     * Export meeting list to Excel.
+     */
+    public function export(Request $request)
+    {
+        $filters = $request->only(['type', 'date_from', 'date_to']);
+        $filename = 'danh-sach-buoi-nhom-' . now()->format('Ymd-His') . '.xlsx';
+        return Excel::download(new MeetingsExport($filters), $filename);
     }
 }
