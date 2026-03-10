@@ -34,14 +34,18 @@ const sectionIRoles = computed(() => {
   return roles.sort((a, b) => a.sort_order - b.sort_order);
 });
 
-// ── Section II: depts with roles NOT in 'Chương Trình Lễ' ─
+// ── Section II: ALL depts except those that are 100% Section I ──
+// This allows adding any dept (even with no roles) to the template
 const supportDepts = computed(() =>
-  props.departments.filter(d =>
-    (d.duty_roles || []).some(r => r.section !== 'Chương Trình Lễ')
-  )
+  props.departments.filter(d => {
+    const roles = d.duty_roles || [];
+    // Exclude depts where every role is 'Chương Trình Lễ'
+    if (roles.length > 0 && roles.every(r => r.section === 'Ch\u01b0\u01a1ng Tr\u00ecnh L\u1ec5')) return false;
+    return true;
+  })
 );
 const supportRoles = (dept) =>
-  (dept.duty_roles || []).filter(r => r.section !== 'Chương Trình Lễ');
+  (dept.duty_roles || []).filter(r => r.section !== 'Ch\u01b0\u01a1ng Tr\u00ecnh L\u1ec5');
 
 // ── Selected support depts (initially from participatingDeptIds) ────
 const selectedSupportDeptIds = ref([...props.participatingDeptIds]);
@@ -339,7 +343,22 @@ const saveName = async () => {
 
             <!-- Dept roles (when expanded) -->
             <div v-if="!collapsed[dept.id]" class="border-t border-gray-100 px-5 pb-5 pt-4 bg-gray-50/30 rounded-b-2xl">
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 mb-3">
+
+              <!-- Empty state for dept with no roles -->
+              <div v-if="supportRoles(dept).length === 0 && !newDeptRole[dept.id]?.show"
+                class="text-center py-6 border-2 border-dashed border-gray-200 rounded-xl mb-3">
+                <div class="w-10 h-10 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-2">
+                  <svg class="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                </div>
+                <p class="text-xs text-gray-400 mb-2">Ban này chưa có vai trò nào</p>
+                <button @click="initDeptRole(dept.id); newDeptRole[dept.id].show = true"
+                  class="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline">
+                  + Thêm vai trò đầu tiên
+                </button>
+              </div>
+
+              <!-- Roles grid -->
+              <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 mb-3">
                 <div v-for="role in supportRoles(dept)" :key="role.id"
                   @click="toggleRole(role.id)"
                   class="flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-all select-none"
@@ -363,7 +382,7 @@ const saveName = async () => {
               </div>
 
               <!-- Add new role to this dept -->
-              <div class="mt-3" @click.stop>
+              <div class="mt-2" @click.stop>
                 <div v-if="!newDeptRole[dept.id]?.show">
                   <button @click="initDeptRole(dept.id); newDeptRole[dept.id].show = true"
                     class="flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-indigo-500 transition-colors">
