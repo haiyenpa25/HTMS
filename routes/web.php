@@ -5,10 +5,18 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\NewPasswordController;
 
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthController::class, 'login'])->name('login');
     Route::post('login', [AuthController::class, 'authenticate'])->name('login.authenticate');
+
+    // Mật khẩu (Password Reset)
+    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
+    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 });
 
 Route::middleware('auth')->group(function () {
@@ -16,6 +24,34 @@ Route::middleware('auth')->group(function () {
 
     Route::get('api/members', [\App\Http\Controllers\MemberController::class, 'apiIndex'])->name('api.members.index');
     Route::resource('members', \App\Http\Controllers\MemberController::class)->except(['create', 'edit']);
+    
+    // Search
+    Route::get('api/search', [\App\Http\Controllers\SearchController::class, 'search'])->name('search.global');
+
+    // Notifications
+    Route::post('notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    
+    // Documents / Knowledge Base
+    Route::get('documents', [\App\Http\Controllers\DocumentController::class, 'index'])->name('documents.index');
+    Route::post('documents', [\App\Http\Controllers\DocumentController::class, 'store'])->name('documents.store');
+    Route::delete('documents/{document}', [\App\Http\Controllers\DocumentController::class, 'destroy'])->name('documents.destroy');
+    Route::get('documents/{document}/download', [\App\Http\Controllers\DocumentController::class, 'download'])->name('documents.download');
+
+    // Calendar
+    Route::get('calendar', [\App\Http\Controllers\CalendarController::class, 'index'])->name('calendar.index');
+    Route::get('api/calendar/events', [\App\Http\Controllers\CalendarController::class, 'fetchEvents'])->name('calendar.api.events');
+    Route::post('calendar/events', [\App\Http\Controllers\CalendarController::class, 'store'])->name('calendar.events.store');
+    Route::put('calendar/events/{event}', [\App\Http\Controllers\CalendarController::class, 'update'])->name('calendar.events.update');
+    Route::delete('calendar/events/{event}', [\App\Http\Controllers\CalendarController::class, 'destroy'])->name('calendar.events.destroy');
+
+    // Pastoral Care & Ticketing
+    Route::get('care', [\App\Http\Controllers\CareController::class, 'index'])->name('care.index');
+    Route::post('care', [\App\Http\Controllers\CareController::class, 'store'])->name('care.store');
+    Route::patch('care/{careRequest}/status', [\App\Http\Controllers\CareController::class, 'updateStatus'])->name('care.status.update');
+    Route::patch('care/{careRequest}/assign', [\App\Http\Controllers\CareController::class, 'assign'])->name('care.assign.update');
+    Route::delete('care/{careRequest}', [\App\Http\Controllers\CareController::class, 'destroy'])->name('care.destroy');
+
     Route::patch('members/update-status', [\App\Http\Controllers\MemberController::class, 'updateStatus'])->name('members.update-status');
     Route::resource('departments', \App\Http\Controllers\DepartmentController::class)->except(['create', 'edit', 'destroy']);
     Route::delete('departments/{department}', [\App\Http\Controllers\DepartmentController::class, 'destroy'])->name('departments.destroy');
@@ -39,6 +75,9 @@ Route::middleware('auth')->group(function () {
     Route::get('api/speakers', [\App\Http\Controllers\SpeakerController::class, 'apiIndex'])->name('api.speakers.index');
     Route::resource('speakers', \App\Http\Controllers\SpeakerController::class)->except(['create', 'edit']);
 
+    // Lịch sử Dâng Hiến Cá Nhân (Tithe & Offering)
+    Route::get('my-giving', [\App\Http\Controllers\User\DonationController::class, 'myGiving'])->name('user.donations.index');
+
     // System Settings (Users & Roles)
     Route::resource('users', \App\Http\Controllers\UserController::class);
     Route::resource('roles', \App\Http\Controllers\RoleController::class);
@@ -55,6 +94,48 @@ Route::middleware('auth')->group(function () {
         Route::get('/features', [\App\Http\Controllers\Admin\SystemFeatureController::class, 'index'])->name('admin.features.index');
         Route::post('/features/assign', [\App\Http\Controllers\Admin\SystemFeatureController::class, 'assign'])->name('admin.features.assign');
         Route::post('/features/store', [\App\Http\Controllers\Admin\SystemFeatureController::class, 'storeFeature'])->name('admin.features.store');
+
+        // Quản lý Tài Sản (Asset & Inventory)
+        Route::resource('assets', \App\Http\Controllers\Admin\AssetController::class)->except(['create', 'edit', 'show'])->names([
+            'index' => 'admin.assets.index',
+            'store' => 'admin.assets.store',
+            'update' => 'admin.assets.update',
+            'destroy' => 'admin.assets.destroy',
+        ]);
+        Route::prefix('assets/{asset}')->name('admin.assets.')->group(function () {
+            Route::get('loans', [\App\Http\Controllers\Admin\AssetController::class, 'fetchLoans'])->name('loans');
+            Route::post('loan', [\App\Http\Controllers\Admin\AssetController::class, 'loanAsset'])->name('loan.store');
+        });
+        Route::patch('asset-loans/{loan}/return', [\App\Http\Controllers\Admin\AssetController::class, 'returnAsset'])->name('admin.assets.loan.return');
+        Route::get('api/search-users', [\App\Http\Controllers\Admin\AssetController::class, 'searchBorrowers'])->name('admin.assets.api.search-users'); // API query borrowers
+        
+        // Quản lý Thân Hữu (Visitor CRM)
+        Route::resource('visitors', \App\Http\Controllers\Admin\VisitorController::class)->except(['create', 'edit', 'show'])->names([
+            'index' => 'admin.visitors.index',
+            'store' => 'admin.visitors.store',
+            'update' => 'admin.visitors.update',
+            'destroy' => 'admin.visitors.destroy',
+        ]);
+        Route::get('visitors/{visitor}/followups', [\App\Http\Controllers\Admin\VisitorController::class, 'getFollowups'])->name('admin.visitors.followups.index');
+        Route::post('visitors/{visitor}/followups', [\App\Http\Controllers\Admin\VisitorController::class, 'storeFollowup'])->name('admin.visitors.followups.store');
+
+        // Quản lý Dâng Hiến (Tithe & Offering)
+        Route::get('donations', [\App\Http\Controllers\Admin\DonationController::class, 'index'])->name('admin.donations.index');
+        Route::get('donations/batch', [\App\Http\Controllers\Admin\DonationController::class, 'createBatch'])->name('admin.donations.batch');
+        Route::post('donations/batch', [\App\Http\Controllers\Admin\DonationController::class, 'storeBatch'])->name('admin.donations.store-batch');
+        Route::get('donations/api/search-users', [\App\Http\Controllers\Admin\DonationController::class, 'searchUsers'])->name('admin.donations.api.search-users');
+        Route::post('funds', [\App\Http\Controllers\Admin\DonationController::class, 'storeFund'])->name('admin.funds.store');
+        Route::put('funds/{fund}', [\App\Http\Controllers\Admin\DonationController::class, 'updateFund'])->name('admin.funds.update');
+
+        // Gửi thông báo / Email Hàng Loạt (Broadcasting)
+        Route::get('broadcasts', [\App\Http\Controllers\Admin\BroadcastController::class, 'index'])->name('admin.broadcasts.index');
+        Route::get('broadcasts/create', [\App\Http\Controllers\Admin\BroadcastController::class, 'create'])->name('admin.broadcasts.create');
+        Route::post('broadcasts', [\App\Http\Controllers\Admin\BroadcastController::class, 'store'])->name('admin.broadcasts.store');
+        Route::post('broadcasts/{broadcast}/send', [\App\Http\Controllers\Admin\BroadcastController::class, 'send'])->name('admin.broadcasts.send');
+        Route::delete('broadcasts/{broadcast}', [\App\Http\Controllers\Admin\BroadcastController::class, 'destroy'])->name('admin.broadcasts.destroy');
+
+        // Activity Logs
+        Route::get('/activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity.logs');
     });
 
     // Department Portal (Ban Sinh Hoạt — Activities)
@@ -74,6 +155,8 @@ Route::middleware('auth')->group(function () {
         // Thành viên
         Route::middleware('portal.access:members,activities')->group(function () {
             Route::get('/members', [\App\Http\Controllers\Portal\PortalMemberController::class, 'index'])->name('portal.members.index');
+            Route::get('/members/export', [\App\Http\Controllers\Portal\PortalMemberController::class, 'exportTemplate'])->name('portal.members.export');
+            Route::post('/members/import', [\App\Http\Controllers\Portal\PortalMemberController::class, 'import'])->name('portal.members.import');
             Route::post('/members/{member}/role', [\App\Http\Controllers\Portal\PortalMemberController::class, 'updateRole'])->name('portal.members.update');
             Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('portal.members.bulk-assign');
             Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('portal.members.remove');
@@ -124,6 +207,8 @@ Route::middleware('auth')->group(function () {
 
         // Member Management Module
         Route::get('/members', [\App\Http\Controllers\Portal\PortalMemberController::class, 'index'])->name('ministry.members.index');
+        Route::get('/members/export', [\App\Http\Controllers\Portal\PortalMemberController::class, 'exportTemplate'])->name('ministry.members.export');
+        Route::post('/members/import', [\App\Http\Controllers\Portal\PortalMemberController::class, 'import'])->name('ministry.members.import');
         Route::post('/members/{member}/role', [\App\Http\Controllers\Portal\PortalMemberController::class, 'updateRole'])->name('ministry.members.update');
         Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('ministry.members.bulk-assign');
         Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('ministry.members.remove');
@@ -227,6 +312,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/report/incidents/{incident}', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportIncidentDestroy'])->name('deacon.incident.destroy');
         // Members (tái sử dụng PortalMemberController với context 'deacon')
         Route::get('/members', [\App\Http\Controllers\Portal\PortalMemberController::class, 'index'])->name('deacon.members.index');
+        Route::get('/members/export', [\App\Http\Controllers\Portal\PortalMemberController::class, 'exportTemplate'])->name('deacon.members.export');
+        Route::post('/members/import', [\App\Http\Controllers\Portal\PortalMemberController::class, 'import'])->name('deacon.members.import');
         Route::put('/members/{member}/role', [\App\Http\Controllers\Portal\PortalMemberController::class, 'updateRole'])->name('deacon.members.update-role');
         Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('deacon.members.remove');
         Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('deacon.members.bulk-assign-team');

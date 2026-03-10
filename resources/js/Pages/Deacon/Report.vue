@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PortalLayout
       :department="department"
       :available-departments="availableDepartments"
@@ -6,7 +6,7 @@
       portal-type="deacon"
       @open-switcher="isSwitchOpen = true"
   >
-    <div class="py-4 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="py-4 space-y-6 w-full">
 
       <!-- Print-only letterhead -->
       <div class="print-only hidden print-letterhead">

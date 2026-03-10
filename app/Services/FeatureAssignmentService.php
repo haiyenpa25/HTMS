@@ -23,30 +23,28 @@ class FeatureAssignmentService
     public function getAvailableFeaturesForDepartment(Department $department): array
     {
         $block = $department->block;
+        $allConfigs = FeatureDepartment::cachedAll();
 
         // -- Priority 3: Global configs (block_type IS NULL, department_id IS NULL) --
-        $globalAssignments = FeatureDepartment::whereNull('block_type')
+        $globalAssignments = $allConfigs->whereNull('block_type')
             ->whereNull('department_id')
-            ->get()
             ->keyBy('feature_id');
 
         // -- Priority 2: Block-level configs (block_type = X, department_id IS NULL) --
-        $blockAssignments = FeatureDepartment::where('block_type', $block)
+        $blockAssignments = $allConfigs->where('block_type', $block)
             ->whereNull('department_id')
-            ->get()
             ->keyBy('feature_id');
 
         // -- Priority 1: Specific department configs (department_id = X) --
-        $deptAssignments = FeatureDepartment::where('department_id', $department->id)
-            ->get()
+        $deptAssignments = $allConfigs->where('department_id', $department->id)
             ->keyBy('feature_id');
 
         $finalAccess = [];
-        $features = Feature::all();
+        $features = Feature::cachedAll();
 
         // Lấy tất cả feature_id đã có config trong hệ thống (bất kỳ block/dept nào)
         // Dùng để phân biệt "chưa cấu hình bao giờ" vs "cấu hình cho block khác"
-        $configuredFeatureIds = FeatureDepartment::pluck('feature_id')->unique()->flip();
+        $configuredFeatureIds = $allConfigs->pluck('feature_id')->unique()->flip();
 
         foreach ($features as $feature) {
             $hasDeptConfig   = $deptAssignments->has($feature->id);

@@ -1,10 +1,10 @@
-<template>
+﻿<template>
     <PortalLayout :department="department" :available-departments="[department]" :is-global-admin="isGlobalAdmin" :portalType="portalType || 'activities'">
         <template #header>
             <h2 class="font-bold text-xl text-gray-800 leading-tight">Thăm Viếng Nội Bộ Ban: {{ department?.name }}</h2>
         </template>
 
-        <div class="py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-6 w-full">
             <!-- Data Toolbar -->
             <DataToolbar
                 v-model:search="search"

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Head title="Hướng Dẫn Cài Đặt" />
   
   <div class="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">

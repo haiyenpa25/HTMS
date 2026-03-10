@@ -44,7 +44,7 @@ class PortalService
     public function getDeptFeatures(User $user, int $deptId): Collection
     {
         if ($user->isSuperAdmin()) {
-            return Feature::all();
+            return Feature::cachedAll();
         }
 
         return UserDepartmentFeature::with('feature')

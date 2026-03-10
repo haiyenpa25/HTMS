@@ -45,6 +45,11 @@ class FinanceFundTransferController extends Controller
         // If user can approve, auto-approve
         if ($request->user()->hasPermissionTo('approve_finance')) {
             $transfer->update(['status' => 'approved']);
+        } else {
+            $notifiers = \App\Models\User::permission('approve_finance')->get();
+            if ($notifiers->isNotEmpty()) {
+                \Illuminate\Support\Facades\Notification::send($notifiers, new \App\Notifications\FinanceTransferNotification($transfer, $fromFund->name));
+            }
         }
 
         return back()->with('message', 'Lệnh chuyển quỹ đã được tạo.');

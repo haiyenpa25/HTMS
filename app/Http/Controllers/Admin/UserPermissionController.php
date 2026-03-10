@@ -39,7 +39,10 @@ class UserPermissionController extends Controller
         ]);
 
         // Danh sách tất cả departments với features của họ
-        $departments = Department::orderBy('name')->get()->map(fn ($d) => [
+        $departments = Department::cachedAll()
+            ->sortBy('name')
+            ->values()
+            ->map(fn ($d) => [
             'id'    => $d->id,
             'name'  => $d->name,
             'code'  => $d->code,
@@ -47,7 +50,11 @@ class UserPermissionController extends Controller
         ]);
 
         // Tất cả features (10 features chuẩn MAC)
-        $features = Feature::orderBy('portal_type')->orderBy('name')->get()->map(fn ($f) => [
+        $features = Feature::cachedAll()
+            ->sortBy('portal_type')
+            ->sortBy('name')
+            ->values()
+            ->map(fn ($f) => [
             'id'          => $f->id,
             'name'        => $f->name,
             'slug'        => $f->slug,
@@ -71,7 +78,7 @@ class UserPermissionController extends Controller
             'features'      => $features,
             'filters'       => ['search' => $request->input('search')],
             'preselectUser' => $preselectUser,
-            'systemConfig'  => \App\Models\FeatureDepartment::all(),
+            'systemConfig'  => \App\Models\FeatureDepartment::cachedAll(),
         ]);
     }
 

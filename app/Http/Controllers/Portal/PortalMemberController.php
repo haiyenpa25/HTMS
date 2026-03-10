@@ -7,6 +7,9 @@ use App\Models\Department;
 use App\Models\Member;
 use App\Models\OrgMembership;
 use App\Models\OrgRole;
+use App\Exports\PortalMemberExport;
+use App\Imports\PortalMemberImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -417,6 +420,56 @@ class PortalMemberController extends Controller
         });
 
         return back()->with('success', 'Đã xóa hàng loạt tín hữu khỏi ban ngành.');
+    }
+
+    /**
+     * Export member list template for the active department.
+     */
+    public function exportTemplate()
+    {
+        $context = $this->getContext();
+        $departmentId = $this->getDeptId($context);
+
+        Gate::authorize('portal_view_all_members', Member::class);
+
+        $department = Department::findOrFail($departmentId);
+        $dateStr = now()->format('Y-m-d');
+        $deptSlug = \Illuminate\Support\Str::slug($department->name);
+        $filename = "danh-sach-thanh-vien-{$deptSlug}-{$dateStr}.xlsx";
+
+        return Excel::download(
+            new PortalMemberExport($departmentId),
+            $filename
+        );
+    }
+
+    /**
+     * Import members from Excel file for the active department.
+     */
+    public function import(Request $request)
+    {
+        $context = $this->getContext();
+        $departmentId = $this->getDeptId($context);
+
+        Gate::authorize('portal_manage_board', Member::class);
+
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls|max:5120',
+        ]);
+
+        try {
+            $import = new PortalMemberImport($departmentId);
+            Excel::import($import, $request->file('file'));
+
+            $msg = "Import thành công {$import->importedCount} thành viên cập nhật vào CSDL.";
+            if (!empty($import->errors)) {
+                $msg .= ' Bỏ qua ' . $import->skippedCount . ' dòng lỗi.';
+            }
+
+            return back()->with('success', $msg)->with('import_errors', $import->errors);
+        } catch (\Exception $e) {
+            return back()->withErrors(['file' => 'Lỗi import: ' . $e->getMessage()]);
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { ref, computed, reactive } from 'vue';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import DutyRosterLayout from '@/Layouts/DutyRosterLayout.vue';

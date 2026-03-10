@@ -278,10 +278,15 @@ class DeptReportController extends Controller
             'proposals'        => 'nullable|string',
             'activities_notes' => 'nullable|string',
         ]);
-        DepartmentReport::updateOrCreate(
+        $report = DepartmentReport::updateOrCreate(
             ['department_id' => $deptId, 'report_month' => $v['report_month'], 'report_year' => $v['report_year']],
             array_merge($v, ['status' => 'submitted'])
         );
+        
+        $department = Department::find($deptId);
+        $notifiers = \App\Models\User::role(['Super_Admin', 'Pastor'])->get();
+        \Illuminate\Support\Facades\Notification::send($notifiers, new \App\Notifications\ReportSubmittedNotification($report, $department->name ?? ''));
+
         return back()->with('message', 'Báo cáo đã được lưu.');
     }
 

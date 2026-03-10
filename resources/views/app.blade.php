@@ -3,8 +3,11 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#1e40af">
         <title inertia>CMS (Church Manage System)</title>
         <link rel="icon" type="image/png" href="/LOGO.png">
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+        <link rel="manifest" href="/build/manifest.webmanifest">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

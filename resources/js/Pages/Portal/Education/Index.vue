@@ -9,13 +9,13 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </Link>
                     <div>
-                        <h1 class="text-xl font-black text-gray-900">Quản Lý Lớp Học</h1>
-                        <p class="text-sm text-gray-500">{{ classes.length }} lớp đang hoạt động</p>
+                        <h1 class="text-xl font-black text-gray-900">Qu?n L� L?p H?c</h1>
+                        <p class="text-sm text-gray-500">{{ classes.length }} l?p dang ho?t d?ng</p>
                     </div>
                     </div>
                 <button v-if="isAdmin" @click="openCreateForm" class="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl shadow-sm hover:from-indigo-700 hover:to-indigo-600 transition-all font-bold text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Tạo Lớp Mới
+                    T?o L?p M?i
                 </button>
             </div>
 
@@ -24,9 +24,9 @@
                 <div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mb-4">
                     <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                 </div>
-                <h3 class="text-base font-bold text-gray-700 mb-1">Chưa có lớp học nào</h3>
-                <p class="text-sm text-gray-400 mb-4">Nhờ quản trị viên tạo lớp học để bắt đầu.</p>
-                <button v-if="isAdmin" @click="openCreateForm" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors">Tạo Lớp Đầu Tiên</button>
+                <h3 class="text-base font-bold text-gray-700 mb-1">Chua c� l?p h?c n�o</h3>
+                <p class="text-sm text-gray-400 mb-4">Nh? qu?n tr? vi�n t?o l?p h?c d? b?t d?u.</p>
+                <button v-if="isAdmin" @click="openCreateForm" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors">T?o L?p �?u Ti�n</button>
             </div>
 
             <!-- Class Cards Grid -->
@@ -52,15 +52,15 @@
                         <div class="grid grid-cols-3 gap-2 mt-3">
                             <div class="text-center bg-blue-50 rounded-xl py-2">
                                 <div class="text-base font-black text-blue-700">{{ cls.students_count }}</div>
-                                <div class="text-[10px] text-blue-500 font-medium">Học viên</div>
+                                <div class="text-[10px] text-blue-500 font-medium">H?c vi�n</div>
                             </div>
                             <div class="text-center bg-purple-50 rounded-xl py-2">
                                 <div class="text-base font-black text-purple-700">{{ cls.teachers.length }}</div>
-                                <div class="text-[10px] text-purple-500 font-medium">Giáo viên</div>
+                                <div class="text-[10px] text-purple-500 font-medium">Gi�o vi�n</div>
                             </div>
                             <div class="text-center bg-indigo-50 rounded-xl py-2">
                                 <div class="text-base font-black text-indigo-700">{{ cls.session_count }}</div>
-                                <div class="text-[10px] text-indigo-500 font-medium">Buổi học</div>
+                                <div class="text-[10px] text-indigo-500 font-medium">Bu?i h?c</div>
                             </div>
                         </div>
                         <!-- Teachers -->
@@ -75,15 +75,15 @@
                         <Link :href="route(routePrefix + '.sessions', cls.id)"
                             class="flex-1 text-center text-sm font-black py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-sm flex items-center justify-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                            Quản lý buổi học
+                            Qu?n l� bu?i h?c
                         </Link>
-                        <button v-if="isAdmin" @click="openMembersPanel(cls)" class="px-3 py-2 border border-indigo-200 text-indigo-600 rounded-xl hover:bg-indigo-50 text-sm font-bold transition-colors" title="Quản lý thành viên">
+                        <button v-if="isAdmin" @click="openMembersPanel(cls)" class="px-3 py-2 border border-indigo-200 text-indigo-600 rounded-xl hover:bg-indigo-50 text-sm font-bold transition-colors" title="Qu?n l� th�nh vi�n">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </button>
-                        <button v-if="isAdmin" @click="openEditForm(cls)" class="px-3 py-2 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 text-sm font-bold transition-colors" title="Sửa lớp">
+                        <button v-if="isAdmin" @click="openEditForm(cls)" class="px-3 py-2 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 text-sm font-bold transition-colors" title="S?a l?p">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                         </button>
-                        <button v-if="isAdmin" @click="deleteClass(cls)" class="px-3 py-2 border border-red-200 text-red-500 rounded-xl hover:bg-red-50 text-sm font-bold transition-colors" title="Xóa lớp">
+                        <button v-if="isAdmin" @click="deleteClass(cls)" class="px-3 py-2 border border-red-200 text-red-500 rounded-xl hover:bg-red-50 text-sm font-bold transition-colors" title="X�a l?p">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         </button>
                     </div>
@@ -92,56 +92,56 @@
         </div>
 
         <!-- Create/Edit Class SlideOver -->
-        <SlideOver v-model="isFormOpen" :title="editingClass ? 'Sửa Lớp Học' : 'Tạo Lớp Học Mới'">
+        <SlideOver v-model="isFormOpen" :title="editingClass ? 'S?a L?p H?c' : 'T?o L?p H?c M?i'">
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Tên lớp <span class="text-red-500">*</span></label>
-                    <input v-model="form.name" type="text" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="VD: Lớp Trung Lão 2025">
+                    <label class="block text-sm font-bold text-gray-700 mb-1">T�n l?p <span class="text-red-500">*</span></label>
+                    <input v-model="form.name" type="text" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="VD: L?p Trung L�o 2025">
                     <p v-if="form.errors.name" class="mt-1 text-xs text-red-500">{{ form.errors.name }}</p>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Loại lớp <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Lo?i l?p <span class="text-red-500">*</span></label>
                     <select v-model="form.class_type" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        <option value="sunday_school">📖 Lớp Trường Chúa Nhật (điểm danh + tiền dâng)</option>
-                        <option value="gospel">✝️ Lớp Giáo Lý / Phước Âm (chỉ điểm danh)</option>
-                        <option value="bible_quiz">📝 Trắc Nghiệm Kinh Thánh (điểm danh + chấm điểm)</option>
+                        <option value="sunday_school">?? L?p Tru?ng Ch�a Nh?t (di?m danh + ti?n d�ng)</option>
+                        <option value="gospel">?? L?p Gi�o L� / Phu?c �m (ch? di?m danh)</option>
+                        <option value="bible_quiz">?? Tr?c Nghi?m Kinh Th�nh (di?m danh + ch?m di?m)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Mô tả</label>
-                    <textarea v-model="form.description" rows="3" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Mô tả lớp học..."></textarea>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">M� t?</label>
+                    <textarea v-model="form.description" rows="3" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="M� t? l?p h?c..."></textarea>
                 </div>
             </div>
             <template #footer>
                 <div class="flex justify-end gap-3 w-full">
-                    <button @click="isFormOpen = false" class="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50">Hủy</button>
+                    <button @click="isFormOpen = false" class="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50">H?y</button>
                     <button @click="submitForm" :disabled="form.processing" class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl text-sm font-bold hover:from-indigo-700 hover:to-indigo-600 disabled:opacity-50">
-                        {{ form.processing ? 'Đang lưu...' : (editingClass ? 'Cập nhật' : 'Tạo lớp') }}
+                        {{ form.processing ? '�ang luu...' : (editingClass ? 'C?p nh?t' : 'T?o l?p') }}
                     </button>
                 </div>
             </template>
         </SlideOver>
 
         <!-- Members Management SlideOver -->
-        <SlideOver v-model="isMembersOpen" :title="'Thành viên: ' + (managingClass?.name ?? '')">
+        <SlideOver v-model="isMembersOpen" :title="'Th�nh vi�n: ' + (managingClass?.name ?? '')">
             <div class="space-y-4">
 
-                <!-- Tab switcher: Tìm kiếm / Thêm hàng loạt -->
+                <!-- Tab switcher: T�m ki?m / Th�m h�ng lo?t -->
                 <div class="flex bg-gray-100 rounded-xl p-1">
                     <button @click="memberTab = 'search'"
                         :class="memberTab === 'search' ? 'bg-white shadow text-indigo-700 font-black' : 'text-gray-500 hover:text-gray-700'"
-                        class="flex-1 text-sm py-1.5 rounded-lg transition-all font-bold">🔍 Tìm kiếm</button>
+                        class="flex-1 text-sm py-1.5 rounded-lg transition-all font-bold">?? T�m ki?m</button>
                     <button @click="memberTab = 'bulk'"
                         :class="memberTab === 'bulk' ? 'bg-white shadow text-indigo-700 font-black' : 'text-gray-500 hover:text-gray-700'"
-                        class="flex-1 text-sm py-1.5 rounded-lg transition-all font-bold">👥 Thêm hàng loạt</button>
+                        class="flex-1 text-sm py-1.5 rounded-lg transition-all font-bold">?? Th�m h�ng lo?t</button>
                 </div>
 
-                <!-- TAB: TÌM KIẾM 1 NGƯỜI -->
+                <!-- TAB: T�M KI?M 1 NGU?I -->
                 <div v-if="memberTab === 'search'">
-                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Thêm thành viên</label>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Th�m th�nh vi�n</label>
                     <div class="relative">
                         <input v-model="memberSearch" @input="searchMembers" type="text"
-                            class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Tìm tên tín hữu...">
+                            class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="T�m t�n t�n h?u...">
                         <div v-if="memberSearchResults.length > 0" class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
                             <div v-for="m in memberSearchResults" :key="m.id" @click="selectMember(m)" class="px-3 py-2.5 hover:bg-indigo-50 cursor-pointer text-sm font-medium border-b border-gray-100 last:border-0 flex items-center gap-2">
                                 <span class="flex-1">{{ m.full_name }}</span>
@@ -152,61 +152,61 @@
                     <div v-if="selectedMember" class="mt-2 flex items-center gap-2 p-2.5 bg-indigo-50 rounded-xl">
                         <span class="flex-1 text-sm font-bold text-indigo-800">{{ selectedMember.full_name }}</span>
                         <select v-model="newMemberRole" class="text-xs border-indigo-200 rounded-lg font-bold">
-                            <option value="student">Học viên</option>
-                            <option value="teacher">Giáo viên</option>
+                            <option value="student">H?c vi�n</option>
+                            <option value="teacher">Gi�o vi�n</option>
                         </select>
-                        <button @click="addMember" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-black rounded-lg hover:bg-indigo-700 transition-colors">Thêm</button>
+                        <button @click="addMember" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-black rounded-lg hover:bg-indigo-700 transition-colors">Th�m</button>
                     </div>
                 </div>
 
-                <!-- TAB: THÊM HÀNG LOẠT -->
+                <!-- TAB: TH�M H�NG LO?T -->
                 <div v-if="memberTab === 'bulk'" class="space-y-3">
-                    <!-- Bộ lọc -->
+                    <!-- B? l?c -->
                     <div class="space-y-2">
-                        <input v-model="bulkSearch" type="text" placeholder="🔍 Lọc theo tên..."
+                        <input v-model="bulkSearch" type="text" placeholder="?? L?c theo t�n..."
                             class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
                         <div class="grid grid-cols-2 gap-2">
                             <select v-model="bulkFilterDept"
                                 class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                                <option value="">Tất cả ban ngành</option>
+                                <option value="">T?t c? ban ng�nh</option>
                                 <option v-for="d in departments" :key="d.id" :value="d.id">{{ d.name }}</option>
                             </select>
                             <select v-model="bulkFilterType"
                                 class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                                <option value="">Tất cả loại tín hữu</option>
-                                <option value="chinh_thuc">Chính thức</option>
-                                <option value="chua_chinh_thuc">Chưa chính thức</option>
-                                <option value="than_huu">Thân hữu</option>
-                                <option value="tin_huu_ht_khac">Tín hữu HT khác</option>
+                                <option value="">T?t c? lo?i t�n h?u</option>
+                                <option value="chinh_thuc">Ch�nh th?c</option>
+                                <option value="chua_chinh_thuc">Chua ch�nh th?c</option>
+                                <option value="than_huu">Th�n h?u</option>
+                                <option value="tin_huu_ht_khac">T�n h?u HT kh�c</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Chọn role -->
+                    <!-- Ch?n role -->
                     <div class="flex items-center gap-2">
-                        <label class="text-xs font-bold text-gray-500 shrink-0">Vai trò:</label>
+                        <label class="text-xs font-bold text-gray-500 shrink-0">Vai tr�:</label>
                         <div class="flex bg-gray-100 rounded-lg p-0.5 flex-1">
                             <button @click="bulkRole = 'student'"
                                 :class="bulkRole === 'student' ? 'bg-white shadow text-indigo-700' : 'text-gray-500'"
-                                class="flex-1 text-xs py-1 rounded-md font-bold transition-all">Học viên</button>
+                                class="flex-1 text-xs py-1 rounded-md font-bold transition-all">H?c vi�n</button>
                             <button @click="bulkRole = 'teacher'"
                                 :class="bulkRole === 'teacher' ? 'bg-white shadow text-indigo-700' : 'text-gray-500'"
-                                class="flex-1 text-xs py-1 rounded-md font-bold transition-all">Giáo viên</button>
+                                class="flex-1 text-xs py-1 rounded-md font-bold transition-all">Gi�o vi�n</button>
                         </div>
                     </div>
 
-                    <!-- Số lượng & chọn tất cả -->
+                    <!-- S? lu?ng & ch?n t?t c? -->
                     <div class="flex items-center justify-between">
-                        <span class="text-xs text-gray-500">{{ filteredForBulk.length }} tín hữu · Đang chọn: <strong class="text-indigo-700">{{ bulkSelected.size }}</strong></span>
+                        <span class="text-xs text-gray-500">{{ filteredForBulk.length }} t�n h?u � �ang ch?n: <strong class="text-indigo-700">{{ bulkSelected.size }}</strong></span>
                         <div class="flex gap-2">
-                            <button @click="selectAllBulk" class="text-xs text-indigo-600 font-bold hover:underline">Chọn tất cả</button>
-                            <button @click="clearBulk" class="text-xs text-gray-400 hover:text-gray-600 font-bold">Bỏ chọn</button>
+                            <button @click="selectAllBulk" class="text-xs text-indigo-600 font-bold hover:underline">Ch?n t?t c?</button>
+                            <button @click="clearBulk" class="text-xs text-gray-400 hover:text-gray-600 font-bold">B? ch?n</button>
                         </div>
                     </div>
 
-                    <!-- Danh sách tín hữu (checkboxes) -->
+                    <!-- Danh s�ch t�n h?u (checkboxes) -->
                     <div class="border border-gray-200 rounded-xl overflow-hidden max-h-64 overflow-y-auto">
-                        <div v-if="filteredForBulk.length === 0" class="py-6 text-center text-gray-400 text-sm">Không tìm thấy tín hữu.</div>
+                        <div v-if="filteredForBulk.length === 0" class="py-6 text-center text-gray-400 text-sm">Kh�ng t�m th?y t�n h?u.</div>
                         <div v-for="m in filteredForBulk" :key="m.id"
                             @click="toggleBulkSelect(m.id)"
                             class="flex items-center gap-3 px-3 py-2.5 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-indigo-50/50 transition-colors"
@@ -219,22 +219,22 @@
                         </div>
                     </div>
 
-                    <!-- Nút thêm hàng loạt -->
+                    <!-- N�t th�m h�ng lo?t -->
                     <button @click="bulkAddMembers" :disabled="bulkSelected.size === 0 || bulkLoading"
                         class="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-black rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2 text-sm">
                         <svg v-if="bulkLoading" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        {{ bulkLoading ? 'Đang thêm...' : `+ Thêm ${bulkSelected.size} thành viên` }}
+                        {{ bulkLoading ? '�ang th�m...' : `+ Th�m ${bulkSelected.size} th�nh vi�n` }}
                     </button>
                 </div>
 
                 <div class="border-t border-gray-100 pt-4">
-                    <!-- Giáo viên -->
+                    <!-- Gi�o vi�n -->
                     <div v-if="managingClass?.teachers?.length > 0" class="mb-3">
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Giáo viên ({{ managingClass.teachers.length }})</label>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Gi�o vi�n ({{ managingClass.teachers.length }})</label>
                         <div class="space-y-1.5">
                             <div v-for="t in managingClass.teachers" :key="t.id" class="flex items-center gap-2 p-2.5 bg-purple-50 rounded-xl">
                                 <span class="flex-1 text-sm font-bold text-purple-900">{{ t.full_name }}</span>
-                                <span class="text-[11px] bg-purple-200 text-purple-700 px-2 py-0.5 rounded-full font-bold">Giáo viên</span>
+                                <span class="text-[11px] bg-purple-200 text-purple-700 px-2 py-0.5 rounded-full font-bold">Gi�o vi�n</span>
                                 <button @click="removeMember(t.id)" class="text-red-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition-colors">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                 </button>
@@ -242,9 +242,9 @@
                         </div>
                     </div>
 
-                    <!-- Học viên -->
+                    <!-- H?c vi�n -->
                     <div v-if="managingClass?.students_list?.length > 0">
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Học viên ({{ managingClass.students_list.length }})</label>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">H?c vi�n ({{ managingClass.students_list.length }})</label>
                         <div class="space-y-1.5 max-h-72 overflow-y-auto">
                             <div v-for="s in managingClass.students_list" :key="s.id" class="flex items-center gap-2 p-2.5 bg-blue-50 rounded-xl">
                                 <span class="flex-1 text-sm font-medium text-blue-900">{{ s.full_name }}</span>
@@ -256,7 +256,7 @@
                     </div>
 
                     <div v-if="!managingClass?.teachers?.length && !managingClass?.students_list?.length" class="py-6 text-center text-gray-400 text-sm italic">
-                        Lớp chưa có thành viên nào.
+                        L?p chua c� th�nh vi�n n�o.
                     </div>
                 </div>
             </div>
@@ -284,7 +284,7 @@ const props = defineProps({
 });
 
 
-// ── Class Create/Edit ────────────────────────────────────────────────
+// -- Class Create/Edit ------------------------------------------------
 const isFormOpen = ref(false);
 const editingClass = ref(null);
 const form = useForm({ name: '', description: '', class_type: 'sunday_school' });
@@ -305,18 +305,18 @@ const openEditForm = (cls) => {
 
 // Helper: translate class_type to Vietnamese label
 const classTypeLabel = (type) => {
-    const labels = { sunday_school: 'Lớp Trường CN', gospel: 'Giáo Lý', bible_quiz: 'Trắc Nghiệm' };
+    const labels = { sunday_school: 'L?p Tru?ng CN', gospel: 'Gi�o L�', bible_quiz: 'Tr?c Nghi?m' };
     return labels[type] ?? type;
 };
 
 const memberTypeLabel = (type) => {
     const labels = {
-        chinh_thuc: 'Chính thức',
-        chua_chinh_thuc: 'Chưa chính thức',
-        than_huu: 'Thân hữu',
-        tin_huu_ht_khac: 'Tín hữu HT khác',
+        chinh_thuc: 'Ch�nh th?c',
+        chua_chinh_thuc: 'Chua ch�nh th?c',
+        than_huu: 'Th�n h?u',
+        tin_huu_ht_khac: 'T�n h?u HT kh�c',
     };
-    return labels[type] ?? (type || '—');
+    return labels[type] ?? (type || '�');
 };
 
 const submitForm = () => {
@@ -335,7 +335,7 @@ const submitForm = () => {
     }
 };
 
-// ── Members Management ───────────────────────────────────────────────
+// -- Members Management -----------------------------------------------
 const isMembersOpen = ref(false);
 const managingClass = ref(null);
 const memberSearch = ref('');
@@ -344,7 +344,7 @@ const selectedMember = ref(null);
 const newMemberRole = ref('student');
 const memberTab = ref('search'); // 'search' | 'bulk'
 
-// ── Bulk add state ────────────────────────────────────────────────────
+// -- Bulk add state ----------------------------------------------------
 const bulkSearch = ref('');
 const bulkFilterDept = ref('');
 const bulkFilterType = ref('');
@@ -352,7 +352,7 @@ const bulkRole = ref('student');
 const bulkSelected = ref(new Set());
 const bulkLoading = ref(false);
 
-// Danh sách tín hữu đã lọc cho bulk (loại ra những người đã trong lớp)
+// Danh s�ch t�n h?u d� l?c cho bulk (lo?i ra nh?ng ngu?i d� trong l?p)
 const filteredForBulk = computed(() => {
     const existingIds = new Set([
         ...(managingClass.value?.teachers || []).map(t => t.id),
@@ -453,7 +453,7 @@ const addMember = () => {
 };
 
 const removeMember = (memberId) => {
-    if (!confirm('Xóa thành viên này khỏi lớp?')) return;
+    if (!confirm('X�a th�nh vi�n n�y kh?i l?p?')) return;
     router.delete(route(props.routePrefix + '.members.destroy', [managingClass.value.id, memberId]), {
 
         preserveScroll: true,
@@ -465,11 +465,10 @@ const removeMember = (memberId) => {
 };
 
 const deleteClass = (cls) => {
-    if (!confirm(`Bạn có chắc muốn xóa lớp "${cls.name}"?\n\nLưu ý: Tất cả bài học, điểm danh và thành viên trong lớp này sẽ bị xóa vĩnh viễn.`)) return;
+    if (!confirm(`B?n c� ch?c mu?n x�a l?p "${cls.name}"?\n\nLuu �: T?t c? b�i h?c, di?m danh v� th�nh vi�n trong l?p n�y s? b? x�a vinh vi?n.`)) return;
     router.delete(route(props.routePrefix + '.destroy', cls.id), {
 
         preserveScroll: true,
     });
 };
 </script>
-

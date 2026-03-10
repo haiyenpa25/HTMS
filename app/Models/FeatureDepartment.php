@@ -23,6 +23,19 @@ class FeatureDepartment extends Model
         'is_active' => 'boolean',
     ];
 
+    public static function cachedAll()
+    {
+        return \Illuminate\Support\Facades\Cache::rememberForever('system_feature_assignments', function () {
+            return static::with('feature', 'department')->get();
+        });
+    }
+
+    protected static function booted()
+    {
+        static::saved(fn () => \Illuminate\Support\Facades\Cache::forget('system_feature_assignments'));
+        static::deleted(fn () => \Illuminate\Support\Facades\Cache::forget('system_feature_assignments'));
+    }
+
     public function feature()
     {
         return $this->belongsTo(Feature::class);

@@ -16,11 +16,14 @@ class SystemFeatureController extends Controller
      */
     public function index()
     {
-        $features = Feature::all();
-        $departments = Department::select('id', 'name', 'block', 'code')->orderBy('name')->get();
+        $features = Feature::cachedAll();
+        $departments = Department::cachedAll()
+            ->sortBy('name')
+            ->values()
+            ->map(fn($d) => ['id' => $d->id, 'name' => $d->name, 'block' => $d->block, 'code' => $d->code]);
 
         // Get all current assignments mapping Level 1
-        $assignments = FeatureDepartment::all();
+        $assignments = FeatureDepartment::cachedAll();
 
         return Inertia::render('Admin/SystemFeatures', [
             'features' => $features,

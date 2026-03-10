@@ -16,7 +16,7 @@ const props = defineProps({
 
 const activeTab = ref('users'); // 'users' or 'system'
 
-// ── Search ────────────────────────────────────────────────────────────────────
+// -- Search --------------------------------------------------------------------
 const searchInput = ref(props.filters?.search || '');
 let searchTimeout;
 const handleSearch = () => {
@@ -28,14 +28,14 @@ const handleSearch = () => {
   }, 400);
 };
 
-// ── Active User ───────────────────────────────────────────────────────────────
+// -- Active User ---------------------------------------------------------------
 const activeUser    = ref(null);
 const showUserList  = ref(!props.preselectUser);
 const isLoading     = ref(false);
 const isSaving      = ref(false);
 const isSuperAdmin  = ref(false);
 const globalRoles   = ref([]);
-// Map: `${dept_id}-${feature_id}` → { is_enabled, access_level }
+// Map: `${dept_id}-${feature_id}` ? { is_enabled, access_level }
 const macMatrix     = ref({});
 const toastMsg      = ref('');
 const toastError    = ref(false);
@@ -71,12 +71,12 @@ const activeDeptFeatures = computed(() =>
 );
 
 const blockOptions = [
-  { value: 'activities', label: '🎯 Sinh Hoạt' },
-  { value: 'ministry',   label: '⛪ Mục Vụ' },
-  { value: 'leadership', label: '🛡 Chấp Sự' },
+  { value: 'activities', label: '?? Sinh Ho?t' },
+  { value: 'ministry',   label: '? M?c V?' },
+  { value: 'leadership', label: '?? Ch?p S?' },
 ];
 
-// Dept groups for "Thêm ban ngành" section
+// Dept groups for "Th�m ban ng�nh" section
 const deptGroups = computed(() => {
   const groups = {};
   for (const d of (props.departments || [])) {
@@ -88,12 +88,12 @@ const deptGroups = computed(() => {
 });
 
 const blockLabel = (b) => ({
-  activities: 'Ban Sinh Hoạt',
-  ministry:   'Ban Mục Vụ',
-  leadership: 'Ban Chấp Sự',
+  activities: 'Ban Sinh Ho?t',
+  ministry:   'Ban M?c V?',
+  leadership: 'Ban Ch?p S?',
 })[b] ?? b;
 
-// ── Load user ─────────────────────────────────────────────────────────────────
+// -- Load user -----------------------------------------------------------------
 onMounted(async () => {
   if (props.preselectUser) await selectUser(props.preselectUser);
 });
@@ -126,18 +126,18 @@ const selectUser = async (user) => {
       activeDeptId.value = [...grantedDeptIds.value][0];
     }
   } catch (e) {
-    showToast('Lỗi khi tải phân quyền.', true);
+    showToast('L?i khi t?i ph�n quy?n.', true);
   } finally {
     isLoading.value = false;
   }
 };
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// -- Helpers -------------------------------------------------------------------
 const macKey = (dId, fId) => `${dId}-${fId}`;
 const isEnabled   = (dId, fId) => macMatrix.value[macKey(dId, fId)]?.is_enabled   ?? false;
 const accessLevel = (dId, fId) => macMatrix.value[macKey(dId, fId)]?.access_level ?? 'view';
 
-// ── Toggle feature ────────────────────────────────────────────────────────────
+// -- Toggle feature ------------------------------------------------------------
 const toggleFeature = async (deptId, featureId, newVal) => {
   if (!activeUser.value) return;
   const key  = macKey(deptId, featureId);
@@ -153,15 +153,15 @@ const toggleFeature = async (deptId, featureId, newVal) => {
       is_enabled:    newVal,
       access_level:  prev?.access_level ?? 'view',
     });
-    showToast(newVal ? 'Đã bật tính năng ✓' : 'Đã tắt tính năng');
+    showToast(newVal ? '�� b?t t�nh nang ?' : '�� t?t t�nh nang');
   } catch {
     // Revert
     macMatrix.value = { ...macMatrix.value, [key]: prev ?? { is_enabled: !newVal, access_level: 'view' } };
-    showToast('Lỗi khi lưu quyền!', true);
+    showToast('L?i khi luu quy?n!', true);
   }
 };
 
-// ── Toggle access level ───────────────────────────────────────────────────────
+// -- Toggle access level -------------------------------------------------------
 const setAccessLevel = async (deptId, featureId, level) => {
   if (!activeUser.value) return;
   const key = macKey(deptId, featureId);
@@ -175,11 +175,11 @@ const setAccessLevel = async (deptId, featureId, level) => {
     });
   } catch {
     macMatrix.value = { ...macMatrix.value, [key]: prev };
-    showToast('Lỗi!', true);
+    showToast('L?i!', true);
   }
 };
 
-// ── Grant/Revoke All for a dept ───────────────────────────────────────────────
+// -- Grant/Revoke All for a dept -----------------------------------------------
 const isGrantingAll = ref(false);
 const grantAllForDept = async (dept) => {
   isGrantingAll.value = true;
@@ -191,11 +191,11 @@ const grantAllForDept = async (dept) => {
   for (const feature of validFeatures) {
     await toggleFeature(dept.id, feature.id, newVal);
   }
-  showToast(newVal ? `Đã cấp toàn bộ quyền cho ${dept.name}` : `Đã thu hồi toàn bộ quyền`);
+  showToast(newVal ? `�� c?p to�n b? quy?n cho ${dept.name}` : `�� thu h?i to�n b? quy?n`);
   isGrantingAll.value = false;
 };
 
-// ── Add dept to user (enable first feature to grant initial access) ────────────
+// -- Add dept to user (enable first feature to grant initial access) ------------
 const addDept = (dept) => {
   activeDeptId.value = dept.id;
   if (!grantedDeptIds.value.has(dept.id)) {
@@ -203,10 +203,10 @@ const addDept = (dept) => {
   }
 };
 
-// ── Global Roles ──────────────────────────────────────────────────────────────
+// -- Global Roles --------------------------------------------------------------
 const roleOptions = [
-  { id: 'Super_Admin', label: 'Super Admin',  desc: 'Toàn quyền hệ thống' },
-  { id: 'Pastor',      label: 'Mục Sư',       desc: 'Duyệt báo cáo, quản trị toàn cục' },
+  { id: 'Super_Admin', label: 'Super Admin',  desc: 'To�n quy?n h? th?ng' },
+  { id: 'Pastor',      label: 'M?c Su',       desc: 'Duy?t b�o c�o, qu?n tr? to�n c?c' },
 ];
 
 const hasRole = (id) => globalRoles.value.includes(id);
@@ -217,30 +217,30 @@ const toggleRole = async (id) => {
   globalRoles.value = newRoles;
   try {
     await axios.post(route('admin.users.permissions.roles', activeUser.value.id), { roles: newRoles });
-    showToast('Đã cập nhật vai trò toàn cục ✓');
+    showToast('�� c?p nh?t vai tr� to�n c?c ?');
   } catch {
-    showToast('Lỗi khi cập nhật vai trò!', true);
+    showToast('L?i khi c?p nh?t vai tr�!', true);
   }
 };
 
-// ── Grant Full ────────────────────────────────────────────────────────────────
+// -- Grant Full ----------------------------------------------------------------
 const isGrantingFull = ref(false);
 const grantFull = async () => {
   if (!activeUser.value || isGrantingFull.value) return;
-  if (!confirm(`Cấp TOÀN QUYỀN tất cả tính năng→mọi ban ngành cho ${activeUser.value.name}?`)) return;
+  if (!confirm(`C?p TO�N QUY?N t?t c? t�nh nang?m?i ban ng�nh cho ${activeUser.value.name}?`)) return;
   isGrantingFull.value = true;
   try {
     const res = await axios.post(route('admin.users.permissions.grant-full', activeUser.value.id));
     await selectUser(activeUser.value);
-    showToast(res.data.message || 'Đã cấp toàn quyền!');
+    showToast(res.data.message || '�� c?p to�n quy?n!');
   } catch {
-    showToast('Lỗi!', true);
+    showToast('L?i!', true);
   } finally {
     isGrantingFull.value = false;
   }
 };
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
+// -- Toast ---------------------------------------------------------------------
 let toastTimer;
 const showToast = (msg, isError = false) => {
   toastMsg.value   = msg;
@@ -251,21 +251,21 @@ const showToast = (msg, isError = false) => {
 
 // Icon map for features
 const featureIcon = (slug) => ({
-  'attendance':          '📋',
-  'visitation':          '🏠',
-  'members':             '👥',
-  'assignments':         '🔧',
-  'reports':             '📊',
-  'finance':             '💰',
-  'education-classes':   '🏫',
-  'education-attendance':'📝',
-  'education-offering':  '💵',
-  'education-report':    '📈',
-})[slug] ?? '⚙️';
+  'attendance':          '??',
+  'visitation':          '??',
+  'members':             '??',
+  'assignments':         '??',
+  'reports':             '??',
+  'finance':             '??',
+  'education-classes':   '??',
+  'education-attendance':'??',
+  'education-offering':  '??',
+  'education-report':    '??',
+})[slug] ?? '??';
 </script>
 
 <template>
-  <Head title="Quản Lý Tính Năng & Phân Quyền" />
+  <Head title="Qu?n L� T�nh Nang & Ph�n Quy?n" />
   <AdminPortalLayout>
     <div class="max-w-4xl mx-auto px-4 py-8">
       
@@ -273,18 +273,18 @@ const featureIcon = (slug) => ({
       <div class="flex space-x-6 border-b border-gray-200 mb-6">
         <button @click="activeTab = 'users'" 
           :class="['py-3 px-1 border-b-2 font-black text-sm transition-all outline-none', activeTab === 'users' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-gray-400 hover:text-gray-700 hover:border-gray-300']">
-          Phân Quyền Cá Nhân (User Matrix)
+          Ph�n Quy?n C� Nh�n (User Matrix)
         </button>
         <button @click="activeTab = 'system'" 
           :class="['py-3 px-1 border-b-2 font-black text-sm transition-all outline-none flex items-center gap-2', activeTab === 'system' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-gray-400 hover:text-gray-700 hover:border-gray-300']">
-          Cấu Hình Tính Năng (Hệ Thống)
-          <span class="bg-indigo-100 text-indigo-700 py-0.5 px-2 rounded-full text-[10px] hidden sm:inline-block">MỚI</span>
+          C?u H�nh T�nh Nang (H? Th?ng)
+          <span class="bg-indigo-100 text-indigo-700 py-0.5 px-2 rounded-full text-[10px] hidden sm:inline-block">M?I</span>
         </button>
       </div>
 
       <!-- Tab 1: User Matrix -->
       <div v-show="activeTab === 'users'">
-        <!-- ══ User Picker / Header ══════════════════════════════════════════ -->
+        <!-- -- User Picker / Header ------------------------------------------ -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-5 overflow-hidden">
         <!-- Search bar -->
         <div class="px-4 py-3 flex items-center gap-3 border-b border-gray-100">
@@ -294,11 +294,11 @@ const featureIcon = (slug) => ({
             </svg>
             <input v-model="searchInput" @input="handleSearch" type="text"
               class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 focus:border-transparent"
-              placeholder="Tìm tên hoặc email tài khoản...">
+              placeholder="T�m t�n ho?c email t�i kho?n...">
           </div>
           <button v-if="activeUser && !showUserList" @click="showUserList = !showUserList"
             class="text-xs px-3 py-2 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 whitespace-nowrap">
-            ← Danh sách user
+            ? Danh s�ch user
           </button>
         </div>
 
@@ -318,7 +318,7 @@ const featureIcon = (slug) => ({
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
             </svg>
           </button>
-          <p v-if="users.data.length === 0" class="py-8 text-center text-gray-400 text-sm">Không tìm thấy.</p>
+          <p v-if="users.data.length === 0" class="py-8 text-center text-gray-400 text-sm">Kh�ng t�m th?y.</p>
         </div>
 
         <!-- Selected user header -->
@@ -332,7 +332,7 @@ const featureIcon = (slug) => ({
           </div>
           <!-- God Mode Badge -->
           <span v-if="isSuperAdmin" class="text-[10px] px-2 py-1 bg-rose-50 text-rose-600 border border-rose-200 rounded-lg font-black">
-            ⚡ GOD MODE
+            ? GOD MODE
           </span>
         </div>
       </div>
@@ -343,7 +343,7 @@ const featureIcon = (slug) => ({
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
         </svg>
-        <p class="text-sm">Đang tải...</p>
+        <p class="text-sm">�ang t?i...</p>
       </div>
 
       <!-- Empty state -->
@@ -352,17 +352,17 @@ const featureIcon = (slug) => ({
         <svg class="w-12 h-12 mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
         </svg>
-        <p class="font-bold text-sm">Chọn người dùng để phân quyền</p>
+        <p class="font-bold text-sm">Ch?n ngu?i d�ng d? ph�n quy?n</p>
       </div>
 
-      <!-- ══ Permission Panel ═══════════════════════════════════════════════ -->
+      <!-- -- Permission Panel ----------------------------------------------- -->
       <div v-else-if="activeUser && !isLoading && !showUserList" class="space-y-4">
 
-        <!-- 1. Quyền Hệ Thống Toàn Cục -->
+        <!-- 1. Quy?n H? Th?ng To�n C?c -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="px-4 py-3 border-b border-gray-100 flex items-center gap-2">
-            <span>🔐</span>
-            <h3 class="text-sm font-black text-gray-800 uppercase tracking-wider">Quyền Hệ Thống Toàn Cục</h3>
+            <span>??</span>
+            <h3 class="text-sm font-black text-gray-800 uppercase tracking-wider">Quy?n H? Th?ng To�n C?c</h3>
           </div>
           <div class="p-4 grid grid-cols-2 gap-3">
             <label v-for="role in roleOptions" :key="role.id"
@@ -383,21 +383,21 @@ const featureIcon = (slug) => ({
             <button @click="grantFull" :disabled="isGrantingFull"
               class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-black rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-              {{ isGrantingFull ? 'Đang cấp...' : '⚡ Cấp Toàn Quyền Tất Cả' }}
+              {{ isGrantingFull ? '�ang c?p...' : '? C?p To�n Quy?n T?t C?' }}
             </button>
           </div>
         </div>
 
-        <!-- 2. Quyền Ban Ngành / MAC Matrix -->
+        <!-- 2. Quy?n Ban Ng�nh / MAC Matrix -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="px-4 py-3 border-b border-gray-100">
             <h3 class="text-sm font-black text-gray-800 uppercase tracking-wider">
-              👥 Quyền Ban Ngành
+              ?? Quy?n Ban Ng�nh
             </h3>
-            <p class="text-xs text-gray-400 mt-0.5">Đã cấp quyền:</p>
+            <p class="text-xs text-gray-400 mt-0.5">�� c?p quy?n:</p>
           </div>
 
-          <!-- Dept chips — currently enabled depts -->
+          <!-- Dept chips � currently enabled depts -->
           <div class="px-4 py-3 flex flex-wrap gap-2">
             <template v-if="grantedDeptIds.size > 0">
               <button v-for="dept in departments.filter(d => grantedDeptIds.has(d.id))" :key="dept.id"
@@ -412,18 +412,18 @@ const featureIcon = (slug) => ({
                 {{ dept.name }}
               </button>
             </template>
-            <p v-else class="text-xs text-gray-400 italic py-1">Chưa cấp quyền bất kỳ ban ngành nào.</p>
+            <p v-else class="text-xs text-gray-400 italic py-1">Chua c?p quy?n b?t k? ban ng�nh n�o.</p>
           </div>
 
-          <!-- Expanded dept → feature list -->
+          <!-- Expanded dept ? feature list -->
           <div v-if="activeDept" class="border-t border-gray-100 mx-4 mb-4 rounded-xl border border-gray-200 overflow-hidden">
             <!-- Dept card header -->
             <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200 flex-wrap gap-2">
               <div class="flex items-center gap-2">
-                <span class="text-base">🏢</span>
+                <span class="text-base">??</span>
                 <span class="font-black text-gray-900 text-sm">{{ activeDept.name }}</span>
                 <span class="text-[10px] px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full font-bold">
-                  {{ activeDeptFeatures.filter(f => isEnabled(activeDept.id, f.id)).length }}/{{ activeDeptFeatures.length }} tính năng
+                  {{ activeDeptFeatures.filter(f => isEnabled(activeDept.id, f.id)).length }}/{{ activeDeptFeatures.length }} t�nh nang
                 </span>
               </div>
               <div class="flex items-center gap-2 flex-wrap">
@@ -436,8 +436,8 @@ const featureIcon = (slug) => ({
                 <select
                   class="text-xs border border-gray-200 rounded-lg font-bold bg-white focus:ring-1 focus:ring-indigo-400 py-1.5 px-2 text-gray-600"
                   @change="activeDeptFeatures.forEach(f => isEnabled(activeDept.id, f.id) && setAccessLevel(activeDept.id, f.id, $event.target.value))">
-                  <option value="view">Chỉ xem</option>
-                  <option value="manage">Quản lý</option>
+                  <option value="view">Ch? xem</option>
+                  <option value="manage">Qu?n l�</option>
                 </select>
               </div>
             </div>
@@ -459,15 +459,15 @@ const featureIcon = (slug) => ({
           </div>
         </div>
 
-        <!-- 3. Thêm ban ngành -->
+        <!-- 3. Th�m ban ng�nh -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="px-4 py-3 border-b border-gray-100">
-            <h3 class="text-sm font-black text-gray-700">➕ Thêm ban ngành</h3>
+            <h3 class="text-sm font-black text-gray-700">? Th�m ban ng�nh</h3>
           </div>
           <div class="p-4 space-y-4">
             <div v-for="(depts, block) in deptGroups" :key="block">
               <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1">
-                <span>{{ block === 'activities' ? '🎯' : block === 'ministry' ? '⛪' : '🛡' }}</span>
+                <span>{{ block === 'activities' ? '??' : block === 'ministry' ? '?' : '??' }}</span>
                 {{ blockLabel(block) }}
               </p>
               <div class="flex flex-wrap gap-2">
@@ -477,7 +477,7 @@ const featureIcon = (slug) => ({
                   :class="grantedDeptIds.has(dept.id)
                     ? 'bg-green-50 border-green-300 text-green-700'
                     : 'bg-white border-gray-300 text-gray-600 hover:border-indigo-300 hover:text-indigo-600'">
-                  <span v-if="grantedDeptIds.has(dept.id)" class="text-green-500">✓</span>
+                  <span v-if="grantedDeptIds.has(dept.id)" class="text-green-500">?</span>
                   <span v-else>+</span>
                   {{ dept.name }}
                 </button>

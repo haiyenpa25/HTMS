@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <PortalLayout :department="null" :available-departments="[]" :is-global-admin="false" :portalType="portalType">
         <div class="min-h-screen bg-gray-50">
 
@@ -55,10 +55,10 @@
             <div class="max-w-5xl mx-auto px-4 py-6 space-y-4">
 
                 <!-- Flash message -->
-                <div v-if="$page.props.flash?.success"
+                <div v-if="page.props.flash?.success"
                     class="bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-green-700 text-sm font-medium flex items-center gap-2">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    {{ $page.props.flash.success }}
+                    {{ page.props.flash.success }}
                 </div>
 
                 <!-- Session list -->
@@ -220,9 +220,11 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { useForm, router, Link } from '@inertiajs/vue3';
+import { useForm, router, Link, usePage } from '@inertiajs/vue3';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
 import SlideOver from '@/Components/SlideOver.vue';
+
+const page = usePage();
 
 const props = defineProps({
     eduClass: Object,

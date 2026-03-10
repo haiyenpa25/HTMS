@@ -93,6 +93,8 @@ class HandleInertiaRequests extends Middleware
                     'role' => $user->getRoleNames()->first() ?? 'Guest',
                     'permissions' => $user->getAllPermissions()->pluck('name'),
                     'home_portal' => $homePortal,
+                    'unread_notifications' => $user->unreadNotifications()->limit(10)->get(),
+                    'unread_notifications_count' => $user->unreadNotifications()->count(),
                 ] : null,
             ],
             'pending_approvals_count' => $user ? \App\Models\ApprovalRequest::where('status', 'pending')->count() : 0,

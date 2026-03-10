@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PortalLayout
       :department="department"
       :available-departments="availableDepartments"
@@ -6,7 +6,7 @@
       portal-type="deacon"
       @open-switcher="isSwitchOpen = true"
   >
-    <div class="py-6 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2">
+    <div class="py-6 space-y-6 w-full mt-2">
 
       <!-- Header -->
       <div class="flex items-center justify-between mb-2">

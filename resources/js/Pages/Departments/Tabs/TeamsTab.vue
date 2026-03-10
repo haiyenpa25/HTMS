@@ -1,4 +1,4 @@
-<template>
+﻿<template>
    <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <AppCard class="p-0 overflow-hidden border border-gray-100">
          <div class="px-4 sm:px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-white">

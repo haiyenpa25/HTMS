@@ -1,12 +1,42 @@
-<template>
+﻿<template>
     <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" :portal-type="portalType" @open-switcher="isSwitchOpen = true">
-        <div class="py-6 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2">
+        <div class="py-6 space-y-6 w-full mt-2">
             
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <h2 class="text-xl font-black text-gray-900 tracking-tight">Thành Viên Ban Ngành</h2>
                     <p class="text-sm text-gray-500 font-medium mt-1">Quản lý nhân sự và ban viên.</p>
                 </div>
+                <!-- Global Actions -->
+                <div class="flex items-center space-x-3">
+                    <button @click="exportMembers" class="px-4 py-2 bg-white text-gray-700 font-bold text-sm rounded-xl border border-gray-200 hover:bg-gray-50 hover:text-blue-600 transition-colors shadow-sm flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        Xuất Excel
+                    </button>
+                    <button @click="isImportSlideOpen = true" class="px-4 py-2 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition-colors shadow-sm flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        Nhập Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Flash Error/Success Messages -->
+            <div v-if="page.props.flash?.success" class="mb-4 bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3 text-emerald-700 text-sm font-bold flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                {{ page.props.flash.success }}
+            </div>
+            <div v-if="page.props.flash?.error" class="mb-4 bg-red-50 border border-red-200 rounded-2xl px-4 py-3 text-red-700 text-sm font-bold flex items-center gap-2">
+                <svg class="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                {{ page.props.flash.error }}
+            </div>
+            <div v-if="page.props.import_errors && page.props.import_errors.length > 0" class="mb-4 bg-orange-50 border border-orange-200 rounded-2xl p-4">
+               <h4 class="text-sm font-bold text-orange-800 flex items-center gap-2 mb-2">
+                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                   Lỗi Import (Bỏ qua các dòng sau):
+               </h4>
+               <ul class="list-disc list-inside text-xs text-orange-700 space-y-1">
+                   <li v-for="(err, i) in page.props.import_errors" :key="i">{{ err }}</li>
+               </ul>
             </div>
 
             <!-- Tabs -->
@@ -127,7 +157,8 @@
                         </div>
                      </div>
                      
-                     <table class="min-w-full divide-y divide-gray-200">
+                     <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left w-12">
@@ -170,6 +201,7 @@
                             </tr>
                         </tbody>
                      </table>
+                     </div>
                  </div>
 
                  <!-- Mobile Cards -->
@@ -334,15 +366,86 @@
                 </div>
             </template>
          </SlideOver>
+
+        <!-- Import Modal (SlideOver) -->
+        <SlideOver v-model="isImportSlideOpen" title="Nhập danh sách từ Excel" size="md">
+            <template #default>
+                <div class="p-6 space-y-6">
+                    <div class="bg-blue-50 text-blue-800 p-4 rounded-2xl text-sm leading-relaxed border border-blue-100">
+                        <p class="font-bold mb-2">Hướng dẫn Import:</p>
+                        <ol class="list-decimal list-inside space-y-1">
+                            <li>Xuất file Excel mẫu (Click nút "Xuất Excel").</li>
+                            <li>Tạo mới tín hữu thì để trống cột ID. Sửa tín hữu thì giữ nguyên ID.</li>
+                            <li>Không thay đổi định dạng hoặc tên cột.</li>
+                            <li>Upload file đã điền bên dưới để nhập dữ liệu.</li>
+                        </ol>
+                    </div>
+
+                    <form @submit.prevent="submitImport" class="space-y-5">
+                        <!-- File Upload Area -->
+                        <div class="border-2 border-dashed rounded-2xl p-8 text-center transition-colors"
+                            :class="importForm.file ? 'border-emerald-400 bg-emerald-50' : 'border-gray-300 bg-gray-50 hover:bg-gray-100'">
+                            <input 
+                                type="file" 
+                                ref="fileInput"
+                                accept=".xlsx, .xls"
+                                class="hidden" 
+                                @change="handleFileUpload"
+                            >
+                            
+                            <div v-if="!importForm.file" class="space-y-3 cursor-pointer" @click="$refs.fileInput.click()">
+                                <div class="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mx-auto text-gray-400">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                </div>
+                                <div class="text-sm text-gray-600">
+                                    <span class="text-blue-600 font-bold hover:underline">Chọn file</span> hoặc kéo thả vào đây
+                                </div>
+                                <p class="text-xs text-gray-400">Hỗ trợ .xlsx, .xls (Tối đa 5MB)</p>
+                            </div>
+                            
+                            <div v-else class="space-y-3">
+                                <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                                <p class="text-sm font-bold text-gray-900 truncate px-4">{{ importForm.file.name }}</p>
+                                <button type="button" @click.stop="clearFile" class="text-sm text-red-500 font-medium hover:text-red-600">Hủy file này</button>
+                            </div>
+                        </div>
+                        <div v-if="importForm.errors.file" class="text-red-500 text-xs text-center font-medium">{{ importForm.errors.file }}</div>
+
+                        <!-- Progress Bar -->
+                        <div v-if="importForm.progress" class="w-full bg-gray-200 rounded-full h-2 mt-4">
+                            <div class="bg-blue-600 h-2 rounded-full transition-all" :style="{ width: importForm.progress.percentage + '%' }"></div>
+                        </div>
+
+                        <div class="pt-4 flex items-center justify-end space-x-3">
+                            <button type="button" @click="isImportSlideOpen = false" class="px-5 py-2.5 text-sm font-bold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+                                Hủy
+                            </button>
+                            <button type="submit" :disabled="!importForm.file || importForm.processing"
+                                class="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 rounded-xl shadow-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center">
+                                <svg v-if="importForm.processing" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Bắt đầu Import
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </template>
+        </SlideOver>
     </PortalLayout>
 </template>
 
 <script setup>
 import { ref, watch, computed } from 'vue';
-import { Link, router, useForm } from '@inertiajs/vue3';
+import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
 import SlideOver from '@/Components/SlideOver.vue';
 import { debounce } from 'lodash';
+
+const page = usePage();
 
 const props = defineProps({
     department: Object,
@@ -489,6 +592,37 @@ const getRoleName = (roleKey) => {
         'Member': 'Ban Viên',
     };
     return roles[roleKey] || 'Chưa phân công';
+};
+
+// Import/Export Logic
+const isImportSlideOpen = ref(false);
+const fileInput = ref(null);
+
+const importForm = useForm({
+    file: null,
+});
+
+const exportMembers = () => {
+    window.location.href = route(`${props.routePrefix}.export`);
+};
+
+const handleFileUpload = (e) => {
+    importForm.file = e.target.files[0];
+};
+
+const clearFile = () => {
+    importForm.file = null;
+    if (fileInput.value) fileInput.value.value = '';
+};
+
+const submitImport = () => {
+    importForm.post(route(`${props.routePrefix}.import`), {
+        preserveScroll: true,
+        onSuccess: () => {
+            isImportSlideOpen.value = false;
+            clearFile();
+        },
+    });
 };
 
 const getRoleColor = (roleKey) => {

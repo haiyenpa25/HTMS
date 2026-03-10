@@ -1,8 +1,8 @@
-<template>
+﻿<template>
     <PortalLayout :department="department" :availableDepartments="[]" :isGlobalAdmin="isGlobalAdmin" portalType="finance">
         <Head title="Báo Cáo Tổng Hợp" />
         
-        <div class="px-4 py-6 sm:px-6 lg:px-8 max-w-[1400px] mx-auto space-y-6">
+        <div class="px-4 py-6 sm:px-6 lg:px-8 w-full space-y-6">
             <!-- Header & Toolbar -->
             <div class="flex flex-col md:flex-row md:items-end justify-between space-y-4 md:space-y-0">
                 <div>

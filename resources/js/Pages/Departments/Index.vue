@@ -1,11 +1,50 @@
-<template>
+﻿<template>
   <component :is="currentLayout">
     <template #header>
       Danh sách Ban Ngành
     </template>
 
     <div class="py-4 space-y-6">
-      
+
+      <!-- Hero Banner -->
+      <div class="rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 p-6 sm:p-8 text-white relative overflow-hidden shadow-lg">
+        <div class="absolute inset-0 opacity-10 pointer-events-none flex items-center justify-end pr-8">
+          <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+        </div>
+        <div class="relative z-10">
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-200 mb-1">QUẢN TRỊ × HỘI THÁNH</p>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Ban Ngành & Đội Nhóm</h1>
+          <p class="mt-2 text-sm text-indigo-200">Quản lý cơ cấu tổ chức, phân công nhân sự và theo dõi hoạt động các ban ngành.</p>
+        </div>
+        <div class="absolute top-5 right-5 sm:top-6 sm:right-6 z-10">
+          <button @click="openCreateSlideOver" class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl transition-all backdrop-blur-sm border border-white/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Tạo Ban mới
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+          <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Tổng ban ngành</p>
+          <p class="text-2xl font-black text-gray-900">{{ departments.length }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-indigo-100 shadow-sm">
+          <p class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Đang hoạt động</p>
+          <p class="text-2xl font-black text-indigo-700">{{ departments.filter(d => d.is_active).length }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-emerald-100 shadow-sm">
+          <p class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Tổng ban viên</p>
+          <p class="text-2xl font-black text-emerald-700">{{ departments.reduce((s, d) => s + (d.members_count || 0), 0) }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-purple-100 shadow-sm">
+          <p class="text-xs font-bold text-purple-400 uppercase tracking-widest mb-1">Tổng tổ nhóm</p>
+          <p class="text-2xl font-black text-purple-700">{{ departments.reduce((s, d) => s + (d.teams_count || 0), 0) }}</p>
+        </div>
+      </div>
+
+
       <!-- Toolbar (Search, Filters, View Switcher) -->
       <DataToolbar 
         v-model:search="filterForm.search"

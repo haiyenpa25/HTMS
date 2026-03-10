@@ -1,8 +1,8 @@
-<template>
+﻿<template>
     <PortalLayout :department="activeDepartment" :availableDepartments="availableDepartments" :isGlobalAdmin="isGlobalAdmin" portalType="finance" @open-switcher="showSwitcher = true">
         <Head title="Tài Chính Hội Thánh" />
 
-        <div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+        <div class="p-4 sm:p-6 lg:p-8 w-full space-y-6">
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div>

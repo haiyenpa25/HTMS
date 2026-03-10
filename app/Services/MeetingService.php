@@ -41,7 +41,29 @@ class MeetingService
                 
                 $createdMeetings[] = $meeting;
 
-                // TODO: Generate default personnel assignments here if applicable
+                // Fetch default roles from the first duty roster template for this block/department
+                $templateId = \App\Models\DutyRosterTemplate::where('block_type', $data['type'] === 'general' ? 'general' : ($data['type'] === 'department' ? \App\Models\Department::find($data['department_id'])?->block : 'activities'))
+                                ->orderBy('id', 'asc') // Hoặc chọn default template
+                                ->value('id');
+                                
+                if ($templateId) {
+                    $templateRoles = \App\Models\DutyRosterTemplateRole::where('template_id', $templateId)->get();
+                    $assignments = [];
+                    foreach ($templateRoles as $role) {
+                        $assignments[] = [
+                            'meeting_id' => $meeting->id,
+                            'role_id' => $role->role_id,
+                            'user_id' => null, // Needs assignment by admin later, or auto-assign if possible
+                            'role_name' => \App\Models\DutyRosterRole::find($role->role_id)?->name ?? 'Unknown',
+                            'required_people' => $role->required_people,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                    if (!empty($assignments)) {
+                        \App\Models\MeetingAssignment::insert($assignments);
+                    }
+                }
             }
 
             DB::commit();

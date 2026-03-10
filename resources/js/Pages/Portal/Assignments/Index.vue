@@ -1,6 +1,6 @@
-<template>
+﻿<template>
     <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" @open-switcher="isSwitchOpen = true">
-        <div class="py-4 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        <div class="py-4 space-y-6 w-full mt-4">
             <div class="bg-white rounded-3xl shadow-sm p-6 border border-gray-100 flex flex-col items-center justify-center min-h-[50vh] text-center">
                 <div class="w-20 h-20 mb-4 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center">
                     <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"></path></svg>

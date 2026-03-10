@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <form @submit.prevent="submit" class="flex flex-col h-full bg-white relative">
     <div class="flex-1 overflow-y-auto p-6 relative">
       <div class="space-y-6">

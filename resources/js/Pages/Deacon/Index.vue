@@ -11,8 +11,8 @@
            <div class="w-24 h-24 mb-6 rounded-3xl bg-amber-100 flex items-center justify-center text-amber-500 shadow-inner">
                <svg class="w-12 h-12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
            </div>
-           <h2 class="text-xl font-black text-gray-900 mb-2">Lãnh Đạo Hội Thánh</h2>
-           <p class="text-sm text-gray-500 max-w-xs mb-8">Vui lòng chọn chức vụ để tiếp tục.</p>
+           <h2 class="text-xl font-black text-gray-900 mb-2">L�nh �?o H?i Th�nh</h2>
+           <p class="text-sm text-gray-500 max-w-xs mb-8">Vui l�ng ch?n ch?c v? d? ti?p t?c.</p>
        </div>
 
        <!-- Dashboard Content -->
@@ -29,15 +29,15 @@
                    </svg>
                </div>
                <div>
-                   <p class="text-xs text-gray-500 font-medium uppercase tracking-widest">Đang xem với chức vụ</p>
+                   <p class="text-xs text-gray-500 font-medium uppercase tracking-widest">�ang xem v?i ch?c v?</p>
                    <h2 class="text-lg font-black text-gray-900">{{ roleLabel }}</h2>
                </div>
            </div>
            
-           <!-- Cards Grid: cố định (Điểm danh HT, Báo cáo) + card động từ deptFeatures -->
+           <!-- Cards Grid: c? d?nh (�i?m danh HT, B�o c�o) + card d?ng t? deptFeatures -->
            <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               
-              <!-- Card: Điểm danh HT (Secretary only) -->
+              <!-- Card: �i?m danh HT (Secretary only) -->
               <Link v-if="activeRole === 'secretary'" :href="route('deacon.attendance')" 
                 class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-amber-200 transition-all active:scale-95 duration-200 relative">
                   <div v-if="pendingAttendance > 0" class="absolute top-4 right-4 bg-amber-500 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center shadow-md animate-pulse">
@@ -46,10 +46,10 @@
                   <div class="w-16 h-16 mb-3 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
                       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75"></path></svg>
                   </div>
-                  <h3 class="font-bold text-gray-900 leading-tight">Điểm danh<br><span class="text-xs font-medium text-amber-600">Buổi nhóm HT</span></h3>
+                  <h3 class="font-bold text-gray-900 leading-tight">�i?m danh<br><span class="text-xs font-medium text-amber-600">Bu?i nh�m HT</span></h3>
               </Link>
 
-              <!-- Card: Báo cáo ban ngành (Secretary) -->
+              <!-- Card: B�o c�o ban ng�nh (Secretary) -->
               <Link v-if="activeRole === 'secretary'" :href="route('deacon.report')" 
                 class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-amber-200 transition-all active:scale-95 duration-200 relative">
                   <div v-if="pendingReports.length > 0" class="absolute top-4 right-4 bg-amber-500 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center shadow-md animate-pulse">
@@ -58,38 +58,38 @@
                   <div class="w-16 h-16 mb-3 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
                       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                   </div>
-                  <h3 class="font-bold text-gray-900 leading-tight">Báo cáo<br><span class="text-xs font-medium text-amber-600">Các ban trực thuộc</span></h3>
+                  <h3 class="font-bold text-gray-900 leading-tight">B�o c�o<br><span class="text-xs font-medium text-amber-600">C�c ban tr?c thu?c</span></h3>
               </Link>
 
-              <!-- Card: Quản lý Quỹ (Treasurer) -->
+              <!-- Card: Qu?n l� Qu? (Treasurer) -->
               <Link v-if="activeRole === 'treasurer' && route().has('finance.funds.index')" :href="route('finance.funds.index')" 
                 class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-amber-200 transition-all active:scale-95 duration-200 relative">
                   <div class="w-16 h-16 mb-3 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
                       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path></svg>
                   </div>
-                  <h3 class="font-bold text-gray-900 leading-tight">Quản lý Quỹ<br><span class="text-xs font-medium text-amber-600">{{ funds.length }} quỹ</span></h3>
+                  <h3 class="font-bold text-gray-900 leading-tight">Qu?n l� Qu?<br><span class="text-xs font-medium text-amber-600">{{ funds.length }} qu?</span></h3>
               </Link>
 
-              <!-- Card: Tài chính HT (Treasurer) -->
+              <!-- Card: T�i ch�nh HT (Treasurer) -->
               <Link v-if="activeRole === 'treasurer'" :href="route('finance.index')" 
                 class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-rose-200 transition-all active:scale-95 duration-200 relative">
                   <div v-if="pendingTx > 0" class="absolute top-4 right-4 bg-amber-500 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center shadow-md animate-pulse">{{ pendingTx }}</div>
                   <div class="w-16 h-16 mb-3 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center group-hover:bg-rose-600 group-hover:text-white transition-colors duration-300">
                       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   </div>
-                  <h3 class="font-bold text-gray-900 leading-tight">Tài chính<br><span class="text-xs font-medium text-rose-600">Thu chi Hội Thánh</span></h3>
+                  <h3 class="font-bold text-gray-900 leading-tight">T�i ch�nh<br><span class="text-xs font-medium text-rose-600">Thu chi H?i Th�nh</span></h3>
               </Link>
 
-              <!-- Card: Báo cáo TC (Treasurer) -->
+              <!-- Card: B�o c�o TC (Treasurer) -->
               <Link v-if="activeRole === 'treasurer' && route().has('finance.reports.index')" :href="route('finance.reports.index')" 
                 class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-amber-200 transition-all active:scale-95 duration-200 relative">
                   <div class="w-16 h-16 mb-3 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-colors duration-300">
                       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                   </div>
-                  <h3 class="font-bold text-gray-900 leading-tight">Báo cáo<br><span class="text-xs font-medium text-amber-600">Báo cáo tài chính</span></h3>
+                  <h3 class="font-bold text-gray-900 leading-tight">B�o c�o<br><span class="text-xs font-medium text-amber-600">B�o c�o t�i ch�nh</span></h3>
               </Link>
 
-              <!-- Extra dynamic cards từ deptFeatures (tính năng được gán riêng cho Ban Chấp Sự) -->
+              <!-- Extra dynamic cards t? deptFeatures (t�nh nang du?c g�n ri�ng cho Ban Ch?p S?) -->
               <template v-for="card in visibleExtraCards" :key="'extra-' + card.key">
                 <Link :href="card.href"
                   class="bg-white rounded-[1.5rem] p-5 shadow-sm border flex flex-col items-center justify-center text-center group transition-all"
@@ -111,17 +111,17 @@
            <div class="mt-8 bg-amber-50 rounded-3xl p-6 border border-amber-100 shadow-sm">
               <h3 class="text-sm font-black text-amber-900 tracking-wider mb-2 px-1 flex items-center">
                   <svg class="w-5 h-5 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                  Cổng Nội Bộ – Lãnh Đạo Hội Thánh
+                  C?ng N?i B? � L�nh �?o H?i Th�nh
               </h3>
-              <p class="text-amber-800 text-sm pl-1">Bạn đang làm việc với chức vụ <strong>{{ roleLabel }}</strong>. Mọi thao tác sẽ có tác động ở cấp độ toàn Hội Thánh.</p>
+              <p class="text-amber-800 text-sm pl-1">B?n dang l�m vi?c v?i ch?c v? <strong>{{ roleLabel }}</strong>. M?i thao t�c s? c� t�c d?ng ? c?p d? to�n H?i Th�nh.</p>
            </div>
        </div>
 
     <!-- Context Switcher SlideOver -->
-    <SlideOver v-model="isSwitchOpen" title="Chuyển đổi Chức Vụ" size="md">
+    <SlideOver v-model="isSwitchOpen" title="Chuy?n d?i Ch?c V?" size="md">
         <template #default>
             <div class="p-6 space-y-5">
-               <p class="text-sm text-gray-500 font-medium">Chọn chức vụ cần làm việc.</p>
+               <p class="text-sm text-gray-500 font-medium">Ch?n ch?c v? c?n l�m vi?c.</p>
                
                <div class="space-y-2">
                   <div 
@@ -140,10 +140,10 @@
                         <div>
                            <h4 class="text-sm font-black" :class="activeRole === role.id ? 'text-amber-900' : 'text-gray-900'">{{ role.name }}</h4>
                            <p class="text-xs text-gray-500 mt-0.5">{{ role.desc }}</p>
-                           <span v-if="activeRole === role.id" class="text-[10px] sm:text-xs text-amber-600 font-bold mt-0.5 inline-block">● Đang hoạt động</span>
+                           <span v-if="activeRole === role.id" class="text-[10px] sm:text-xs text-amber-600 font-bold mt-0.5 inline-block">? �ang ho?t d?ng</span>
                         </div>
                      </div>
-                     <button v-if="activeRole !== role.id" @click.stop="switchRole(role.id)" class="px-3 py-1.5 text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors">Chọn</button>
+                     <button v-if="activeRole !== role.id" @click.stop="switchRole(role.id)" class="px-3 py-1.5 text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors">Ch?n</button>
                      <svg v-if="activeRole === role.id" class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                   </div>
                </div>
@@ -180,8 +180,8 @@ const props = defineProps({
   pendingTx:            { type: Number, default: 0 },
 });
 
-// Đọc activeRole từ Inertia shared (EnsureDeaconContext shares 'activeDeaconRole')
-// Fallback về prop nếu không có
+// �?c activeRole t? Inertia shared (EnsureDeaconContext shares 'activeDeaconRole')
+// Fallback v? prop n?u kh�ng c�
 const activeRole = computed(() => page.props.activeDeaconRole ?? props.activeRole);
 
 const isSwitchOpen = ref(false);
@@ -193,10 +193,10 @@ const can = (key) => {
         || (key === 'members' && authPermissions.value?.['thanh-vien'] === true);
 };
 
-// Vai trò và tên hiển thị
+// Vai tr� v� t�n hi?n th?
 const availableRoles = [
-    { id: 'secretary', name: 'Thư ký Hội Thánh',  desc: 'Điểm danh, báo cáo ban ngành' },
-    { id: 'treasurer', name: 'Thủ Quỹ Hội Thánh', desc: 'Quản lý tài chính, thu chi' },
+    { id: 'secretary', name: 'Thu k� H?i Th�nh',  desc: '�i?m danh, b�o c�o ban ng�nh' },
+    { id: 'treasurer', name: 'Th? Qu? H?i Th�nh', desc: 'Qu?n l� t�i ch�nh, thu chi' },
 ];
 
 const roleLabel = computed(() => {
@@ -210,17 +210,17 @@ const switchRole = (roleId) => {
     });
 };
 
-// ── Các card tính năng "extra" được gán động cho Ban Chấp Sự qua FeatureDepartment ──
-// Những card cố định (Điểm danh HT, Báo cáo, Quỹ, TC) đã hardcode ở trên.
-// Ở đây chỉ render các tính năng THÊM được cấu hình qua SystemFeaturesTab.
+// -- C�c card t�nh nang "extra" du?c g�n d?ng cho Ban Ch?p S? qua FeatureDepartment --
+// Nh?ng card c? d?nh (�i?m danh HT, B�o c�o, Qu?, TC) d� hardcode ? tr�n.
+// ? d�y ch? render c�c t�nh nang TH�M du?c c?u h�nh qua SystemFeaturesTab.
 const FIXED_KEYS_SECRETARY  = ['attendance', 'reports'];
 const FIXED_KEYS_TREASURER  = ['finance'];
 
 const allExtraCards = [
     {
         key: 'members',
-        label: 'Thành Viên',
-        subtitle: 'Thông tin ban viên',
+        label: 'Th�nh Vi�n',
+        subtitle: 'Th�ng tin ban vi�n',
         href: route('deacon.members.index'),
         bg: 'bg-blue-50', text: 'text-blue-500', hoverBg: 'group-hover:bg-blue-600',
         hoverBorder: 'hover:border-blue-200', sub: 'text-blue-600',
@@ -228,12 +228,12 @@ const allExtraCards = [
     },
 ];
 
-// Chỉ render extra cards nếu: deptFeatures[slug] = true VÀ không phải là fixed card
+// Ch? render extra cards n?u: deptFeatures[slug] = true V� kh�ng ph?i l� fixed card
 const visibleExtraCards = computed(() => {
     const features = deptFeatures.value;
     const fixedKeys = props.activeRole === 'secretary' ? FIXED_KEYS_SECRETARY : FIXED_KEYS_TREASURER;
     return allExtraCards.filter(card => {
-        if (fixedKeys.includes(card.key)) return false; // đã có card cứng
+        if (fixedKeys.includes(card.key)) return false; // d� c� card c?ng
         return features[card.key] === true
             || (card.key === 'members' && features['thanh-vien'] === true);
     });

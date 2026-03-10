@@ -1,4 +1,4 @@
-<template>
+﻿<template>
    <div class="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl">
       <AppCard class="p-8 border border-gray-100 shadow-sm relative overflow-hidden">
          <!-- Decorative background piece -->

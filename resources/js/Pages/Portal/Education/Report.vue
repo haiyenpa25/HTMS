@@ -1,8 +1,8 @@
-<template>
+﻿<template>
     <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" portal-type="education">
         <!-- Full-width indigo header -->
         <div class="bg-gradient-to-r from-indigo-800 via-indigo-700 to-indigo-600 text-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5">
+            <div class="w-full py-5">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <p class="text-indigo-300 text-xs font-bold uppercase tracking-wider mb-1">Ban Cơ Đốc Giáo Dục</p>
@@ -27,7 +27,7 @@
             </div>
         </div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-8">
+        <div class="w-full py-6 space-y-8">
 
             <!-- ── No data state ─────────────────────────────── -->
             <div v-if="classData.length === 0" class="py-24 text-center bg-white rounded-3xl border border-gray-100 shadow-sm">

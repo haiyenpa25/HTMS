@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <PortalLayout title="Thăm Viếng & Chăm Sóc">
         <template #header>
             <div class="flex items-center justify-between">
@@ -19,7 +19,7 @@
             </div>
         </template>
 
-        <div class="py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-6 w-full">
             <!-- Tabs -->
             <div class="mb-6 border-b border-gray-200">
                 <nav class="-mb-px flex space-x-8" aria-label="Tabs">

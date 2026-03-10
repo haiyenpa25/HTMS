@@ -61,12 +61,17 @@ class UserController extends Controller
                 ];
             });
 
-        $roles = Role::pluck('name');
+        $roles = \Illuminate\Support\Facades\Cache::remember('system_roles_pluck_name', 3600, function() {
+            return Role::pluck('name');
+        });
 
         // Departments for filter select
-        $departments = Department::where('is_active', true)
-            ->orderBy('block')->orderBy('name')
-            ->get(['id', 'name', 'block']);
+        $departments = Department::cachedAll()
+            ->where('is_active', true)
+            ->sortBy('block')
+            ->sortBy('name')
+            ->values()
+            ->map(fn($d) => ['id' => $d->id, 'name' => $d->name, 'block' => $d->block]);
 
         $blockLabels = [
             'activities' => '🏃 Ban Sinh Hoạt',
@@ -74,7 +79,7 @@ class UserController extends Controller
             'leadership' => '🏛️ Ban Chấp Sự',
         ];
 
-        $features = \App\Models\Feature::orderBy('name')->get()->map(fn ($f) => [
+        $features = \App\Models\Feature::cachedAll()->map(fn ($f) => [
             'id'          => $f->id,
             'name'        => $f->name,
             'slug'        => $f->slug,
@@ -83,7 +88,7 @@ class UserController extends Controller
             'description' => $f->description,
         ]);
 
-        $systemConfig = \App\Models\FeatureDepartment::all();
+        $systemConfig = \App\Models\FeatureDepartment::cachedAll();
 
         return Inertia::render('Users/Index', [
             'users'        => $users,

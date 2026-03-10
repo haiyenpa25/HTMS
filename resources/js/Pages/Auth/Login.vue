@@ -1,28 +1,41 @@
-<template>
-  <div class="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
-    <!-- Background pattern -->
-    <div class="absolute inset-0 z-0 opacity-40 mix-blend-multiply" style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;"></div>
+﻿<template>
+  <div class="min-h-screen bg-[#f8fafc] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
+    <!-- Premium Gradient Background elements -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+      <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-indigo-400/20 blur-[120px] mix-blend-multiply"></div>
+      <div class="absolute top-[20%] -right-[10%] w-[40%] h-[40%] rounded-full bg-emerald-400/20 blur-[100px] mix-blend-multiply"></div>
+      <div class="absolute -bottom-[10%] left-[20%] w-[60%] h-[40%] rounded-full bg-purple-400/20 blur-[120px] mix-blend-multiply"></div>
+      <!-- Subtle grid pattern -->
+      <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#94a3b8 1px, transparent 1px); background-size: 24px 24px;"></div>
+    </div>
     
-    <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-      <div class="text-center">
-        <img src="/LOGO.png" alt="CMS Logo" class="mx-auto h-24 sm:h-28 object-contain drop-shadow-md hover:scale-105 transition-transform duration-300" />
-        <h1 class="mt-4 text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          CMS <span class="text-blue-600 font-medium text-xl sm:text-2xl opacity-90 block mt-1">(Church Manage System)</span>
+    <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10 transition-all">
+      <div class="text-center group">
+        <div class="relative inline-block">
+          <div class="absolute inset-0 bg-indigo-500 blur-xl opacity-20 rounded-full group-hover:opacity-40 transition-opacity duration-500"></div>
+          <img src="/LOGO.png" alt="CMS Logo" class="relative mx-auto h-24 sm:h-28 object-contain drop-shadow-xl group-hover:scale-105 transition-transform duration-500" />
+        </div>
+        <h1 class="mt-6 text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          CMS <span class="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent font-black">Hội Thánh</span>
         </h1>
         <p class="mt-3 text-sm font-medium text-slate-500">
-          Hệ thống quản lý dữ liệu Hội Thánh
+          Nền tảng Quản trị & Điều hành Nội bộ
         </p>
       </div>
     </div>
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0 relative z-10">
-      <div class="bg-white/90 py-8 px-6 shadow-2xl shadow-slate-200/50 rounded-2xl border border-white backdrop-blur-md">
-        <form @submit.prevent="submit" class="space-y-6">
+      <!-- Premium Glassmorphism Card -->
+      <div class="bg-white/80 py-8 px-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:rounded-3xl border border-white/60 backdrop-blur-xl relative overflow-hidden">
+        <!-- Shine effect -->
+        <div class="absolute top-0 -inset-full h-full w-1/2 z-0 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 animate-shine"></div>
+        
+        <form @submit.prevent="submit" class="space-y-6 relative z-10">
           <div>
-            <label for="email" class="block text-sm font-semibold text-slate-700">
-              Tên đăng nhập / Email
+            <label for="email" class="block text-xs font-black uppercase tracking-wider text-slate-600 mb-2">
+              Tên đăng nhập
             </label>
-            <div class="mt-1 flex shadow-sm rounded-xl overflow-hidden border border-slate-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all duration-200">
+            <div class="mt-1 flex shadow-sm rounded-xl overflow-hidden border border-slate-200/80 bg-white/50 focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500 transition-all duration-300 group">
               <input
                 id="email"
                 v-model="form.email"
@@ -30,20 +43,20 @@
                 autocomplete="email"
                 required
                 placeholder="Ví dụ: superadmin"
-                class="appearance-none block w-full px-4 py-3 border-0 focus:ring-0 placeholder-slate-400 text-slate-900"
-                :class="{ 'bg-red-50': form.errors.email }"
+                class="appearance-none block w-full px-4 py-3 border-0 bg-transparent focus:ring-0 placeholder-slate-400 text-slate-900 font-medium"
+                :class="{ 'bg-red-50/50': form.errors.email }"
               />
-              <div class="flex items-center px-3 bg-slate-50 border-l border-slate-200 text-slate-500 font-medium text-sm select-none">
+              <div class="flex items-center px-4 bg-slate-100/50 border-l border-slate-200/80 text-slate-500 font-semibold text-sm select-none group-focus-within:bg-indigo-50/50 group-focus-within:text-indigo-600 group-focus-within:border-indigo-200 transition-colors">
                 @{{ systemDomain }}
               </div>
             </div>
-            <p v-if="form.errors.email" class="mt-2 text-sm text-red-600">
+            <p v-if="form.errors.email" class="mt-2 text-xs font-bold text-red-500">
               {{ form.errors.email }}
             </p>
           </div>
 
           <div>
-            <label for="password" class="block text-sm font-semibold text-slate-700">
+            <label for="password" class="block text-xs font-black uppercase tracking-wider text-slate-600 mb-2">
               Mật khẩu
             </label>
             <div class="mt-1">
@@ -54,11 +67,11 @@
                 autocomplete="current-password"
                 required
                 placeholder="••••••••"
-                class="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                :class="{ 'border-red-500 bg-red-50': form.errors.password }"
+                class="appearance-none block w-full px-4 py-3 bg-white/50 border border-slate-200/80 rounded-xl shadow-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-300"
+                :class="{ 'border-red-500 bg-red-50/50': form.errors.password }"
               />
             </div>
-            <p v-if="form.errors.password" class="mt-2 text-sm text-red-600">
+            <p v-if="form.errors.password" class="mt-2 text-xs font-bold text-red-500">
               {{ form.errors.password }}
             </p>
           </div>
@@ -77,9 +90,9 @@
             </div>
 
             <div class="text-sm">
-              <a href="#" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+              <Link :href="route('password.request')" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">
                 Quên mật khẩu?
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -87,7 +100,7 @@
             <button
               type="submit"
               :disabled="form.processing"
-              class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-[0_4px_14px_0_rgba(79,70,229,0.39)] text-sm font-black text-white bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
             >
               <svg 
                 v-if="form.processing" 
@@ -99,12 +112,13 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              {{ form.processing ? 'Đang xử lý...' : 'Đăng nhập' }}
+              <span>{{ form.processing ? 'ĐANG XỬ LÝ...' : 'ĐĂNG NHẬP' }}</span>
+              <svg v-if="!form.processing" class="w-5 h-5 ml-2 -mr-1 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
             </button>
           </div>
         </form>
 
-        <div class="mt-8">
+        <div class="mt-8 relative z-10">
           <div class="relative">
             <div class="absolute inset-0 flex items-center">
               <div class="w-full border-t border-slate-100"></div>
@@ -155,9 +169,18 @@ const submit = () => {
 
 <style scoped>
 /* Nạp font Inter nếu chưa có (Tùy chọn) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 .font-sans {
   font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+@keyframes shine {
+  100% {
+    transform: translateX(250%) skewX(-12deg);
+  }
+}
+.animate-shine {
+  animation: shine 4s infinite 2s;
 }
 </style>

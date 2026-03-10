@@ -2,19 +2,25 @@
   <component :is="currentLayout">
     <template #header>Dashboard Mục Sư</template>
 
-    <div class="py-4 space-y-6 max-w-7xl mx-auto">
+    <div class="py-4 space-y-6 w-full">
 
-      <!-- ══ HEADER + FILTER ══ -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 class="text-2xl font-black text-gray-900">👨‍💼 Tổng Quan Hội Thánh</h1>
-          <p class="text-xs text-gray-500 mt-0.5">Tháng {{ localMonth }}/{{ localYear }} · Cập nhật lúc {{ nowTime }}</p>
+      <!-- Hero Banner -->
+      <div class="rounded-2xl bg-gradient-to-br from-blue-700 to-blue-900 p-6 sm:p-8 text-white relative overflow-hidden shadow-lg">
+        <div class="absolute inset-0 opacity-10 pointer-events-none flex items-center justify-end pr-8">
+          <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
         </div>
-        <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 shadow-sm">
-          <select v-model="localMonth" @change="reload" class="text-sm font-medium border-none focus:ring-0 p-0 text-gray-700">
-            <option v-for="m in 12" :key="m" :value="m">Tháng {{ m }}</option>
-          </select>
-          <input v-model="localYear" @change="reload" type="number" min="2020" max="2099" class="w-16 text-sm border-none focus:ring-0 p-0 text-center font-medium text-gray-700">
+        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center gap-4">
+          <div class="flex-1">
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-blue-300 mb-1">TỔNG QUAN × HỘI THÁNH</p>
+            <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Dashboard Mục Sư</h1>
+            <p class="mt-1 text-sm text-blue-200">Tháng {{ localMonth }}/{{ localYear }} · Cập nhật lúc {{ nowTime }}</p>
+          </div>
+          <div class="flex items-center gap-2 bg-white/10 border border-white/20 rounded-xl px-3 py-2 backdrop-blur-sm">
+            <select v-model="localMonth" @change="reload" class="text-sm font-bold border-none focus:ring-0 p-0 text-white bg-transparent">
+              <option v-for="m in 12" :key="m" :value="m" class="text-gray-900">Tháng {{ m }}</option>
+            </select>
+            <input v-model="localYear" @change="reload" type="number" min="2020" max="2099" class="w-16 text-sm border-none focus:ring-0 p-0 text-center font-bold text-white bg-transparent">
+          </div>
         </div>
       </div>
 
@@ -107,6 +113,30 @@
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- ══ SECTION 2B: ADVANCED ANALYTICS (PHASE 11) ══ -->
+      <div v-if="analytics" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Tăng trưởng tín hữu (Line) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 lg:col-span-2">
+          <h3 class="text-sm font-bold text-gray-900 mb-1">📈 Tốc độ tăng trưởng Tín hữu (6 tháng)</h3>
+          <p class="text-[10px] text-gray-400 mb-4">Lũy kế tổng tín hữu và số người mới gia nhập mỗi tháng</p>
+          <apexchart type="line" height="240" :options="growthChartOpts" :series="growthSeries" />
+        </div>
+        
+        <!-- Phân bố Ban ngành (Pie) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col items-center justify-center">
+          <h3 class="text-sm font-bold text-gray-900 mb-1 w-full text-center">🎯 Phân số Tín hữu theo Ban</h3>
+          <p class="text-[10px] text-gray-400 mb-4 w-full text-center">Tỷ lệ thành viên tham gia sinh hoạt</p>
+          <apexchart type="donut" width="100%" height="240" :options="demoChartOpts" :series="demoSeries" />
+        </div>
+        
+        <!-- Tài chính (Bar) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 lg:col-span-3">
+          <h3 class="text-sm font-bold text-gray-900 mb-1">💰 Tổng quan Tài chính (6 tháng)</h3>
+          <p class="text-[10px] text-gray-400 mb-4">So sánh thu - chi toàn khoản của hệ thống</p>
+          <apexchart type="bar" height="280" :options="financeChartOpts" :series="financeSeries" />
         </div>
       </div>
 
@@ -404,6 +434,7 @@ const props = defineProps({
     new_members_30: Array,
     new_members_90: Array,
     special_dates: Array,
+    analytics: Object,
 });
 
 const page = usePage();
@@ -451,4 +482,68 @@ const churchLineOpts = {
     tooltip: { y: { formatter: v => v + ' người' } },
     grid: { strokeDashArray: 4 },
 };
+
+// ══ ADVANCED ANALYTICS CHARTS ══
+const formatCurrency = (val) => {
+    if (val >= 1000000) return (val / 1000000).toFixed(1) + ' Tr';
+    if (val >= 1000) return (val / 1000).toFixed(0) + ' K';
+    return val;
+};
+
+// 1. Demographics (Donut)
+const demoSeries = computed(() => {
+    return props.analytics?.demographics?.map(d => Number(d.total)) || [];
+});
+const demoChartOpts = computed(() => ({
+    chart: { type: 'donut', fontFamily: 'Inter, sans-serif' },
+    labels: props.analytics?.demographics?.map(d => d.name) || [],
+    colors: ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#6366f1'],
+    legend: { position: 'bottom', fontSize: '10px' },
+    dataLabels: { enabled: false },
+    plotOptions: { pie: { donut: { size: '70%' } } }
+}));
+
+// 2. Finance (Bar)
+const financeSeries = computed(() => [
+    { name: 'Thu', data: props.analytics?.finance_chart?.map(d => d.income) || [] },
+    { name: 'Chi', data: props.analytics?.finance_chart?.map(d => d.expense) || [] }
+]);
+const financeChartOpts = computed(() => ({
+    chart: { type: 'bar', toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
+    plotOptions: { bar: { horizontal: false, columnWidth: '40%', borderRadius: 4 } },
+    dataLabels: { enabled: false },
+    stroke: { show: true, width: 2, colors: ['transparent'] },
+    xaxis: { categories: props.analytics?.finance_chart?.map(d => d.month) || [], labels: { style: { fontSize: '11px' } } },
+    yaxis: { labels: { formatter: formatCurrency, style: { fontSize: '11px' } } },
+    colors: ['#10b981', '#ef4444'], // Thu xanh, Chi đỏ
+    fill: { opacity: 1 },
+    grid: { strokeDashArray: 4 },
+    tooltip: { 
+        y: { formatter: val => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val) }
+    }
+}));
+
+// 3. Growth (Mixed Line & Column)
+const growthSeries = computed(() => [
+    { name: 'Tổng Tín hữu', type: 'line', data: props.analytics?.growth_chart?.map(d => d.total) || [] },
+    { name: 'Người mới', type: 'column', data: props.analytics?.growth_chart?.map(d => d.new) || [] }
+]);
+const growthChartOpts = computed(() => ({
+    chart: { height: 240, type: 'line', toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
+    stroke: { width: [3, 0], curve: 'smooth' },
+    plotOptions: { bar: { columnWidth: '20%', borderRadius: 4 } },
+    colors: ['#3b82f6', '#f59e0b'],
+    xaxis: { categories: props.analytics?.growth_chart?.map(d => d.month) || [], labels: { style: { fontSize: '11px' } } },
+    yaxis: [{
+        title: { text: 'Tổng số' },
+        labels: { style: { fontSize: '10px' } }
+    }, {
+        opposite: true,
+        title: { text: 'Người mới' },
+        labels: { style: { fontSize: '10px' } },
+        min: 0
+    }],
+    grid: { strokeDashArray: 4 },
+}));
+
 </script>

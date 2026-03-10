@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <form @submit.prevent="submit" class="flex flex-col h-full bg-white relative">
     <!-- Header -->
     <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10 shrink-0">

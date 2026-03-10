@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <component :is="currentLayout">
     <template #header>
       <h2 class="font-black text-xl text-gray-900 leading-tight tracking-tight">
@@ -6,8 +6,42 @@
       </h2>
     </template>
 
-    <div class="py-4 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-       <!-- Toolbar -->
+    <div class="py-4 space-y-6 w-full">
+
+      <!-- Hero Banner -->
+      <div class="rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-700 p-6 sm:p-8 text-white relative overflow-hidden shadow-lg">
+        <div class="absolute inset-0 opacity-10 pointer-events-none flex items-center justify-end pr-8">
+          <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 24 24"><path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+        </div>
+        <div class="relative z-10">
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-200 mb-1">NỘI DUNG × GIẢNG LUẬN</p>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Quản lý Diễn Giả</h1>
+          <p class="mt-2 text-sm text-violet-200">Danh sách các mục sư, giảng sư và khách mời tham gia giảng luận cho Hội Thánh.</p>
+        </div>
+        <div class="absolute top-5 right-5 sm:top-6 sm:right-6 z-10">
+          <button @click="openCreateSlideOver" class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl transition-all backdrop-blur-sm border border-white/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Thêm Diễn giả
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+          <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Tổng diễn giả</p>
+          <p class="text-2xl font-black text-gray-900">{{ speakers.total }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-emerald-100 shadow-sm">
+          <p class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Người trong HT</p>
+          <p class="text-2xl font-black text-emerald-700">{{ speakers.data.filter(s => !s.is_external).length }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-violet-100 shadow-sm">
+          <p class="text-xs font-bold text-violet-400 uppercase tracking-widest mb-1">Khách mời</p>
+          <p class="text-2xl font-black text-violet-700">{{ speakers.data.filter(s => s.is_external).length }}</p>
+        </div>
+      </div>
+
        <DataToolbar 
           v-model:search="filterForm.search"
           :show-filters="showFilters"
@@ -47,6 +81,7 @@
 
        <!-- Data View -->
        <div v-if="windowWidth >= 768" class="bg-white rounded-2xl shadow-sm border border-gray-200/60 overflow-hidden">
+        <div class="overflow-x-auto">
           <table class="w-full text-left text-sm whitespace-nowrap">
              <thead class="bg-gray-50/50 border-b border-gray-100 text-gray-500 font-bold uppercase tracking-wider text-[11px]">
                 <tr>
@@ -97,6 +132,7 @@
                 </tr>
              </tbody>
           </table>
+        </div>
        </div>
 
        <!-- Mobile View (Cards) -->

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PortalLayout
       :department="department"
       :available-departments="availableDepartments"
@@ -8,7 +8,7 @@
       @open-switcher="() => {}"
   >
     <!-- Sticky Header (same pattern as Portal/Attendance/Show.vue) -->
-    <div class="bg-white border-b border-gray-100 sticky top-0 z-10 px-4 py-3 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full flex items-center justify-between">
+    <div class="bg-white border-b border-gray-100 sticky top-0 z-10 px-4 py-3 sm:px-6 lg:px-8 w-full w-full flex items-center justify-between">
       <Link
         :href="route('deacon.attendance', { month: new Date(meeting.date).getMonth()+1, year: new Date(meeting.date).getFullYear() })"
         class="flex items-center text-gray-500 hover:text-gray-900 font-bold text-sm transition-colors"
@@ -52,11 +52,11 @@
         <div class="p-4 sm:p-8 space-y-6">
 
           <!-- Flash -->
-          <div v-if="$page.props.flash?.success" class="bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3 text-emerald-700 text-sm font-bold flex items-center gap-2">
+          <div v-if="page.props.flash?.success" class="bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3 text-emerald-700 text-sm font-bold flex items-center gap-2">
             <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
             </svg>
-            {{ $page.props.flash.success }}
+            {{ page.props.flash.success }}
           </div>
 
           <!-- Comparison badge -->
@@ -162,8 +162,10 @@
 
 <script setup>
 import { computed } from 'vue';
-import { Link, useForm } from '@inertiajs/vue3';
+import { Link, useForm, usePage } from '@inertiajs/vue3';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
+
+const page = usePage();
 
 const props = defineProps({
   meeting:              { type: Object, required: true },

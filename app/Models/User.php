@@ -7,11 +7,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 use App\Traits\HasDataScope;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles, HasDataScope;
+    use HasFactory, Notifiable, HasRoles, HasDataScope, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('user_management')
+            ->setDescriptionForEvent(fn(string $eventName) => "Người dùng đã được {$eventName}");
+    }
 
     /**
      * The attributes that are mass assignable.

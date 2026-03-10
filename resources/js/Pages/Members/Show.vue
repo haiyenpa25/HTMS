@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <component :is="currentLayout">
     <template #header>Hồ sơ Tín hữu</template>
 

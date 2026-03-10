@@ -1,8 +1,8 @@
-<template>
+﻿<template>
     <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" @open-switcher="isSwitchOpen = true">
         <Head title="Tài chính Ban ngành" />
 
-        <div class="py-4 space-y-5 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-4 space-y-5 w-full">
             <!-- Header -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>

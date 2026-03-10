@@ -299,6 +299,17 @@ class DutyRosterController extends Controller
             ['member_id' => $validated['member_id'] ?? null, 'notes' => $validated['notes'] ?? null]
         );
 
+        if (!empty($validated['member_id'])) {
+            $member = \App\Models\Member::with('user')->find($validated['member_id']);
+            if ($member && $member->user) {
+                $meeting = \App\Models\Meeting::with('department')->find($validated['meeting_id']);
+                $role = \App\Models\DepartmentRole::find($validated['department_role_id']);
+                if ($meeting && $role) {
+                    $member->user->notify(new \App\Notifications\DutyAssignedNotification($meeting, $role->name));
+                }
+            }
+        }
+
         return response()->json(['message' => 'Đã cập nhật phân công.']);
     }
 

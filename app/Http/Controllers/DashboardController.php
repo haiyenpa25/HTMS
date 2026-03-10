@@ -297,6 +297,61 @@ class DashboardController extends Controller
         $activeMembers  = Member::where('status', 'Chính thức')->count();
         $newThisMonth   = Member::whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
 
+        // ── 10. ADVANCED ANALYTICS (PHASE 11) ────────────────────
+        
+        // 10.1 Demographics (Biểu đồ tròn phân bố Tín hữu theo Ban ngành)
+        $demographics = DB::table('departments')
+            ->leftJoin('org_memberships', function($join) {
+                $join->on('departments.id', '=', 'org_memberships.model_id')
+                     ->where('org_memberships.model_type', '=', 'App\\Models\\Department');
+            })
+            ->where('departments.block', 'activities')
+            ->select('departments.name', DB::raw('count(org_memberships.id) as total'))
+            ->groupBy('departments.id', 'departments.name')
+            ->get();
+            
+        // 10.2 Finance over 6 Months (Biểu đồ cột Thu/Chi)
+        $financeChart = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $mStart = $today->copy()->subMonths($i)->startOfMonth();
+            $mEnd   = $mStart->copy()->endOfMonth();
+            
+            $income = DB::table('meeting_finances')
+                ->join('meetings', 'meeting_finances.meeting_id', '=', 'meetings.id')
+                ->whereBetween('meetings.date', [$mStart->toDateString(), $mEnd->toDateString()])
+                ->where('meeting_finances.type', 'thu')
+                ->sum('meeting_finances.amount');
+                
+            $expense = DB::table('meeting_finances')
+                ->join('meetings', 'meeting_finances.meeting_id', '=', 'meetings.id')
+                ->whereBetween('meetings.date', [$mStart->toDateString(), $mEnd->toDateString()])
+                ->where('meeting_finances.type', 'chi')
+                ->sum('meeting_finances.amount');
+                
+            $financeChart[] = [
+                'month' => $mStart->format('m/Y'),
+                'income' => $income,
+                'expense' => $expense
+            ];
+        }
+
+        // 10.3 Member Growth over 6 Months (Biểu đồ đường Tăng trưởng Tín hữu)
+        $growthChart = [];
+        $runningTotal = Member::where('faith_date', '<', $today->copy()->subMonths(5)->startOfMonth())->count();
+        for ($i = 5; $i >= 0; $i--) {
+            $mStart = $today->copy()->subMonths($i)->startOfMonth();
+            $mEnd   = $mStart->copy()->endOfMonth();
+            
+            $newMembers = Member::whereBetween('faith_date', [$mStart->toDateString(), $mEnd->toDateString()])->count();
+            $runningTotal += $newMembers;
+            
+            $growthChart[] = [
+                'month' => $mStart->format('m/Y'),
+                'total' => $runningTotal,
+                'new' => $newMembers
+            ];
+        }
+
         return Inertia::render('Dashboard', [
             'filters' => ['month' => $month, 'year' => $year],
 
@@ -335,6 +390,13 @@ class DashboardController extends Controller
 
             // Section 8: special dates
             'special_dates'       => $specialDates,
+            
+            // Advanced Analytics
+            'analytics' => [
+                'demographics'  => $demographics,
+                'finance_chart' => $financeChart,
+                'growth_chart'  => $growthChart,
+            ]
         ]);
     }
 }

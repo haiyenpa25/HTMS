@@ -4,7 +4,46 @@
       Quản lý Nhân sự
     </template>
 
-    <div class="py-4 space-y-6">
+    <div class="py-4 space-y-6 w-full">
+
+      <!-- Hero Banner -->
+      <div class="rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-6 sm:p-8 text-white relative overflow-hidden shadow-lg">
+        <div class="absolute inset-0 opacity-10 pointer-events-none flex items-center justify-end pr-8">
+          <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        </div>
+        <div class="relative z-10">
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-blue-200 mb-1">QUẢN TRỊ × TÍN HỮU</p>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Quản lý Nhân sự</h1>
+          <p class="mt-2 text-sm text-blue-200">Hồ sơ đầy đủ, theo dõi thống kê và quản lý toàn bộ tín hữu trong Hội Thánh.</p>
+        </div>
+        <div class="absolute top-5 right-5 sm:top-6 sm:right-6 z-10">
+          <button @click="isSlideOverOpen = true" class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl transition-all backdrop-blur-sm border border-white/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Thêm Tín hữu
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+          <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Tổng tín hữu</p>
+          <p class="text-2xl font-black text-gray-900">{{ members.total }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-blue-100 shadow-sm">
+          <p class="text-xs font-bold text-blue-400 uppercase tracking-widest mb-1">Chính thức</p>
+          <p class="text-2xl font-black text-blue-700">{{ members.data.filter(m => m.membership_status === 'official').length }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-emerald-100 shadow-sm">
+          <p class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Đang hiểu đạo</p>
+          <p class="text-2xl font-black text-emerald-700">{{ members.data.filter(m => m.membership_status === 'learning').length }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-amber-100 shadow-sm">
+          <p class="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">Trên trang hiện tại</p>
+          <p class="text-2xl font-black text-amber-700">{{ members.data.length }}</p>
+        </div>
+      </div>
+
       <!-- Toolbar (Search, Filters, View Switcher) -->
       <DataToolbar
         v-model:search="search"
@@ -95,6 +134,7 @@
 
       <!-- Desktop Table View -->
       <div v-show="viewMode === 'list' && windowWidth >= 768" class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden animate-in fade-in duration-300">
+        <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
@@ -204,6 +244,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       <!-- Grid View & Mobile List -->

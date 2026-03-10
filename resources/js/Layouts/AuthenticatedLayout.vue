@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="flex h-screen bg-gray-50 overflow-hidden font-sans text-gray-900">
     <aside 
       class="hidden overflow-y-auto bg-white border-r border-gray-200 md:flex flex-col flex-shrink-0 relative transition-all duration-300"
@@ -55,6 +55,21 @@
           <svg class="w-5 h-5 shrink-0" :class="route().current('finance.*') ? 'text-emerald-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Tài chính</span>
         </Link>
+        
+        <Link :href="route('calendar.index')" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group" :class="route().current('calendar.*') ? 'bg-pink-50 text-pink-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
+          <svg class="w-5 h-5 shrink-0" :class="route().current('calendar.*') ? 'text-pink-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Lịch Sự Kiện</span>
+        </Link>
+        
+        <Link :href="route('care.index')" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group" :class="route().current('care.*') ? 'bg-red-50 text-red-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
+          <svg class="w-5 h-5 shrink-0" :class="route().current('care.*') ? 'text-red-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+          <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Chăm sóc & Góp ý</span>
+        </Link>
+
+        <Link :href="route('documents.index')" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group" :class="route().current('documents.*') ? 'bg-cyan-50 text-cyan-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
+          <svg class="w-5 h-5 shrink-0" :class="route().current('documents.*') ? 'text-cyan-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+          <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Kho Tài Liệu</span>
+        </Link>
 
         <!-- Menu Hệ thống -->
         <div class="pt-4 mt-4 border-t border-gray-100">
@@ -82,23 +97,95 @@
                <Link :href="route('meetings.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('meetings.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
                  Buổi nhóm
                </Link>
+               <Link :href="route('admin.assets.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('admin.assets.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
+                 Cơ sở vật chất
+               </Link>
+               <Link :href="route('admin.donations.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('admin.donations.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
+                 Tài chính Dâng Hiến
+               </Link>
+               <Link :href="route('admin.visitors.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('admin.visitors.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
+                 Quản lý Thân Hữu
+               </Link>
+               <Link :href="route('admin.broadcasts.index')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('admin.broadcasts.*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
+                 Chiến dịch Truyền Thông
+               </Link>
+               <Link :href="route('admin.activity.logs')" class="flex items-center px-3 py-2 text-sm font-bold rounded-lg transition-colors" :class="route().current('admin.activity.logs*') ? 'text-indigo-700 bg-indigo-50/50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'">
+                 Nhật ký hoạt động
+               </Link>
             </div>
           </div>
+        </div>
+
+        <!-- Trợ giúp -->
+        <div class="pt-4 mt-4 border-t border-gray-100">
+          <Link :href="route('help.install')" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group text-slate-500 hover:bg-slate-100 hover:text-slate-700">
+            <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Hướng dẫn / Tài liệu</span>
+          </Link>
         </div>
       </nav>
       
       <!-- User profile at bottom of sidebar (optional) -->
     </aside>
 
+    <!-- Mobile Navigation Drawer Overlay -->
+    <transition
+      enter-active-class="transition-opacity ease-linear duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity ease-linear duration-300"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-show="isMobileMenuOpen" class="fixed inset-0 z-40 flex sm:hidden">
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-75 blur-sm transition-opacity" @click="isMobileMenuOpen = false"></div>
+        <transition
+          enter-active-class="transition ease-in-out duration-300 transform"
+          enter-from-class="-translate-x-full"
+          enter-to-class="translate-x-0"
+          leave-active-class="transition ease-in-out duration-300 transform"
+          leave-from-class="translate-x-0"
+          leave-to-class="-translate-x-full"
+        >
+          <div v-show="isMobileMenuOpen" class="relative flex 1 w-full max-w-xs flex-col bg-white pt-5 pb-4 shadow-2xl">
+            <div class="absolute top-0 right-0 -mr-12 pt-2">
+              <button @click="isMobileMenuOpen = false" class="ml-1 flex h-10 w-10 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white bg-slate-800/50 backdrop-blur-md text-white">
+                <span class="sr-only">Close sidebar</span>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div class="flex flex-shrink-0 items-center px-4 mb-4">
+               <h2 class="text-2xl font-black text-gray-800 tracking-tight">CMS<span class="text-blue-600">HT</span></h2>
+            </div>
+            <!-- Duplicated Nav Menu for Mobile (simplified) -->
+            <div class="h-0 flex-1 overflow-y-auto hide-scrollbar px-3 space-y-1">
+               <div class="bg-gray-50/50 rounded-xl p-3 border border-gray-100/50 mb-4">
+                   <p class="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">Điều hướng Menu</p>
+               </div>
+               <Link :href="route('dashboard')" @click="isMobileMenuOpen = false" class="flex gap-3 px-3 py-3 rounded-xl font-bold transition-all text-gray-700 bg-gray-50 mb-1">Tổng quan</Link>
+               <Link :href="route('members.index')" @click="isMobileMenuOpen = false" class="flex gap-3 px-3 py-3 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">Tín hữu</Link>
+               <Link :href="route('portal.index')" @click="isMobileMenuOpen = false" class="flex gap-3 px-3 py-3 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">Sinh hoạt</Link>
+               <Link v-if="route().has('ministry.index')" :href="route('ministry.index')" @click="isMobileMenuOpen = false" class="flex gap-3 px-3 py-3 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">Mục vụ</Link>
+               <Link :href="route('finance.index')" @click="isMobileMenuOpen = false" class="flex gap-3 px-3 py-3 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">Tài chính</Link>
+               <Link :href="route('documents.index')" @click="isMobileMenuOpen = false" class="flex gap-3 px-3 py-3 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">Kho Tài liệu</Link>
+            </div>
+          </div>
+        </transition>
+        <div class="w-14 flex-shrink-0" aria-hidden="true"></div>
+      </div>
+    </transition>
+
     <!-- Main Wrapper -->
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-1 flex flex-col overflow-hidden relative">
       <!-- Topbar -->
-      <header class="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-100 shadow-sm z-10">
+      <header class="flex items-center justify-between px-6 py-3 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm z-10 sticky top-0">
         <div class="flex items-center sm:hidden">
-          <button class="text-gray-500 focus:outline-none focus:text-gray-700">
+          <button @click="isMobileMenuOpen = true" class="text-gray-500 focus:outline-none focus:text-indigo-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </button>
-          <h2 class="ml-3 text-lg font-bold text-gray-800 md:hidden">CMS<span class="text-blue-600">HT</span></h2>
+          <h2 class="ml-2 text-lg font-black text-gray-800 md:hidden">CMS<span class="text-blue-600">HT</span></h2>
         </div>
         <div class="hidden sm:block">
           <!-- Page title placeholder -->
@@ -106,17 +193,26 @@
              <slot name="header"></slot>
           </h1>
         </div>
-        <div class="flex items-center space-x-4">
-          <!-- User Profile info -->
-          <div class="text-sm font-medium text-gray-700 hidden sm:block text-right">
-            <span class="block">Xin chào, {{ page.props.auth.user?.name || 'Guest' }}</span>
-            <span class="block text-xs text-gray-500">{{ page.props.auth.user?.role || '' }}</span>
-          </div>
-          <div class="relative group">
-            <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 hover:bg-gray-200 transition-colors focus:outline-none">
-              <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+          <div class="flex items-center space-x-4">
+            <!-- Command Palette Shortcut Hint -->
+            <button @click="openCommandPalette" class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-500 hover:bg-gray-100 transition-colors">
+               <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+               <span>Tìm kiếm...</span>
+               <span class="ml-2 text-xs font-bold text-gray-400 px-1.5 py-0.5 border border-gray-200 rounded bg-white">Ctrl K</span>
             </button>
-            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+
+            <NotificationDropdown />
+
+            <!-- User Profile info -->
+            <div class="text-sm font-medium text-gray-700 hidden sm:block text-right">
+              <span class="block">Xin chào, {{ page.props.auth.user?.name || 'Guest' }}</span>
+              <span class="block text-xs text-gray-500">{{ page.props.auth.user?.role || '' }}</span>
+            </div>
+            <div class="relative group">
+              <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 hover:bg-gray-200 transition-colors focus:outline-none overflow-hidden">
+                <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+              </button>
+              <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
               <Link v-if="page.props.auth?.user?.home_portal" :href="page.props.auth.user.home_portal" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-100">
                 Vào Cổng Nội Bộ
               </Link>
@@ -129,7 +225,7 @@
       </header>
       
       <!-- Content Area -->
-      <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+      <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 px-4 sm:px-6 lg:px-8 py-6">
         <!-- Flash message -->
         <div v-if="page.props.flash.message" class="mb-4 bg-blue-100 border border-blue-200 text-blue-700 px-4 py-3 rounded relative shadow-sm" role="alert">
           <span class="block sm:inline">{{ page.props.flash.message }}</span>
@@ -138,13 +234,35 @@
         <slot />
       </main>
     </div>
+
+    <!-- Command Palette Modal -->
+    <CommandPalette :show="isCommandPaletteOpen" @close="isCommandPaletteOpen = false" />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import NotificationDropdown from '@/Components/NotificationDropdown.vue';
+import CommandPalette from '@/Components/CommandPalette.vue';
+
 const page = usePage();
+
+const isMobileMenuOpen = ref(false);
+const isCommandPaletteOpen = ref(false);
+const openCommandPalette = () => { isCommandPaletteOpen.value = true; };
+
+// Listen for Ctrl+K
+const handleKeydown = (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        isCommandPaletteOpen.value = true;
+    }
+};
+
+onMounted(() => { window.addEventListener('keydown', handleKeydown); });
+onUnmounted(() => { window.removeEventListener('keydown', handleKeydown); });
+
 
 const isSidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true');
 const isSettingsMenuOpen = ref(route().current('users.*') || route().current('roles.*') || route().current('meetings.*') || route().current('departments.*') || route().current('admin.users.*'));

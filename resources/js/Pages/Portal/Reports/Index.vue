@@ -1,8 +1,8 @@
-<template>
+﻿<template>
     <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" @open-switcher="isSwitchOpen = true">
         <Head title="Báo cáo Ban ngành" />
 
-        <div class="py-4 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-4 space-y-6 w-full">
 
             <!-- ══ HEADER ══ -->
             <!-- Print-only letterhead (hidden on screen) -->

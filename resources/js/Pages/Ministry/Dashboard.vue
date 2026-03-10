@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PortalLayout 
       :department="activeDepartment" 
       :available-departments="availableDepartments"
@@ -188,6 +188,15 @@ const allFeatureCards = [
         bg: 'bg-blue-50', text: 'text-blue-500', hoverBg: 'group-hover:bg-blue-600',
         hoverBorder: 'hover:border-blue-200', sub: 'text-blue-600',
         icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>`,
+    },
+    {
+        key: 'duty-rooster',
+        label: 'Lịch Sinh Hoạt',
+        subtitle: 'Bảng phân công',
+        href: route('duty-rooster.index'),
+        bg: 'bg-amber-50', text: 'text-amber-500', hoverBg: 'group-hover:bg-amber-500',
+        hoverBorder: 'hover:border-amber-200', sub: 'text-amber-600',
+        icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>`,
     },
 ];
 
