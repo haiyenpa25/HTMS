@@ -192,14 +192,18 @@ class DutyRosterController extends Controller
             'template_id' => 'required|exists:roster_templates,id',
         ]);
 
-        $template = RosterTemplate::with('roles')->find($validated['template_id']);
+        $template = RosterTemplate::with('roles.departmentRole')->find($validated['template_id']);
+        if (!$template) return back()->with('error', 'Không tìm thấy mẫu.');
 
         foreach ($template->roles as $templateRole) {
-            DutyAssignment::firstOrCreate([
-                'meeting_id'         => $validated['meeting_id'],
-                'department_role_id' => $templateRole->department_role_id,
-                'slot'               => 1,
-            ]);
+            $maxCount = $templateRole->departmentRole->max_count ?? 1;
+            for ($slot = 1; $slot <= $maxCount; $slot++) {
+                DutyAssignment::firstOrCreate([
+                    'meeting_id'         => $validated['meeting_id'],
+                    'department_role_id' => $templateRole->department_role_id,
+                    'slot'               => $slot,
+                ]);
+            }
         }
 
         return back()->with('success', 'Đã áp dụng mẫu phân công.');

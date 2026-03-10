@@ -51,8 +51,9 @@ const canEditSectionII = (deptId) => !props.authDeptIds?.length || props.authDep
 const canEdit = canEditSectionII; // backward-compat for modal
 
 const getAsgn = (rid, slot=1) =>
-  props.meeting.duty_assignments?.find(a => a.department_role_id === rid && (a.slot ?? 1) === slot);
+  props.meeting.duty_assignments?.find(a => a.department_role_id === rid && (Number(a.slot) || 1) === Number(slot));
 const getName = (rid, slot=1) => getAsgn(rid, slot)?.member?.full_name || null;
+const hasAnyAsgn = (rid) => props.meeting.duty_assignments?.some(a => a.department_role_id === rid && a.member_id);
 const slotArr = r => Array.from({ length: r.max_count || 1 }, (_,i) => i+1);
 
 // ── Progress ───────────────────────────────────────────────
@@ -321,7 +322,7 @@ const print = () => window.print();
               <div class="hidden sm:flex gap-1 flex-wrap max-w-xs">
                 <span v-for="role in supportRoles(dept).slice(0,4)" :key="role.id"
                   class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full shrink-0"
-                  :class="getName(role.id,1)?'bg-emerald-100 text-emerald-700':'bg-gray-100 text-gray-400'">
+                  :class="hasAnyAsgn(role.id)?'bg-emerald-100 text-emerald-700':'bg-gray-100 text-gray-400'">
                   {{ role.name.length>7?role.name.slice(0,7)+'…':role.name }}
                 </span>
               </div>
