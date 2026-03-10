@@ -136,16 +136,16 @@ const showHelp = ref(false);
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
 
       <!-- Header -->
-      <div class="flex items-center justify-between mb-5">
-        <div>
-          <h1 class="text-2xl font-black text-gray-900">Lịch Phân Công</h1>
-          <p class="text-xs text-gray-400 mt-0.5">Quản lý phân công nhân sự theo từng buổi lễ</p>
+      <div class="flex items-center justify-between mb-5 gap-2">
+        <div class="min-w-0">
+          <h1 class="text-xl sm:text-2xl font-black text-gray-900 truncate">Lịch Phân Công</h1>
+          <p class="hidden sm:block text-xs text-gray-400 mt-0.5">Quản lý phân công nhân sự theo từng buổi lễ</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 shrink-0">
           <button @click="showHelp=true" class="w-9 h-9 rounded-xl border border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 flex items-center justify-center font-black text-sm transition-all shadow-sm">?</button>
-          <Link :href="route('duty-rooster.templates.index')" class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-sm transition-all">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/></svg>
-            Quản lý Template
+          <Link :href="route('duty-rooster.templates.index')" class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm transition-all">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/></svg>
+            <span class="hidden sm:inline">Quản lý Template</span>
           </Link>
         </div>
       </div>
