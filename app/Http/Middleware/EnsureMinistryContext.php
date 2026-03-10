@@ -77,13 +77,15 @@ class EnsureMinistryContext
         // Logic: 
         //   1. Bắt đầu từ departmentFeatures (Level 1) — feature nào dept có = user có theo mặc định
         //   2. UserDepartmentFeature chỉ dùng để OVERRIDE (tắt riêng cho user cụ thể, hoặc bật thêm)
-        //   3. Super Admin → tất cả true
+        //   3. Super Admin → Tôn trọng giới hạn của department, không cấp True rác
         $userPermissions = collect(\App\Models\Feature::pluck('slug'))
             ->mapWithKeys(fn($s) => [$s => $departmentFeatures[$s] ?? false])
             ->toArray();
 
         if ($isGlobalAdmin) {
-            $userPermissions = array_map(fn() => true, $userPermissions);
+            // Admin only gets what the department has
+            // (already set by the mapWithKeys above)
+            // No action needed: $userPermissions is already perfectly scoped to $departmentFeatures
         } else {
             // Áp dụng explicit overrides từ UserDepartmentFeature (nếu có)
             $overrideRecords = UserDepartmentFeature::where('user_id', $user->id)

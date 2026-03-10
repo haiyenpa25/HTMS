@@ -10,13 +10,17 @@
                     <p class="text-sm text-gray-500 mt-1">Tổng hợp thu chi và số lượng tham gia theo từng kỳ.</p>
                 </div>
                 
-                <div class="flex items-center w-full md:w-auto">
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto no-print">
                      <DataToolbar 
                         :filters="localFilters"
                         :showPeriodFilter="true"
                         @update:filters="updateFilters"
-                        class="w-full"
+                        class="w-full sm:w-auto"
                     />
+                    <button @click="printReport" class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-800 text-white text-sm font-bold rounded-xl hover:bg-gray-900 transition-colors shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        In / PDF
+                    </button>
                 </div>
             </div>
 
@@ -234,4 +238,6 @@ const formatCurrency = (value) => {
 const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
+
+const printReport = () => window.print();
 </script>

@@ -10,6 +10,7 @@
    PRINT STYLES — In báo cáo đẹp (A4, không header nav)
    ═══════════════════════════════════════════════════════════════════ */
 @media print {
+
   /* ── Page setup ── */
   @page {
     size: A4 portrait;
@@ -17,18 +18,42 @@
   }
 
   /* ── Hide everything by default ── */
-  body { background: white !important; }
+  body {
+    background: white !important;
+  }
 
-  /* Hide nav, sidebar, buttons, charts, AI box, modals */
+  /* ── Fix Layout Truncation for Printing (Multi-page support) ── */
+  html,
+  body,
+  #app,
+  [data-page] {
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+
+  .h-screen,
+  .max-h-screen,
+  .flex-1 {
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .overflow-hidden,
+  .overflow-y-auto,
+  .overflow-x-hidden,
+  .overflow-x-auto,
+  .no-scrollbar {
+    overflow: visible !important;
+  }
+
+  /* Hide nav, sidebar, buttons, AI box, modals */
   nav,
   header:not(.print-header),
   aside,
   .no-print,
   button,
   [role="dialog"],
-  .apexcharts-canvas,
-  canvas,
-  svg.chart-svg,
   .fixed,
   .sticky,
   [class*="slide-over"],
@@ -49,6 +74,7 @@
     padding-bottom: 10pt;
     margin-bottom: 14pt;
   }
+
   .print-letterhead h1 {
     font-size: 14pt;
     font-weight: 900;
@@ -56,6 +82,7 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
+
   .print-letterhead p {
     font-size: 9pt;
     color: #555;
@@ -63,7 +90,10 @@
   }
 
   /* ── Remove backgrounds, shadows, rounded corners for print ── */
-  .rounded-2xl, .rounded-xl, .rounded-lg, .rounded-full {
+  .rounded-2xl,
+  .rounded-xl,
+  .rounded-lg,
+  .rounded-full {
     border-radius: 4pt !important;
     border: 1pt solid #e5e7eb !important;
     box-shadow: none !important;
@@ -73,17 +103,16 @@
   .bg-white {
     background: white !important;
   }
-  .shadow-sm, .shadow-md, .shadow-xl, .shadow-lg {
+
+  .shadow-sm,
+  .shadow-md,
+  .shadow-xl,
+  .shadow-lg {
     box-shadow: none !important;
   }
 
-  /* ── Section header bars (keep colored background) ── */
-  [class*="bg-blue-9"],
-  [class*="bg-indigo-9"],
-  [class*="bg-green-9"],
-  [class*="bg-purple-8"],
-  [class*="bg-amber-7"],
-  [class*="bg-gradient"] {
+  /* ── Print colors & aesthetics ── */
+  * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -95,20 +124,31 @@
     font-size: 8pt !important;
     page-break-inside: auto;
   }
-  th, td {
+
+  th,
+  td {
     padding: 4pt 6pt !important;
     border: 0.5pt solid #e5e7eb !important;
   }
+
   thead {
     display: table-header-group;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  tr { page-break-inside: avoid; }
+
+  tr {
+    page-break-inside: avoid;
+  }
 
   /* Show hidden columns on print */
-  .hidden, .md\:table-cell, .lg\:table-cell, .xl\:table-cell,
-  .sm\:table-cell, .hidden.md\:table-cell, .hidden.lg\:table-cell {
+  .hidden,
+  .md\:table-cell,
+  .lg\:table-cell,
+  .xl\:table-cell,
+  .sm\:table-cell,
+  .hidden.md\:table-cell,
+  .hidden.lg\:table-cell {
     display: table-cell !important;
   }
 
@@ -118,8 +158,13 @@
   }
 
   /* ── Page breaks ── */
-  .page-break-before { page-break-before: always; }
-  .page-break-inside-avoid { page-break-inside: avoid; }
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-inside-avoid {
+    page-break-inside: avoid;
+  }
 
   /* Section cards avoid breaks where possible */
   .bg-white.rounded-2xl,
@@ -128,17 +173,36 @@
   }
 
   /* ── Typography for print ── */
-  h2, h3 { font-size: 11pt !important; font-weight: 900 !important; color: #111 !important; }
-  p, span, td { color: #222 !important; }
+  h2,
+  h3 {
+    font-size: 11pt !important;
+    font-weight: 900 !important;
+    color: #111 !important;
+  }
 
-  /* ── Hide chart placeholders ── */
+  p,
+  span,
+  td {
+    color: #222 !important;
+  }
+
+  /* ── Ensure charts are visible when printing ── */
   [class*="apexchart"],
   [class*="apexcharts"],
-  canvas { display: none !important; }
+  canvas {
+    display: block !important;
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
 
   /* ── Show print-only elements ── */
-  .print-only { display: block !important; }
-  .screen-only { display: none !important; }
+  .print-only {
+    display: block !important;
+  }
+
+  .screen-only {
+    display: none !important;
+  }
 
   /* ── Footer with signature line ── */
   .print-footer {
@@ -150,13 +214,16 @@
     border-top: 1pt solid #ccc;
     padding-top: 10pt;
   }
+
   .print-footer .sign-block {
     text-align: center;
   }
+
   .print-footer .sign-block .sign-label {
     font-weight: bold;
     margin-bottom: 30pt;
   }
+
   .print-footer .sign-line {
     border-top: 1pt solid #666;
     width: 80%;

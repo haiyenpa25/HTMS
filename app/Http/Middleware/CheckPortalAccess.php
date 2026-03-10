@@ -37,12 +37,17 @@ class CheckPortalAccess
             $activeDeptId = $this->ensureSessionContext($user, $portalType);
             $activeDept = $activeDeptId ? Department::find($activeDeptId) : null;
             
-            // Allow all features
-            $allFeatures = \App\Models\Feature::pluck('slug');
-            $userPermissions = collect($allFeatures)->mapWithKeys(fn($f) => [$f => true])->toArray();
-            
             $service = app(FeatureAssignmentService::class);
             $departmentFeatures = $activeDept ? $service->getAvailableFeaturesForDepartment($activeDept) : [];
+            
+            // Fix: Admin should only see features that are enabled for this specific department
+            // Instead of returning ALL features blindly.
+            $allFeatures = \App\Models\Feature::pluck('slug');
+            $userPermissions = collect($allFeatures)->mapWithKeys(function($slug) use ($departmentFeatures) {
+                // If the department feature mapping explicitly denies this feature (or doesn't have it configed for this dept)
+                // then Admin should not see it in this portal/department context.
+                return [$slug => $departmentFeatures[$slug] ?? false];
+            })->toArray();
             
             \Inertia\Inertia::share('departmentFeatures', $departmentFeatures);
             \Inertia\Inertia::share('userPermissions', $userPermissions);

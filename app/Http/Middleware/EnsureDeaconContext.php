@@ -53,7 +53,9 @@ class EnsureDeaconContext
             ->toArray();
 
         if ($isGlobalAdmin) {
-            $userPermissions = array_map(fn() => true, $userPermissions);
+            // Admin only gets what the department has
+            // (already set by the mapWithKeys above)
+            // No action needed: $userPermissions is already perfectly scoped to $departmentFeatures
         } else {
             $overrideRecords = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
                 ->where('department_id', 1)
