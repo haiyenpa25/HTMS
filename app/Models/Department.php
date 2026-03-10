@@ -43,4 +43,19 @@ class Department extends Model
     {
         return $this->belongsToMany(Member::class, 'department_supervisors');
     }
+
+    public function supervisedBy()
+    {
+        return $this->belongsTo(Member::class, 'supervisor_id');
+    }
+
+    public function dutyRoles()
+    {
+        return $this->hasMany(DepartmentRole::class);
+    }
+
+    public function rosterTemplates()
+    {
+        return $this->hasMany(RosterTemplate::class);
+    }
 }

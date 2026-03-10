@@ -53,9 +53,12 @@
                <Link v-if="deptFeatures && deptFeatures['reports']" :href="route('portal.reports.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('portal.reports.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['reports']) ? 'opacity-50 pointer-events-none' : '']">
                    Báo cáo
                </Link>
-               <Link v-if="deptFeatures && deptFeatures['finance']" :href="route('portal.finance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('portal.finance.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['finance']) ? 'opacity-50 pointer-events-none' : '']">
-                   Tài chính
-               </Link>
+                <Link v-if="deptFeatures && deptFeatures['finance']" :href="route('portal.finance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('portal.finance.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['finance']) ? 'opacity-50 pointer-events-none' : '']">
+                    Tài chính
+                </Link>
+                <Link :href="route('duty-rooster.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('duty-rooster.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                    Phân công
+                </Link>
            </template>
 
            <!-- Ministry Portal Links -->
@@ -66,9 +69,12 @@
                <Link v-if="deptFeatures && (deptFeatures['members'] || deptFeatures['thanh-vien'])" :href="route('ministry.members.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('ministry.members.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !(authPermissions['members'] || authPermissions['thanh-vien'])) ? 'opacity-50 pointer-events-none' : '']">
                    Thành viên
                </Link>
-               <Link v-if="deptFeatures && deptFeatures['visitation']" :href="route('ministry.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('ministry.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['visitation']) ? 'opacity-50 pointer-events-none' : '']">
-                   Thăm viếng
-               </Link>
+                <Link v-if="deptFeatures && deptFeatures['visitation']" :href="route('ministry.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('ministry.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['visitation']) ? 'opacity-50 pointer-events-none' : '']">
+                    Thăm viếng
+                </Link>
+                <Link :href="route('duty-rooster.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('duty-rooster.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                    Phân công
+                </Link>
            </template>
 
            <!-- Education (CĐGD) Portal Links -->
@@ -137,6 +143,9 @@
                             (!authPermissions || !(authPermissions['members'] || authPermissions['thanh-vien'])) ? 'opacity-50 grayscale pointer-events-none' : ''
                         ]">
                         Thành viên
+                    </Link>
+                    <Link :href="route('duty-rooster.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('duty-rooster.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                        Phân công
                     </Link>
                 </template>
             </template>

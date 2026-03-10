@@ -12,6 +12,11 @@ class Member extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
     protected $fillable = [
         'user_id', 'household_id', 'member_code', 'full_name', 'email', 'phone', 
         'address', 'visit_location', 'latitude', 'longitude', 'date_of_birth', 'gender', 'member_type',

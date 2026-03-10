@@ -52,6 +52,11 @@ class Meeting extends Model
         return $this->hasMany(MeetingAttendance::class);
     }
 
+    public function dutyAssignments()
+    {
+        return $this->hasMany(DutyAssignment::class);
+    }
+
     /**
      * Scope a query to only include meetings accessible by the given user.
      */
