@@ -20,19 +20,22 @@
         <form @submit.prevent="submit" class="space-y-6">
           <div>
             <label for="email" class="block text-sm font-semibold text-slate-700">
-              Email
+              Tên đăng nhập / Email
             </label>
-            <div class="mt-1">
+            <div class="mt-1 flex shadow-sm rounded-xl overflow-hidden border border-slate-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all duration-200">
               <input
                 id="email"
                 v-model="form.email"
-                type="email"
+                type="text"
                 autocomplete="email"
                 required
-                placeholder="email@example.com"
-                class="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                :class="{ 'border-red-500 bg-red-50': form.errors.email }"
+                placeholder="Ví dụ: superadmin"
+                class="appearance-none block w-full px-4 py-3 border-0 focus:ring-0 placeholder-slate-400 text-slate-900"
+                :class="{ 'bg-red-50': form.errors.email }"
               />
+              <div class="flex items-center px-3 bg-slate-50 border-l border-slate-200 text-slate-500 font-medium text-sm select-none">
+                @{{ systemDomain }}
+              </div>
             </div>
             <p v-if="form.errors.email" class="mt-2 text-sm text-red-600">
               {{ form.errors.email }}
@@ -132,10 +135,15 @@
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3';
 
+const props = defineProps({
+  systemDomain: String,
+});
+
 const form = useForm({
   email: '',
   password: '',
   remember: false,
+  domain: props.systemDomain,
 });
 
 const submit = () => {

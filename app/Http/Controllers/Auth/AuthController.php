@@ -22,6 +22,7 @@ class AuthController extends Controller
     {
         return Inertia::render('Auth/Login', [
             'status' => session('status'),
+            'systemDomain' => env('SYSTEM_DOMAIN', 'httlthanhmyloi.com'),
         ]);
     }
 
@@ -30,6 +31,14 @@ class AuthController extends Controller
      */
     public function authenticate(Request $request): RedirectResponse
     {
+        $inputEmail = $request->input('email');
+        $domain = $request->input('domain', env('SYSTEM_DOMAIN', 'httlthanhmyloi.com'));
+
+        // If user only entered username (no @), append domain
+        if ($inputEmail && !str_contains($inputEmail, '@')) {
+            $request->merge(['email' => $inputEmail . '@' . $domain]);
+        }
+
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],

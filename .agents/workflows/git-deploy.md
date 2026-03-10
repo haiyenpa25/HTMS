@@ -3,51 +3,50 @@ description: Git commit, push lên GitHub và deploy lên server production
 ---
 
 🚀 WORKFLOW: GIT DEPLOY (WINDOWS ➔ SERVER)
-⚠️ LƯU Ý WINDOWS: Tuyệt đối KHÔNG dùng && để nối lệnh trên PowerShell. Hãy chạy từng khối lệnh dưới đây.
+⚠️ **LƯU Ý WINDOWS**: Tuyệt đối KHÔNG dùng `&&` để nối lệnh trên PowerShell. Hãy sử dụng dấu `;` hoặc chạy từng lệnh.
 
-🔑 0. THÔNG TIN KẾT NỐI SERVER (SSH)
-Host/IP: 172.20.0.240
+🔑 **0. THÔNG TIN KẾT NỐI SERVER (SSH)**
+- **IP**: `172.20.0.240`
+- **User/Pass**: `quanl3363` / `TML@2025`
+- **Thư mục**: `/home/quanly.httlthanhmyloi.com/public_html`
 
-User: quanl3363
+---
 
-Password: TML@2025
+💻 **BƯỚC 1: THỰC THI TẠI MÁY LOCAL (WINDOWS POWERSHELL)**
+Mục tiêu: Đóng gói mã nguồn, biên dịch giao diện và đẩy lên GitHub.
 
-Thư mục: /home/quanl3363/public_html
+**Copy và dán toàn bộ đoạn dưới đây vào PowerShell:**
+```powershell
+# 1.1 Thêm và Commit code logic
+git add -A; git commit -m "Update logic and features"
 
-💻 BƯỚC 1: THỰC THI TẠI MÁY LOCAL (WINDOWS)
-Mục tiêu: Đóng gói và đẩy mã nguồn lên GitHub.
-
-PowerShell
-# 1.1 Kiểm tra và Commit code logic
-git status
-git add -A
-git commit -m "[Mô tả: Cập nhật tính năng/Sửa lỗi]"
-
-# 1.2 Biên dịch Giao diện (Vite Build)
+# 1.2 Biên dịch Giao diện (Vite Build) - BẮT BUỘC
 npm run build
 
-# 1.3 Đóng gói Assets và Push lên GitHub
-git add public/build
-git commit -m "Deploy: Vite build assets production"
-git push origin main
-🌐 BƯỚC 2: THỰC THI TẠI SERVER (LINUX/SSH)
-Mục tiêu: Kéo code về và tối ưu hóa hệ thống. Copy toàn bộ khối này dán vào Terminal SSH.
+# 1.3 Thêm Assets và Push lên GitHub
+git add public/build; git commit -m "Deploy: Vite build assets production"; git push origin main
+```
 
-Bash
-# Di chuyển vào thư mục dự án
+---
+
+🌐 **BƯỚC 2: THỰC THI TẠI SERVER (LINUX/SSH)**
+Mục tiêu: Kéo code về và tối ưu hóa hệ thống.
+
+**Sau khi SSH vào server, chạy các lệnh sau:**
+```bash
+# Vào thư mục web
 cd ~/public_html
 
-# Cập nhật mã nguồn mới nhất
-git pull origin main
+# Pull code mới và Reset Hard (đảm bảo sạch sẽ)
+git fetch origin; git reset --hard origin/main
 
-# Cập nhật Database (Dùng --force để bỏ qua xác nhận trên Production)
+# Chạy Migration (nếu có bảng mới)
 php artisan migrate --force
 
-# Dọn dẹp bộ nhớ đệm và tối ưu hóa
-php artisan route:clear
-php artisan config:clear
-php artisan view:clear
+# Dọn dẹp và Tối ưu hóa bộ nhớ đệm
 php artisan optimize
+php artisan view:clear
+```
 
-# (Tùy chọn) Sửa lỗi quyền ghi file nếu có
-chmod -R 775 storage bootstrap/cache
+---
+*Lưu ý: Nếu bị lỗi quyền ghi file, chạy lệnh: `chmod -R 775 storage bootstrap/cache`*
