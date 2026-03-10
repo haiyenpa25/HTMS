@@ -9,13 +9,22 @@ use App\Models\Meeting;
 use App\Models\Member;
 use App\Models\RosterTemplate;
 use App\Models\RosterTemplateRole;
+use App\Exports\MeetingExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DutyRosterController extends Controller
 {
+    // ── Export Meeting Assignments to Excel ────────────────
+    public function exportMeeting(Meeting $meeting)
+    {
+        $filename = 'phan-cong-' . $meeting->date . '-' . str($meeting->topic ?? 'hop')->slug() . '.xlsx';
+        return Excel::download(new MeetingExport($meeting), $filename);
+    }
+
     // ── Index (Monthly calendar) ──────────────────────────
     public function index(Request $request)
     {

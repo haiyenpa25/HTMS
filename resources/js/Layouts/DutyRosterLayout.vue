@@ -16,7 +16,18 @@ const isAdmin = computed(() =>
 
 <template>
   <div class="min-h-screen bg-[#f8f9fc] font-sans text-gray-900 flex flex-col">
-    <Head :title="title" />
+    <Head :title="title">
+      <!-- PWA Meta Tags -->
+      <template #default>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#4F46E5" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Phân Công" />
+        <link rel="apple-touch-icon" href="/icon-512.png" />
+      </template>
+    </Head>
 
     <!-- ── Top Nav ─────────────────────────────────────── -->
     <header class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-30">

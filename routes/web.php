@@ -254,6 +254,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/templates/{template}/roles/{role}', [\App\Http\Controllers\DutyRosterController::class, 'removeTemplateRole'])->name('duty-rooster.templates.roles.remove');
 
         // Meeting show (MUST be last to avoid conflict with /templates)
+        Route::get('/{meeting}/export', [\App\Http\Controllers\DutyRosterController::class, 'exportMeeting'])->name('duty-rooster.export');
         Route::get('/{meeting}', [\App\Http\Controllers\DutyRosterController::class, 'show'])->name('duty-rooster.show');
     });
 

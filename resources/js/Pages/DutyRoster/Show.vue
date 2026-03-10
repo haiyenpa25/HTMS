@@ -39,8 +39,17 @@ const fmtDate = computed(() => {
   };
 });
 
-// ── Assignment helpers ─────────────────────────────────────
-const canEdit = id => !props.authDeptIds?.length || props.authDeptIds.includes(id);
+// ── Permission helpers ─────────────────────────────────────
+// Section I (Chương Trình Lễ): only Pastor/Admin can edit
+const canEditSectionI = computed(() =>
+  page.props.auth?.user?.roles?.some(r =>
+    ['Super_Admin','Pastor','BTS_Admin'].includes(r.name)
+  ) ?? false
+);
+// Section II: each dept edits their own only
+const canEditSectionII = (deptId) => !props.authDeptIds?.length || props.authDeptIds.includes(deptId);
+const canEdit = canEditSectionII; // backward-compat for modal
+
 const getAsgn = (rid, slot=1) =>
   props.meeting.duty_assignments?.find(a => a.department_role_id === rid && (a.slot ?? 1) === slot);
 const getName = (rid, slot=1) => getAsgn(rid, slot)?.member?.full_name || null;
@@ -164,6 +173,12 @@ const print = () => window.print();
           </div>
         </div>
         <div class="flex gap-2 shrink-0 no-print">
+          <!-- Export Excel -->
+          <a :href="route('duty-rooster.export', meeting.id)"
+            class="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 rounded-xl shadow-sm">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+            Excel
+          </a>
           <button @click="print" class="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-gray-600 bg-white border border-gray-200 hover:border-gray-300 rounded-xl shadow-sm">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659"/></svg>
             In
@@ -191,10 +206,13 @@ const print = () => window.print();
       <div v-if="hasMain" class="mb-10">
         <div class="flex items-center gap-3 mb-4">
           <div class="w-9 h-9 rounded-2xl bg-orange-500 text-white flex items-center justify-center text-sm font-black shadow-sm">I</div>
-          <div>
+          <div class="flex-1">
             <h2 class="text-base font-black text-gray-900 uppercase tracking-wide">Chương Trình Lễ</h2>
             <p class="text-[11px] text-gray-400">{{ mainItems.length }} vị trí · Bấm để chọn nhân sự phụ trách</p>
           </div>
+          <span v-if="!canEditSectionI" class="flex items-center gap-1 text-[10px] font-black text-amber-600 bg-amber-50 border border-amber-200 px-2 py-1 rounded-full shrink-0">
+            🔒 Chỉ xem
+          </span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -223,18 +241,22 @@ const print = () => window.print();
                 </button>
               </div>
 
-              <!-- Picker trigger -->
+              <!-- Picker trigger: Section I only editable by admin/pastor -->
               <div v-else class="relative">
-                <button @click.stop="togP(item.role.id,item.slot,item.dept.id,item.role.name)"
-                  class="w-full flex items-center justify-between px-3 py-2.5 border border-dashed border-gray-300 rounded-xl text-sm text-gray-400 hover:border-orange-400 hover:bg-orange-50/50 group transition-all">
-                  <span>Chọn từ danh sách</span>
-                  <div class="w-6 h-6 border-2 border-orange-300 group-hover:bg-orange-500 group-hover:border-orange-500 rounded-full flex items-center justify-center transition-all shrink-0">
+                <button @click.stop="canEditSectionI && togP(item.role.id,item.slot,item.dept.id,item.role.name)"
+                  class="w-full flex items-center justify-between px-3 py-2.5 border border-dashed rounded-xl text-sm group transition-all"
+                  :class="canEditSectionI
+                    ? 'border-gray-300 text-gray-400 hover:border-orange-400 hover:bg-orange-50/50 cursor-pointer'
+                    : 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50/50'">
+                  <span>{{ canEditSectionI ? 'Chọn từ danh sách' : 'Chỉ xem (không có quyền)' }}</span>
+                  <div v-if="canEditSectionI" class="w-6 h-6 border-2 border-orange-300 group-hover:bg-orange-500 group-hover:border-orange-500 rounded-full flex items-center justify-center transition-all shrink-0">
                     <svg class="w-3 h-3 text-orange-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                   </div>
+                  <svg v-else class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
                 </button>
 
-                <!-- Inline dropdown -->
-                <div v-if="openPicker===pKey(item.role.id,item.slot)"
+                <!-- Inline dropdown: only open when canEditSectionI -->
+                <div v-if="canEditSectionI && openPicker===pKey(item.role.id,item.slot)"
                   class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-2xl shadow-2xl z-[50] overflow-hidden" @click.stop>
                   <div class="flex border-b border-gray-100">
                     <!-- Speaker tab: only for Diễn Giả roles -->
