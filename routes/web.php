@@ -236,3 +236,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 });
+
+// Help / Documentation (Publicly accessible)
+Route::get('/huong-dan', function () {
+    return \Inertia\Inertia::render('Help/Installation');
+})->name('help.install');
+

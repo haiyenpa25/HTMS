@@ -34,11 +34,11 @@ class InitialSeeder extends Seeder
 
         // 3. Church
         $church = Church::firstOrCreate(
-            ['email' => 'contact@httlthanhmyloi.com'],
+            ['email' => env('CHURCH_EMAIL', 'contact@' . env('SYSTEM_DOMAIN', 'httlthanhmyloi.com'))],
             [
-                'name' => 'Hội Thánh Tin Lành Thạnh Mỹ Lợi',
-                'address' => 'Quận 2, TP. Hồ Chí Minh',
-                'phone_number' => '0123456789',
+                'name' => env('CHURCH_NAME', 'Hội Thánh Tin Lành'),
+                'address' => env('CHURCH_ADDRESS', 'Địa chỉ Hội Thánh'),
+                'phone_number' => env('CHURCH_PHONE', '0123456789'),
             ]
         );
 

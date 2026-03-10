@@ -2,60 +2,52 @@
 description: Git commit, push lên GitHub và deploy lên server production
 ---
 
-# Workflow Git Deploy (Windows + Server SSH)
+🚀 WORKFLOW: GIT DEPLOY (WINDOWS ➔ SERVER)
+⚠️ LƯU Ý WINDOWS: Tuyệt đối KHÔNG dùng && để nối lệnh trên PowerShell. Hãy chạy từng khối lệnh dưới đây.
 
-> **Lưu ý Windows**: Trên PowerShell, KHÔNG dùng `&&` để nối lệnh. Chạy từng lệnh riêng.
+🔑 0. THÔNG TIN KẾT NỐI SERVER (SSH)
+Host/IP: 172.20.0.240
 
-## Khi user đề cập "cập nhật git" hoặc "push lên git"
+User: quanl3363
 
-// turbo-all
+Password: TML@2025
 
-### 1. Xem trạng thái file thay đổi
-```
+Thư mục: /home/quanl3363/public_html
+
+💻 BƯỚC 1: THỰC THI TẠI MÁY LOCAL (WINDOWS)
+Mục tiêu: Đóng gói và đẩy mã nguồn lên GitHub.
+
+PowerShell
+# 1.1 Kiểm tra và Commit code logic
 git status
-```
-
-### 2. Add toàn bộ file thay đổi
-```
 git add -A
-```
+git commit -m "[Mô tả: Cập nhật tính năng/Sửa lỗi]"
 
-### 3. Commit với message mô tả tính năng
-```
-git commit -m "[Mô tả ngắn gọn tính năng / sửa lỗi]"
-```
-
-### 4. Build Vite assets (nếu có thay đổi Vue/JS)
-```
+# 1.2 Biên dịch Giao diện (Vite Build)
 npm run build
-```
 
-### 5. Add và commit public/build
-```
+# 1.3 Đóng gói Assets và Push lên GitHub
 git add public/build
-```
-```
-git commit -m "Deploy: Vite build assets"
-```
-
-### 6. Push lên GitHub
-```
+git commit -m "Deploy: Vite build assets production"
 git push origin main
-```
+🌐 BƯỚC 2: THỰC THI TẠI SERVER (LINUX/SSH)
+Mục tiêu: Kéo code về và tối ưu hóa hệ thống. Copy toàn bộ khối này dán vào Terminal SSH.
 
-## Deploy lên Server (SSH tự động)
-
-Server: `quanl3363@[server-ip]` | Mật khẩu: `TML@2025`
-Thư mục: `/home/quanl3363/public_html`
-
-Lệnh user cần chạy trên server:
-```bash
+Bash
+# Di chuyển vào thư mục dự án
 cd ~/public_html
+
+# Cập nhật mã nguồn mới nhất
 git pull origin main
+
+# Cập nhật Database (Dùng --force để bỏ qua xác nhận trên Production)
+php artisan migrate --force
+
+# Dọn dẹp bộ nhớ đệm và tối ưu hóa
 php artisan route:clear
 php artisan config:clear
+php artisan view:clear
 php artisan optimize
-```
 
-> **Lưu ý**: Không cần `npm run build` trên server vì đã commit `public/build`.
-> Nếu có migration mới: thêm `php artisan migrate --force`
+# (Tùy chọn) Sửa lỗi quyền ghi file nếu có
+chmod -R 775 storage bootstrap/cache

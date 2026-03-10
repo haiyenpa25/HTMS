@@ -18,6 +18,9 @@ class OrgStructureSeeder extends Seeder
 {
     public function run()
     {
+        $domain = env('SYSTEM_DOMAIN', 'httlthanhmyloi.com');
+        $churchName = env('CHURCH_NAME', 'Hội Thánh Tin Lành');
+
         // 1. Spatie Permissions
         $portalPermissions = [
             'access_department_portal',
@@ -136,7 +139,7 @@ class OrgStructureSeeder extends Seeder
         // III. KHỐI MỤC VỤ
         $blockMinistry = 'ministry';
         $ministries = [
-            ['code' => 'BCĐGD', 'name' => 'Ban Cơ Đốc Giáo Dục'],
+            ['code' => 'BCDGD', 'name' => 'Ban Cơ Đốc Giáo Dục'],
             ['code' => 'BTG', 'name' => 'Ban Truyền Giảng'],
             ['code' => 'BCĐCS', 'name' => 'Ban Chứng Đạo – Chăm Sóc TTH'],
             ['code' => 'BKT', 'name' => 'Ban Kỹ Thuật'],
@@ -186,7 +189,7 @@ class OrgStructureSeeder extends Seeder
         // 5. Create Representative Accounts
 
         // Super Admin (Pastor)
-        $pastor = User::updateOrCreate(['email' => 'superadmin@httlthanhmyloi.com'], [
+        $pastor = User::updateOrCreate(['email' => "superadmin@$domain"], [
             'name' => 'Mục sư Quản nhiệm',
             'password' => Hash::make('Abc.1234')
         ]);
@@ -195,11 +198,11 @@ class OrgStructureSeeder extends Seeder
 
         // Activities (Ban Thanh Tráng)
         $deptTT = $activityDepts['BTTR'];
-        $createFunctionalAccount('tb.thanhtrang@httlthanhmyloi.com', 'Trưởng ban Thanh Tráng', 'tb', $deptTT, 'Department_Lead');
-        $createFunctionalAccount('pb.thanhtrang@httlthanhmyloi.com', 'Phó ban Thanh Tráng', 'pb', $deptTT, 'Department_Lead');
-        $createFunctionalAccount('tk.thanhtrang@httlthanhmyloi.com', 'Thư ký Thanh Tráng', 'tk', $deptTT, 'Secretary');
-        $createFunctionalAccount('tq.thanhtrang@httlthanhmyloi.com', 'Thủ quỹ Thanh Tráng', 'tq', $deptTT, 'Secretary');
-        $createFunctionalAccount('tt.thanhtrang@httlthanhmyloi.com', 'Tổ trưởng Thanh Tráng', 'tt', $deptTT, 'Team_Lead');
+        $createFunctionalAccount("tb.thanhtrang@$domain", 'Trưởng ban Thanh Tráng', 'tb', $deptTT, 'Department_Lead');
+        $createFunctionalAccount("pb.thanhtrang@$domain", 'Phó ban Thanh Tráng', 'pb', $deptTT, 'Department_Lead');
+        $createFunctionalAccount("tk.thanhtrang@$domain", 'Thư ký Thanh Tráng', 'tk', $deptTT, 'Secretary');
+        $createFunctionalAccount("tq.thanhtrang@$domain", 'Thủ quỹ Thanh Tráng', 'tq', $deptTT, 'Secretary');
+        $createFunctionalAccount("tt.thanhtrang@$domain", 'Tổ trưởng Thanh Tráng', 'tt', $deptTT, 'Team_Lead');
 
         $this->command->info('Organization structure and functional accounts initialized!');
     }

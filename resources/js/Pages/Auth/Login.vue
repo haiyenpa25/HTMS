@@ -118,11 +118,19 @@
         </div>
       </div>
     </div>
+
+    <!-- Installation Guide Link -->
+    <div class="fixed bottom-4 right-4 z-20">
+      <Link :href="route('help.install')" class="flex items-center space-x-2 px-3 py-1.5 bg-slate-200/50 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors text-xs font-bold backdrop-blur-sm border border-slate-300/30">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>Hướng dẫn cài đặt</span>
+      </Link>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { useForm } from '@inertiajs/vue3';
+import { useForm, Link } from '@inertiajs/vue3';
 
 const form = useForm({
   email: '',

@@ -51,9 +51,10 @@ class FeatureSeeder extends Seeder
         $this->command->info('🗑  user_department_features table cleared.');
 
         // 3. Grant superadmin FULL ACCESS
-        $superAdmin = User::where('email', 'superadmin@httlthanhmyloi.com')->first();
+        $domain = env('SYSTEM_DOMAIN', 'httlthanhmyloi.com');
+        $superAdmin = User::where('email', "superadmin@$domain")->first();
         if (!$superAdmin) {
-            $this->command->warn('⚠  Superadmin user not found! Skipping full access grant.');
+            $this->command->warn("⚠  Superadmin user (superadmin@$domain) not found! Skipping full access grant.");
             return;
         }
 
