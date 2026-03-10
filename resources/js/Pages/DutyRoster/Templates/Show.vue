@@ -4,6 +4,8 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import DutyRosterLayout from '@/Layouts/DutyRosterLayout.vue';
 import axios from 'axios';
 
+const SECTION_I = 'Chương Trình Lễ';
+
 const props = defineProps({
   template:             Object,
   departments:          Array,
@@ -39,13 +41,13 @@ const sectionIRoles = computed(() => {
 const supportDepts = computed(() =>
   props.departments.filter(d => {
     const roles = d.duty_roles || [];
-    // Exclude depts where every role is 'Chương Trình Lễ'
-    if (roles.length > 0 && roles.every(r => r.section === 'Ch\u01b0\u01a1ng Tr\u00ecnh L\u1ec5')) return false;
+    // Exclude depts where every role is Section I
+    if (roles.length > 0 && roles.every(r => r.section === SECTION_I)) return false;
     return true;
   })
 );
 const supportRoles = (dept) =>
-  (dept.duty_roles || []).filter(r => r.section !== 'Ch\u01b0\u01a1ng Tr\u00ecnh L\u1ec5');
+  (dept.duty_roles || []).filter(r => r.section !== SECTION_I);
 
 // ── Selected support depts (initially from participatingDeptIds) ────
 const selectedSupportDeptIds = ref([...props.participatingDeptIds]);
@@ -138,13 +140,24 @@ const addSupportRole = async (dept) => {
   saving.value = false;
 };
 
-// ── Save template name ─────────────────────────────────────
+// ── Save template name ───────────────────────────────────────────────────
 const saveName = async () => {
   if (!templateName.value.trim()) return;
   await axios.put(route('duty-rooster.templates.update', props.template.id), {
     name: templateName.value,
   });
   savingMsg.value = '✓ Đã lưu'; setTimeout(() => savingMsg.value = null, 2000);
+};
+
+// ── Delete template ──────────────────────────────────────────────────
+const confirmDelete = ref(false);
+const deleting = ref(false);
+const deleteTemplate = () => {
+  deleting.value = true;
+  router.delete(route('duty-rooster.templates.destroy', props.template.id), {
+    onSuccess: () => router.visit(route('duty-rooster.templates.index')),
+    onFinish: () => { deleting.value = false; confirmDelete.value = false; },
+  });
 };
 </script>
 
@@ -175,6 +188,11 @@ const saveName = async () => {
           </div>
         </div>
         <div class="flex gap-2 shrink-0">
+          <button @click="confirmDelete=true"
+            class="flex items-center gap-1.5 px-3 py-2.5 text-sm font-bold text-red-500 bg-red-50 hover:bg-red-100 rounded-xl border border-red-100 transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+            Xóa
+          </button>
           <Link :href="route('duty-rooster.index')"
             class="px-4 py-2.5 text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-all">
             Áp dụng cho buổi nhóm →
@@ -420,6 +438,33 @@ const saveName = async () => {
         </div>
       </div>
     </div>
+    <!-- ── Delete Confirmation Modal ──────────────────── -->
+    <div v-if="confirmDelete" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" @click="confirmDelete=false"></div>
+      <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 z-10">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-base font-black text-gray-900">Xóa template này?</h3>
+            <p class="text-xs text-gray-500">Hành động không thể hoàn tác</p>
+          </div>
+        </div>
+        <div class="bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-5 text-xs text-red-700">
+          Template <strong>"{{ template.name }}"</strong> và toàn bộ cấu hình vai trò liên quan sẽ bị xóa vĩnh viễn. Các buổi lễ đã áp dụng mẫu này sẽ không bị ảnh hưởng.
+        </div>
+        <div class="flex gap-3">
+          <button @click="confirmDelete=false" class="flex-1 py-2.5 text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl">Hủy</button>
+          <button @click="deleteTemplate" :disabled="deleting"
+            class="flex-1 py-2.5 text-sm font-bold text-white bg-red-500 hover:bg-red-600 rounded-xl disabled:opacity-50 flex items-center justify-center gap-2">
+            <svg v-if="deleting" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/><path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            {{ deleting ? 'Đang xóa...' : 'Xóa template' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
   </DutyRosterLayout>
 </template>
 

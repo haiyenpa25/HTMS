@@ -8,6 +8,7 @@ const props = defineProps({
   meeting:      Object,
   departments:  Array,
   members:      Array,
+  speakers:     Array,
   deptMembers:  Object,
   templates:    Array,
   authDeptIds:  Array,
@@ -72,12 +73,16 @@ const hasMain = computed(() => mainItems.value.length > 0);
 // ── Picker ─────────────────────────────────────────────────
 const pKey = (rid, s) => `${rid}-${s}`;
 
-const togP = (rid, s, deptId) => {
+// Is this a speaker-type role (Diễn Giả)?
+const isSpeakerRole = (roleName) => /di[eê]n/i.test(roleName || '');
+
+const togP = (rid, s, deptId, roleName) => {
   const k = pKey(rid,s);
   if (openPicker.value === k) { openPicker.value = null; return; }
   openPicker.value = k;
   if (!pickerMode[k]) {
-    pickerMode[k] = (props.deptMembers?.[deptId]||[]).length > 0 ? 'dept' : 'church';
+    pickerMode[k] = isSpeakerRole(roleName) ? 'speaker'
+      : (props.deptMembers?.[deptId]||[]).length > 0 ? 'dept' : 'church';
   }
 };
 const closeP   = () => { openPicker.value = null; };
@@ -86,9 +91,20 @@ const setMode  = (k, m) => { pickerMode[k] = m; };
 const pickerList = (rid, s, deptId) => {
   const k    = pKey(rid,s);
   const mode = pickerMode[k] || 'church';
-  const pool = mode === 'dept' ? (props.deptMembers?.[deptId] || props.members) : props.members;
-  const q    = (searchText[k]||'').toLowerCase().trim();
-  return q ? pool.filter(m => m.full_name.toLowerCase().includes(q)).slice(0,15) : pool.slice(0,15);
+  let pool;
+  if (mode === 'speaker') {
+    pool = (props.speakers || []).map(sp => ({
+      id: sp.id,
+      full_name: [sp.title, sp.full_name].filter(Boolean).join(' '),
+      _isSpeaker: true,
+    }));
+  } else if (mode === 'dept') {
+    pool = props.deptMembers?.[deptId] || props.members;
+  } else {
+    pool = props.members;
+  }
+  const q = (searchText[k]||'').toLowerCase().trim();
+  return q ? pool.filter(m => m.full_name.toLowerCase().includes(q)).slice(0,20) : pool.slice(0,15);
 };
 
 const hasDeptMbrs = deptId => (props.deptMembers?.[deptId]||[]).length > 0;
@@ -209,7 +225,7 @@ const print = () => window.print();
 
               <!-- Picker trigger -->
               <div v-else class="relative">
-                <button @click.stop="togP(item.role.id,item.slot,item.dept.id)"
+                <button @click.stop="togP(item.role.id,item.slot,item.dept.id,item.role.name)"
                   class="w-full flex items-center justify-between px-3 py-2.5 border border-dashed border-gray-300 rounded-xl text-sm text-gray-400 hover:border-orange-400 hover:bg-orange-50/50 group transition-all">
                   <span>Chọn từ danh sách</span>
                   <div class="w-6 h-6 border-2 border-orange-300 group-hover:bg-orange-500 group-hover:border-orange-500 rounded-full flex items-center justify-center transition-all shrink-0">
@@ -220,8 +236,13 @@ const print = () => window.print();
                 <!-- Inline dropdown -->
                 <div v-if="openPicker===pKey(item.role.id,item.slot)"
                   class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-2xl shadow-2xl z-[50] overflow-hidden" @click.stop>
-                  <!-- Mode tabs -->
                   <div class="flex border-b border-gray-100">
+                    <!-- Speaker tab: only for Diễn Giả roles -->
+                    <button v-if="isSpeakerRole(item.role.name)" @click="setMode(pKey(item.role.id,item.slot),'speaker')"
+                      class="flex-1 py-2 text-[11px] font-black transition-colors"
+                      :class="(pickerMode[pKey(item.role.id,item.slot)]||'church')==='speaker' ? 'bg-amber-50 text-amber-700 border-b-2 border-amber-500' : 'text-gray-400 hover:text-gray-600'">
+                      🎤 Diễn Giả
+                    </button>
                     <button @click="setMode(pKey(item.role.id,item.slot),'church')"
                       class="flex-1 py-2 text-[11px] font-black transition-colors"
                       :class="(pickerMode[pKey(item.role.id,item.slot)]||'church')==='church' ? 'bg-indigo-50 text-indigo-700 border-b-2 border-indigo-500' : 'text-gray-400 hover:text-gray-600'">
@@ -308,7 +329,7 @@ const print = () => window.print();
 
                     <!-- Picker -->
                     <div v-else class="relative">
-                      <button @click.stop="togP(role.id,slot,dept.id)" :disabled="!canEdit(dept.id)"
+                      <button @click.stop="togP(role.id,slot,dept.id,role.name)" :disabled="!canEdit(dept.id)"
                         class="w-full flex items-center justify-between px-2.5 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-400 hover:border-indigo-300 hover:bg-indigo-50/30 disabled:opacity-40 group transition-all">
                         <span>Chọn...</span>
                         <svg class="w-3.5 h-3.5 text-indigo-400 group-hover:text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>

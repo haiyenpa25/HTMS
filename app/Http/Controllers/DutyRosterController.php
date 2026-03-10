@@ -60,6 +60,11 @@ class DutyRosterController extends Controller
         $members   = Member::orderBy('full_name')->get(['id', 'full_name']);
         $templates = RosterTemplate::with('roles.departmentRole')->get();
 
+        // Speakers list (for Diễn Giả role)
+        $speakers  = DB::table('speakers')
+            ->orderBy('full_name')
+            ->get(['id', 'full_name', 'title', 'is_external']);
+
         // Build dept→members map via org_memberships (polymorphic: model_type='App\Models\Department', model_id=dept_id)
         $deptMembersRaw = DB::table('org_memberships')
             ->join('members', 'members.id', '=', 'org_memberships.member_id')
@@ -91,6 +96,7 @@ class DutyRosterController extends Controller
             'meeting'     => $meeting,
             'departments' => $departments,
             'members'     => $members,
+            'speakers'    => $speakers,
             'deptMembers' => $deptMembers,
             'templates'   => $templates,
             'authDeptIds' => $authDeptIds,
