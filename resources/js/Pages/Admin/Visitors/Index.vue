@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AuthenticatedLayout>
     <template #header>CRM - Quản lý Chăm sóc Thân Hữu</template>
 
@@ -168,14 +168,11 @@
       </div>
     </div>
 
-    <!-- M O D A L : Thêm / Sửa Thân Hữu -->
-    <Modal :show="isModalOpen" @close="closeModal" maxWidth="2xl">
-      <div class="p-6">
-        <h2 class="text-xl font-black text-gray-900 mb-1">{{ isEditing ? 'Chỉnh Sửa Hồ Sơ Thân Hữu' : 'Thêm Thân Hữu Mới' }}</h2>
-        <p class="text-sm text-gray-500 mb-6">Điền thông tin cơ bản về khách mời lần đầu tham dự để đưa vào phễu chăm sóc.</p>
-
-        <form @submit.prevent="submitForm">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- S L I D E  O V E R : Thêm / Sửa Thân Hữu -->
+    <SlideOver v-model="isModalOpen" :title="isEditing ? 'Chỉnh Sửa Hồ Sơ Thân Hữu' : 'Thêm Thân Hữu Mới'" size="md">
+      <p class="text-sm text-gray-500 mb-6">Điền thông tin cơ bản về khách mời lần đầu tham dự để đưa vào phễu chăm sóc.</p>
+      <form id="visitorForm" @submit.prevent="submitForm">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="md:col-span-2">
               <InputLabel value="Họ và Tên *" />
               <TextInput v-model="form.name" type="text" class="mt-1 block w-full text-base font-bold" required placeholder="VD: Nguyễn Văn A" />
@@ -228,29 +225,23 @@
               <textarea v-model="form.prayer_requests" rows="3" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm bg-indigo-50/30" placeholder="Họ cầu nguyện cho gia đình, công việc, hay sức khoẻ?"></textarea>
             </div>
           </div>
-
-          <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
-            <SecondaryButton @click="closeModal">Hủy</SecondaryButton>
-            <PrimaryButton class="ms-3 bg-indigo-600 hover:bg-indigo-700" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-               Lưu Hồ Sơ
-            </PrimaryButton>
-          </div>
         </form>
-      </div>
-    </Modal>
+      <template #footer>
+        <div class="flex justify-end gap-3 w-full">
+          <SecondaryButton type="button" @click="closeModal">Hủy</SecondaryButton>
+          <PrimaryButton form="visitorForm" class="bg-indigo-600 hover:bg-indigo-700" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+             Lưu Hồ Sơ
+          </PrimaryButton>
+        </div>
+      </template>
+    </SlideOver>
 
-    <!-- M O D A L : TẠO FOLLOW UPs -->
-    <Modal :show="isFollowupModalOpen" @close="closeFollowupModal" maxWidth="3xl">
-       <div class="p-6 max-h-[90vh] overflow-y-auto">
-          <div class="flex justify-between items-start mb-6">
-             <div>
-                <h2 class="text-xl font-black text-gray-900">Ghi nhận Chăm sóc Thân hữu</h2>
-                <div class="flex items-center mt-2 gap-3">
-                   <p class="text-sm font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full"><svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> {{ activeVisitor?.name }}</p>
-                   <span class="px-3 py-1 text-[10px] font-bold uppercase rounded-full border bg-white" :class="getStatusColor(activeVisitor?.status)">Hệ thống: {{ getStatusLabel(activeVisitor?.status) }}</span>
-                </div>
-             </div>
-          </div>
+    <!-- S L I D E  O V E R : TẠO FOLLOW UPs -->
+    <SlideOver v-model="isFollowupModalOpen" title="Ghi nhận Chăm sóc Thân hữu" size="lg">
+        <div class="flex items-center gap-3 mb-6">
+           <p class="text-sm font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full"><svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> {{ activeVisitor?.name }}</p>
+           <span class="px-3 py-1 text-[10px] font-bold uppercase rounded-full border bg-white" :class="getStatusColor(activeVisitor?.status)">Hệ thống: {{ getStatusLabel(activeVisitor?.status) }}</span>
+        </div>
 
           <!-- Lịch sử Followup gần đây -->
           <div class="mb-6 bg-gray-50 p-4 rounded-xl border border-gray-100">
@@ -276,9 +267,9 @@
           </div>
 
           <!-- FORM TẠO MỚI FOLLOW-UP -->
-          <div class="bg-white border text-left p-0 rounded-xl">
+          <div class="bg-white border text-left p-0 rounded-xl mt-4">
               <h3 class="text-sm font-black text-gray-800 mb-4 px-1 flex items-center">📝 Tạo Phiếu Chăm Sóc Mới</h3>
-              <form @submit.prevent="submitFollowup" class="space-y-4">
+              <form id="followupForm" @submit.prevent="submitFollowup" class="space-y-4">
                  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div class="md:col-span-1">
                        <InputLabel value="Ngày tương tác *" />
@@ -322,16 +313,17 @@
                      </label>
                  </div>
 
-                 <div class="flex justify-end pt-4 gap-3">
-                    <SecondaryButton type="button" @click="closeFollowupModal">Huỷ, đóng lại</SecondaryButton>
-                    <PrimaryButton :disabled="followupForm.processing" class="bg-indigo-600 hover:bg-indigo-700 focus:bg-indigo-700">
-                       Lưu Ghi Nhận
-                    </PrimaryButton>
-                 </div>
               </form>
           </div>
-       </div>
-    </Modal>
+      <template #footer>
+        <div class="flex justify-end w-full gap-3">
+            <SecondaryButton type="button" @click="closeFollowupModal">Huỷ, đóng lại</SecondaryButton>
+            <PrimaryButton form="followupForm" :disabled="followupForm.processing" class="bg-indigo-600 hover:bg-indigo-700 focus:bg-indigo-700">
+               Lưu Ghi Nhận
+            </PrimaryButton>
+        </div>
+      </template>
+    </SlideOver>
   </AuthenticatedLayout>
 </template>
 
@@ -345,7 +337,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
-import Modal from '@/Components/Modal.vue';
+import SlideOver from '@/Components/SlideOver.vue';
 import Pagination from '@/Components/Pagination.vue';
 
 const props = defineProps(['visitors', 'filters', 'funnel', 'assignableUsers']);

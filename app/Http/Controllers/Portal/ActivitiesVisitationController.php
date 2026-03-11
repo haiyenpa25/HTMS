@@ -208,7 +208,8 @@ class ActivitiesVisitationController extends Controller
 
         $validated = $request->validate([
             'visitation_type' => 'required|in:department',
-            'member_id' => 'required|exists:members,id',
+            'member_ids' => 'required|array|min:1',
+            'member_ids.*' => 'exists:members,id',
             'visit_date' => 'required|date',
             'reason' => 'required|string',
             'prayer_points' => 'nullable|string',
@@ -224,14 +225,20 @@ class ActivitiesVisitationController extends Controller
         
         $validated['department_id'] = $departmentId;
 
-        $visitation = Visitation::create(\Illuminate\Support\Arr::except($validated, ['latitude', 'longitude']));
-        $visitation->visitors()->sync($request->visitors);
+        $baseData = \Illuminate\Support\Arr::except($validated, ['latitude', 'longitude', 'member_ids']);
         
-        if ($request->filled('latitude') && $request->filled('longitude')) {
-            Member::where('id', $validated['member_id'])->update([
-                'latitude' => $validated['latitude'],
-                'longitude' => $validated['longitude'],
-            ]);
+        foreach ($request->member_ids as $memberId) {
+            $data = $baseData;
+            $data['member_id'] = $memberId;
+            $visitation = Visitation::create($data);
+            $visitation->visitors()->sync($request->visitors);
+            
+            if ($request->filled('latitude') && $request->filled('longitude')) {
+                Member::where('id', $memberId)->update([
+                    'latitude' => $validated['latitude'],
+                    'longitude' => $validated['longitude'],
+                ]);
+            }
         }
 
         return redirect()->back()->with('message', 'Đã thêm báo cáo thăm viếng ban ngành thành công!');

@@ -288,45 +288,60 @@ hover:scale-[1.02] /* chỉ cho cards, không dùng cho text */
 
 ---
 
-## 8. HE THONG PORTAL (ROLE-BASED ROUTING)
+## 8. HỆ THỐNG PORTAL (ROLE-BASED PORTAL ROUTING)
 
-Sau khi dang nhap, moi user duoc redirect toi portal rieng dua tren role:
+Sau khi đăng nhập, hệ thống sẽ tự động điều hướng người dùng tới Portal riêng phù hợp nhất với vai trò và ban ngành của họ (để tránh hiển thị những tính năng thừa thãi không cần thiết):
 
-| Portal | URL | Danh cho | Mau chu dao |
+| Portal | URL | Dành cho | Màu chủ đạo |
 |---|---|---|---|
-| Admin Dashboard | /dashboard | Muc su, Super Admin | Blue (from-blue-700 to-blue-900) |
-| Sinh Hoat | /portal | Ban Sinh Hoat | Emerald (from-emerald-500) |
-| Muc Vu | /ministry | Ban Muc Vu | Indigo (from-indigo-600) |
-| Chap Su | /deacon | Ban Chap Su | Amber (from-amber-500) |
-| Tin Huu | /member | Tin huu thuong | Sky (from-sky-500) |
+| **Trang cho Mục sư (Dashboard)** | `/dashboard` | Mục sư, Super Admin | Blue (`from-blue-700 to-blue-900`) |
+| **Portal Ban ngành Sinh hoạt** | `/portal` | Ban Sinh Hoạt | Emerald (`from-emerald-500`) |
+| **Portal Ban ngành Mục vụ** | `/ministry` | Ban Mục Vụ | Indigo (`from-indigo-600`) |
+| **Portal Ban ngành Chấp sự** | `/deacon` | Ban Chấp Sự (Deacon) | Amber (`from-amber-500`) |
+| **Portal Tín hữu** | `/member` | Tín hữu bình thường | Orange (`from-orange-500 to-orange-700`) |
 
-Logic trong HandleInertiaRequests.php:
-- Super_Admin / Pastor -> /dashboard
-- Deacon / BTS_Admin -> /deacon  
-- Member thuoc ban Ministry -> /ministry
-- Member thuoc ban Activities -> /portal
-- Tin huu binh thuong -> /member (sap trien khai)
+> **Quy tắc hiển thị:** Đăng nhập xong -> Người dùng tới thẳng trang riêng của họ với những tính năng mà họ được phép. Tín hữu sẽ có một trang cực kỳ tối giản (chỉ chứa thông báo, lịch tuần, gửi yêu cầu).
 
-## 9. QUY CHUAN PORTAL LAYOUT
+---
 
-Van de: Portal bi chieu ngang qua lon do dung max-w-5xl hoac max-w-7xl sai vi tri.
+## 9. QUY CHUẨN PORTAL LAYOUT (MARGIN & PADDING)
 
-SAI: <div class="w-full p-4 max-w-5xl mx-auto">
-DUNG: <div class="w-full p-4 sm:p-6 space-y-6">
+**Vấn đề:** Các trang Portal (portal/ministry/deacon) từng bị lỗi chiều ngang quá lớn ("bành bành kỳ quá") trên Desktop và bị chạm sát mép màn hình trên Mobile khi thiếu class constainer.
 
-Grid Feature Cards chuan:
-- Mobile: grid-cols-2
-- Tablet md: grid-cols-3  
-- Desktop lg: grid-cols-4
+**✅ GIẢI PHÁP CHUẨN:**
+Tất cả các layout (như `PortalLayout.vue` hoặc `AuthenticatedLayout.vue`) **PHẢI** luôn có một wrapper quy định độ rộng tối đa và padding an toàn hai bên:
 
-Portal dung sm:hidden fixed bottom-20 right-4 cho FAB tuong tu admin pages.
+```html
+<!-- Cấu trúc wrapper chuẩn BẮT BUỘC trong Layout -->
+<main class="flex-1 overflow-x-hidden overflow-y-auto w-full relative pb-safe">
+    <!-- KHÔNG ĐƯỢC THIẾU DÒNG NÀY: -->
+    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+        <slot />
+    </div>
+</main>
+```
 
-## 10. PORTAL TIN HUU (Thiet ke toi gian)
+Bên trong các Vue Component của từng trang (`Index.vue`), **KHÔNG CẦN** tự định nghĩa lại max-w, chỉ cần padding dọc:
+```html
+<!-- Cấu trúc chuẩn trong các trang Portal / Dashboard -->
+<div class="py-6 space-y-6 w-full">
+    <!-- Nội dung (Feature Cards, Bảng thống kê) -->
+</div>
+```
 
-Tinh nang hien thi:
-- Ho so ca nhan (xem & chinh sua)
-- Lich sinh hoat HT (xem)
-- Gui yeu cau cham soc / gop y
-- Thong bao tu HT
+**Lưới (Grid) của Feature Cards chuẩn:**
+- Mobile: `grid-cols-2`
+- Tablet: `sm:grid-cols-3`
+- Desktop: `lg:grid-cols-4` (hoặc 3 tuỳ số lượng tính năng)
 
-KHONG hien thi: Quan ly tin huu khac, Tai chinh, Phan cong noi bo
+---
+
+## 10. PORTAL TÍN HỮU (TỐI GIẢN)
+
+Tính năng hiển thị (Giao diện giống kiểu app xịn):
+- Hồ sơ Thành viên
+- Lịch sinh hoạt HT (Current week strip)
+- Gửi yêu cầu chăm sóc / Nhu cầu cầu nguyện
+- Lời chào cá nhân hoá / Câu gốc kinh thánh tự động thay đổi
+
+**KHÔNG hiển thị:** Quản lý tín hữu khác, Tài chính, Phân công nội bộ, Tính năng quản trị.

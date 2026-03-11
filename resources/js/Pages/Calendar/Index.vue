@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <component :is="currentLayout">
     <template #header>Lịch Sự Kiện Trực Quan</template>
 
@@ -35,12 +35,10 @@
       </div>
     </div>
 
-    <!-- M O D A L : Thêm / Sửa Sự Kiện -->
-    <Modal :show="isModalOpen" @close="closeModal" maxWidth="md">
-      <div class="p-6">
-        <h2 class="text-lg font-black text-gray-900 mb-4">{{ isEditing ? 'Chỉnh sửa Sự kiện' : 'Tạo Sự kiện Mới' }}</h2>
-        <form @submit.prevent="submitForm">
-          <div class="space-y-4">
+    <!-- S L I D E  O V E R : Thêm / Sửa Sự Kiện -->
+    <SlideOver v-model="isModalOpen" :title="isEditing ? 'Chỉnh sửa Sự kiện' : 'Tạo Sự kiện Mới'" size="md">
+      <form id="eventForm" @submit.prevent="submitForm">
+        <div class="space-y-4">
             <div>
               <InputLabel for="title" value="Tên Sự kiện *" />
               <TextInput id="title" v-model="form.title" type="text" class="mt-1 block w-full text-sm" required placeholder="VD: Lễ Tiệc Thánh, Rút thăm chia tổ..." />
@@ -109,25 +107,25 @@
               <textarea id="description" v-model="form.description" rows="2" class="mt-1 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm text-sm" placeholder="Mục đích, thành phần tham dự..."></textarea>
             </div>
           </div>
-
-          <div class="mt-6 flex justify-between">
-            <div>
-              <button v-if="isEditing" type="button" @click="deleteEvent" class="px-4 py-2 text-sm text-red-600 font-bold hover:bg-red-50 rounded-lg transition-colors">Xoá Sự kiện</button>
-            </div>
-            <div class="flex gap-3">
-              <SecondaryButton @click="closeModal">Hủy</SecondaryButton>
-              <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                {{ isEditing ? 'Cập nhật' : 'Tạo mới' }}
-              </PrimaryButton>
-            </div>
+      </form>
+      <template #footer>
+        <div class="flex justify-between w-full">
+          <div>
+            <button v-if="isEditing" type="button" @click="deleteEvent" class="px-4 py-2 text-sm text-red-600 font-bold hover:bg-red-50 rounded-lg transition-colors">Xoá Sự kiện</button>
           </div>
-        </form>
-      </div>
-    </Modal>
+          <div class="flex gap-3">
+            <SecondaryButton type="button" @click="closeModal">Hủy</SecondaryButton>
+            <PrimaryButton form="eventForm" type="submit" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+              {{ isEditing ? 'Cập nhật' : 'Tạo mới' }}
+            </PrimaryButton>
+          </div>
+        </div>
+      </template>
+    </SlideOver>
 
-    <!-- M O D A L : Xem Chi Tiết Sự Kiện (Buổi nhóm/Trực/...) -->
-    <Modal :show="isDetailModalOpen" @close="closeDetailModal" maxWidth="sm">
-      <div class="p-6">
+    <!-- S L I D E  O V E R : Xem Chi Tiết Sự Kiện (Buổi nhóm/Trực/...) -->
+    <SlideOver v-model="isDetailModalOpen" title="Chi tiết Sự kiện" size="sm">
+      <div>
         <div class="flex items-center gap-3 mb-4">
           <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" :style="`background-color: ${selectedEvent?.backgroundColor}`">
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,14 +156,16 @@
           </div>
         </div>
 
-        <div class="mt-6 pt-4 border-t border-gray-100 flex justify-end gap-2">
-          <button v-if="canEditSelectedEvent" @click="editEvent(selectedEvent)" class="px-4 py-2 text-sm text-blue-600 font-bold hover:bg-blue-50 rounded-lg transition-colors border border-blue-200">
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-2 w-full">
+          <button v-if="canEditSelectedEvent" type="button" @click="editEvent(selectedEvent)" class="px-4 py-2 text-sm text-blue-600 font-bold hover:bg-blue-50 rounded-lg transition-colors border border-blue-200">
             Chỉnh sửa
           </button>
-          <PrimaryButton @click="closeDetailModal">Đóng lại</PrimaryButton>
+          <PrimaryButton type="button" @click="closeDetailModal">Đóng lại</PrimaryButton>
         </div>
-      </div>
-    </Modal>
+      </template>
+    </SlideOver>
   </component>
 </template>
 
@@ -179,7 +179,7 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
-import Modal from '@/Components/Modal.vue';
+import SlideOver from '@/Components/SlideOver.vue';
 
 // FullCalendar Imports
 import FullCalendar from '@fullcalendar/vue3';

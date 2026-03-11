@@ -1,4 +1,4 @@
-﻿<template>
+<template>
     <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" :portal-type="portalType" @open-switcher="isSwitchOpen = true">
         <div class="py-6 space-y-6 w-full mt-2">
             
@@ -131,6 +131,14 @@
                                 <option value="Member">Ban Viên</option>
                             </select>
                         </div>
+                        <!-- Lọc Hoạt động -->
+                        <div class="min-w-[130px]">
+                            <select v-model="activeStatusFilter" class="w-full border-gray-200 rounded-xl text-sm font-medium focus:ring-blue-500 focus:border-blue-500 bg-gray-50 py-2.5 pl-3 pr-8">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="active">Đang sinh hoạt</option>
+                                <option value="inactive">Không sinh hoạt</option>
+                            </select>
+                        </div>
                     </div>
                  </div>
 
@@ -148,7 +156,13 @@
                             <button @click="bulkDeleteMembers" class="px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-xl hover:bg-red-700 transition-colors shadow-sm">
                                 Xóa Hàng Loạt
                             </button>
-                            <button @click="openBulkAssignSlideOver" class="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-sm">
+                            <button @click="bulkToggleActiveMembers(true)" class="px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm whitespace-nowrap">
+                                + Đang SH
+                            </button>
+                            <button @click="bulkToggleActiveMembers(false)" class="px-4 py-2 bg-gray-500 text-white text-sm font-bold rounded-xl hover:bg-gray-600 transition-colors shadow-sm whitespace-nowrap">
+                                + Không SH
+                            </button>
+                            <button @click="openBulkAssignSlideOver" class="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap">
                                 Phân Tổ Hàng Loạt
                             </button>
                             <button @click="clearSelection" class="px-4 py-2 bg-white text-gray-500 text-sm font-bold rounded-xl hover:bg-gray-50 hover:text-gray-700 transition-colors border border-gray-200 shadow-sm">
@@ -190,6 +204,12 @@
                                         <span v-if="member.team_name" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-gray-100 text-gray-600">
                                             {{ member.team_name }}
                                         </span>
+                                        <span v-if="member.is_active" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-700">
+                                            Đang SH
+                                        </span>
+                                        <span v-else class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-gray-100 text-gray-500">
+                                            Không SH
+                                        </span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -218,7 +238,13 @@
                             <button @click="bulkDeleteMembers" class="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg hover:bg-red-700 transition-colors">
                                 Xóa
                             </button>
-                            <button @click="openBulkAssignSlideOver" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors">
+                            <button @click="bulkToggleActiveMembers(true)" class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition-colors">
+                                + Đang SH
+                            </button>
+                            <button @click="bulkToggleActiveMembers(false)" class="px-3 py-1.5 bg-gray-500 text-white text-xs font-bold rounded-lg hover:bg-gray-600 transition-colors">
+                                + Không SH
+                            </button>
+                            <button @click="openBulkAssignSlideOver" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap">
                                 Phân Tổ
                             </button>
                             <button @click="clearSelection" class="px-3 py-1.5 bg-white text-gray-500 text-xs font-bold rounded-lg border border-gray-200 transition-colors">
@@ -254,6 +280,12 @@
                                 </span>
                                 <span v-if="member.team_name" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600">
                                     {{ member.team_name }}
+                                </span>
+                                <span v-if="member.is_active" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">
+                                    Đang SH
+                                </span>
+                                <span v-else class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500">
+                                    Không SH
                                 </span>
                             </div>
                           </div>
@@ -299,6 +331,19 @@
         <SlideOver v-model="isMemberSlideOpen" :title="selectedMember ? selectedMember.full_name : 'Chi tiết'" size="md">
             <template #default>
                 <div v-if="selectedMember" class="p-6 space-y-6">
+                     <div class="flex items-center justify-between mb-4">
+                        <span v-if="selectedMember.is_active" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                            🟢 Đang sinh hoạt
+                        </span>
+                        <span v-else class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500">
+                            ⚫ Không sinh hoạt
+                        </span>
+
+                        <button @click="toggleActiveStatus" class="px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors shadow-sm"
+                            :class="selectedMember.is_active ? 'bg-white border-red-200 text-red-600 hover:bg-red-50' : 'bg-white border-emerald-200 text-emerald-600 hover:bg-emerald-50'">
+                            {{ selectedMember.is_active ? 'Tạm dừng sinh hoạt' : 'Khôi phục sinh hoạt' }}
+                        </button>
+                     </div>
                      <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">Số điện thoại</label>
                         <p class="text-sm text-gray-900">{{ selectedMember.phone || 'Chưa cập nhật' }}</p>
@@ -460,10 +505,19 @@ const props = defineProps({
 });
 
 const isSwitchOpen = ref(false);
-const activeTab = ref('board');
+const activeTab = ref(
+    (props.members?.current_page > 1 || 
+     (typeof window !== 'undefined' && window.location.search.includes('page=')) ||
+     props.filters?.search || 
+     props.filters?.team_id || 
+     props.filters?.org_role || 
+     props.filters?.active_status)
+    ? 'all' : 'board'
+);
 const searchQuery = ref(props.filters?.search || '');
 const teamFilter  = ref(props.filters?.team_id  || '');
 const roleFilter  = ref(props.filters?.org_role || '');
+const activeStatusFilter = ref(props.filters?.active_status || '');
 const isMemberSlideOpen = ref(false);
 const selectedMember = ref(null);
 
@@ -513,16 +567,17 @@ const switchDept = (deptId) => {
 
 
 
-watch([searchQuery, teamFilter, roleFilter], debounce(([search, teamId, orgRole]) => {
+watch([searchQuery, teamFilter, roleFilter, activeStatusFilter], debounce(([search, teamId, orgRole, activeStatus]) => {
     router.get(route(`${props.routePrefix}.index`), {
         search:   search  || undefined,
         team_id:  teamId  || undefined,
         org_role: orgRole || undefined,
+        active_status: activeStatus || undefined,
     }, {
         preserveState: true,
         replace: true,
     });
-    if ((search || teamId || orgRole) && activeTab.value !== 'all') {
+    if ((search || teamId || orgRole || activeStatus) && activeTab.value !== 'all') {
         activeTab.value = 'all';
     }
 }, 300));
@@ -539,6 +594,15 @@ const updateRole = () => {
         preserveScroll: true,
         onSuccess: () => {
             isMemberSlideOpen.value = false;
+        }
+    });
+};
+
+const toggleActiveStatus = () => {
+    router.post(route(`${props.routePrefix}.toggle-active`, selectedMember.value.id), {}, {
+        preserveScroll: true,
+        onSuccess: () => {
+            selectedMember.value.is_active = !selectedMember.value.is_active;
         }
     });
 };
@@ -574,6 +638,21 @@ const bulkDeleteMembers = () => {
     if (confirm(`Bạn có chắc chắn muốn xóa ${selectedMemberIds.value.length} tín hữu này khỏi Ban không?`)) {
         router.delete(route(`${props.routePrefix}.bulk-remove`), {
             data: { member_ids: selectedMemberIds.value },
+            preserveScroll: true,
+            onSuccess: () => {
+                clearSelection();
+            }
+        });
+    }
+};
+
+const bulkToggleActiveMembers = (isActive) => {
+    const statusText = isActive ? 'Khôi phục sinh hoạt' : 'Tạm dừng sinh hoạt';
+    if (confirm(`Bạn có chắc chắn muốn ${statusText} cho ${selectedMemberIds.value.length} tín hữu đang chọn không?`)) {
+        router.post(route(`${props.routePrefix}.bulk-toggle-active`), {
+            member_ids: selectedMemberIds.value,
+            is_active: isActive
+        }, {
             preserveScroll: true,
             onSuccess: () => {
                 clearSelection();

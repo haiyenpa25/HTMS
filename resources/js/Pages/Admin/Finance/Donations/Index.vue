@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AuthenticatedLayout>
     <template #header>Quản lý Tài chính: Dâng hiến & Thập phân</template>
 
@@ -158,14 +158,11 @@
       </div>
     </div>
 
-    <!-- M O D A L : TẠO / SỬA QUỸ -->
-    <Modal :show="isFundModalOpen" @close="closeFundModal" maxWidth="md">
-      <div class="p-6">
-        <h2 class="text-lg font-black text-gray-900 mb-1">{{ isEditingFund ? 'Chỉnh Sửa Quỹ' : 'Thêm Quỹ Mới (Sổ cái)' }}</h2>
-        <p class="text-xs text-gray-500 mb-6">Định nghĩa một túi tiền để điều tiết các dòng dâng hiến.</p>
-
-        <form @submit.prevent="submitFundForm">
-           <div class="space-y-4">
+    <!-- S L I D E  O V E R : TẠO / SỬA QUỸ -->
+    <SlideOver v-model="isFundModalOpen" :title="isEditingFund ? 'Chỉnh Sửa Quỹ' : 'Thêm Quỹ Mới (Sổ cái)'" size="sm">
+      <p class="text-xs text-gray-500 mb-6">Định nghĩa một túi tiền để điều tiết các dòng dâng hiến.</p>
+      <form id="fundForm" @submit.prevent="submitFundForm">
+         <div class="space-y-4">
               <div>
                 <InputLabel value="Tên Quỹ *" />
                 <TextInput v-model="fundForm.name" type="text" class="mt-1 block w-full text-sm font-bold" required placeholder="VD: Quỹ Xây Dựng Đền Thờ Mới" />
@@ -196,14 +193,14 @@
                  <label for="is_active" class="ml-2 block text-sm text-gray-900 font-medium">Còn hoạt động (Cho phép thu)</label>
               </div>
            </div>
-
-           <div class="flex justify-end gap-3 pt-6 border-t border-gray-100 mt-6">
-              <SecondaryButton @click="closeFundModal">Hủy</SecondaryButton>
-              <PrimaryButton :disabled="fundForm.processing" class="bg-indigo-600 hover:bg-indigo-700">Lưu Quỹ</PrimaryButton>
-           </div>
         </form>
-      </div>
-    </Modal>
+      <template #footer>
+        <div class="flex justify-end gap-3 w-full">
+            <SecondaryButton type="button" @click="closeFundModal">Hủy</SecondaryButton>
+            <PrimaryButton form="fundForm" type="submit" :disabled="fundForm.processing" class="bg-indigo-600 hover:bg-indigo-700">Lưu Quỹ</PrimaryButton>
+        </div>
+      </template>
+    </SlideOver>
 
   </AuthenticatedLayout>
 </template>
@@ -217,7 +214,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
-import Modal from '@/Components/Modal.vue';
+import SlideOver from '@/Components/SlideOver.vue';
 import Pagination from '@/Components/Pagination.vue';
 
 const props = defineProps(['donations', 'funds', 'filters', 'stats']);

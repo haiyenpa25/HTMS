@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AuthenticatedLayout>
     <template #header>
       <div class="flex items-center justify-between">
@@ -122,13 +122,9 @@
       </div>
     </div>
 
-    <!-- Details Modal -->
-    <Modal :show="!!selectedLog" @close="selectedLog = null" maxWidth="2xl">
-        <div class="p-6">
-            <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                Chi tiết dữ liệu (#{{ selectedLog?.id }})
-            </h3>
-            
+    <!-- Details SlideOver -->
+    <SlideOver :model-value="!!selectedLog" @update:model-value="v => !v && (selectedLog = null)" :title="`Chi tiết dữ liệu (#${selectedLog?.id})`" size="md">
+
             <div v-if="selectedLog" class="space-y-4">
                 <div v-if="selectedLog.properties.old && Object.keys(selectedLog.properties.old).length > 0">
                    <h4 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Dữ liệu Cũ (Old)</h4>
@@ -143,12 +139,12 @@
                    <pre class="bg-slate-50 text-slate-800 p-4 rounded-lg text-xs overflow-x-auto border border-slate-200 font-mono">{{ JSON.stringify(selectedLog.properties, null, 2) }}</pre>
                 </div>
             </div>
-
-            <div class="mt-6 flex justify-end">
-                <button @click="selectedLog = null" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-medium">Đóng</button>
-            </div>
+      <template #footer>
+        <div class="flex justify-end w-full">
+            <button @click="selectedLog = null" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-medium">Đóng lại</button>
         </div>
-    </Modal>
+      </template>
+    </SlideOver>
   </AuthenticatedLayout>
 </template>
 
@@ -156,7 +152,7 @@
 import { ref, computed } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import Modal from '@/Components/Modal.vue';
+import SlideOver from '@/Components/SlideOver.vue';
 
 const props = defineProps({
     logs: Object,

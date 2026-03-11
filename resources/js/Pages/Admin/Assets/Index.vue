@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AuthenticatedLayout>
     <template #header>Quản lý Cơ sở Vật chất</template>
 
@@ -126,12 +126,10 @@
       </div>
     </div>
 
-    <!-- M O D A L : Thêm / Sửa Tài Sản -->
-    <Modal :show="isModalOpen" @close="closeModal" maxWidth="2xl">
-      <div class="p-6">
-        <h2 class="text-lg font-black text-gray-900 mb-4">{{ isEditing ? 'Chỉnh sửa Tài sản' : 'Thêm Tài sản Mới' }}</h2>
-        <form @submit.prevent="submitForm">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- S L I D E  O V E R : Thêm / Sửa Tài Sản -->
+    <SlideOver v-model="isModalOpen" :title="isEditing ? 'Chỉnh sửa Tài sản' : 'Thêm Tài sản Mới'" size="md">
+      <form id="assetForm" @submit.prevent="submitForm">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="md:col-span-2">
               <InputLabel value="Tên gọi / Mô tả Tài sản *" />
               <TextInput v-model="form.name" type="text" class="mt-1 block w-full text-sm font-bold" required placeholder="VD: Bàn Mixer X32 / Đàn Piano Yamaha..." />
@@ -197,23 +195,22 @@
             </div>
             
           </div>
-
-          <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
-            <SecondaryButton @click="closeModal">Hủy</SecondaryButton>
-            <PrimaryButton class="ms-3" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-               Lưu Dữ Liệu
-            </PrimaryButton>
-          </div>
         </form>
-      </div>
-    </Modal>
+      <template #footer>
+        <div class="flex justify-end gap-3 w-full">
+          <SecondaryButton type="button" @click="closeModal">Hủy</SecondaryButton>
+          <PrimaryButton form="assetForm" type="submit" class="ms-3" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+             Lưu Dữ Liệu
+          </PrimaryButton>
+        </div>
+      </template>
+    </SlideOver>
 
-    <!-- M O D A L : Mượn / Trả (Check-out / Check-in) -->
-    <Modal :show="isLoanModalOpen" @close="closeLoanModal" maxWidth="3xl">
-       <div class="p-6 max-h-[90vh] overflow-y-auto">
-          <div class="flex justify-between items-start mb-6">
-             <div>
-                <h2 class="text-xl font-black text-gray-900">Quản lý Mượn/Trả: <span class="text-indigo-600">{{ activeAsset?.code }}</span></h2>
+    <!-- S L I D E  O V E R : Mượn / Trả (Check-out / Check-in) -->
+    <SlideOver v-model="isLoanModalOpen" title="Quản lý Mượn/Trả" size="lg">
+        <div class="flex justify-between items-start mb-6">
+           <div>
+              <h2 class="text-xl font-black text-gray-900">Mã Tài Sản: <span class="text-indigo-600">{{ activeAsset?.code }}</span></h2>
                 <p class="text-sm font-bold text-gray-600 mt-1">{{ activeAsset?.name }}</p>
              </div>
              <span class="px-3 py-1 text-xs font-bold uppercase rounded-lg" :class="getStatusColor(activeAsset?.status)">{{ getStatusLabel(activeAsset?.status) }}</span>
@@ -329,8 +326,12 @@
                 </div>
              </form>
           </div>
-       </div>
-    </Modal>
+      <template #footer>
+        <div class="flex justify-end w-full">
+          <PrimaryButton type="button" @click="closeLoanModal">Đóng lại</PrimaryButton>
+        </div>
+      </template>
+    </SlideOver>
   </AuthenticatedLayout>
 </template>
 
@@ -344,7 +345,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
-import Modal from '@/Components/Modal.vue';
+import SlideOver from '@/Components/SlideOver.vue';
 import Pagination from '@/Components/Pagination.vue';
 
 const props = defineProps(['assets', 'filters', 'departments', 'stats']);

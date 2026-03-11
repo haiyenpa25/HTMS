@@ -221,7 +221,8 @@ class VisitationController extends Controller
         Gate::authorize('create', Visitation::class);
 
         $validated = $request->validate([
-            'member_id' => 'required|exists:members,id',
+            'member_ids' => 'required|array|min:1',
+            'member_ids.*' => 'exists:members,id',
             'visitation_type' => 'required|in:church,department',
             'visit_date' => 'required|date',
             'reason' => 'required|in:ốm đau,mới tin Chúa,khích lệ,khác',
@@ -237,21 +238,24 @@ class VisitationController extends Controller
         ]);
 
         $departmentId = session('active_ministry_dept_id');
-        if ($validated['visitation_type'] === 'department') {
-            $validated['department_id'] = $departmentId;
-        } else {
-             $validated['department_id'] = null;
-        }
+        $deptIdToSave = $validated['visitation_type'] === 'department' ? $departmentId : null;
 
-        DB::transaction(function () use ($validated) {
-            $visitation = Visitation::create(\Illuminate\Support\Arr::except($validated, ['latitude', 'longitude']));
-            $visitation->visitors()->sync($validated['visitor_ids']);
-            
-            if (isset($validated['latitude']) && isset($validated['longitude'])) {
-                Member::where('id', $validated['member_id'])->update([
-                    'latitude' => $validated['latitude'],
-                    'longitude' => $validated['longitude'],
-                ]);
+        $baseData = \Illuminate\Support\Arr::except($validated, ['latitude', 'longitude', 'member_ids']);
+        $baseData['department_id'] = $deptIdToSave;
+
+        DB::transaction(function () use ($request, $validated, $baseData) {
+            foreach ($request->member_ids as $memberId) {
+                $data = $baseData;
+                $data['member_id'] = $memberId;
+                $visitation = Visitation::create($data);
+                $visitation->visitors()->sync($validated['visitor_ids']);
+                
+                if (isset($validated['latitude']) && isset($validated['longitude'])) {
+                    Member::where('id', $memberId)->update([
+                        'latitude' => $validated['latitude'],
+                        'longitude' => $validated['longitude'],
+                    ]);
+                }
             }
         });
 

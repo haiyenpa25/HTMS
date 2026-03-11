@@ -1,4 +1,4 @@
-﻿<template>
+<template>
     <PortalLayout :department="department" :available-departments="[department]" :is-global-admin="isGlobalAdmin" :portalType="portalType || 'activities'">
         <template #header>
             <h2 class="font-bold text-xl text-gray-800 leading-tight">Thăm Viếng Nội Bộ Ban: {{ department?.name }}</h2>
@@ -282,17 +282,49 @@
                 <!-- Visited Member (Searchable) -->
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Tín hữu được thăm <span class="text-red-500">*</span></label>
-                    <SearchableSelect
-                        v-model="form.member_id"
-                        :options="members.map(m => ({ value: m.id, label: `${m.full_name} (${m.phone || 'K có SĐT'})` }))"
-                        placeholder="-- Gõ tên để tìm nhanh --"
-                        searchPlaceholder="Tìm theo tên..."
-                        noResultsText="Không tìm thấy thành viên này"
-                    />
-                    <p v-if="form.errors.member_id" class="mt-1 text-xs text-red-500">{{ form.errors.member_id }}</p>
+                    <template v-if="!isEditing">
+                        <div class="relative mb-2">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                            <input type="text" v-model="visitedSearch" placeholder="Tìm người được thăm..." class="block w-full pl-9 pr-3 py-1.5 text-xs border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 italic">
+                        </div>
+                        
+                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 max-h-48 overflow-y-auto mb-2 custom-scrollbar">
+                            <div class="flex flex-col space-y-2">
+                                <label v-for="m in filteredVisitedMembers" :key="'vis-'+m.id" class="inline-flex items-center cursor-pointer p-1.5 hover:bg-amber-50 rounded-lg transition-colors">
+                                    <input type="checkbox" v-model="form.member_ids" :value="m.id" class="rounded border-gray-300 text-amber-600 focus:ring-amber-500 hidden peer">
+                                    <div class="w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center peer-checked:bg-amber-500 peer-checked:border-amber-500 mr-3 transition-colors">
+                                        <svg class="w-3 h-3 text-white opacity-0 peer-checked:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-700 peer-checked:text-amber-800 flex-1">{{ m.full_name }}</span>
+                                    <span class="text-[10px] text-gray-500 font-medium ml-2">{{ m.phone || 'K có SĐT' }}</span>
+                                </label>
+                                <div v-if="filteredVisitedMembers.length === 0" class="text-center py-4 text-xs text-gray-400 italic">Không tìm thấy ai</div>
+                            </div>
+                        </div>
+                        
+                        <div v-if="form.member_ids.length > 0" class="flex flex-wrap gap-1.5">
+                            <span v-for="vId in form.member_ids" :key="vId" class="inline-flex items-center px-2 py-1 rounded bg-amber-100 text-amber-800 text-xs font-bold">
+                                {{ members.find(m => m.id === vId)?.full_name || 'Unknown' }}
+                                <button @click.prevent="form.member_ids = form.member_ids.filter(id => id !== vId)" class="ml-1.5 text-amber-600 hover:text-amber-900 bg-amber-200/50 rounded-full p-0.5"><svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                            </span>
+                        </div>
+                        <p v-if="form.errors.member_ids" class="mt-1 text-xs text-red-500">{{ form.errors.member_ids }}</p>
+                    </template>
+                    <template v-else>
+                        <SearchableSelect
+                            v-model="form.member_id"
+                            :options="members.map(m => ({ value: m.id, label: `${m.full_name} (${m.phone || 'K có SĐT'})` }))"
+                            placeholder="-- Gõ tên để tìm nhanh --"
+                            searchPlaceholder="Tìm theo tên..."
+                            noResultsText="Không tìm thấy thành viên này"
+                        />
+                        <p v-if="form.errors.member_id" class="mt-1 text-xs text-red-500">{{ form.errors.member_id }}</p>
+                    </template>
                     
                     <!-- Location / Geolocation Row (Only visible if member selected) -->
-                    <div v-if="form.member_id" class="mt-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <div v-if="isEditing ? form.member_id : (form.member_ids && form.member_ids.length === 1)" class="mt-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-xs font-bold text-gray-700">Tọa độ Bản đồ (GPS):</span>
                             <div class="space-x-2 flex">
@@ -585,6 +617,7 @@ const editingId = ref(null);
 
 const form = useForm({
     visitation_type: 'department', // Default, but overridden
+    member_ids: [],
     member_id: '',
     visit_date: new Date().toISOString().split('T')[0],
     reason: '',
@@ -601,6 +634,13 @@ const form = useForm({
     visitor_ids: []
 });
 
+const visitedSearch = ref('');
+const filteredVisitedMembers = computed(() => {
+    if (!visitedSearch.value) return props.members;
+    const q = visitedSearch.value.toLowerCase();
+    return props.members.filter(m => m.full_name.toLowerCase().includes(q) || (m.phone && m.phone.includes(q)));
+});
+
 watch(() => form.visitors, (newVal) => {
     form.visitor_ids = newVal; // Keep both synced in case pastoral uses id
 }, { deep: true });
@@ -609,6 +649,7 @@ const openForm = () => {
     isEditing.value = false;
     editingId.value = null;
     form.reset();
+    form.member_ids = [];
     form.visitation_type = props.portalType === 'ministry' ? 'department' : 'department'; // Keep as is initially
     form.visit_date = new Date().toISOString().split('T')[0];
     isFormOpen.value = true;
@@ -622,7 +663,7 @@ const openEmergencyForm = () => {
 
 const createFromSuggestion = (suggestion) => {
     openForm();
-    form.member_id = suggestion.id;
+    form.member_ids = [suggestion.id];
     form.priority = suggestion.priority;
     form.latitude = suggestion.latitude || '';
     form.longitude = suggestion.longitude || '';

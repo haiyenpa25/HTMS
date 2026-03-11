@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <component :is="currentLayout">
     <template #header>Thư Viện Tài Liệu</template>
 
@@ -118,12 +118,10 @@
       <Pagination :links="documents.links" class="mt-4" />
     </div>
 
-    <!-- M O D A L : Upload Tài liệu -->
-    <Modal :show="isUploadModalOpen" @close="closeUploadModal" maxWidth="md">
-      <div class="p-6">
-        <h2 class="text-lg font-black text-gray-900 mb-4">Tải lên Tài liệu Mới</h2>
-        <form @submit.prevent="submitUpload">
-          <div class="space-y-4">
+    <!-- S L I D E  O V E R : Upload Tài liệu -->
+    <SlideOver v-model="isUploadModalOpen" title="Tải lên Tài liệu Mới" size="md">
+      <form id="uploadForm" @submit.prevent="submitUpload">
+        <div class="space-y-4">
             <div>
               <InputLabel for="title" value="Tên tài liệu *" />
               <TextInput id="title" v-model="form.title" type="text" class="mt-1 block w-full text-sm" required placeholder="VD: Nội quy sinh hoạt thanh niên..." />
@@ -162,16 +160,16 @@
               <InputError :message="form.errors.file" class="mt-2" />
             </div>
           </div>
-
-          <div class="mt-6 flex justify-end gap-3">
-            <SecondaryButton @click="closeUploadModal">Hủy</SecondaryButton>
-            <PrimaryButton class="ms-3" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-              Tải lên Hệ Thống
-            </PrimaryButton>
-          </div>
-        </form>
-      </div>
-    </Modal>
+      </form>
+      <template #footer>
+        <div class="flex justify-end gap-3 w-full">
+          <SecondaryButton type="button" @click="closeUploadModal">Hủy</SecondaryButton>
+          <PrimaryButton form="uploadForm" type="submit" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+            Tải lên Hệ Thống
+          </PrimaryButton>
+        </div>
+      </template>
+    </SlideOver>
 
   </component>
 </template>
@@ -189,7 +187,7 @@ import InputError from '@/Components/InputError.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import Pagination from '@/Components/Pagination.vue';
-import Modal from '@/Components/Modal.vue';
+import SlideOver from '@/Components/SlideOver.vue';
 import debounce from 'lodash/debounce';
 
 const currentLayout = computed(() => {

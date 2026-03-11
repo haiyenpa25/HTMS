@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="h-screen bg-gray-50 flex flex-col relative w-full overflow-hidden font-sans text-gray-900">
     <!-- Header: Portal Navigation and Admin Back -->
     <header class="bg-blue-600 text-white shadow-md relative z-20 shrink-0">
@@ -154,7 +154,9 @@
 
     <!-- Main Content Area -->
     <main class="flex-1 overflow-x-hidden overflow-y-auto w-full relative pb-safe">
-        <slot />
+        <div class="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8">
+            <slot />
+        </div>
     </main>
 
   </div>

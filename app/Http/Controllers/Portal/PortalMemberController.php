@@ -139,6 +139,7 @@ class PortalMemberController extends Controller
                 'team_name' => $team->name ?? null,
                 'joined_date' => $membership ? $membership->join_date : null,
                 'status' => $member->status,
+                'is_active' => $membership ? $membership->is_active : 1,
                 'avatar_url' => $member->avatar_url ?? null,
             ];
         });
@@ -147,6 +148,7 @@ class PortalMemberController extends Controller
         $search  = $request->input('search');
         $teamId  = $request->input('team_id');
         $orgRole = $request->input('org_role'); // frontend key (TruongBan, PhoBan, ...)
+        $activeStatus = $request->input('active_status'); // 'active' or 'inactive'
 
         // Map frontend role key → backend org_role code
         $roleCodeMap = [
@@ -155,12 +157,18 @@ class PortalMemberController extends Controller
         ];
         $roleCode = $orgRole ? ($roleCodeMap[$orgRole] ?? null) : null;
 
-        $allMembersQuery = Member::whereHas('memberships', function($q) use ($departmentId, $teamId, $roleCode) {
+        $allMembersQuery = Member::whereHas('memberships', function($q) use ($departmentId, $teamId, $roleCode, $activeStatus) {
             $q->where('model_type', Department::class)
               ->where('model_id', $departmentId);
             // Filter by org_role code
             if ($roleCode) {
                 $q->whereHas('role', fn($r) => $r->where('code', $roleCode));
+            }
+            // Filter by active status
+            if ($activeStatus === 'active') {
+                $q->where('is_active', 1);
+            } elseif ($activeStatus === 'inactive') {
+                $q->where('is_active', 0);
             }
         })->with(['memberships' => function($q) use ($departmentId) {
              $q->where('model_type', Department::class)
@@ -197,6 +205,7 @@ class PortalMemberController extends Controller
                  'phone' => $member->phone,
                  'email' => $member->email,
                  'status' => $member->status,
+                 'is_active' => $membership ? $membership->is_active : 1,
                  'gender' => $member->gender,
                  'org_role' => $frontendRole,
                  'team_id' => $team->id ?? null,
@@ -215,10 +224,33 @@ class PortalMemberController extends Controller
                 'search'   => $search,
                 'team_id'  => $teamId ?? null,
                 'org_role' => $orgRole ?? null,
+                'active_status' => $activeStatus ?? null,
             ],
             'routePrefix' => $context['route_prefix'],
             'portalType' => $context['type'],
         ]);
+    }
+
+    /**
+     * Toggle active status of a member in the current department
+     */
+    public function toggleActiveStatus(Request $request, Member $member)
+    {
+        $context = $this->getContext();
+        $departmentId = $this->getDeptId($context);
+
+        Gate::authorize('portal_manage_board', Member::class);
+
+        $membership = OrgMembership::where('model_type', Department::class)
+            ->where('model_id', $departmentId)
+            ->where('member_id', $member->id)
+            ->firstOrFail();
+
+        $membership->is_active = !$membership->is_active;
+        $membership->save();
+
+        $statusStr = $membership->is_active ? 'khôi phục sinh hoạt' : 'tạm dừng sinh hoạt';
+        return back()->with('success', "Đã {$statusStr} cho tín hữu {$member->full_name}.");
     }
 
     /**
@@ -332,6 +364,31 @@ class PortalMemberController extends Controller
         });
 
         return back()->with('success', 'Đã phân tổ hàng loạt thành công.');
+    }
+
+    /**
+     * Bulk toggle active status of members in the current department
+     */
+    public function bulkToggleActive(Request $request)
+    {
+        $context = $this->getContext();
+        $departmentId = $this->getDeptId($context);
+
+        Gate::authorize('portal_manage_board', Member::class);
+
+        $validated = $request->validate([
+            'member_ids' => 'required|array',
+            'member_ids.*' => 'integer|exists:members,id',
+            'is_active' => 'required|boolean',
+        ]);
+
+        OrgMembership::where('model_type', Department::class)
+            ->where('model_id', $departmentId)
+            ->whereIn('member_id', $validated['member_ids'])
+            ->update(['is_active' => $validated['is_active']]);
+
+        $statusStr = $validated['is_active'] ? 'khôi phục' : 'tạm dừng';
+        return back()->with('success', "Đã {$statusStr} sinh hoạt cho " . count($validated['member_ids']) . " tín hữu.");
     }
 
     private function getAvailableDepartments()

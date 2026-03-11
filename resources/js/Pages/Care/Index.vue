@@ -129,12 +129,10 @@
       <Pagination :links="requests.links" />
     </div>
 
-    <!-- M O D A L : Thêm Yêu cầu -->
-    <Modal :show="isModalOpen" @close="closeModal" maxWidth="md">
-      <div class="p-6">
-        <h2 class="text-lg font-black text-gray-900 mb-4">Gửi Yêu cầu & Góp ý</h2>
-        <form @submit.prevent="submitForm">
-          <div class="space-y-4">
+    <!-- S L I D E  O V E R : Thêm Yêu cầu -->
+    <SlideOver v-model="isModalOpen" title="Gửi Yêu cầu & Góp ý" size="md">
+      <form id="careForm" @submit.prevent="submitForm">
+        <div class="space-y-4">
             <div>
               <InputLabel for="category" value="Bạn đang cần gì? *" />
               <select id="category" v-model="form.category" class="mt-1 block w-full border-gray-300 focus:border-red-500 focus:ring-red-500 rounded-md shadow-sm text-sm" required>
@@ -173,23 +171,21 @@
                </div>
             </div>
           </div>
+      </form>
+      <template #footer>
+        <div class="flex justify-end gap-3 w-full">
+          <SecondaryButton type="button" @click="closeModal">Hủy</SecondaryButton>
+          <PrimaryButton form="careForm" type="submit" class="bg-red-600 hover:bg-red-700 focus:bg-red-700 active:bg-red-900" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+            Gửi Đi
+          </PrimaryButton>
+        </div>
+      </template>
+    </SlideOver>
 
-          <div class="mt-6 flex justify-end gap-3">
-            <SecondaryButton @click="closeModal">Hủy</SecondaryButton>
-            <PrimaryButton class="bg-red-600 hover:bg-red-700 focus:bg-red-700 active:bg-red-900" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-              Gửi Đi
-            </PrimaryButton>
-          </div>
-        </form>
-      </div>
-    </Modal>
-
-    <!-- M O D A L : Update Status (Dành cho Admin) -->
-    <Modal :show="isStatusModalOpen" @close="closeStatusModal" maxWidth="sm">
-        <div class="p-6">
-            <h2 class="text-lg font-black text-gray-900 mb-4">Cập nhật Trạng thái Xử lý</h2>
-            <form @submit.prevent="submitStatus">
-                <div class="space-y-4">
+    <!-- S L I D E  O V E R : Update Status (Dành cho Admin) -->
+    <SlideOver v-model="isStatusModalOpen" title="Cập nhật Trạng thái Xử lý" size="sm">
+        <form id="statusForm" @submit.prevent="submitStatus">
+            <div class="space-y-4">
                     <div>
                         <InputLabel value="Tình trạng *" />
                         <select v-model="statusForm.status" class="mt-1 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm text-sm" required>
@@ -199,14 +195,15 @@
                             <option value="closed">Đóng lại</option>
                         </select>
                     </div>
-                </div>
-                <div class="mt-6 flex justify-end gap-3">
-                    <SecondaryButton @click="closeStatusModal">Hủy</SecondaryButton>
-                    <PrimaryButton :disabled="statusForm.processing">Cập nhật</PrimaryButton>
-                </div>
-            </form>
-        </div>
-    </Modal>
+            </div>
+        </form>
+        <template #footer>
+            <div class="flex justify-end gap-3 w-full">
+                <SecondaryButton type="button" @click="closeStatusModal">Hủy</SecondaryButton>
+                <PrimaryButton form="statusForm" type="submit" :disabled="statusForm.processing">Cập nhật</PrimaryButton>
+            </div>
+        </template>
+    </SlideOver>
 
     <!-- Mobile FAB: Gửi Yêu Cầu -->
     <button
@@ -230,7 +227,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
-import Modal from '@/Components/Modal.vue';
+import SlideOver from '@/Components/SlideOver.vue';
 import Pagination from '@/Components/Pagination.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import debounce from 'lodash/debounce';
