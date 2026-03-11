@@ -170,6 +170,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/members/{member}/toggle-active', [\App\Http\Controllers\Portal\PortalMemberController::class, 'toggleActiveStatus'])->name('portal.members.toggle-active');
             Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('portal.members.bulk-assign');
             Route::post('/members/bulk-toggle-active', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkToggleActive'])->name('portal.members.bulk-toggle-active');
+            Route::post('/members/{member}/generate-account', [\App\Http\Controllers\Portal\PortalMemberController::class, 'createUserAccount'])->name('portal.members.generate-account');
             Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('portal.members.remove');
             Route::delete('/members/bulk/remove', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkRemove'])->name('portal.members.bulk-remove');
         });
@@ -224,6 +225,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/members/{member}/toggle-active', [\App\Http\Controllers\Portal\PortalMemberController::class, 'toggleActiveStatus'])->name('ministry.members.toggle-active');
         Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('ministry.members.bulk-assign');
         Route::post('/members/bulk-toggle-active', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkToggleActive'])->name('ministry.members.bulk-toggle-active');
+        Route::post('/members/{member}/generate-account', [\App\Http\Controllers\Portal\PortalMemberController::class, 'createUserAccount'])->name('ministry.members.generate-account');
         Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('ministry.members.remove');
         Route::delete('/members/bulk/remove', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkRemove'])->name('ministry.members.bulk-remove');
 
@@ -328,6 +330,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/members/export', [\App\Http\Controllers\Portal\PortalMemberController::class, 'exportTemplate'])->name('deacon.members.export');
         Route::post('/members/import', [\App\Http\Controllers\Portal\PortalMemberController::class, 'import'])->name('deacon.members.import');
         Route::put('/members/{member}/role', [\App\Http\Controllers\Portal\PortalMemberController::class, 'updateRole'])->name('deacon.members.update-role');
+        Route::post('/members/{member}/generate-account', [\App\Http\Controllers\Portal\PortalMemberController::class, 'createUserAccount'])->name('deacon.members.generate-account');
         Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('deacon.members.remove');
         Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('deacon.members.bulk-assign-team');
         Route::post('/members/bulk-remove', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkRemove'])->name('deacon.members.bulk-remove');

@@ -10,6 +10,8 @@ use App\Models\OrgRole;
 use App\Exports\PortalMemberExport;
 use App\Imports\PortalMemberImport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -141,6 +143,7 @@ class PortalMemberController extends Controller
                 'status' => $member->status,
                 'is_active' => $membership ? $membership->is_active : 1,
                 'avatar_url' => $member->avatar_url ?? null,
+                'user_id' => $member->user_id,
             ];
         });
 
@@ -210,6 +213,7 @@ class PortalMemberController extends Controller
                  'org_role' => $frontendRole,
                  'team_id' => $team->id ?? null,
                  'team_name' => $team->name ?? null,
+                 'user_id' => $member->user_id,
              ];
         })->withQueryString();
 
@@ -477,6 +481,45 @@ class PortalMemberController extends Controller
         });
 
         return back()->with('success', 'Đã xóa hàng loạt tín hữu khỏi ban ngành.');
+    }
+
+    /**
+     * Create a user account for a specific member to access the Member Portal
+     */
+    public function createUserAccount(Request $request, Member $member)
+    {
+        // Require Manage Board permission or Global Admin
+        Gate::authorize('portal_manage_board', Member::class);
+
+        if ($member->user_id) {
+            return back()->with('error', 'Tín hữu này đã có tài khoản rồi.');
+        }
+
+        if (empty($member->email)) {
+            return back()->with('error', 'Tín hữu bắt buộc phải có Email để tạo tài khoản.');
+        }
+
+        // Check if email already exists in users table
+        if (User::where('email', $member->email)->exists()) {
+            return back()->with('error', 'Email này đã tồn tại trong hệ thống tài khoản.');
+        }
+
+        \DB::transaction(function () use ($member) {
+            // Generate standard user account
+            $user = User::create([
+                'name' => $member->full_name,
+                'email' => $member->email,
+                'password' => Hash::make('12345678'), // Default password
+            ]);
+
+            // Assign standard 'Member' role
+            $user->assignRole('Member');
+
+            // Link user to member
+            $member->update(['user_id' => $user->id]);
+        });
+
+        return back()->with('success', 'Đã tạo tài khoản cho ' . $member->full_name . ' thành công! Mật khẩu mặc định: 12345678');
     }
 
     /**

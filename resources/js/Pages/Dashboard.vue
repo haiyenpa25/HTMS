@@ -81,18 +81,18 @@
         </div>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-100">
-            <thead class="bg-blue-50">
+            <thead class="bg-slate-50 border-b border-gray-100">
               <tr>
-                <th class="px-4 py-2.5 text-left text-xs font-bold text-blue-900">Ngày</th>
-                <th class="px-4 py-2.5 text-left text-xs font-bold text-blue-900">Ban ngành</th>
-                <th class="px-4 py-2.5 text-left text-xs font-bold text-blue-900">Chủ đề</th>
-                <th class="px-4 py-2.5 text-left text-xs font-bold text-blue-900 hidden lg:table-cell">Câu gốc</th>
-                <th class="px-4 py-2.5 text-left text-xs font-bold text-blue-900 hidden md:table-cell">Diễn giả</th>
-                <th class="px-4 py-2.5 text-center text-xs font-bold text-blue-900">HD</th>
+                <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800">Ngày</th>
+                <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800">Ban ngành</th>
+                <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800">Chủ đề</th>
+                <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800 hidden lg:table-cell">Câu gốc</th>
+                <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800 hidden md:table-cell">Diễn giả</th>
+                <th class="px-4 py-3.5 text-center text-[13px] font-bold text-slate-800">HD</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
-              <tr v-for="m in filteredMeetings" :key="m.id" class="hover:bg-blue-50/40">
+              <tr v-for="m in filteredMeetings" :key="m.id" class="hover:bg-slate-50 transition-colors group">
                 <td class="px-4 py-2.5 whitespace-nowrap">
                   <p class="text-xs font-black text-gray-900">{{ m.date }}</p>
                   <p class="text-[10px] text-gray-400 capitalize">{{ m.day }}</p>
@@ -175,26 +175,26 @@
           </div>
           <div v-if="cgdgGroup.classes.length > 0" class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-100">
-              <thead class="bg-indigo-50">
+              <thead class="bg-slate-50 border-b border-gray-100">
                 <tr>
-                  <th class="px-4 py-2 text-left text-xs font-bold text-indigo-900">Lớp</th>
+                  <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800">Lớp</th>
                   <!-- bible_quiz: Số bài | Số người tham gia | Điểm TB | Bài gần nhất -->
                   <template v-if="key === 'bible_quiz'">
-                    <th class="px-4 py-2 text-center text-xs font-bold text-indigo-900">Số bài</th>
-                    <th class="px-4 py-2 text-center text-xs font-bold text-indigo-900">Số người tham gia</th>
-                    <th class="px-4 py-2 text-center text-xs font-bold text-indigo-900">Điểm Trung Bình</th>
-                    <th class="px-4 py-2 text-left text-xs font-bold text-indigo-900 hidden md:table-cell">Bài gần nhất</th>
+                    <th class="px-4 py-3.5 text-center text-[13px] font-bold text-slate-800">Số bài</th>
+                    <th class="px-4 py-3.5 text-center text-[13px] font-bold text-slate-800">Số người tham gia</th>
+                    <th class="px-4 py-3.5 text-center text-[13px] font-bold text-slate-800">Điểm Trung Bình</th>
+                    <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800 hidden md:table-cell">Bài gần nhất</th>
                   </template>
                   <!-- Các loại lớp khác: Số buổi | Tổng HD | Buổi gần nhất -->
                   <template v-else>
-                    <th class="px-4 py-2 text-center text-xs font-bold text-indigo-900">Số buổi</th>
-                    <th class="px-4 py-2 text-center text-xs font-bold text-indigo-900">Tổng HD</th>
-                    <th class="px-4 py-2 text-left text-xs font-bold text-indigo-900 hidden md:table-cell">Buổi gần nhất</th>
+                    <th class="px-4 py-3.5 text-center text-[13px] font-bold text-slate-800">Số buổi</th>
+                    <th class="px-4 py-3.5 text-center text-[13px] font-bold text-slate-800">Tổng HD</th>
+                    <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800 hidden md:table-cell">Buổi gần nhất</th>
                   </template>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
-                <tr v-for="cls in cgdgGroup.classes" :key="cls.class_id" class="hover:bg-indigo-50/40">
+                <tr v-for="cls in cgdgGroup.classes" :key="cls.class_id" class="hover:bg-slate-50 transition-colors group">
                   <td class="px-4 py-2.5 text-xs font-bold text-gray-900">{{ cls.class_name }}</td>
                   <!-- bible_quiz row -->
                   <template v-if="key === 'bible_quiz'">
@@ -253,17 +253,18 @@
           <!-- Full list -->
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-100">
-              <thead class="bg-gray-50">
+              <thead class="bg-slate-50 border-b border-gray-100">
                 <tr>
-                  <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Tên</th>
-                  <th class="px-4 py-2 text-center text-xs font-bold text-gray-600">Ngày SN</th>
-                  <th class="px-4 py-2 text-center text-xs font-bold text-gray-600">Tuổi</th>
-                  <th class="px-4 py-2 text-left text-xs font-bold text-gray-600 hidden sm:table-cell">SĐT</th>
+                  <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800">Tên</th>
+                  <th class="px-4 py-3.5 text-center text-[13px] font-bold text-slate-800">Ngày SN</th>
+                  <th class="px-4 py-3.5 text-center text-[13px] font-bold text-slate-800">Tuổi</th>
+                  <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800 hidden sm:table-cell">SĐT</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
                 <tr v-for="b in birthdays" :key="b.id"
-                  :class="b.is_today ? 'bg-pink-50' : b.is_this_week ? 'bg-pink-50/40' : 'hover:bg-gray-50/40'">
+                  class="group transition-colors"
+                  :class="b.is_today ? 'bg-pink-50 hover:bg-pink-100/50' : b.is_this_week ? 'bg-pink-50/40 hover:bg-pink-50' : 'hover:bg-slate-50'">
                   <td class="px-4 py-2.5">
                     <div class="flex items-center gap-2">
                       <span class="text-xs font-bold text-gray-900">{{ b.full_name }}</span>
@@ -293,17 +294,17 @@
         </div>
         <div v-if="visitations.length > 0" class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-100">
-            <thead class="bg-gray-50">
+            <thead class="bg-slate-50 border-b border-gray-100">
               <tr>
-                <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Ngày</th>
-                <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Tín hữu</th>
-                <th class="px-4 py-2 text-left text-xs font-bold text-gray-600 hidden md:table-cell">Ban ngành</th>
-                <th class="px-4 py-2 text-left text-xs font-bold text-gray-600 hidden lg:table-cell">Lý do</th>
-                <th class="px-4 py-2 text-center text-xs font-bold text-gray-600">Trạng thái</th>
+                <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800">Ngày</th>
+                <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800">Tín hữu</th>
+                <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800 hidden md:table-cell">Ban ngành</th>
+                <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800 hidden lg:table-cell">Lý do</th>
+                <th class="px-4 py-3.5 text-center text-[13px] font-bold text-slate-800">Trạng thái</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
-              <tr v-for="v in visitations" :key="v.id" class="hover:bg-purple-50/30">
+              <tr v-for="v in visitations" :key="v.id" class="hover:bg-slate-50 transition-colors group">
                 <td class="px-4 py-2.5 text-xs font-medium text-gray-700 whitespace-nowrap">{{ v.visit_date }}</td>
                 <td class="px-4 py-2.5 text-xs font-bold text-gray-900">{{ v.member_name }}</td>
                 <td class="px-4 py-2.5 text-xs text-gray-600 hidden md:table-cell">{{ v.dept_name }}</td>
@@ -337,7 +338,7 @@
             </div>
             <table class="min-w-full divide-y divide-gray-100">
               <tbody>
-                <tr v-for="m in new_members_30" :key="m.id" class="hover:bg-gray-50/40">
+                <tr v-for="m in new_members_30" :key="m.id" class="hover:bg-slate-50 transition-colors group">
                   <td class="px-4 py-2.5 text-xs font-bold text-gray-900">{{ m.full_name }}</td>
                   <td class="px-4 py-2.5 text-xs text-emerald-700 font-medium text-right">{{ m.faith_date }}</td>
                 </tr>
@@ -352,7 +353,7 @@
             </div>
             <table class="min-w-full divide-y divide-gray-100">
               <tbody>
-                <tr v-for="m in new_members_90" :key="m.id" class="hover:bg-gray-50/40">
+                <tr v-for="m in new_members_90" :key="m.id" class="hover:bg-slate-50 transition-colors group">
                   <td class="px-4 py-2.5 text-xs font-medium text-gray-700">{{ m.full_name }}</td>
                   <td class="px-4 py-2.5 text-xs text-gray-500 text-right">{{ m.faith_date }}</td>
                 </tr>
@@ -373,16 +374,16 @@
           </div>
           <div v-if="special_dates.length > 0">
             <table class="min-w-full divide-y divide-gray-100">
-              <thead class="bg-amber-50">
+              <thead class="bg-slate-50 border-b border-gray-100">
                 <tr>
-                  <th class="px-4 py-2 text-left text-xs font-bold text-amber-900">Tên</th>
-                  <th class="px-4 py-2 text-left text-xs font-bold text-amber-900">Loại</th>
-                  <th class="px-4 py-2 text-center text-xs font-bold text-amber-900">Ngày</th>
-                  <th class="px-4 py-2 text-center text-xs font-bold text-amber-900">Số năm</th>
+                  <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800">Tên</th>
+                  <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800">Loại</th>
+                  <th class="px-4 py-3.5 text-center text-[13px] font-bold text-slate-800">Ngày</th>
+                  <th class="px-4 py-3.5 text-center text-[13px] font-bold text-slate-800">Số năm</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
-                <tr v-for="d in special_dates" :key="`${d.id}-${d.type}`" class="hover:bg-amber-50/30">
+                <tr v-for="d in special_dates" :key="`${d.id}-${d.type}`" class="hover:bg-slate-50 transition-colors group">
                   <td class="px-4 py-2.5 text-xs font-bold text-gray-900">{{ d.full_name }}</td>
                   <td class="px-4 py-2.5">
                     <span class="text-xs font-bold px-2 py-0.5 rounded-full"

@@ -272,16 +272,16 @@
               <p class="text-xs text-gray-400">{{ page.props.auth?.user?.email || '' }}</p>
             </div>
           </div>
-          <a href="#" @click.prevent="openMenu = null"
+          <Link :href="route('member.portal.index')" @click="openMenu = null"
             class="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 transition-colors text-left border-b border-gray-100">
             <div class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
               <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
             </div>
             <div>
-              <p class="text-sm font-bold text-gray-900">Hồ sơ cá nhân <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
-              <p class="text-xs text-gray-400">Chỉnh avatar, mật khẩu</p>
+              <p class="text-sm font-bold text-gray-900">Hồ sơ cá nhân</p>
+              <p class="text-xs text-gray-400">Chỉnh avatar, mật khẩu, thông tin</p>
             </div>
-          </a>
+          </Link>
           <Link v-if="page.props.auth?.user?.home_portal" :href="page.props.auth.user.home_portal" @click="openMenu = null"
             class="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-blue-50 transition-colors text-left border-b border-gray-100">
             <div class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">

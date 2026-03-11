@@ -213,7 +213,8 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-[13px] font-medium">
-                                    <div class="flex items-center space-x-4">
+                                    <div class="flex items-center space-x-3">
+                                        <button v-if="!member.user_id" @click="generateAccount(member.id)" class="text-emerald-600 hover:text-emerald-800 font-bold bg-emerald-50 px-2 py-1 rounded transition-colors" title="Cấp tài khoản đăng nhập nội bộ">Tạo Tài Khoản</button>
                                         <button @click="openMemberSlideOver(member)" class="text-blue-600 hover:text-blue-900 font-bold">Chi tiết / Chức danh</button>
                                         <button @click="deleteMember(member.id)" class="text-red-500 hover:text-red-700 font-bold">Khỏi Ban</button>
                                     </div>
@@ -291,9 +292,12 @@
                           </div>
                           
                           <!-- Mobile action button -->
-                          <div class="mt-4 pt-4 border-t border-gray-50 flex justify-between items-center">
-                              <button @click.stop="deleteMember(member.id)" class="text-sm font-bold text-red-500 hover:text-red-700 block">Rời Ban</button>
-                              <button @click.stop="openMemberSlideOver(member)" class="text-sm font-bold text-blue-600 hover:text-blue-800">Cập nhật >></button>
+                          <div class="mt-4 pt-4 border-t border-gray-50 flex justify-between items-center gap-2">
+                              <button v-if="!member.user_id" @click.stop="generateAccount(member.id)" class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1.5 rounded hover:bg-emerald-100 flex-1 text-left">Tạo TK</button>
+                              <div class="flex items-center gap-3 w-full justify-end">
+                                  <button @click.stop="deleteMember(member.id)" class="text-sm font-bold text-red-500 hover:text-red-700 block">Rời Ban</button>
+                                  <button @click.stop="openMemberSlideOver(member)" class="text-sm font-bold text-blue-600 hover:text-blue-800">Cập nhật >></button>
+                              </div>
                           </div>
                      </div>
                  </div>
@@ -621,6 +625,12 @@ const submitBulkAssign = () => {
             clearSelection();
         }
     });
+};
+
+const generateAccount = (id) => {
+    if (confirm('Bạn có chắc chắn muốn tạo tài khoản cho tín hữu này với Mật khẩu mặc định là 12345678?')) {
+        router.post(route(props.routePrefix + '.generate-account', id), {}, { preserveScroll: true });
+    }
 };
 
 const deleteMember = (memberId) => {
