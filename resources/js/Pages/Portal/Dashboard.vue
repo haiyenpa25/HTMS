@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { ref, computed } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import SlideOver from '@/Components/SlideOver.vue';
@@ -130,7 +130,7 @@ const colorMap = {
       </div>
 
       <!-- Dashboard Content -->
-      <div v-else class="w-full p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
+      <div v-else class="w-full p-4 sm:p-6 space-y-6">
 
           <!-- Feature Cards Grid -->
           <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">

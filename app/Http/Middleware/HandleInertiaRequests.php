@@ -78,6 +78,9 @@ class HandleInertiaRequests extends Middleware
                     }
                     if ($hasActivities) {
                         $homePortal = '/portal';
+                    } else {
+                        // Tín hữu bình thường không thuộc ban nào -> Portal Tín Hữu
+                        $homePortal = '/member';
                     }
                 }
             }

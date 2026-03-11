@@ -141,7 +141,6 @@ font-family: 'Inter', 'Roboto', system-ui, sans-serif;
 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-gray-100 text-gray-700">Không xác định</span>
 ```
 
-### F. BUTTONS
 ```html
 <!-- Primary -->
 <button class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm active:scale-95">
@@ -158,6 +157,56 @@ font-family: 'Inter', 'Roboto', system-ui, sans-serif;
   Xóa
 </button>
 ```
+
+### I. MOBILE FAB – Nút Hành Động Nổi (⭐ Bắt buộc trên Mobile)
+
+> **Quy tắc:** Trên màn hình điện thoại (`sm:hidden`), tất cả các nút "Thêm mới", "Gửi đề xuất", "Tạo mới" **PHẢI** dùng FAB thay cho button thông thường trong toolbar. FAB đặt cố định ở **góc dưới phải** màn hình, nhỏ gọn, có shadow nổi bật.
+
+```html
+<!-- ✅ CHUẨN: Mobile FAB - cố định góc dưới phải -->
+<button
+  @click="openModal"
+  class="sm:hidden fixed bottom-20 right-4 z-40
+         w-14 h-14 bg-indigo-600 text-white rounded-full shadow-xl
+         flex items-center justify-center
+         hover:bg-indigo-700 active:scale-95 transition-all
+         ring-4 ring-white"
+  aria-label="Thêm mới"
+>
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+  </svg>
+</button>
+
+<!-- ✅ Desktop: Nút thông thường trong toolbar, ẩn trên mobile -->
+<button @click="openModal" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm">
+  + Thêm mới
+</button>
+```
+
+**Các biến thể màu theo từng module:**
+
+| Module | Màu FAB | Class |
+|---|---|---|
+| Tín hữu / Nhân sự | Indigo | `bg-indigo-600` |
+| Chăm sóc / Care | Rose | `bg-rose-500` |
+| Tài chính | Emerald | `bg-emerald-600` |
+| Lịch sự kiện | Teal | `bg-teal-500` |
+| Tài liệu | Sky blue | `bg-sky-600` |
+| Diễn giả | Violet | `bg-violet-600` |
+| Đề xuất / Góp ý | Amber | `bg-amber-500` |
+
+**Vị trí `bottom` điều chỉnh theo MobileLayout:**
+- Nếu có bottom nav bar → dùng `bottom-20` (tránh đè lên nav)
+- Nếu không có bottom nav → dùng `bottom-6`
+
+**Animation nhẹ khi xuất hiện (tùy chọn):**
+```html
+<button class="sm:hidden fixed bottom-20 right-4 z-40 w-14 h-14 ...
+               animate-bounce-once
+               hover:scale-110 active:scale-90 transition-transform duration-150">
+```
+
 
 ### G. FORM FIELDS (Step Form theo MeetingForm pattern)
 ```html
@@ -236,3 +285,48 @@ hover:scale-[1.02] /* chỉ cho cards, không dùng cho text */
 .animate-spin /* cho spinner icon */
 .animate-pulse /* cho skeleton loading */
 ```
+
+---
+
+## 8. HE THONG PORTAL (ROLE-BASED ROUTING)
+
+Sau khi dang nhap, moi user duoc redirect toi portal rieng dua tren role:
+
+| Portal | URL | Danh cho | Mau chu dao |
+|---|---|---|---|
+| Admin Dashboard | /dashboard | Muc su, Super Admin | Blue (from-blue-700 to-blue-900) |
+| Sinh Hoat | /portal | Ban Sinh Hoat | Emerald (from-emerald-500) |
+| Muc Vu | /ministry | Ban Muc Vu | Indigo (from-indigo-600) |
+| Chap Su | /deacon | Ban Chap Su | Amber (from-amber-500) |
+| Tin Huu | /member | Tin huu thuong | Sky (from-sky-500) |
+
+Logic trong HandleInertiaRequests.php:
+- Super_Admin / Pastor -> /dashboard
+- Deacon / BTS_Admin -> /deacon  
+- Member thuoc ban Ministry -> /ministry
+- Member thuoc ban Activities -> /portal
+- Tin huu binh thuong -> /member (sap trien khai)
+
+## 9. QUY CHUAN PORTAL LAYOUT
+
+Van de: Portal bi chieu ngang qua lon do dung max-w-5xl hoac max-w-7xl sai vi tri.
+
+SAI: <div class="w-full p-4 max-w-5xl mx-auto">
+DUNG: <div class="w-full p-4 sm:p-6 space-y-6">
+
+Grid Feature Cards chuan:
+- Mobile: grid-cols-2
+- Tablet md: grid-cols-3  
+- Desktop lg: grid-cols-4
+
+Portal dung sm:hidden fixed bottom-20 right-4 cho FAB tuong tu admin pages.
+
+## 10. PORTAL TIN HUU (Thiet ke toi gian)
+
+Tinh nang hien thi:
+- Ho so ca nhan (xem & chinh sua)
+- Lich sinh hoat HT (xem)
+- Gui yeu cau cham soc / gop y
+- Thong bao tu HT
+
+KHONG hien thi: Quan ly tin huu khac, Tai chinh, Phan cong noi bo

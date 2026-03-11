@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <component :is="currentLayout">
     <template #header>
       <h2 class="font-black text-xl text-gray-900 leading-tight tracking-tight">
@@ -212,6 +212,17 @@
           @success="handleSuccess"
        />
     </SlideOver>
+
+    <!-- Mobile FAB: Thêm Diễn Giả -->
+    <button
+      @click="openCreateSlideOver"
+      class="sm:hidden fixed bottom-20 right-4 z-50 w-14 h-14 bg-violet-600 text-white rounded-full shadow-xl flex items-center justify-center hover:bg-violet-700 active:scale-90 transition-all ring-4 ring-white"
+      aria-label="Thêm Diễn Giả"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+      </svg>
+    </button>
 
   </component>
 </template>

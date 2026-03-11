@@ -138,6 +138,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity.logs');
     });
 
+    // ══════════════════════════════════════════════════════
+    // MEMBER PORTAL — Cổng Tín Hữu (Tối giản, Mobile-first)
+    // ══════════════════════════════════════════════════════
+    Route::prefix('member')->group(function () {
+        Route::get('/', [\App\Http\Controllers\MemberPortalController::class, 'index'])->name('member.portal.index');
+        Route::post('/care', [\App\Http\Controllers\MemberPortalController::class, 'submitCare'])->name('member.portal.care.submit');
+    });
+
     // Department Portal (Ban Sinh Hoạt — Activities)
     Route::prefix('portal')->middleware(\App\Http\Middleware\CheckPortalAccess::class . ':activities')->group(function () {
         Route::get('/', [\App\Http\Controllers\DepartmentPortalController::class, 'index'])->name('portal.index');
