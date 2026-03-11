@@ -5,9 +5,6 @@ description: Git commit, push lên GitHub và deploy lên server production
 🚀 WORKFLOW: GIT DEPLOY (WINDOWS ➔ SERVER)
 ⚠️ **LƯU Ý WINDOWS**: Tuyệt đối KHÔNG dùng `&&` để nối lệnh trên PowerShell. Hãy sử dụng dấu `;` hoặc chạy từng lệnh.
 
-🔑 **SERVER INFO**
-- **IP**: `172.20.0.240` | **User**: `quanl3363` | **Pass**: `TML@2025`
-- **Thư mục**: `/home/quanly.httlthanhmyloi.com/public_html`
 
 ---
 
