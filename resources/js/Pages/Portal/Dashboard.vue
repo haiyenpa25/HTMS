@@ -33,8 +33,9 @@ const can = (key) => {
     return pageProps.userPermissions?.[key] === true;
 };
 
-// Danh sách tất cả Feature Cards
-const featureCards = [
+// Danh sách tất cả Feature Cards có thể có trong hệ thống Dashboard
+// Ma trận Level 1 (deptFeatures) sẽ quyết định card nào hiện ra.
+const allFeatureCards = [
     {
         key: 'attendance',
         label: 'Điểm danh',
@@ -46,7 +47,7 @@ const featureCards = [
     {
         key: 'visitation',
         label: 'Thăm viếng',
-        sub: 'Nội bộ ban ngành',
+        sub: 'Lịch trình & Báo cáo',
         route: 'portal.visitation.index',
         color: 'amber',
         icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>`,
@@ -84,14 +85,34 @@ const featureCards = [
         icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>`,
     },
     {
-        key: 'duty-rooster', // Key cho Lịch Phân Công
+        key: 'duty-rooster',
         label: 'Lịch Sinh Hoạt',
         sub: 'Bảng phân công',
         route: 'duty-rooster.index',
-        color: 'amber', // Dùng màu amber hoặc màu tương đồng
+        color: 'amber',
         icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>`,
     },
+    {
+        key: 'education-classes',
+        label: 'Lớp Học',
+        sub: 'Danh sách & Thiết lập',
+        route: 'ministry.education.classes',
+        color: 'indigo',
+        icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75"/>`,
+    },
 ];
+
+// Lọc các cards hiển thị dựa trên ma trận phân quyền của Ban
+const visibleFeatureCards = computed(() => {
+    const features = deptFeatures.value;
+    if (!features) return [];
+    return allFeatureCards.filter(card => {
+        if (features[card.key] === true) return true;
+        // Alias cho 'members'
+        if (card.key === 'members' && features['thanh-vien'] === true) return true;
+        return false;
+    });
+});
 
 // Color map
 const colorMap = {
@@ -134,14 +155,11 @@ const colorMap = {
 
           <!-- Feature Cards Grid -->
           <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            <template v-for="card in featureCards" :key="card.key">
+            <template v-for="card in visibleFeatureCards" :key="card.key">
               
-              <!-- MUST wrap cards in departmentFeature check to hide completely if department lacks the feature -->
-              <template v-if="deptFeatures && (deptFeatures[card.key] || (card.key === 'members' && deptFeatures['thanh-vien']))">
-
-                <!-- UNLOCKED: User has permission -->
-                <Link v-if="can(card.key)"
-                  :href="route(card.route)"
+              <!-- UNLOCKED: User has permission -->
+              <Link v-if="can(card.key)"
+                :href="route(card.route)"
                 class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md transition-all active:scale-95 duration-200"
                 :class="`${colorMap[card.color]?.hoverBorder}`">
                 <div class="w-16 h-16 mb-3 rounded-2xl flex items-center justify-center transition-colors duration-300 group-hover:text-white"
@@ -176,8 +194,7 @@ const colorMap = {
               </div>
               
               </template>
-            </template>
-          </div>
+            </div>
 
           <!-- Info Box -->
           <div class="bg-blue-50/60 rounded-2xl p-5 border border-blue-100 shadow-sm flex items-start gap-3">

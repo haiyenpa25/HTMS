@@ -108,11 +108,11 @@ class DepartmentPortalController extends Controller
         $deptId = $validated['department_id'];
         $dept   = Department::findOrFail($deptId);
 
-        if ($dept->block !== 'activities') {
-            abort(403, 'Ban ngành này không thuộc Cổng Sinh Hoạt.');
-        }
-
         if (!$user->isSuperAdmin()) {
+            if ($dept->block !== 'activities') {
+                abort(403, 'Ban ngành này không thuộc Cổng Sinh Hoạt.');
+            }
+
             $service = app(FeatureAssignmentService::class);
             $level1Map = $service->getAvailableFeaturesForDepartment($dept);
             
@@ -138,7 +138,18 @@ class DepartmentPortalController extends Controller
             }
         }
 
-        session(['active_portal_dept_id' => $deptId]);
-        return redirect()->route('portal.index');
+        // Logic switch context và redirect
+        if ($dept->block === 'activities') {
+            session(['active_portal_dept_id' => $deptId]);
+            return redirect()->route('portal.index');
+        } elseif ($dept->block === 'ministry') {
+            session(['active_ministry_dept_id' => $deptId]);
+            return redirect()->route('ministry.index');
+        } elseif ($dept->block === 'leadership') {
+            session(['active_deacon_dept_id' => $deptId]);
+            return redirect()->route('deacon.index');
+        }
+
+        return redirect()->route('dashboard');
     }
 }

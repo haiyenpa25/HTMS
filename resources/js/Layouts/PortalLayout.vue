@@ -70,11 +70,18 @@
                    Thành viên
                </Link>
                 <Link v-if="deptFeatures && deptFeatures['visitation']" :href="route('ministry.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('ministry.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['visitation']) ? 'opacity-50 pointer-events-none' : '']">
-                    Thăm viếng
-                </Link>
-                <Link :href="route('duty-rooster.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('duty-rooster.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                    Phân công
-                </Link>
+                     Thăm viếng
+                 </Link>
+                 <!-- Education features integrated into Ministry -->
+                 <Link v-if="deptFeatures && deptFeatures['education-classes']" :href="route('ministry.education.classes')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('ministry.education.classes') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['education-classes']) ? 'opacity-50 pointer-events-none' : '']">
+                     Lớp Học
+                 </Link>
+                 <Link v-if="deptFeatures && deptFeatures['education-report']" :href="route('ministry.education.report')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('ministry.education.report') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['education-report']) ? 'opacity-50 pointer-events-none' : '']">
+                     Báo Cáo GD
+                 </Link>
+                 <Link :href="route('duty-rooster.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('duty-rooster.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
+                     Phân công
+                 </Link>
            </template>
 
            <!-- Education (CĐGD) Portal Links -->

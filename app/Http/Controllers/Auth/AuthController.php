@@ -48,66 +48,56 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
+            $member = Member::where('user_id', $user->id)->first();
             
-            // Super Admin / Pastor → admin dashboard
+            // 1. Super Admin / Pastor → admin dashboard
             if ($user->hasRole(['Pastor', 'Super_Admin'])) {
                 return redirect()->intended(route('dashboard'));
             }
             
-            // Deacon role → deacon portal
+            // 2. Identify Primary Department & Block
+            // Priority: leadership > ministry > activities
+            $primaryDept = null;
+            if ($member) {
+                $primaryDept = $member->departments()
+                    ->orderByRaw("CASE WHEN block = 'leadership' THEN 1 WHEN block = 'ministry' THEN 2 ELSE 3 END")
+                    ->first();
+            }
+
+            // Fallback to MAC permissions if no direct membership
+            if (!$primaryDept) {
+                $featureDept = UserDepartmentFeature::where('user_id', $user->id)
+                    ->where('is_enabled', true)
+                    ->with('department')
+                    ->get()
+                    ->sortBy(fn($uf) => match($uf->department->block ?? '') {
+                        'leadership' => 1,
+                        'ministry' => 2,
+                        default => 3
+                    })
+                    ->first();
+                $primaryDept = $featureDept->department ?? null;
+            }
+
+            if ($primaryDept) {
+                switch ($primaryDept->block) {
+                    case 'leadership':
+                        session(['active_deacon_dept_id' => $primaryDept->id]);
+                        return redirect()->intended(route('deacon.index'));
+                    case 'ministry':
+                        session(['active_ministry_dept_id' => $primaryDept->id]);
+                        return redirect()->intended(route('ministry.index'));
+                    case 'activities':
+                        session(['active_portal_dept_id' => $primaryDept->id]);
+                        return redirect()->intended(route('portal.index'));
+                }
+            }
+            
+            // 3. Fallback: deacon portal for BTS_Admin roles even without dept
             if ($user->hasRole(['Deacon', 'BTS_Admin'])) {
                 return redirect()->intended(route('deacon.index'));
             }
             
-            // Church membership (Thư ký HT, Thủ Quỹ HT) → deacon/leadership portal
-            // Những người có OrgMembership model_type=Church (không phải Department) là lãnh đạo HT
-            $member = Member::where('user_id', $user->id)->first();
-            $hasChurchRole = $member && OrgMembership::where('member_id', $member->id)
-                ->where('model_type', \App\Models\Church::class)
-                ->exists();
-            if ($hasChurchRole) {
-                return redirect()->intended(route('deacon.index'));
-            }
-            
-            // Check if user has any ministry memberships (OrgMembership in ministry block)
-            $hasMinistry = false;
-            if ($member) {
-                $hasMinistry = OrgMembership::where('member_id', $member->id)
-                    ->where('model_type', Department::class)
-                    ->whereHasMorph('model', [Department::class], fn($q) => $q->where('block', 'ministry'))
-                    ->exists();
-            }
-            // Also check MAC UserDepartmentFeature
-            if (!$hasMinistry) {
-                $hasMinistry = UserDepartmentFeature::where('user_id', $user->id)
-                    ->where('is_enabled', true)
-                    ->whereHas('department', fn($q) => $q->where('block', 'ministry'))
-                    ->exists();
-            }
-            
-            if ($hasMinistry) {
-                return redirect()->intended(route('ministry.index'));
-            }
-            
-            // Check activities (default portal)
-            $hasActivities = false;
-            if ($member) {
-                $hasActivities = $member->departments()
-                    ->where('block', 'activities')
-                    ->exists();
-            }
-            if (!$hasActivities) {
-                $hasActivities = UserDepartmentFeature::where('user_id', $user->id)
-                    ->where('is_enabled', true)
-                    ->whereHas('department', fn($q) => $q->where('block', 'activities'))
-                    ->exists();
-            }
-            
-            if ($hasActivities) {
-                return redirect()->intended(route('portal.index'));
-            }
-            
-            // Fallback: send to dashboard with a message (no portal access)
             return redirect()->route('dashboard');
         }
 

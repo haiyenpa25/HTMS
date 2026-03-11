@@ -90,11 +90,11 @@ class MinistryPortalController extends Controller
         $deptId = $validated['department_id'];
 
         $dept = Department::findOrFail($deptId);
-        if ($dept->block !== 'ministry') {
-            abort(403, 'Ban ngành này không thuộc hệ thống Cổng Mục vụ.');
-        }
-
         if (!$user->isSuperAdmin()) {
+            if ($dept->block !== 'ministry') {
+                abort(403, 'Ban ngành này không thuộc hệ thống Cổng Mục vụ.');
+            }
+
             $service = app(\App\Services\FeatureAssignmentService::class);
             $level1Map = $service->getAvailableFeaturesForDepartment($dept);
             
@@ -119,9 +119,19 @@ class MinistryPortalController extends Controller
             }
         }
 
-        session(['active_ministry_dept_id' => $deptId]);
+        // Logic switch context và redirect
+        if ($dept->block === 'ministry') {
+            session(['active_ministry_dept_id' => $deptId]);
+            return redirect()->route('ministry.index');
+        } elseif ($dept->block === 'activities') {
+            session(['active_portal_dept_id' => $deptId]);
+            return redirect()->route('portal.index');
+        } elseif ($dept->block === 'leadership') {
+            session(['active_deacon_dept_id' => $deptId]);
+            return redirect()->route('deacon.index');
+        }
 
-        return redirect()->route('ministry.index');
+        return redirect()->route('dashboard');
     }
 }
 

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <PortalLayout 
       :department="activeDepartment" 
       :available-departments="availableDepartments"
@@ -151,6 +151,8 @@ const switchDept = (deptId) => {
 
 // ── Feature Card Definitions (tất cả tính năng có trong hệ thống) ──────────
 // Mỗi entry map slug → route + UI. Chỉ hiển thị card nếu deptFeatures[slug] === true
+// ── Feature Card Definitions (tất cả tính năng có trong hệ thống Dashboard) ──────────
+// Ma trận Level 1 (deptFeatures) sẽ quyết định card nào hiện ra.
 const allFeatureCards = [
     {
         key: 'visitation',
@@ -170,7 +172,15 @@ const allFeatureCards = [
         hoverBorder: 'hover:border-blue-200', sub: 'text-blue-600',
         icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>`,
     },
-    // ministry / education features - chỉ giữ tính năng CĐGD
+    {
+        key: 'attendance',
+        label: 'Điểm Danh',
+        subtitle: 'Nhóm & Sinh hoạt',
+        href: route('portal.attendance.index'), // Ministry reuses activity attendance usually
+        bg: 'bg-emerald-50', text: 'text-emerald-500', hoverBg: 'group-hover:bg-emerald-500',
+        hoverBorder: 'hover:border-emerald-200', sub: 'text-emerald-600',
+        icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75"/>`,
+    },
     {
         key: 'education-classes',
         label: 'Lớp Học',
@@ -188,6 +198,24 @@ const allFeatureCards = [
         bg: 'bg-blue-50', text: 'text-blue-500', hoverBg: 'group-hover:bg-blue-600',
         hoverBorder: 'hover:border-blue-200', sub: 'text-blue-600',
         icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>`,
+    },
+    {
+        key: 'finance',
+        label: 'Tài chính',
+        subtitle: 'Thu chi & Quỹ',
+        href: route('portal.finance.index'), 
+        bg: 'bg-rose-50', text: 'text-rose-500', hoverBg: 'group-hover:bg-rose-600',
+        hoverBorder: 'hover:border-rose-200', sub: 'text-rose-600',
+        icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>`,
+    },
+    {
+        key: 'reports',
+        label: 'Báo cáo',
+        subtitle: 'Thống kê hoạt động',
+        href: route('portal.reports.index'),
+        bg: 'bg-purple-50', text: 'text-purple-500', hoverBg: 'group-hover:bg-purple-600',
+        hoverBorder: 'hover:border-purple-200', sub: 'text-purple-600',
+        icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>`,
     },
     {
         key: 'duty-rooster',
