@@ -46,28 +46,28 @@
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </Link>
-          <a href="#" @click.prevent="openMenu = null"
+          <Link :href="route('admin.visitors.index')" @click="openMenu = null"
             class="flex items-center gap-3 px-4 py-3.5 hover:bg-emerald-50 transition-colors border-b border-gray-100">
             <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
               <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
             </div>
             <div>
-              <p class="text-sm font-bold text-gray-900">Thân Hữu <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-sm font-bold text-gray-900">Thân Hữu <span class="text-[10px] bg-emerald-100 text-emerald-600 px-1.5 py-0.5 rounded ml-1 font-bold"></span></p>
               <p class="text-xs text-gray-400">Quản lý người mới đến</p>
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </a>
-          <a href="#" @click.prevent="openMenu = null"
+          </Link>
+          <Link :href="route('care.index')" @click="openMenu = null"
             class="flex items-center gap-3 px-4 py-3.5 hover:bg-rose-50 transition-colors border-b border-gray-100">
             <div class="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
               <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
             </div>
             <div>
-              <p class="text-sm font-bold text-gray-900">Chăm Sóc <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-sm font-bold text-gray-900">Chăm sóc <span class="text-[10px] bg-emerald-100 text-emerald-600 px-1.5 py-0.5 rounded ml-1 font-bold"></span></p>
               <p class="text-xs text-gray-400">Theo dõi vòng đời tín hữu</p>
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </a>
+          </Link>
           <a href="#" @click.prevent="openMenu = null"
             class="flex items-center gap-3 px-4 py-3.5 hover:bg-amber-50 transition-colors">
             <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
@@ -145,13 +145,13 @@
           <div class="px-4 py-3 bg-fuchsia-600">
             <p class="text-xs font-black text-fuchsia-200 uppercase tracking-wider">Sự Kiện</p>
           </div>
-          <Link :href="route('portal.index')" @click="openMenu = null"
+          <Link :href="route('calendar.index')" @click="openMenu = null"
             class="flex items-center gap-3 px-4 py-3.5 hover:bg-fuchsia-50 transition-colors border-b border-gray-100">
             <div class="w-9 h-9 rounded-xl bg-fuchsia-100 flex items-center justify-center shrink-0">
               <svg class="w-5 h-5 text-fuchsia-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
             <div>
-              <p class="text-sm font-bold text-gray-900">Lịch Hội Thánh <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-sm font-bold text-gray-900">Lịch Hội Thánh <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold"></span></p>
               <p class="text-xs text-gray-400">Lịch tổng quát (Unified Calendar)</p>
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -211,18 +211,18 @@
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </Link>
-          <a href="#" @click.prevent="openMenu = null"
+          <Link :href="route('finance.index')" @click="openMenu = null"
             class="flex items-center gap-3 px-4 py-3.5 hover:bg-emerald-50 transition-colors border-b border-gray-100">
             <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
               <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
-              <p class="text-sm font-bold text-gray-900">Tài Chính <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-sm font-bold text-gray-900">Tài Chính</p>
               <p class="text-xs text-gray-400">Sổ quỹ, Dâng hiến & Nhập sổ hàng loạt</p>
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </a>
-          <a href="#" @click.prevent="openMenu = null"
+          </Link>
+          <Link :href="route('admin.assets.index')" @click="openMenu = null"
             class="flex items-center gap-3 px-4 py-3.5 hover:bg-stone-50 transition-colors border-b border-gray-100">
             <div class="w-9 h-9 rounded-xl bg-stone-100 flex items-center justify-center shrink-0">
               <svg class="w-5 h-5 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
@@ -232,29 +232,29 @@
               <p class="text-xs text-gray-400">Quản lý thiết bị & Mượn/Trả</p>
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </a>
-          <a href="#" @click.prevent="openMenu = null"
+          </Link>
+          <Link :href="route('documents.index')" @click="openMenu = null"
             class="flex items-center gap-3 px-4 py-3.5 hover:bg-cyan-50 transition-colors border-b border-gray-100">
             <div class="w-9 h-9 rounded-xl bg-cyan-100 flex items-center justify-center shrink-0">
               <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"/></svg>
             </div>
             <div>
-              <p class="text-sm font-bold text-gray-900">Tài Liệu <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-sm font-bold text-gray-900">Tài Liệu</p>
               <p class="text-xs text-gray-400">Lưu trữ văn bản, file đám mây</p>
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </a>
-          <a href="#" @click.prevent="openMenu = null"
+          </Link>
+          <Link :href="route('admin.broadcasts.index')" @click="openMenu = null"
             class="flex items-center gap-3 px-4 py-3.5 hover:bg-violet-50 transition-colors border-b border-gray-100">
             <div class="w-9 h-9 rounded-xl bg-violet-100 flex items-center justify-center shrink-0">
               <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
             </div>
             <div>
-              <p class="text-sm font-bold text-gray-900">Truyền Thông <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-sm font-bold text-gray-900">Truyền Thông <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold"></span></p>
               <p class="text-xs text-gray-400">Gửi Email Broadcasting hàng loạt</p>
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </a>
+          </Link>
         </div>
       </div>
     </transition>
