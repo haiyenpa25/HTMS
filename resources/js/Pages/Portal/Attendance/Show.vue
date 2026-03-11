@@ -1,4 +1,4 @@
-﻿<template>
+<template>
     <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" :hide-nav="true">
         <!-- Sticky Header for Back Navigation -->
         <div class="bg-white border-b border-gray-100 sticky top-0 z-10 px-4 py-3 sm:px-6 lg:px-8 w-full w-full flex items-center justify-between">
@@ -229,7 +229,7 @@
         </div>
 
         <!-- Floating Submit Button -->
-        <div class="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-gray-100 z-20" style="padding-bottom: calc(1rem + env(safe-area-inset-bottom));">
+        <div class="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-gray-100 z-20 mb-16 sm:mb-0" style="padding-bottom: calc(1rem + env(safe-area-inset-bottom));">
             <div class="w-full flex items-center justify-between">
                 <div class="hidden sm:block">
                     <p class="text-sm font-bold text-gray-900">Ban {{ department.name }}</p>
