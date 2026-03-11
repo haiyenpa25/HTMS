@@ -1,4 +1,4 @@
-﻿<template>
+<template>
     <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" portal-type="education">
         <!-- Full-width indigo header -->
         <div class="bg-gradient-to-r from-indigo-800 via-indigo-700 to-indigo-600 text-white">
@@ -139,21 +139,21 @@
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
-                                <tr class="bg-indigo-50 border-b border-indigo-100">
-                                    <th class="px-4 py-3 text-left font-bold text-indigo-900 whitespace-nowrap w-36 sticky left-0 bg-indigo-50">Chủ Nhật</th>
+                                <tr class="bg-slate-50 border-b border-gray-100">
+                                    <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800 whitespace-nowrap w-36 sticky left-0 bg-slate-50">Chủ Nhật</th>
                                     <template v-for="cls in mainClasses" :key="cls.id">
-                                        <th class="px-3 py-3 text-center font-bold text-indigo-900 whitespace-nowrap border-l border-indigo-100"
+                                        <th class="px-3 py-3.5 text-center text-[13px] font-bold text-slate-800 whitespace-nowrap border-l border-gray-100"
                                             :colspan="cls.class_type !== 'gospel' ? 2 : 1">
                                             <div>{{ cls.name }}</div>
                                             <div v-if="cls.teachers" class="text-[10px] font-normal text-indigo-400">({{ cls.teachers }})</div>
                                         </th>
                                     </template>
                                 </tr>
-                                <tr class="bg-indigo-50/60 border-b border-indigo-100 text-xs text-indigo-600">
-                                    <td class="px-4 py-1.5 sticky left-0 bg-indigo-50/60"></td>
+                                <tr class="bg-slate-50/60 border-b border-gray-100 text-[12px] font-bold text-slate-600">
+                                    <td class="px-4 py-2 sticky left-0 bg-slate-50/60"></td>
                                     <template v-for="cls in mainClasses" :key="cls.id">
-                                        <td class="px-3 py-1.5 text-center font-bold border-l border-indigo-100">Hiện diện</td>
-                                        <td v-if="cls.class_type !== 'gospel'" class="px-3 py-1.5 text-center font-bold border-l border-indigo-50">Tiền dâng</td>
+                                        <td class="px-3 py-2 text-center font-bold border-l border-gray-100">Hiện diện</td>
+                                        <td v-if="cls.class_type !== 'gospel'" class="px-3 py-2 text-center font-bold border-l border-gray-100">Tiền dâng</td>
                                     </template>
                                 </tr>
                             </thead>
@@ -210,10 +210,10 @@
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
-                                <tr class="bg-amber-50 border-b border-amber-100">
-                                    <th class="px-4 py-3 text-left font-bold text-amber-900 whitespace-nowrap w-32 sticky left-0 bg-amber-50">Chủ Nhật</th>
+                                <tr class="bg-slate-50 border-b border-gray-100">
+                                    <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800 whitespace-nowrap w-32 sticky left-0 bg-slate-50">Chủ Nhật</th>
                                     <th v-for="cls in mainClasses" :key="cls.id"
-                                        class="px-3 py-3 text-center font-bold text-amber-900 whitespace-nowrap border-l border-amber-100">
+                                        class="px-3 py-3.5 text-center text-[13px] font-bold text-slate-800 whitespace-nowrap border-l border-gray-100">
                                         {{ cls.name }}
                                     </th>
                                 </tr>
@@ -279,13 +279,13 @@
                         <!-- Student table -->
                         <div v-if="cls.quiz_data.length > 0" class="overflow-x-auto">
                             <table class="w-full text-sm">
-                                <thead class="bg-gray-50 border-b border-gray-200">
+                                <thead class="bg-slate-50 border-b border-gray-100">
                                     <tr>
-                                        <th class="px-4 py-3 text-left font-bold text-gray-600 w-10">#</th>
-                                        <th class="px-4 py-3 text-left font-bold text-gray-700">Họ tên</th>
-                                        <th class="px-4 py-3 text-center font-bold text-gray-700">Buổi có mặt</th>
-                                        <th class="px-4 py-3 text-center font-bold text-gray-700">Điểm TB</th>
-                                        <th class="px-4 py-3 text-center font-bold text-gray-700">Tình trạng</th>
+                                        <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800 w-10">#</th>
+                                        <th class="px-4 py-3.5 text-left text-[13px] font-bold text-slate-800">Họ tên</th>
+                                        <th class="px-4 py-3.5 text-center text-[13px] font-bold text-slate-800">Buổi có mặt</th>
+                                        <th class="px-4 py-3.5 text-center text-[13px] font-bold text-slate-800">Điểm TB</th>
+                                        <th class="px-4 py-3.5 text-center text-[13px] font-bold text-slate-800">Tình trạng</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
@@ -328,12 +328,12 @@
                             <p class="text-green-200 text-xs mt-0.5">Thu chi theo từng lớp học</p>
                         </div>
                         <table class="w-full text-sm">
-                            <thead class="bg-green-50/60 border-b border-green-100">
+                            <thead class="bg-slate-50 border-b border-gray-100">
                                 <tr>
-                                    <th class="px-5 py-3 text-left font-bold text-green-900">Lớp</th>
-                                    <th class="px-5 py-3 text-right font-bold text-green-900">Tổng Thu</th>
-                                    <th class="px-5 py-3 text-right font-bold text-green-900">Tổng Chi</th>
-                                    <th class="px-5 py-3 text-right font-bold text-green-900">Tồn</th>
+                                    <th class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800">Lớp</th>
+                                    <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800">Tổng Thu</th>
+                                    <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800">Tổng Chi</th>
+                                    <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800">Tồn</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">

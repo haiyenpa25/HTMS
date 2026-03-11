@@ -53,23 +53,23 @@
                 <!-- Desktop Table -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-100">
-                        <thead class="bg-green-50">
+                        <thead class="bg-slate-50 border-b border-gray-100">
                             <tr>
-                                <th class="px-5 py-3 text-left text-[13px] sm:text-sm font-bold text-green-900 whitespace-nowrap">Ngày</th>
-                                <th class="px-5 py-3 text-left text-[13px] sm:text-sm font-bold text-green-900">Chủ đề</th>
-                                <th class="px-5 py-3 text-left text-[13px] sm:text-sm font-bold text-green-900 hidden lg:table-cell">Kinh thánh</th>
-                                <th class="px-5 py-3 text-left text-[13px] sm:text-sm font-bold text-green-900 hidden xl:table-cell">Câu gốc</th>
-                                <th class="px-5 py-3 text-center text-[13px] sm:text-sm font-bold text-green-900">HD</th>
-                                <th class="px-5 py-3 text-right text-[13px] sm:text-sm font-bold text-green-900">Tiền Dâng</th>
-                                <th class="px-5 py-3 text-right text-[13px] sm:text-sm font-bold text-green-900 hidden sm:table-cell">Chi</th>
-                                <th class="px-5 py-3 w-8" v-if="canManage"></th>
+                                <th class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800 whitespace-nowrap">Ngày</th>
+                                <th class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800">Chủ đề</th>
+                                <th class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800 hidden lg:table-cell">Kinh thánh</th>
+                                <th class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800 hidden xl:table-cell">Câu gốc</th>
+                                <th class="px-5 py-3.5 text-center text-[13px] font-bold text-slate-800">HD</th>
+                                <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800">Tiền Dâng</th>
+                                <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800 hidden sm:table-cell">Chi</th>
+                                <th class="px-5 py-3.5 w-8" v-if="canManage"></th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <tr
                                 v-for="m in meetings"
                                 :key="m.id"
-                                class="hover:bg-green-50/50 transition-colors"
+                                class="hover:bg-slate-50/80 transition-colors"
                                 :class="canManage ? 'cursor-pointer group' : ''"
                                 @click="canManage && openFinanceForm(m)"
                             >
@@ -90,7 +90,7 @@
                                     <span v-else class="text-gray-300 text-[15px]">—</span>
                                 </td>
                                 <td class="px-5 py-4 text-right" v-if="canManage">
-                                    <svg class="w-5 h-5 text-gray-300 group-hover:text-green-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                    <svg class="w-5 h-5 text-gray-300 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                 </td>
                             </tr>
 

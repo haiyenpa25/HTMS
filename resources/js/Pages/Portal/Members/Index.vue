@@ -173,19 +173,19 @@
                      
                      <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-slate-50 border-b border-gray-100">
                             <tr>
                                 <th class="px-6 py-4 text-left w-12">
-                                    <input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll" class="rounded border-gray-300 w-4 h-4 text-blue-600 focus:ring-blue-500 bg-gray-50">
+                                    <input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll" class="rounded border-gray-300 w-4 h-4 text-blue-600 focus:ring-blue-500 bg-white">
                                 </th>
-                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-500 uppercase tracking-wider">Họ và Tên</th>
-                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-500 uppercase tracking-wider">Số điện thoại</th>
-                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-500 uppercase tracking-wider">Chức vụ - Tổ</th>
-                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-500 uppercase tracking-wider">Thao tác</th>
+                                <th class="px-6 py-4 text-left text-[13px] font-bold text-slate-800">Họ và Tên</th>
+                                <th class="px-6 py-4 text-left text-[13px] font-bold text-slate-800">Số điện thoại</th>
+                                <th class="px-6 py-4 text-left text-[13px] font-bold text-slate-800">Chức vụ - Tổ</th>
+                                <th class="px-6 py-4 text-left text-[13px] font-bold text-slate-800">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="member in members.data" :key="member.id" class="hover:bg-gray-50 transition-colors" :class="{'bg-blue-50/30': isSelected(member.id)}">
+                            <tr v-for="member in members.data" :key="member.id" class="hover:bg-slate-50 transition-colors" :class="{'bg-blue-50/30': isSelected(member.id)}">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <input type="checkbox" :value="member.id" v-model="selectedMemberIds" class="rounded border-gray-300 w-4 h-4 text-blue-600 focus:ring-blue-500 bg-gray-50">
                                 </td>

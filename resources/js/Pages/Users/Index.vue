@@ -518,17 +518,17 @@ const sidebarCollapsed = ref(false);
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="hidden md:block overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-100">
-            <thead class="bg-gray-50/80">
+            <thead class="bg-slate-50 border-b border-gray-100">
               <tr>
-                <th class="px-6 py-3.5 text-left text-xs font-black text-gray-400 uppercase tracking-wider">Tài Khoản</th>
-                <th class="px-6 py-3.5 text-left text-xs font-black text-gray-400 uppercase tracking-wider">Liên hệ</th>
-                <th class="px-6 py-3.5 text-left text-xs font-black text-gray-400 uppercase tracking-wider">Vai trò</th>
-                <th class="px-6 py-3.5 text-left text-xs font-black text-gray-400 uppercase tracking-wider">Ban Ngành</th>
-                <th class="px-6 py-3.5 text-right text-xs font-black text-gray-400 uppercase tracking-wider">Thao tác</th>
+                <th class="px-6 py-3.5 text-left text-[13px] font-bold text-slate-800">Tài Khoản</th>
+                <th class="px-6 py-3.5 text-left text-[13px] font-bold text-slate-800">Liên hệ</th>
+                <th class="px-6 py-3.5 text-left text-[13px] font-bold text-slate-800">Vai trò</th>
+                <th class="px-6 py-3.5 text-left text-[13px] font-bold text-slate-800">Ban Ngành</th>
+                <th class="px-6 py-3.5 text-right text-[13px] font-bold text-slate-800">Thao tác</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-50">
-              <tr v-for="user in users.data" :key="user.id" class="hover:bg-indigo-50/20 transition-colors group">
+              <tr v-for="user in users.data" :key="user.id" class="hover:bg-slate-50 transition-colors group">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-sm">{{ (user.name || 'U').charAt(0).toUpperCase() }}</div>

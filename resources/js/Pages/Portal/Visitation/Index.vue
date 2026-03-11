@@ -74,14 +74,14 @@
                 <!-- Desktop Table -->
                 <div v-else-if="viewMode === 'list'" class="hidden md:block overflow-x-auto">
                     <table class="min-w-full">
-                        <thead>
-                            <tr class="bg-gray-50 border-b border-gray-200">
-                                <th scope="col" class="px-5 py-3.5 text-left text-[13px] sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Ngày</th>
-                                <th scope="col" class="px-5 py-3.5 text-left text-[13px] sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Tín hữu ĐT</th>
-                                <th scope="col" class="px-5 py-3.5 text-left text-[13px] sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Lý do</th>
-                                <th scope="col" class="px-5 py-3.5 text-left text-[13px] sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Đoàn đi thăm</th>
-                                <th scope="col" class="px-5 py-3.5 text-center text-[13px] sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Trạng thái</th>
-                                <th scope="col" class="px-5 py-3.5 text-center text-[13px] sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Tác vụ</th>
+                        <thead class="bg-slate-50 border-b border-gray-100">
+                            <tr>
+                                <th scope="col" class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800">Ngày</th>
+                                <th scope="col" class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800">Tín hữu ĐT</th>
+                                <th scope="col" class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800">Lý do</th>
+                                <th scope="col" class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800">Đoàn đi thăm</th>
+                                <th scope="col" class="px-5 py-3.5 text-center text-[13px] font-bold text-slate-800">Trạng thái</th>
+                                <th scope="col" class="px-5 py-3.5 text-center text-[13px] font-bold text-slate-800">Tác vụ</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">

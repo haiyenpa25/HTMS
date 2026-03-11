@@ -82,16 +82,56 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                <tr v-for="m in church_meetings" :key="m.id" class="hover:bg-slate-50/80 transition-colors">
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        <p class="text-[13px] font-black text-gray-900">{{ m.date }}</p>
-                                        <p class="text-[11px] text-gray-500 capitalize mt-0.5">{{ m.day }}</p>
-                                    </td>
-                                    <td class="px-4 py-3 text-[13px] text-gray-800 max-w-[140px] truncate leading-snug">{{ m.topic || '—' }}</td>
-                                    <td class="px-4 py-3 text-[13px] text-gray-600 hidden md:table-cell leading-snug">{{ m.speaker || '—' }}</td>
-                                    <td class="px-4 py-3 text-center text-[15px] font-black text-amber-700">{{ m.attendance > 0 ? m.attendance : '—' }}</td>
-                                    <td class="px-4 py-3 text-right text-sm font-bold text-emerald-700 hidden sm:table-cell">{{ m.income > 0 ? fmt(m.income) : '—' }}</td>
-                                </tr>
+                                <template v-for="m in church_meetings" :key="m.id">
+                                    <tr 
+                                        class="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                                        @click="toggleExpand(m.id, 'church')"
+                                    >
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <div class="flex items-center gap-2">
+                                                <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-transform duration-200" 
+                                                    :class="{ 'rotate-90': expandedChurchRows.includes(m.id) }"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                                <div>
+                                                    <p class="text-[13px] font-black text-gray-900">{{ m.date }}</p>
+                                                    <p class="text-[11px] text-gray-500 capitalize mt-0.5">{{ m.day }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 text-[13px] text-gray-800 max-w-[140px] truncate leading-snug">{{ m.topic || '—' }}</td>
+                                        <td class="px-4 py-3 text-[13px] text-gray-600 hidden md:table-cell leading-snug">{{ m.speaker || '—' }}</td>
+                                        <td class="px-4 py-3 text-center text-[15px] font-black text-amber-700">{{ m.attendance > 0 ? m.attendance : '—' }}</td>
+                                        <td class="px-4 py-3 text-right text-sm font-bold text-emerald-700 hidden sm:table-cell">{{ m.income > 0 ? fmt(m.income) : '—' }}</td>
+                                    </tr>
+                                    <!-- Expanded Details Row -->
+                                    <tr v-if="expandedChurchRows.includes(m.id)" class="bg-gray-50/50">
+                                        <td colspan="5" class="px-4 py-3">
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-3 bg-white rounded-xl border border-gray-100 shadow-sm text-[13px]">
+                                                <!-- Add full details here, as columns might truncate on mobile -->
+                                                <div class="md:hidden">
+                                                    <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Diễn giả</span>
+                                                    <span class="text-gray-900 font-medium">{{ m.speaker || '—' }}</span>
+                                                </div>
+                                                <div class="sm:hidden">
+                                                    <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Tiền dâng</span>
+                                                    <span class="text-emerald-700 font-bold">{{ m.income > 0 ? fmt(m.income) : '—' }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Kinh thánh</span>
+                                                    <span class="text-gray-700">{{ m.scripture || '—' }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Câu gốc</span>
+                                                    <span class="text-gray-700 italic">{{ m.memory_verse || '—' }}</span>
+                                                </div>
+                                                <div class="sm:col-span-2 md:col-span-1">
+                                                    <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Ghi chú nhóm</span>
+                                                    <span class="text-gray-700">{{ m.notes || '—' }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
                                 <tr v-if="church_meetings.length === 0">
                                     <td colspan="5" class="px-4 py-8 text-center text-[13px] text-gray-400">Chưa có buổi nhóm HT nào trong tháng</td>
                                 </tr>
@@ -145,16 +185,56 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                <tr v-for="m in dept_meetings" :key="m.id" class="hover:bg-slate-50/80 transition-colors">
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        <p class="text-[13px] font-black text-gray-900">{{ m.date }}</p>
-                                        <p class="text-[11px] text-gray-500 capitalize mt-0.5">{{ m.day }}</p>
-                                    </td>
-                                    <td class="px-4 py-3 text-[13px] text-gray-800 max-w-[140px] truncate leading-snug">{{ m.topic || '—' }}</td>
-                                    <td class="px-4 py-3 text-[13px] text-gray-600 hidden md:table-cell leading-snug">{{ m.speaker || '—' }}</td>
-                                    <td class="px-4 py-3 text-center text-[15px] font-black text-amber-700">{{ m.attendance > 0 ? m.attendance : '—' }}</td>
-                                    <td class="px-4 py-3 text-right text-sm font-bold text-emerald-700 hidden sm:table-cell">{{ m.income > 0 ? fmt(m.income) : '—' }}</td>
-                                </tr>
+                                <template v-for="m in dept_meetings" :key="m.id">
+                                    <tr 
+                                        class="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                                        @click="toggleExpand(m.id, 'dept')"
+                                    >
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <div class="flex items-center gap-2">
+                                                <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-transform duration-200" 
+                                                    :class="{ 'rotate-90': expandedDeptRows.includes(m.id) }"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                                <div>
+                                                    <p class="text-[13px] font-black text-gray-900">{{ m.date }}</p>
+                                                    <p class="text-[11px] text-gray-500 capitalize mt-0.5">{{ m.day }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 text-[13px] text-gray-800 max-w-[140px] truncate leading-snug">{{ m.topic || '—' }}</td>
+                                        <td class="px-4 py-3 text-[13px] text-gray-600 hidden md:table-cell leading-snug">{{ m.speaker || '—' }}</td>
+                                        <td class="px-4 py-3 text-center text-[15px] font-black text-amber-700">{{ m.attendance > 0 ? m.attendance : '—' }}</td>
+                                        <td class="px-4 py-3 text-right text-sm font-bold text-emerald-700 hidden sm:table-cell">{{ m.income > 0 ? fmt(m.income) : '—' }}</td>
+                                    </tr>
+                                    <!-- Expanded Details Row -->
+                                    <tr v-if="expandedDeptRows.includes(m.id)" class="bg-gray-50/50">
+                                        <td colspan="5" class="px-4 py-3">
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-3 bg-white rounded-xl border border-gray-100 shadow-sm text-[13px]">
+                                                <!-- Add full details here, as columns might truncate on mobile -->
+                                                <div class="md:hidden">
+                                                    <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Diễn giả</span>
+                                                    <span class="text-gray-900 font-medium">{{ m.speaker || '—' }}</span>
+                                                </div>
+                                                <div class="sm:hidden">
+                                                    <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Tiền dâng</span>
+                                                    <span class="text-emerald-700 font-bold">{{ m.income > 0 ? fmt(m.income) : '—' }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Kinh thánh</span>
+                                                    <span class="text-gray-700">{{ m.scripture || '—' }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Câu gốc</span>
+                                                    <span class="text-gray-700 italic">{{ m.memory_verse || '—' }}</span>
+                                                </div>
+                                                <div class="sm:col-span-2 md:col-span-1">
+                                                    <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Ghi chú nhóm</span>
+                                                    <span class="text-gray-700">{{ m.notes || '—' }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
                                 <tr v-if="dept_meetings.length === 0">
                                     <td colspan="5" class="px-4 py-8 text-center text-[13px] text-gray-400">Chưa có buổi nhóm Ban nào trong tháng</td>
                                 </tr>
@@ -213,21 +293,60 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            <tr v-for="m in dept_meetings" :key="m.id" class="hover:bg-slate-50/80 transition-colors">
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    <p class="text-[13px] font-black text-gray-900">{{ m.date }}</p>
-                                    <p class="text-[11px] text-gray-500 capitalize mt-0.5">{{ m.day }}</p>
-                                </td>
-                                <td class="px-4 py-3 text-[13px] font-medium text-gray-800 max-w-[160px] truncate">{{ m.topic || '—' }}</td>
-                                <td class="px-4 py-3 text-[13px] text-gray-600 hidden lg:table-cell">{{ m.scripture || '—' }}</td>
-                                <td class="px-4 py-3 text-[13px] text-gray-500 italic hidden xl:table-cell max-w-[130px] truncate">{{ m.memory_verse || '—' }}</td>
-                                <td class="px-4 py-3 text-center text-[15px] font-black text-amber-700">{{ m.attendance > 0 ? m.attendance : '—' }}</td>
-                                <td class="px-4 py-3 text-right text-[15px] font-bold text-emerald-700">{{ m.income > 0 ? fmt(m.income) : '—' }}</td>
-                                <td class="px-4 py-3 text-right text-[13px] font-medium text-rose-700 hidden sm:table-cell">{{ m.expense > 0 ? fmt(m.expense) : '—' }}</td>
-                                <td class="px-4 py-3 text-center hidden sm:table-cell">
-                                    <span class="text-[11px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200">T{{ m.week_no }}</span>
-                                </td>
-                            </tr>
+                            <template v-for="m in dept_meetings" :key="m.id">
+                                <tr 
+                                    class="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                                    @click="toggleExpand(m.id, 'finance')"
+                                >
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-transform duration-200" 
+                                                :class="{ 'rotate-90': expandedFinanceRows.includes(m.id) }"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                            <div>
+                                                <p class="text-[13px] font-black text-gray-900">{{ m.date }}</p>
+                                                <p class="text-[11px] text-gray-500 capitalize mt-0.5">{{ m.day }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 text-[13px] font-medium text-gray-800 max-w-[160px] truncate">{{ m.topic || '—' }}</td>
+                                    <td class="px-4 py-3 text-[13px] text-gray-600 hidden lg:table-cell">{{ m.scripture || '—' }}</td>
+                                    <td class="px-4 py-3 text-[13px] text-gray-500 italic hidden xl:table-cell max-w-[130px] truncate">{{ m.memory_verse || '—' }}</td>
+                                    <td class="px-4 py-3 text-center text-[15px] font-black text-amber-700">{{ m.attendance > 0 ? m.attendance : '—' }}</td>
+                                    <td class="px-4 py-3 text-right text-[15px] font-bold text-emerald-700">{{ m.income > 0 ? fmt(m.income) : '—' }}</td>
+                                    <td class="px-4 py-3 text-right text-[13px] font-medium text-rose-700 hidden sm:table-cell">{{ m.expense > 0 ? fmt(m.expense) : '—' }}</td>
+                                    <td class="px-4 py-3 text-center hidden sm:table-cell">
+                                        <span class="text-[11px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200">T{{ m.week_no }}</span>
+                                    </td>
+                                </tr>
+                                <!-- Expanded Details Row -->
+                                <tr v-if="expandedFinanceRows.includes(m.id)" class="bg-gray-50/50">
+                                    <td colspan="8" class="px-4 py-3">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-3 bg-white rounded-xl border border-gray-100 shadow-sm text-[13px]">
+                                            <div class="lg:hidden">
+                                                <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Kinh thánh</span>
+                                                <span class="text-gray-700">{{ m.scripture || '—' }}</span>
+                                            </div>
+                                            <div class="xl:hidden">
+                                                <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Câu gốc</span>
+                                                <span class="text-gray-700 italic">{{ m.memory_verse || '—' }}</span>
+                                            </div>
+                                            <div class="sm:hidden">
+                                                <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Chi</span>
+                                                <span class="text-rose-700 font-bold">{{ m.expense > 0 ? fmt(m.expense) : '—' }}</span>
+                                            </div>
+                                            <div class="sm:hidden">
+                                                <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Biên lai thu</span>
+                                                <span class="text-gray-700">{{ m.income_receipt_no || '—' }}</span>
+                                            </div>
+                                            <div class="sm:col-span-2 md:col-span-1">
+                                                <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Lý do chi</span>
+                                                <span class="text-gray-700">{{ m.expense_reason || '—' }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
                             <tr v-if="dept_meetings.length === 0">
                                 <td colspan="8" class="px-4 py-8 text-center text-[13px] text-gray-400">Chưa có buổi nhóm Ban Ngành nào trong tháng</td>
                             </tr>
@@ -307,18 +426,49 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            <tr v-for="v in visitations" :key="v.id" class="hover:bg-slate-50/80 transition-colors shrink-0">
-                                <td class="px-4 py-3 text-[13px] font-bold text-gray-900 whitespace-nowrap">{{ v.visit_date }}</td>
-                                <td class="px-4 py-3 text-[15px] font-medium text-gray-900">{{ v.member_name }}</td>
-                                <td class="px-4 py-3 text-[13px] text-gray-600 hidden md:table-cell">{{ v.reason || '—' }}</td>
-                                <td class="px-4 py-3 text-[13px] text-gray-500 hidden lg:table-cell">{{ v.visitors || '—' }}</td>
-                                <td class="px-4 py-3 text-center whitespace-nowrap">
-                                    <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border"
-                                        :class="v.status==='completed'?'bg-emerald-50 text-emerald-700 border-emerald-200':'bg-amber-50 text-amber-700 border-amber-200'">
-                                        {{ v.status === 'completed' ? '✓ Đã thăm' : '⏳ KH' }}
-                                    </span>
-                                </td>
-                            </tr>
+                            <template v-for="v in visitations" :key="v.id">
+                                <tr 
+                                    class="hover:bg-slate-50/80 transition-colors cursor-pointer group shrink-0"
+                                    @click="toggleExpand(v.id, 'visit')"
+                                >
+                                    <td class="px-4 py-3 text-[13px] font-bold text-gray-900 whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-transform duration-200" 
+                                                :class="{ 'rotate-90': expandedVisitRows.includes(v.id) }"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                            <span>{{ v.visit_date }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 text-[15px] font-medium text-gray-900">{{ v.member_name }}</td>
+                                    <td class="px-4 py-3 text-[13px] text-gray-600 hidden md:table-cell">{{ v.reason || '—' }}</td>
+                                    <td class="px-4 py-3 text-[13px] text-gray-500 hidden lg:table-cell">{{ v.visitors || '—' }}</td>
+                                    <td class="px-4 py-3 text-center whitespace-nowrap">
+                                        <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border"
+                                            :class="v.status==='completed'?'bg-emerald-50 text-emerald-700 border-emerald-200':'bg-amber-50 text-amber-700 border-amber-200'">
+                                            {{ v.status === 'completed' ? '✓ Đã thăm' : '⏳ KH' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <!-- Expanded Details Row -->
+                                <tr v-if="expandedVisitRows.includes(v.id)" class="bg-gray-50/50">
+                                    <td colspan="5" class="px-4 py-3">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3 bg-white rounded-xl border border-gray-100 shadow-sm text-[13px]">
+                                            <div class="md:hidden">
+                                                <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Lý do thăm viếng</span>
+                                                <span class="text-gray-700">{{ v.reason || '—' }}</span>
+                                            </div>
+                                            <div class="lg:hidden">
+                                                <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Người đi thăm</span>
+                                                <span class="text-gray-700">{{ v.visitors || '—' }}</span>
+                                            </div>
+                                            <div class="sm:col-span-2">
+                                                <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Diễn tiến / Ghi chú thăm viếng</span>
+                                                <span class="text-gray-700">{{ v.notes || '—' }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
                 </div>
@@ -347,24 +497,61 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            <tr v-for="m in next_month_meetings" :key="m.id" class="hover:bg-slate-50/80 transition-colors">
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    <p class="text-[15px] font-black text-gray-900">{{ m.date }}</p>
-                                    <p class="text-[11px] text-gray-500 capitalize mt-0.5">{{ m.day }}</p>
-                                </td>
-                                <td class="px-4 py-3 hidden sm:table-cell">
-                                    <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-200" :class="m.is_dept?'bg-indigo-50 text-indigo-700':'bg-blue-50 text-blue-700'">
-                                        {{ m.is_dept ? 'Ban Ngành' : 'Hội Thánh' }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-[15px] font-medium text-gray-900">
-                                    <span v-if="m.topic">{{ m.topic }}</span>
-                                    <span v-else class="text-gray-400 italic text-[13px]">Chưa có</span>
-                                </td>
-                                <td class="px-4 py-3 text-[13px] text-gray-600 hidden md:table-cell">{{ m.scripture || '—' }}</td>
-                                <td class="px-4 py-3 text-[13px] text-gray-500 italic hidden md:table-cell">{{ m.memory_verse || '—' }}</td>
-                                <td class="px-4 py-3 text-[15px] text-gray-700">{{ m.preacher || '—' }}</td>
-                            </tr>
+                            <template v-for="m in next_month_meetings" :key="m.id">
+                                <tr 
+                                    class="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                                    @click="toggleExpand(m.id, 'next')"
+                                >
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-transform duration-200" 
+                                                :class="{ 'rotate-90': expandedNextRows.includes(m.id) }"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                            <div>
+                                                <p class="text-[15px] font-black text-gray-900">{{ m.date }}</p>
+                                                <p class="text-[11px] text-gray-500 capitalize mt-0.5">{{ m.day }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 hidden sm:table-cell">
+                                        <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-200" :class="m.is_dept?'bg-indigo-50 text-indigo-700':'bg-blue-50 text-blue-700'">
+                                            {{ m.is_dept ? 'Ban Ngành' : 'Hội Thánh' }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-[15px] font-medium text-gray-900">
+                                        <span v-if="m.topic">{{ m.topic }}</span>
+                                        <span v-else class="text-gray-400 italic text-[13px]">Chưa có</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-[13px] text-gray-600 hidden md:table-cell">{{ m.scripture || '—' }}</td>
+                                    <td class="px-4 py-3 text-[13px] text-gray-500 italic hidden md:table-cell">{{ m.memory_verse || '—' }}</td>
+                                    <td class="px-4 py-3 text-[15px] text-gray-700">{{ m.preacher || '—' }}</td>
+                                </tr>
+                                <!-- Expanded Details Row -->
+                                <tr v-if="expandedNextRows.includes(m.id)" class="bg-gray-50/50">
+                                    <td colspan="6" class="px-4 py-3">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-3 bg-white rounded-xl border border-gray-100 shadow-sm text-[13px]">
+                                            <div class="md:hidden">
+                                                <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Kinh thánh</span>
+                                                <span class="text-gray-700">{{ m.scripture || '—' }}</span>
+                                            </div>
+                                            <div class="md:hidden">
+                                                <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Câu gốc</span>
+                                                <span class="text-gray-700 italic">{{ m.memory_verse || '—' }}</span>
+                                            </div>
+                                            <div class="sm:hidden">
+                                                <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Loại buổi nhóm</span>
+                                                <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-200 inline-block" :class="m.is_dept?'bg-indigo-50 text-indigo-700':'bg-blue-50 text-blue-700'">
+                                                    {{ m.is_dept ? 'Ban Ngành' : 'Hội Thánh' }}
+                                                </span>
+                                            </div>
+                                            <div class="sm:col-span-2 md:col-span-3">
+                                                <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Ghi chú kế hoạch</span>
+                                                <span class="text-gray-700">{{ m.notes || '—' }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
                 </div>
@@ -555,6 +742,33 @@ const localYear  = ref(props.filters?.year  || new Date().getFullYear());
 const isSwitchOpen = ref(false);
 const showReportForm = ref(false);
 const formLoading = ref(false);
+
+// Expandable Rows State
+const expandedChurchRows = ref([]);
+const expandedDeptRows = ref([]);
+const expandedFinanceRows = ref([]);
+const expandedVisitRows = ref([]);
+const expandedNextRows = ref([]);
+
+const toggleExpand = (id, type) => {
+    let targetMap = {
+        'church': expandedChurchRows,
+        'dept': expandedDeptRows,
+        'finance': expandedFinanceRows,
+        'visit': expandedVisitRows,
+        'next': expandedNextRows
+    };
+    
+    let targetRef = targetMap[type];
+    if (!targetRef) return;
+    
+    const index = targetRef.value.indexOf(id);
+    if (index === -1) {
+        targetRef.value.push(id);
+    } else {
+        targetRef.value.splice(index, 1);
+    }
+};
 
 const fmt = (v) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v || 0);
 const statusLabel = (s) => ({ draft: 'Bản nháp', submitted: 'Đã nộp', approved: '✓ Đã Duyệt' }[s] || s);
