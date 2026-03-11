@@ -234,7 +234,7 @@
             </div>
 
             <!-- Mobile FAB -->
-            <div v-if="canManage || isGlobalAdmin || portalType === 'ministry'" class="fixed bottom-6 right-4 flex flex-col gap-3 md:hidden z-40">
+            <div v-if="canManage || isGlobalAdmin || portalType === 'ministry'" class="fixed bottom-20 right-4 flex flex-col gap-3 md:hidden z-40">
                 <!-- Suggestion Button -->
                 <button v-if="isGlobalAdmin || portalType === 'ministry'" @click="isSuggOpen = true"
                     class="relative w-12 h-12 flex items-center justify-center rounded-full shadow-lg bg-white border border-amber-200 text-amber-600 hover:bg-amber-50 transition-all active:scale-95">

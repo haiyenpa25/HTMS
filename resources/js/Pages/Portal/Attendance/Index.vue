@@ -1,19 +1,19 @@
-﻿<template>
+<template>
     <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" @open-switcher="isSwitchOpen = true">
         <div class="py-6 space-y-6 w-full mt-2">
             
-            <div class="flex items-center justify-between mb-2">
-                <div>
-                    <h2 class="text-xl font-black text-gray-900 tracking-tight">Điểm danh Buổi nhóm</h2>
+            <div class="flex items-start justify-between gap-3 mb-2">
+                <div class="min-w-0">
+                    <h2 class="text-xl font-black text-gray-900 tracking-tight truncate">Điểm danh Buổi nhóm</h2>
                     <p class="text-sm text-gray-500 font-medium mt-1">Chọn buổi nhóm để ghi nhận chuyên cần.</p>
                 </div>
                 <!-- Import Excel Button -->
                 <button
                     @click="showImportModal = true"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm"
+                    class="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm whitespace-nowrap"
                 >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                    Import Excel
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    <span class="hidden xs:inline">Import</span> Excel
                 </button>
             </div>
 

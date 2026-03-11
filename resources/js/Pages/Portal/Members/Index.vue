@@ -2,20 +2,20 @@
     <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" :portal-type="portalType" @open-switcher="isSwitchOpen = true">
         <div class="py-6 space-y-6 w-full mt-2">
             
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h2 class="text-xl font-black text-gray-900 tracking-tight">Thành Viên Ban Ngành</h2>
+            <div class="flex items-start justify-between gap-3 mb-6">
+                <div class="min-w-0">
+                    <h2 class="text-xl font-black text-gray-900 tracking-tight truncate">Thành Viên Ban Ngành</h2>
                     <p class="text-sm text-gray-500 font-medium mt-1">Quản lý nhân sự và ban viên.</p>
                 </div>
                 <!-- Global Actions -->
-                <div class="flex items-center space-x-3">
-                    <button @click="exportMembers" class="px-4 py-2 bg-white text-gray-700 font-bold text-sm rounded-xl border border-gray-200 hover:bg-gray-50 hover:text-blue-600 transition-colors shadow-sm flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                        Xuất Excel
+                <div class="flex items-center gap-2 shrink-0">
+                    <button @click="exportMembers" class="p-2 sm:px-4 sm:py-2 bg-white text-gray-700 font-bold text-sm rounded-xl border border-gray-200 hover:bg-gray-50 hover:text-blue-600 transition-colors shadow-sm flex items-center" title="Xuất Excel">
+                        <svg class="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        <span class="hidden sm:inline">Xuất Excel</span>
                     </button>
-                    <button @click="isImportSlideOpen = true" class="px-4 py-2 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition-colors shadow-sm flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                        Nhập Excel
+                    <button @click="isImportSlideOpen = true" class="p-2 sm:px-4 sm:py-2 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition-colors shadow-sm flex items-center" title="Nhập Excel">
+                        <svg class="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        <span class="hidden sm:inline">Nhập Excel</span>
                     </button>
                 </div>
             </div>
