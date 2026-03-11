@@ -4,7 +4,7 @@
             <h2 class="font-bold text-xl text-gray-800 leading-tight">Thăm Viếng Nội Bộ Ban: {{ department?.name }}</h2>
         </template>
 
-        <div class="py-6 w-full">
+        <div class="w-full">
             <!-- Data Toolbar -->
             <DataToolbar
                 v-model:search="search"
@@ -76,12 +76,12 @@
                     <table class="min-w-full">
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-200">
-                                <th scope="col" class="px-5 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ngày</th>
-                                <th scope="col" class="px-5 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tín hữu ĐT</th>
-                                <th scope="col" class="px-5 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Lý do</th>
-                                <th scope="col" class="px-5 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Đoàn đi thăm</th>
-                                <th scope="col" class="px-5 py-3.5 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Trạng thái</th>
-                                <th scope="col" class="px-5 py-3.5 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Tác vụ</th>
+                                <th scope="col" class="px-5 py-3.5 text-left text-[13px] sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Ngày</th>
+                                <th scope="col" class="px-5 py-3.5 text-left text-[13px] sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Tín hữu ĐT</th>
+                                <th scope="col" class="px-5 py-3.5 text-left text-[13px] sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Lý do</th>
+                                <th scope="col" class="px-5 py-3.5 text-left text-[13px] sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Đoàn đi thăm</th>
+                                <th scope="col" class="px-5 py-3.5 text-center text-[13px] sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                                <th scope="col" class="px-5 py-3.5 text-center text-[13px] sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Tác vụ</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -94,47 +94,47 @@
                                 }"
                                 class="transition-colors group">
                                 <td class="px-5 py-4 whitespace-nowrap">
-                                    <span class="font-bold text-gray-800 text-sm">{{ formatDate(visitation.visit_date) }}</span>
+                                    <span class="font-bold text-gray-800 text-[15px]">{{ formatDate(visitation.visit_date) }}</span>
                                 </td>
                                 <td class="px-5 py-4">
-                                    <div class="font-bold text-gray-900 text-sm">{{ visitation.member?.full_name }}</div>
-                                    <div class="text-xs text-gray-500 mt-0.5">{{ visitation.member?.phone || '—' }}</div>
+                                    <div class="font-bold text-gray-900 text-[15px]">{{ visitation.member?.full_name }}</div>
+                                    <div class="text-[13px] text-gray-500 mt-0.5">{{ visitation.member?.phone || '—' }}</div>
                                 </td>
                                 <td class="px-5 py-4">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold capitalize"
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[13px] font-bold capitalize"
                                         :class="{
                                             'bg-red-100 text-red-800': visitation.priority === 'high',
                                             'bg-amber-100 text-amber-800': visitation.priority !== 'high'
                                         }">
                                         {{ visitation.reason }}
                                     </span>
-                                    <span v-if="visitation.priority === 'high'" class="ml-1 text-[10px] font-bold text-red-600">⚠️ Khẩn</span>
+                                    <span v-if="visitation.priority === 'high'" class="ml-1 text-[11px] font-bold text-red-600">⚠️ Khẩn</span>
                                 </td>
                                 <td class="px-5 py-4">
                                     <div class="flex -space-x-2">
                                         <div v-for="visitor in visitation.visitors.slice(0, 4)" :key="visitor.id"
-                                            class="h-7 w-7 rounded-full ring-2 ring-white flex items-center justify-center text-[11px] font-bold"
+                                            class="h-8 w-8 rounded-full ring-2 ring-white flex items-center justify-center text-xs font-bold"
                                             :class="visitation.status === 'completed' ? 'bg-green-200 text-green-900' : 'bg-blue-100 text-blue-900'"
                                             :title="visitor.full_name">
                                             {{ visitor.full_name?.charAt(0) }}
                                         </div>
                                         <div v-if="visitation.visitors.length > 4"
-                                            class="h-7 w-7 rounded-full ring-2 ring-white bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-700">
+                                            class="h-8 w-8 rounded-full ring-2 ring-white bg-gray-200 flex items-center justify-center text-[11px] font-bold text-gray-700">
                                             +{{ visitation.visitors.length - 4 }}
                                         </div>
                                     </div>
-                                    <div class="text-[11px] text-gray-500 mt-1 leading-tight max-w-[200px] truncate">{{ visitation.visitors.map(v => v.full_name).join(', ') }}</div>
+                                    <div class="text-xs text-gray-500 mt-1.5 leading-tight max-w-[200px] truncate">{{ visitation.visitors.map(v => v.full_name).join(', ') }}</div>
                                 </td>
                                 <td class="px-5 py-4 text-center">
-                                    <span v-if="visitation.status === 'completed'" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-green-200 text-green-900">
-                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                    <span v-if="visitation.status === 'completed'" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[13px] font-bold bg-green-200 text-green-900">
+                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
                                         Hoàn thành
                                     </span>
-                                    <span v-else-if="visitation.status === 'cancelled'" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-700">
+                                    <span v-else-if="visitation.status === 'cancelled'" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[13px] font-bold bg-gray-200 text-gray-700">
                                         Đã hủy
                                     </span>
-                                    <span v-else class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <span v-else class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[13px] font-bold bg-blue-100 text-blue-800">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                         Kế hoạch
                                     </span>
                                 </td>
@@ -154,7 +154,7 @@
                 </div>
 
                 <!-- Grid Cards (Desktop) -->
-                <div v-else-if="visitations.data.length > 0 && viewMode === 'grid'" class="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                <div v-else-if="visitations.data.length > 0 && viewMode === 'grid'" class="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-5 p-5">
                     <div v-for="visitation in visitations.data" :key="'grid-'+visitation.id"
                         :class="{
                             'border-green-200 bg-green-50': visitation.status === 'completed',
@@ -162,72 +162,72 @@
                             'border-gray-200 bg-gray-50': visitation.status === 'cancelled',
                             'border-gray-200 bg-white': visitation.status === 'planned' && visitation.priority !== 'high',
                         }"
-                        class="p-4 border rounded-2xl hover:shadow-md transition-all relative flex flex-col group">
+                        class="p-5 border rounded-2xl hover:shadow-md transition-all relative flex flex-col group">
                         <!-- Status bar -->
-                        <div class="absolute top-0 left-0 w-1 h-full rounded-l-2xl"
+                        <div class="absolute top-0 left-0 w-1.5 h-full rounded-l-2xl"
                             :class="{
                                 'bg-green-400': visitation.status === 'completed',
                                 'bg-red-400': visitation.priority === 'high' && visitation.status !== 'completed',
                                 'bg-gray-300': visitation.status === 'cancelled',
                                 'bg-blue-400': visitation.status === 'planned' && visitation.priority !== 'high',
                             }"></div>
-                        <div class="ml-2">
+                        <div class="ml-3">
                             <div class="flex justify-between items-start mb-3">
                                 <div>
-                                    <h3 class="font-bold text-gray-900 group-hover:text-amber-700 transition-colors">{{ visitation.member?.full_name }}</h3>
-                                    <p class="text-xs text-gray-500">{{ formatDate(visitation.visit_date) }}</p>
+                                    <h3 class="font-bold text-gray-900 text-[15px] group-hover:text-amber-700 transition-colors">{{ visitation.member?.full_name }}</h3>
+                                    <p class="text-[13px] text-gray-500 mt-0.5">{{ formatDate(visitation.visit_date) }}</p>
                                 </div>
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-amber-100 text-amber-800 capitalize">{{ visitation.reason }}</span>
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-100 text-amber-800 capitalize">{{ visitation.reason }}</span>
                             </div>
-                            <p class="text-xs text-gray-500 mb-4 flex-1"><span class="font-medium">Người thăm:</span> {{ visitation.visitors.map(v => v.full_name).join(', ') }}</p>
-                            <div class="flex gap-2 pt-3 border-t border-gray-100 mt-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button v-if="canManage" @click="editForm(visitation)" class="flex-1 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 py-1.5 rounded-lg border border-blue-100">Cập nhật</button>
-                                <button v-if="canManage || isGlobalAdmin" @click="confirmDelete(visitation)" class="flex-1 text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 py-1.5 rounded-lg border border-red-100">Xóa</button>
+                            <p class="text-sm text-gray-500 mb-5 flex-1 leading-relaxed"><span class="font-medium text-gray-700">Người thăm:</span> {{ visitation.visitors.map(v => v.full_name).join(', ') }}</p>
+                            <div class="flex gap-3 pt-4 border-t border-gray-100 mt-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button v-if="canManage" @click="editForm(visitation)" class="flex-1 text-[13px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 py-2 rounded-xl border border-blue-100 transition-colors">Cập nhật</button>
+                                <button v-if="canManage || isGlobalAdmin" @click="confirmDelete(visitation)" class="flex-1 text-[13px] font-bold text-red-700 bg-red-50 hover:bg-red-100 py-2 rounded-xl border border-red-100 transition-colors">Xóa</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Mobile Cards -->
-                <div v-if="visitations.data.length > 0" class="md:hidden divide-y divide-gray-100">
+                <div v-if="visitations.data.length > 0" class="md:hidden divide-y divide-gray-100 bg-white">
                     <div v-for="visitation in visitations.data" :key="'mob-'+visitation.id"
                         :class="{
-                            'bg-green-50 border-l-4 border-l-green-400': visitation.status === 'completed',
-                            'bg-red-50 border-l-4 border-l-red-400': visitation.priority === 'high' && visitation.status !== 'completed',
-                            'bg-gray-50 border-l-4 border-l-gray-300': visitation.status === 'cancelled',
+                            'bg-green-50/50 border-l-4 border-l-green-400': visitation.status === 'completed',
+                            'bg-red-50/50 border-l-4 border-l-red-400': visitation.priority === 'high' && visitation.status !== 'completed',
+                            'bg-gray-50/50 border-l-4 border-l-gray-300': visitation.status === 'cancelled',
                             'bg-white border-l-4 border-l-blue-400': visitation.status === 'planned' && visitation.priority !== 'high',
                         }"
-                        class="px-4 py-3.5 transition-colors">
-                        <div class="flex justify-between items-start mb-1.5">
+                        class="px-5 py-4 transition-colors">
+                        <div class="flex justify-between items-start mb-2">
                             <div>
-                                <h3 class="font-bold text-gray-900 text-sm">{{ visitation.member?.full_name }}</h3>
-                                <p class="text-xs text-gray-500">{{ formatDate(visitation.visit_date) }}</p>
+                                <h3 class="font-bold text-gray-900 text-[15px]">{{ visitation.member?.full_name }}</h3>
+                                <p class="text-[13px] text-gray-500 mt-0.5">{{ formatDate(visitation.visit_date) }}</p>
                             </div>
-                            <div class="flex flex-col items-end gap-1">
+                            <div class="flex flex-col items-end gap-1.5">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800 capitalize">{{ visitation.reason }}</span>
-                                <span v-if="visitation.status === 'completed'" class="text-[10px] font-bold text-green-700">✅ Hoàn thành</span>
-                                <span v-else-if="visitation.priority === 'high'" class="text-[10px] font-bold text-red-600">⚠️ Khẩn cấp</span>
+                                <span v-if="visitation.status === 'completed'" class="text-[11px] font-bold text-green-700">✅ Hoàn thành</span>
+                                <span v-else-if="visitation.priority === 'high'" class="text-[11px] font-bold text-red-600">⚠️ Khẩn cấp</span>
                             </div>
                         </div>
-                        <p class="text-xs text-gray-600 mb-3"><span class="font-medium">Thăm:</span> {{ visitation.visitors.map(v => v.full_name).join(', ') }}</p>
+                        <p class="text-sm text-gray-600 mb-3.5 leading-relaxed"><span class="font-medium text-gray-800">Thăm:</span> {{ visitation.visitors.map(v => v.full_name).join(', ') }}</p>
                         <div class="flex gap-2">
-                            <button v-if="canManage" @click="editForm(visitation)" class="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 flex-1">Cập nhật</button>
-                            <button v-if="canManage || isGlobalAdmin" @click="confirmDelete(visitation)" class="text-xs font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">Xóa</button>
+                            <button v-if="canManage" @click="editForm(visitation)" class="text-[13px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl border border-blue-100 flex-1 transition-colors">Cập nhật</button>
+                            <button v-if="canManage || isGlobalAdmin" @click="confirmDelete(visitation)" class="text-[13px] font-bold text-red-600 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-xl border border-red-100 transition-colors">Xóa</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Pagination -->
-                <div v-if="visitations.links && visitations.data.length > 0" class="px-5 py-4 border-t border-gray-100 flex justify-between items-center bg-gray-50/50">
-                    <p class="text-xs text-gray-500">Trang {{ visitations.current_page }} / {{ visitations.last_page }}</p>
-                    <div class="flex gap-1">
+                <div v-if="visitations.links && visitations.data.length > 0" class="px-5 py-4 border-t border-gray-100 flex justify-between items-center bg-gray-50">
+                    <p class="text-sm text-gray-500">Trang <span class="font-medium text-gray-900">{{ visitations.current_page }}</span> / {{ visitations.last_page }}</p>
+                    <div class="flex gap-1.5">
                         <template v-for="(link, k) in visitations.links" :key="k">
                             <Link v-if="link.url" :href="link.url"
-                                class="px-3 py-1.5 border rounded-lg text-xs font-medium transition-colors"
+                                class="px-3.5 py-1.5 border rounded-lg text-sm font-medium transition-colors"
                                 :class="link.active ? 'bg-amber-600 text-white border-amber-600' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200'"
                                 v-html="link.label">
                             </Link>
-                            <span v-else class="px-3 py-1.5 rounded-lg text-xs text-gray-400 cursor-not-allowed" v-html="link.label"></span>
+                            <span v-else class="px-3.5 py-1.5 rounded-lg text-sm text-gray-400 cursor-not-allowed bg-gray-50 border border-gray-100" v-html="link.label"></span>
                         </template>
                     </div>
                 </div>
@@ -257,60 +257,61 @@
         </div>
 
         <!-- SlideOver Form -->
+        <!-- SlideOver Form -->
         <SlideOver v-model="isFormOpen" :title="isEditing ? 'Cập nhật Chuyến Thăm' : 'Lập Kế hoạch Thăm Viếng'">
-            <div class="space-y-5">
+            <div class="space-y-6">
                 <!-- For department localized visitation, visitation_type is implicitly 'department' -->
                 
                 <!-- Date -->
-                <div class="flex space-x-4">
+                <div class="flex space-x-5">
                     <div class="flex-1">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Ngày thăm (dự kiến) <span class="text-red-500">*</span></label>
-                        <input v-model="form.visit_date" type="date" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm">
-                        <p v-if="form.errors.visit_date" class="mt-1 text-xs text-red-500">{{ form.errors.visit_date }}</p>
+                        <label class="block text-[15px] font-bold text-gray-700 mb-1.5">Ngày thăm (dự kiến) <span class="text-red-500">*</span></label>
+                        <input v-model="form.visit_date" type="date" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-[15px] py-2">
+                        <p v-if="form.errors.visit_date" class="mt-1.5 text-sm text-red-500">{{ form.errors.visit_date }}</p>
                     </div>
                     
                     <div class="w-1/3">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Độ ưu tiên</label>
-                        <select v-model="form.priority" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm font-bold" :class="{'text-red-600': form.priority === 'high'}">
-                            <option value="normal" class="text-gray-900 text-sm">Bình thường</option>
-                            <option value="medium" class="text-amber-600 text-sm">Trung bình</option>
-                            <option value="high" class="text-red-600 text-sm">Khẩn Cấp (Cao)</option>
+                        <label class="block text-[15px] font-bold text-gray-700 mb-1.5">Độ ưu tiên</label>
+                        <select v-model="form.priority" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-[15px] py-2 font-bold" :class="{'text-red-600': form.priority === 'high'}">
+                            <option value="normal" class="text-gray-900 text-[15px]">Bình thường</option>
+                            <option value="medium" class="text-amber-600 text-[15px]">Trung bình</option>
+                            <option value="high" class="text-red-600 text-[15px]">Khẩn Cấp (Cao)</option>
                         </select>
                     </div>
                 </div>
 
                 <!-- Visited Member (Searchable) -->
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Tín hữu được thăm <span class="text-red-500">*</span></label>
+                    <label class="block text-[15px] font-bold text-gray-700 mb-1.5">Tín hữu được thăm <span class="text-red-500">*</span></label>
                     <template v-if="!isEditing">
-                        <div class="relative mb-2">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <div class="relative mb-3">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             </div>
-                            <input type="text" v-model="visitedSearch" placeholder="Tìm người được thăm..." class="block w-full pl-9 pr-3 py-1.5 text-xs border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 italic">
+                            <input type="text" v-model="visitedSearch" placeholder="Tìm người được thăm..." class="block w-full pl-10 pr-3 py-2 text-sm border-gray-200 rounded-xl focus:ring-amber-500 focus:border-amber-500 italic">
                         </div>
                         
-                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 max-h-48 overflow-y-auto mb-2 custom-scrollbar">
+                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 max-h-56 overflow-y-auto mb-3 custom-scrollbar">
                             <div class="flex flex-col space-y-2">
-                                <label v-for="m in filteredVisitedMembers" :key="'vis-'+m.id" class="inline-flex items-center cursor-pointer p-1.5 hover:bg-amber-50 rounded-lg transition-colors">
+                                <label v-for="m in filteredVisitedMembers" :key="'vis-'+m.id" class="inline-flex items-center cursor-pointer p-2 hover:bg-amber-50 rounded-lg transition-colors">
                                     <input type="checkbox" v-model="form.member_ids" :value="m.id" class="rounded border-gray-300 text-amber-600 focus:ring-amber-500 hidden peer">
                                     <div class="w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center peer-checked:bg-amber-500 peer-checked:border-amber-500 mr-3 transition-colors">
-                                        <svg class="w-3 h-3 text-white opacity-0 peer-checked:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                        <svg class="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                                     </div>
-                                    <span class="text-sm font-medium text-gray-700 peer-checked:text-amber-800 flex-1">{{ m.full_name }}</span>
-                                    <span class="text-[10px] text-gray-500 font-medium ml-2">{{ m.phone || 'K có SĐT' }}</span>
+                                    <span class="text-[15px] font-medium text-gray-700 peer-checked:text-amber-800 flex-1">{{ m.full_name }}</span>
+                                    <span class="text-xs text-gray-500 font-medium ml-2">{{ m.phone || 'K có SĐT' }}</span>
                                 </label>
-                                <div v-if="filteredVisitedMembers.length === 0" class="text-center py-4 text-xs text-gray-400 italic">Không tìm thấy ai</div>
+                                <div v-if="filteredVisitedMembers.length === 0" class="text-center py-5 text-sm text-gray-400 italic">Không tìm thấy ai</div>
                             </div>
                         </div>
                         
-                        <div v-if="form.member_ids.length > 0" class="flex flex-wrap gap-1.5">
-                            <span v-for="vId in form.member_ids" :key="vId" class="inline-flex items-center px-2 py-1 rounded bg-amber-100 text-amber-800 text-xs font-bold">
+                        <div v-if="form.member_ids.length > 0" class="flex flex-wrap gap-2">
+                            <span v-for="vId in form.member_ids" :key="vId" class="inline-flex items-center px-2.5 py-1 rounded bg-amber-100 text-amber-800 text-[13px] font-bold">
                                 {{ members.find(m => m.id === vId)?.full_name || 'Unknown' }}
-                                <button @click.prevent="form.member_ids = form.member_ids.filter(id => id !== vId)" class="ml-1.5 text-amber-600 hover:text-amber-900 bg-amber-200/50 rounded-full p-0.5"><svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                                <button @click.prevent="form.member_ids = form.member_ids.filter(id => id !== vId)" class="ml-1.5 text-amber-600 hover:text-amber-900 bg-amber-200/50 rounded-full p-0.5"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                             </span>
                         </div>
-                        <p v-if="form.errors.member_ids" class="mt-1 text-xs text-red-500">{{ form.errors.member_ids }}</p>
+                        <p v-if="form.errors.member_ids" class="mt-1 text-sm text-red-500">{{ form.errors.member_ids }}</p>
                     </template>
                     <template v-else>
                         <SearchableSelect
@@ -320,77 +321,77 @@
                             searchPlaceholder="Tìm theo tên..."
                             noResultsText="Không tìm thấy thành viên này"
                         />
-                        <p v-if="form.errors.member_id" class="mt-1 text-xs text-red-500">{{ form.errors.member_id }}</p>
+                        <p v-if="form.errors.member_id" class="mt-1 text-sm text-red-500">{{ form.errors.member_id }}</p>
                     </template>
                     
                     <!-- Location / Geolocation Row (Only visible if member selected) -->
-                    <div v-if="isEditing ? form.member_id : (form.member_ids && form.member_ids.length === 1)" class="mt-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-bold text-gray-700">Tọa độ Bản đồ (GPS):</span>
+                    <div v-if="isEditing ? form.member_id : (form.member_ids && form.member_ids.length === 1)" class="mt-4 bg-gray-50 border border-gray-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[13px] font-bold text-gray-700">Tọa độ Bản đồ (GPS):</span>
                             <div class="space-x-2 flex">
-                                <button type="button" @click="fetchLocation" :disabled="isFetchingLocation" class="text-xs px-2 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50">
+                                <button type="button" @click="fetchLocation" :disabled="isFetchingLocation" class="text-[13px] font-medium px-3 py-1.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 transition-colors">
                                     {{ isFetchingLocation ? 'Đang lấy GPS...' : '📍 Lấy Tọa Độ' }}
                                 </button>
-                                <a v-if="form.latitude && form.longitude" :href="`https://www.google.com/maps/dir/?api=1&destination=${form.latitude},${form.longitude}`" target="_blank" class="text-xs px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded hover:bg-blue-100 font-bold inline-flex items-center">
+                                <a v-if="form.latitude && form.longitude" :href="`https://www.google.com/maps/dir/?api=1&destination=${form.latitude},${form.longitude}`" target="_blank" class="text-[13px] px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 font-bold inline-flex items-center transition-colors">
                                     🗺️ Dẫn đường
                                 </a>
                             </div>
                         </div>
-                        <div class="flex space-x-2">
-                            <input v-model="form.latitude" type="text" placeholder="Vĩ độ (Latitude)" class="w-1/2 text-xs border-gray-300 rounded-md py-1 px-2" :class="{'bg-gray-100': !form.latitude}">
-                            <input v-model="form.longitude" type="text" placeholder="Kinh độ (Longitude)" class="w-1/2 text-xs border-gray-300 rounded-md py-1 px-2" :class="{'bg-gray-100': !form.longitude}">
+                        <div class="flex space-x-3">
+                            <input v-model="form.latitude" type="text" placeholder="Vĩ độ (Latitude)" class="w-1/2 text-sm border-gray-300 rounded-lg py-2 pl-3 pr-2" :class="{'bg-gray-100': !form.latitude}">
+                            <input v-model="form.longitude" type="text" placeholder="Kinh độ (Longitude)" class="w-1/2 text-sm border-gray-300 rounded-lg py-2 pl-3 pr-2" :class="{'bg-gray-100': !form.longitude}">
                         </div>
                     </div>
                 </div>
 
                 <!-- Custom Visitors Selector (Only from this department) -->
                 <div>
-                    <div class="flex justify-between items-center mb-1">
-                        <label class="block text-sm font-bold text-gray-700">Đoàn đi thăm <span class="text-red-500">*</span></label>
-                        <div class="flex space-x-2">
-                            <button type="button" @click="selectExecutiveTeam" class="text-xs text-amber-600 font-bold hover:text-amber-800 hover:underline">Ban điều hành</button>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block text-[15px] font-bold text-gray-700">Đoàn đi thăm <span class="text-red-500">*</span></label>
+                        <div class="flex space-x-2 items-center">
+                            <button type="button" @click="selectExecutiveTeam" class="text-[13px] text-amber-600 font-bold hover:text-amber-800 hover:underline transition-colors">Ban điều hành</button>
                             <span class="text-gray-300">|</span>
-                            <button type="button" @click="form.visitors = []" class="text-xs text-gray-500 hover:text-gray-800 hover:underline">Xóa chọn</button>
+                            <button type="button" @click="form.visitors = []" class="text-[13px] text-gray-500 hover:text-gray-800 hover:underline transition-colors">Xóa chọn</button>
                         </div>
                     </div>
                     
-                    <div class="relative mb-2">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <div class="relative mb-3">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <input type="text" v-model="visitorSearch" placeholder="Tìm người đi thăm..." class="block w-full pl-9 pr-3 py-1.5 text-xs border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 italic">
+                        <input type="text" v-model="visitorSearch" placeholder="Tìm người đi thăm..." class="block w-full pl-10 pr-3 py-2 text-sm border-gray-200 rounded-xl focus:ring-amber-500 focus:border-amber-500 italic">
                     </div>
                     
-                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 max-h-48 overflow-y-auto mb-2 custom-scrollbar">
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 max-h-56 overflow-y-auto mb-3 custom-scrollbar">
                         <div class="flex flex-col space-y-2">
-                            <label v-for="m in filteredVisitors" :key="m.id" class="inline-flex items-center cursor-pointer p-1.5 hover:bg-amber-50 rounded-lg transition-colors">
+                            <label v-for="m in filteredVisitors" :key="m.id" class="inline-flex items-center cursor-pointer p-2 hover:bg-amber-50 rounded-lg transition-colors">
                                 <input type="checkbox" v-model="form.visitors" :value="m.id" class="rounded border-gray-300 text-amber-600 focus:ring-amber-500 hidden peer">
                                 <div class="w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center peer-checked:bg-amber-500 peer-checked:border-amber-500 mr-3 transition-colors">
-                                    <svg class="w-3 h-3 text-white opacity-0 peer-checked:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                    <svg class="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                                 </div>
-                                <span class="text-sm font-medium text-gray-700 peer-checked:text-amber-800 flex-1">{{ m.full_name }}</span>
-                                <span v-if="isExecutive(m)" class="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-bold ml-2">BĐH</span>
-                                <span v-else class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-medium ml-2">Ban viên</span>
+                                <span class="text-[15px] font-medium text-gray-700 peer-checked:text-amber-800 flex-1">{{ m.full_name }}</span>
+                                <span v-if="isExecutive(m)" class="text-[11px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold ml-2">BĐH</span>
+                                <span v-else class="text-[11px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-medium ml-2">Ban viên</span>
                             </label>
-                            <div v-if="filteredVisitors.length === 0" class="text-center py-4 text-xs text-gray-400 italic">Không tìm thấy ai</div>
+                            <div v-if="filteredVisitors.length === 0" class="text-center py-5 text-sm text-gray-400 italic">Không tìm thấy ai</div>
                         </div>
                     </div>
                     
-                    <div v-if="form.visitors.length > 0" class="flex flex-wrap gap-1.5">
-                        <span v-for="vId in form.visitors" :key="vId" class="inline-flex items-center px-2 py-1 rounded bg-amber-100 text-amber-800 text-xs font-bold">
+                    <div v-if="form.visitors.length > 0" class="flex flex-wrap gap-2">
+                        <span v-for="vId in form.visitors" :key="vId" class="inline-flex items-center px-2.5 py-1 rounded bg-amber-100 text-amber-800 text-[13px] font-bold">
                             {{ members.find(m => m.id === vId)?.full_name || 'Unknown' }}
-                            <button @click.prevent="form.visitors = form.visitors.filter(id => id !== vId)" class="ml-1.5 text-amber-600 hover:text-amber-900 bg-amber-200/50 rounded-full p-0.5"><svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                            <button @click.prevent="form.visitors = form.visitors.filter(id => id !== vId)" class="ml-1.5 text-amber-600 hover:text-amber-900 bg-amber-200/50 rounded-full p-0.5"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                         </span>
                     </div>
 
-                    <p v-if="form.errors.visitors" class="mt-1 text-xs text-red-500">{{ form.errors.visitors }}</p>
+                    <p v-if="form.errors.visitors" class="mt-1.5 text-sm text-red-500">{{ form.errors.visitors }}</p>
                 </div>
 
                 <!-- Status & Reason -->
-                <div class="flex space-x-4">
+                <div class="flex space-x-5">
                     <div class="w-1/3">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Trạng thái <span class="text-red-500">*</span></label>
-                        <select v-model="form.status" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm font-bold">
+                        <label class="block text-[15px] font-bold text-gray-700 mb-1.5">Trạng thái <span class="text-red-500">*</span></label>
+                        <select v-model="form.status" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-[15px] py-2 font-bold">
                             <option value="planned" class="text-blue-600">Kế hoạch</option>
                             <option value="completed" class="text-green-600">Hoàn Thành</option>
                             <option value="cancelled" class="text-gray-500">Đã Hủy</option>
@@ -398,36 +399,36 @@
                     </div>
 
                     <div class="flex-1">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Lý do thăm viếng <span class="text-red-500">*</span></label>
-                        <select v-model="form.reason" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm capitalize">
+                        <label class="block text-[15px] font-bold text-gray-700 mb-1.5">Lý do thăm viếng <span class="text-red-500">*</span></label>
+                        <select v-model="form.reason" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-[15px] py-2 capitalize">
                             <option value="">-- Chọn lý do --</option>
                             <option v-for="r in reasons" :key="r" :value="r">{{ r }}</option>
                         </select>
-                        <p v-if="form.errors.reason" class="mt-1 text-xs text-red-500">{{ form.errors.reason }}</p>
+                        <p v-if="form.errors.reason" class="mt-1.5 text-sm text-red-500">{{ form.errors.reason }}</p>
                     </div>
                 </div>
 
                 <!-- Prayer Points -->
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Vấn đề cầu nguyện</label>
-                    <textarea v-model="form.prayer_points" rows="2" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm"></textarea>
-                    <p class="mt-1 text-[10px] text-gray-500">Ghi chú lại những vấn đề cần HT/Ban ngành cầu nguyện thêm.</p>
+                    <label class="block text-[15px] font-bold text-gray-700 mb-1.5">Vấn đề cầu nguyện</label>
+                    <textarea v-model="form.prayer_points" rows="2" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-[15px]"></textarea>
+                    <p class="mt-1.5 text-xs text-gray-500">Ghi chú lại những vấn đề cần HT/Ban ngành cầu nguyện thêm.</p>
                 </div>
 
                 <!-- Content -->
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Nội dung chi tiết</label>
-                    <textarea v-model="form.content" rows="4" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm"></textarea>
-                    <p class="mt-1 text-[10px] text-gray-500 font-bold text-amber-600">⚠ Dữ liệu nhạy cảm. Chỉ ban quản lý mới được xem đầy đủ.</p>
+                    <label class="block text-[15px] font-bold text-gray-700 mb-1.5">Nội dung chi tiết</label>
+                    <textarea v-model="form.content" rows="4" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-[15px]"></textarea>
+                    <p class="mt-1.5 text-xs text-gray-500 font-bold text-amber-600">⚠ Dữ liệu nhạy cảm. Chỉ ban quản lý mới được xem đầy đủ.</p>
                 </div>
             </div>
 
             <template #footer>
                 <div class="flex justify-end space-x-3 w-full">
-                    <button @click="isFormOpen = false" type="button" class="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-colors">
+                    <button @click="isFormOpen = false" type="button" class="px-5 py-2.5 bg-white border border-gray-300 rounded-xl text-[15px] font-bold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-colors">
                         Hủy
                     </button>
-                    <button @click="submitForm" :disabled="form.processing" type="button" class="px-6 py-2 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button @click="submitForm" :disabled="form.processing" type="button" class="px-6 py-2.5 border border-transparent rounded-xl shadow-sm text-[15px] font-bold text-white bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
                         <svg v-if="form.processing" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -440,11 +441,11 @@
 
         <!-- Suggestions Slide-Over -->
         <SlideOver v-model="isSuggOpen" title="Đề Xuất Thăm Viếng">
-            <div class="space-y-4">
+            <div class="space-y-5">
                 <!-- Dept Filter inside suggestions -->
-                <div v-if="portalType === 'ministry' && activityDepartments?.length" class="bg-amber-50 border border-amber-100 rounded-xl p-3">
-                    <label class="block text-xs font-bold text-amber-800 mb-1.5">Lọc theo Ban Sinh Hoạt</label>
-                    <select v-model="suggDept" @change="fetchSuggestions" class="block w-full rounded-lg border-amber-200 text-sm font-medium py-2 pl-3 pr-8 text-gray-700 bg-white focus:ring-amber-500 focus:border-amber-500">
+                <div v-if="portalType === 'ministry' && activityDepartments?.length" class="bg-amber-50 border border-amber-100 rounded-xl p-4">
+                    <label class="block text-sm font-bold text-amber-800 mb-2">Lọc theo Ban Sinh Hoạt</label>
+                    <select v-model="suggDept" @change="fetchSuggestions" class="block w-full rounded-xl border-amber-200 text-[15px] font-medium py-2.5 pl-3.5 pr-8 text-gray-700 bg-white focus:ring-amber-500 focus:border-amber-500 shadow-sm">
                         <option value="">Toàn bộ Hội Thánh</option>
                         <option v-for="d in activityDepartments" :key="d.id" :value="d.id">{{ d.name }}</option>
                         <option value="other">Khác (không thuộc ban sinh hoạt nào)</option>
@@ -453,42 +454,42 @@
 
                 <!-- Summary badge -->
                 <div v-if="localSuggestions.length > 0" class="flex items-center justify-between">
-                    <span class="text-sm font-bold text-gray-700">{{ localSuggestions.length }} tín hữu cần thăm</span>
-                    <div class="flex gap-2">
-                        <span class="text-[11px] font-bold px-2 py-0.5 bg-red-100 text-red-700 rounded-full">{{ localSuggestions.filter(s => s.priority === 'high').length }} Khẩn</span>
-                        <span class="text-[11px] font-bold px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">{{ localSuggestions.filter(s => s.priority === 'medium').length }} Trung bình</span>
+                    <span class="text-[15px] font-bold text-gray-700">{{ localSuggestions.length }} tín hữu cần thăm</span>
+                    <div class="flex gap-2.5">
+                        <span class="text-xs font-bold px-2.5 py-1 bg-red-100 text-red-700 rounded-lg">{{ localSuggestions.filter(s => s.priority === 'high').length }} Khẩn</span>
+                        <span class="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-700 rounded-lg">{{ localSuggestions.filter(s => s.priority === 'medium').length }} Trung bình</span>
                     </div>
                 </div>
 
-                <div v-if="localSuggestions.length === 0" class="py-12 flex flex-col items-center text-center">
-                    <div class="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mb-3">
-                        <svg class="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div v-if="localSuggestions.length === 0" class="py-14 flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4 text-green-500 shadow-inner">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
-                    <p class="text-sm font-bold text-gray-700 mb-1">Tốt lắm!</p>
-                    <p class="text-xs text-gray-400">Không có tín hữu nào cần ưu tiên thăm viếng.</p>
+                    <p class="text-[15px] font-bold text-gray-800 mb-1.5">Tốt lắm!</p>
+                    <p class="text-[13px] text-gray-500">Không có tín hữu nào cần ưu tiên thăm viếng trong lúc này.</p>
                 </div>
 
-                <div class="space-y-2">
+                <div class="space-y-3">
                     <div v-for="s in localSuggestions" :key="'sugg-'+s.id"
-                        class="p-4 rounded-xl border transition-colors"
+                        class="p-5 rounded-2xl border transition-colors shadow-sm hover:shadow"
                         :class="s.priority === 'high' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'">
-                        <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-start justify-between gap-3">
                             <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <div class="w-2.5 h-2.5 rounded-full shrink-0" :class="s.priority === 'high' ? 'bg-red-500' : 'bg-amber-400'"></div>
-                                    <h4 class="font-bold text-sm truncate" :class="s.priority === 'high' ? 'text-red-900' : 'text-gray-900'">{{ s.full_name }}</h4>
+                                <div class="flex items-center gap-2.5 mb-2">
+                                    <div class="w-3 h-3 rounded-full shrink-0" :class="s.priority === 'high' ? 'bg-red-500' : 'bg-amber-400'"></div>
+                                    <h4 class="font-bold text-[15px] truncate leading-tight" :class="s.priority === 'high' ? 'text-red-950' : 'text-gray-950'">{{ s.full_name }}</h4>
                                 </div>
-                                <p v-if="s.phone" class="text-xs text-gray-500 ml-4.5">📞 {{ s.phone }}</p>
-                                <p v-if="s.dept_name" class="text-xs text-blue-600 font-medium ml-4.5 mt-0.5">🏠 {{ s.dept_name }}</p>
-                                <div class="flex flex-wrap gap-1 mt-2 ml-4.5">
+                                <p v-if="s.phone" class="text-[13px] text-gray-600 ml-5.5 flex items-center gap-1.5"><span class="text-gray-400">📞</span> {{ s.phone }}</p>
+                                <p v-if="s.dept_name" class="text-[13px] text-blue-700 font-medium ml-5.5 mt-1 flex items-center gap-1.5"><span class="text-blue-400">🏠</span> {{ s.dept_name }}</p>
+                                <div class="flex flex-wrap gap-1.5 mt-3 ml-5.5">
                                     <span v-for="r in s.reasons" :key="r"
-                                        :class="s.priority === 'high' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-amber-100 text-amber-700 border-amber-200'"
-                                        class="text-[10px] font-bold px-2 py-0.5 rounded-full border">{{ r }}</span>
+                                        :class="s.priority === 'high' ? 'bg-red-100/80 text-red-800 border-red-200' : 'bg-amber-100/80 text-amber-800 border-amber-200'"
+                                        class="text-[11px] font-bold px-2.5 py-0.5 rounded-md border">{{ r }}</span>
                                 </div>
                             </div>
                             <button v-if="canManage" @click="createFromSuggestion(s); isSuggOpen = false"
-                                class="shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"
-                                :class="s.priority === 'high' ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-amber-500 text-white hover:bg-amber-600'">
+                                class="shrink-0 text-[13px] font-bold px-4 py-2 rounded-xl transition-all shadow-sm active:scale-95"
+                                :class="s.priority === 'high' ? 'bg-red-600 text-white hover:bg-red-700 hover:shadow-red-200' : 'bg-amber-500 text-white hover:bg-amber-600 hover:shadow-amber-200'">
                                 Lập kế hoạch
                             </button>
                         </div>

@@ -143,7 +143,7 @@ const colorMap = {
       </div>
 
       <!-- Dashboard Content -->
-      <div v-else class="w-full p-4 sm:p-6 space-y-6">
+      <div v-else class="w-full space-y-6">
 
           <!-- Feature Cards Grid -->
           <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
@@ -160,9 +160,9 @@ const colorMap = {
                     <g v-html="card.icon"></g>
                   </svg>
                 </div>
-                <h3 class="font-bold text-gray-900 leading-tight">
+                <h3 class="text-base font-bold text-gray-900 leading-tight">
                   {{ card.label }}<br>
-                  <span class="text-xs font-medium" :class="colorMap[card.color].sub">{{ card.sub }}</span>
+                  <span class="text-sm font-medium mt-0.5 block" :class="colorMap[card.color].sub">{{ card.sub }}</span>
                 </h3>
               </Link>
 
@@ -179,9 +179,9 @@ const colorMap = {
                     <g v-html="card.icon"></g>
                   </svg>
                 </div>
-                <h3 class="font-bold text-gray-400 leading-tight">
+                <h3 class="text-base font-bold text-gray-400 leading-tight">
                   {{ card.label }}<br>
-                  <span class="text-xs font-medium text-gray-400">Chưa được cấp quyền</span>
+                  <span class="text-sm font-medium text-gray-400 mt-0.5 block">Chưa cấp quyền</span>
                 </h3>
               </div>
               
@@ -189,13 +189,15 @@ const colorMap = {
             </div>
 
           <!-- Info Box -->
-          <div class="bg-blue-50/60 rounded-2xl p-5 border border-blue-100 shadow-sm flex items-start gap-3">
-            <svg class="w-5 h-5 text-blue-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+          <div class="bg-blue-50/60 rounded-2xl p-5 sm:p-6 border border-blue-100 shadow-sm flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
             <div>
-              <p class="text-sm font-black text-blue-900">Thông tin Ban</p>
-              <p class="text-blue-800 text-sm mt-0.5">
+              <p class="text-base font-black text-blue-900">Thông tin Ban Sinh Hoạt</p>
+              <p class="text-blue-800 text-[15px] mt-1 leading-relaxed">
                 Bạn đang xem các chức năng dành riêng cho <strong>{{ activeDepartment.name }}</strong>.
                 Mọi thao tác điểm danh, thống kê, và phân bổ nhân sự sẽ chỉ áp dụng trong phạm vi ban sinh hoạt này.
               </p>

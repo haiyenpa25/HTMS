@@ -109,14 +109,20 @@
 
       <!-- Content — pb-16 on mobile to make room for bottom nav -->
       <main class="flex-1 overflow-x-hidden overflow-y-auto pb-16 lg:pb-0">
-        <div v-if="$page.props.flash?.error" class="mx-4 mt-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm font-bold rounded-r-xl shadow-sm">
-          {{ $page.props.flash.error }}
+        <div v-if="$page.props.flash?.error" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+          <div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm font-bold rounded-r-xl shadow-sm">
+            {{ $page.props.flash.error }}
+          </div>
         </div>
         <!-- Backward-compat: render #header slot if provided (old-style pages) -->
         <div v-if="$slots.header" class="bg-white border-b border-gray-100 px-6 py-4 shadow-sm">
-          <slot name="header" />
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <slot name="header" />
+          </div>
         </div>
-        <slot />
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <slot />
+        </div>
       </main>
     </div>
 
