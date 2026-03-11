@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { ref, computed, reactive } from 'vue';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import DutyRosterLayout from '@/Layouts/DutyRosterLayout.vue';
@@ -40,12 +40,8 @@ const fmtDate = computed(() => {
 });
 
 // ── Permission helpers ─────────────────────────────────────
-// Section I (Chương Trình Lễ): only Pastor/Admin can edit
-const canEditSectionI = computed(() =>
-  page.props.auth?.user?.roles?.some(r =>
-    ['Super_Admin','Pastor','BTS_Admin'].includes(r.name)
-  ) ?? false
-);
+// Section I (Chương Trình Lễ): mở cho tất cả người dùng có quyền vào trang
+const canEditSectionI = computed(() => true);
 // Section II: each dept edits their own only
 const canEditSectionII = (deptId) => !props.authDeptIds?.length || props.authDeptIds.includes(deptId);
 const canEdit = canEditSectionII; // backward-compat for modal
