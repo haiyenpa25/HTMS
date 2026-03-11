@@ -4,7 +4,6 @@
       :available-departments="availableDepartments"
       :is-global-admin="isGlobalAdmin"
       portal-type="deacon"
-      @open-switcher="isSwitchOpen = true"
   >
        <!-- Empty State -->
        <div v-if="!activeRole" class="h-full flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in-95 duration-500 min-h-[60vh]">
@@ -111,53 +110,17 @@
            <div class="mt-8 bg-amber-50 rounded-3xl p-6 border border-amber-100 shadow-sm">
               <h3 class="text-sm font-black text-amber-900 tracking-wider mb-2 px-1 flex items-center">
                   <svg class="w-5 h-5 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                  C?ng N?i B? � L�nh �?o H?i Th�nh
+                  Cổng Nội Bộ – Lãnh Đạo Hội Thánh
               </h3>
-              <p class="text-amber-800 text-sm pl-1">B?n dang l�m vi?c v?i ch?c v? <strong>{{ roleLabel }}</strong>. M?i thao t�c s? c� t�c d?ng ? c?p d? to�n H?i Th�nh.</p>
+              <p class="text-amber-800 text-sm pl-1">Bạn đang làm việc với chức vụ <strong>{{ roleLabel }}</strong>. Mọi thao tác sẽ có tác dụng ở cấp độ toàn Hội Thánh.</p>
            </div>
        </div>
-
-    <!-- Context Switcher SlideOver -->
-    <SlideOver v-model="isSwitchOpen" title="Chuy?n d?i Ch?c V?" size="md">
-        <template #default>
-            <div class="p-6 space-y-5">
-               <p class="text-sm text-gray-500 font-medium">Ch?n ch?c v? c?n l�m vi?c.</p>
-               
-               <div class="space-y-2">
-                  <div 
-                    v-for="role in availableRoles" 
-                    :key="role.id"
-                    @click="switchRole(role.id)"
-                    class="w-full text-left p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center justify-between group"
-                    :class="activeRole === role.id ? 'border-amber-500 bg-amber-50' : 'border-gray-100 bg-white hover:border-gray-300 hover:bg-gray-50'"
-                  >
-                     <div class="flex items-center space-x-4 shrink-0">
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-black" 
-                          :class="activeRole === role.id ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-600 group-hover:bg-gray-200'">
-                           <svg v-if="role.id === 'secretary'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                           <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div>
-                           <h4 class="text-sm font-black" :class="activeRole === role.id ? 'text-amber-900' : 'text-gray-900'">{{ role.name }}</h4>
-                           <p class="text-xs text-gray-500 mt-0.5">{{ role.desc }}</p>
-                           <span v-if="activeRole === role.id" class="text-[10px] sm:text-xs text-amber-600 font-bold mt-0.5 inline-block">? �ang ho?t d?ng</span>
-                        </div>
-                     </div>
-                     <button v-if="activeRole !== role.id" @click.stop="switchRole(role.id)" class="px-3 py-1.5 text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors">Ch?n</button>
-                     <svg v-if="activeRole === role.id" class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                  </div>
-               </div>
-            </div>
-        </template>
-    </SlideOver>
-
   </PortalLayout>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
-import SlideOver from '@/Components/SlideOver.vue';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
 
 const page = usePage();
@@ -184,7 +147,7 @@ const props = defineProps({
 // Fallback v? prop n?u kh�ng c�
 const activeRole = computed(() => page.props.activeDeaconRole ?? props.activeRole);
 
-const isSwitchOpen = ref(false);
+// Redundant switcher state removed (handled in PortalLayout)
 
 // Check Level 2 user permission
 const can = (key) => {

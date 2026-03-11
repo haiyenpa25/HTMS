@@ -111,4 +111,59 @@ class SystemFeatureController extends Controller
 
         return back()->with('success', 'Đã thêm tính năng mới thành công.');
     }
+
+    /**
+     * Toggle a specific assignment in the Matrix.
+     */
+    public function matrixToggle(Request $request)
+    {
+        $validated = $request->validate([
+            'feature_id'    => 'required|exists:features,id',
+            'department_id' => 'nullable|exists:departments,id',
+            'block_type'    => 'nullable|string',
+            'scope'         => 'required|in:global,block,specific',
+            'is_active'     => 'required|boolean',
+        ]);
+
+        $featureId    = $validated['feature_id'];
+        $deptId       = $validated['department_id'];
+        $block        = $validated['block_type'];
+        $scope        = $validated['scope'];
+        $isActive     = $validated['is_active'];
+
+        // Find or create the assignment record
+        $query = FeatureDepartment::where('feature_id', $featureId)
+            ->where('scope', $scope);
+
+        if ($scope === 'specific') {
+            $query->where('department_id', $deptId);
+        } elseif ($scope === 'block') {
+            $query->where('block_type', $block)->whereNull('department_id');
+        } else {
+            $query->whereNull('block_type')->whereNull('department_id');
+        }
+
+        if ($isActive) {
+            $query->updateOrCreate([
+                'feature_id'    => $featureId,
+                'scope'         => $scope,
+                'department_id' => ($scope === 'specific' ? $deptId : null),
+                'block_type'    => ($scope === 'block' ? $block : null),
+            ], [
+                'is_active' => true
+            ]);
+        } else {
+            // Explicitly set is_active = false to prevent inheritance from global/block configs
+            $query->updateOrCreate([
+                'feature_id'    => $featureId,
+                'scope'         => $scope,
+                'department_id' => ($scope === 'specific' ? $deptId : null),
+                'block_type'    => ($scope === 'block' ? $block : null),
+            ], [
+                'is_active' => false
+            ]);
+        }
+
+        return response()->json(['success' => true]);
+    }
 }

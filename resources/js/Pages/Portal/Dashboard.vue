@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
-import SlideOver from '@/Components/SlideOver.vue';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
 
 const page = usePage();
@@ -16,14 +15,8 @@ const props = defineProps({
     recentAttendance: Object,
 });
 
-const isSwitchOpen = ref(!props.activeDepartment && props.isGlobalAdmin);
+// Redundant switcher state removed (handled in PortalLayout)
 
-const switchDept = (deptId) => {
-    router.post(route('portal.switch-context'), { department_id: deptId }, {
-        preserveScroll: true,
-        onSuccess: () => { isSwitchOpen.value = false; }
-    });
-};
 
 // Kiểm tra quyền tính năng (SuperAdmin luôn có quyền)
 const can = (key) => {
@@ -131,7 +124,6 @@ const colorMap = {
       :available-departments="availableDepartments"
       :is-global-admin="isGlobalAdmin"
       portal-type="activities"
-      @open-switcher="isSwitchOpen = true"
   >
       <!-- Empty State -->
       <div v-if="!activeDepartment" class="h-full flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in-95 duration-500 min-h-[60vh]">
@@ -144,7 +136,7 @@ const colorMap = {
           <p class="text-sm text-gray-500 max-w-xs mb-8">
             {{ isGlobalAdmin ? 'Bạn có quyền xem tất cả ban ngành. Hãy chọn một Ban để bắt đầu.' : 'Bạn chưa được phân bổ vào Ban Sinh Hoạt nào.' }}
           </p>
-          <button v-if="isGlobalAdmin" @click="isSwitchOpen = true"
+          <button v-if="isGlobalAdmin" 
             class="px-6 py-3 bg-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-200 font-bold hover:bg-emerald-700 transition-all text-sm">
             Chọn Ban Sinh Hoạt
           </button>
@@ -212,35 +204,6 @@ const colorMap = {
 
       </div>
 
-      <!-- Context Switcher SlideOver -->
-      <SlideOver v-model="isSwitchOpen" title="Chuyển đổi Ban Sinh Hoạt" size="md">
-          <template #default>
-              <div class="p-6 space-y-5">
-                 <p class="text-sm text-gray-500 font-medium">Chọn một Ban Sinh Hoạt để làm việc.</p>
-                 <div class="space-y-2">
-                    <div v-for="dept in availableDepartments" :key="dept.id"
-                      @click="switchDept(dept.id)"
-                      class="w-full text-left p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center justify-between group"
-                      :class="activeDepartment?.id === dept.id ? 'border-emerald-500 bg-emerald-50' : 'border-gray-100 bg-white hover:border-gray-300 hover:bg-gray-50'">
-                       <div class="flex items-center space-x-4 shrink-0">
-                          <div class="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm"
-                            :class="activeDepartment?.id === dept.id ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600'">
-                             {{ dept.name.charAt(0) }}
-                          </div>
-                          <div>
-                             <h4 class="text-sm font-black" :class="activeDepartment?.id === dept.id ? 'text-emerald-900' : 'text-gray-900'">{{ dept.name }}</h4>
-                             <span v-if="activeDepartment?.id === dept.id" class="text-xs text-emerald-600 font-bold">Đang hoạt động</span>
-                          </div>
-                       </div>
-                       <button v-if="activeDepartment?.id !== dept.id" class="px-3 py-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors">Chọn</button>
-                       <svg v-else class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                       </svg>
-                    </div>
-                 </div>
-              </div>
-          </template>
-      </SlideOver>
 
   </PortalLayout>
 </template>

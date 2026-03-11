@@ -195,4 +195,25 @@ class PortalService
             ->orderBy('name')
             ->get();
     }
+    /**
+     * Lấy danh sách departments user có quyền truy cập, GROUPED BY BLOCK.
+     * Dùng cho Global Switcher.
+     */
+    public function getAllAvailableDepartmentsGrouped(User $user): array
+    {
+        $blocks = ['activities', 'ministry', 'leadership'];
+        $grouped = [];
+
+        foreach ($blocks as $block) {
+            $grouped[$block] = $this->getAvailableDepartments($user, $block)
+                ->map(fn($d) => [
+                    'id'    => $d->id,
+                    'name'  => $d->name,
+                    'block' => $d->block,
+                    'code'  => $d->code,
+                ]);
+        }
+
+        return $grouped;
+    }
 }

@@ -93,6 +93,7 @@ Route::middleware('auth')->group(function () {
         // Feature System Configuration (Tab Tính Năng)
         Route::get('/features', [\App\Http\Controllers\Admin\SystemFeatureController::class, 'index'])->name('admin.features.index');
         Route::post('/features/assign', [\App\Http\Controllers\Admin\SystemFeatureController::class, 'assign'])->name('admin.features.assign');
+        Route::post('/features/matrix/toggle', [\App\Http\Controllers\Admin\SystemFeatureController::class, 'matrixToggle'])->name('admin.features.matrix.toggle');
         Route::post('/features/store', [\App\Http\Controllers\Admin\SystemFeatureController::class, 'storeFeature'])->name('admin.features.store');
 
         // Quản lý Tài Sản (Asset & Inventory)

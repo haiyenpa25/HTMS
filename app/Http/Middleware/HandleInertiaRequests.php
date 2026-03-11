@@ -105,9 +105,11 @@ class HandleInertiaRequests extends Middleware
                 \App\Models\DepartmentReport::where('status', 'submitted')->count() +
                 \App\Models\EduReport::where('status', 'submitted')->count()
             ) : 0,
+            'allAvailableDepartments' => $user ? app(\App\Services\PortalService::class)->getAllAvailableDepartmentsGrouped($user) : [],
             'flash' => [
                 'message' => fn () => $request->session()->get('message'),
                 'success' => fn () => $request->session()->get('success'),
+                'error'   => fn () => $request->session()->get('error'),
             ],
         ];
     }

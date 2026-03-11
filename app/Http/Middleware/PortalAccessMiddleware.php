@@ -79,8 +79,16 @@ class PortalAccessMiddleware
             return $next($request);
         }
 
-        abort(403, sprintf(
-            'Bạn chưa được cấp quyền tính năng "%s". Liên hệ quản trị viên.',
+        $indexRoute = match($portalType) {
+            'activities' => 'portal.index',
+            'ministry'   => 'ministry.index',
+            'deacon'     => 'deacon.index',
+            'education'  => 'education.index',
+            default      => 'dashboard'
+        };
+
+        return redirect()->route($indexRoute)->with('error', sprintf(
+            'Bạn chưa được cấp quyền truy cập tính năng "%s". Vui lòng liên hệ quản trị viên.',
             $featureSlug
         ));
     }

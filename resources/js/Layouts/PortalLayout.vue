@@ -6,7 +6,7 @@
           <div class="flex items-center space-x-3">
              <!-- Active Department Selector -->
              <button 
-                @click="emit('open-switcher')"
+                @click="isSwitcherOpen = true"
                 class="flex items-center space-x-2 text-left group hover:bg-blue-700 p-1.5 -ml-1.5 rounded-xl transition-colors focus:outline-none"
              >
                 <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
@@ -15,7 +15,9 @@
                 </div>
                 <div>
                    <h1 class="text-sm sm:text-base font-black leading-tight">{{ department?.name || 'Chưa chọn Ban' }}</h1>
-                   <p class="text-[10px] sm:text-xs text-blue-200 font-medium">Cổng Nội Bộ</p>
+                   <p class="text-[10px] sm:text-xs text-blue-200 font-medium">
+                      {{ portalType === 'activities' ? 'Cổng Sinh Hoạt' : portalType === 'ministry' ? 'Cổng Mục Vụ' : 'Cổng Chấp Sự' }}
+                   </p>
                 </div>
                 <!-- Only show chevron if there are multiple departments to switch or user is pastor -->
                 <svg v-if="(availableDepartments && availableDepartments.length > 1) || isGlobalAdmin" class="w-4 h-4 text-blue-300 group-hover:text-white transition-colors block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -162,15 +164,65 @@
     <!-- Main Content Area -->
     <main class="flex-1 overflow-x-hidden overflow-y-auto w-full relative pb-safe">
         <div class="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8">
+            <!-- Flash Message -->
+            <div v-if="$page.props.flash.error" class="mt-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm font-bold rounded-r-xl shadow-sm animate-in fade-in slide-in-from-top-2">
+                {{ $page.props.flash.error }}
+            </div>
             <slot />
         </div>
     </main>
 
   </div>
+
+  <!-- Global Context Switcher SlideOver -->
+  <SlideOver v-model="isSwitcherOpen" title="Chuyển đổi Ban ngành" size="md">
+      <template #default>
+          <div class="p-6 space-y-8">
+              <div v-for="(depts, block) in allDeptsGrouped" :key="block">
+                  <template v-if="depts.length > 0">
+                      <h3 class="flex items-center gap-2 text-xs font-black uppercase tracking-widest mb-4" :class="blockInfo[block]?.color">
+                          <span class="w-8 h-8 rounded-lg flex items-center justify-center bg-current opacity-10" :class="blockInfo[block]?.bg"></span>
+                          <span>{{ blockInfo[block]?.icon }} {{ blockInfo[block]?.name }}</span>
+                      </h3>
+                      <div class="space-y-2">
+                          <button v-for="dept in depts" :key="dept.id"
+                              @click="switchDept(dept.id)"
+                              class="w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between group"
+                              :class="department?.id === dept.id && portalType === (block === 'leadership' ? 'deacon' : block) 
+                                  ? 'border-blue-500 bg-blue-50 ring-4 ring-blue-50' 
+                                  : 'border-gray-100 bg-white hover:border-blue-300 hover:bg-gray-50'">
+                              <div class="flex items-center space-x-4">
+                                  <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-colors"
+                                      :class="department?.id === dept.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-blue-100 group-hover:text-blue-600'">
+                                      {{ dept.name.charAt(0) }}
+                                  </div>
+                                  <div class="min-w-0">
+                                      <h4 class="text-sm font-black truncate" :class="department?.id === dept.id ? 'text-blue-900' : 'text-gray-900'">{{ dept.name }}</h4>
+                                      <p v-if="department?.id === dept.id" class="text-[10px] text-blue-600 font-bold uppercase tracking-wider">Đang hoạt động</p>
+                                      <p v-else class="text-[10px] text-gray-400 font-medium">Bấm để chuyển sang</p>
+                                  </div>
+                              </div>
+                              <svg v-if="department?.id === dept.id" class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                              </svg>
+                              <svg v-else class="w-4 h-4 text-gray-300 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                              </svg>
+                          </button>
+                      </div>
+                  </template>
+              </div>
+              <!-- Empty state if no depts -->
+              <div v-if="Object.values(allDeptsGrouped).every(d => d.length === 0)" class="text-center py-12">
+                   <p class="text-gray-400 font-bold">Bạn chưa được phân quyền vào Ban ngành nào.</p>
+              </div>
+          </div>
+      </template>
+  </SlideOver>
 </template>
 
 <script setup>
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const page = usePage();
@@ -196,6 +248,26 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['open-switcher']);
+
+// ── Global Switcher Logic ──────────────────────────────────────────────────
+import SlideOver from '@/Components/SlideOver.vue';
+import { ref } from 'vue';
+
+const isSwitcherOpen = ref(false);
+const allDeptsGrouped = computed(() => page.props.allAvailableDepartments || {});
+
+const blockInfo = {
+    activities: { name: 'Ban Ngành Sinh Hoạt', icon: '🎯', color: 'text-blue-600', bg: 'bg-blue-50' },
+    ministry:   { name: 'Ban Ngành Mục Vụ',   icon: '⛪', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    leadership: { name: 'Ban Chấp Sự / Lãnh Đạo', icon: '🛡', color: 'text-amber-600', bg: 'bg-amber-50' }
+};
+
+const switchDept = (deptId) => {
+    router.post(route('portal.switch-context'), { department_id: deptId }, {
+        preserveScroll: true,
+        onSuccess: () => { isSwitcherOpen.value = false; }
+    });
+};
 </script>
 
 <style scoped>
@@ -205,4 +277,6 @@ const emit = defineEmits(['open-switcher']);
         padding-bottom: env(safe-area-inset-bottom);
     }
 }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>

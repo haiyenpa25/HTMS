@@ -4,7 +4,6 @@
       :available-departments="availableDepartments"
       :is-global-admin="isGlobalAdmin"
       portal-type="ministry"
-      @open-switcher="isSwitchOpen = true"
   >
        <!-- Empty State -->
        <div v-if="!activeDepartment" class="h-full flex flex-col items-center justify-center p-6 text-center min-h-[60vh]">
@@ -15,7 +14,7 @@
            <p class="text-sm text-gray-500 max-w-xs mb-8">
               {{ isGlobalAdmin ? 'Bạn có quyền quản lý toàn hệ thống. Hãy chọn một Ban Mục Vụ để làm việc.' : 'Bạn chưa được phân bổ vào Ban Mục Vụ nào.' }}
            </p>
-           <button v-if="isGlobalAdmin" @click="isSwitchOpen = true" 
+           <button v-if="isGlobalAdmin" 
               class="px-6 py-3 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-200 font-bold hover:bg-blue-700 transition-all text-sm flex items-center">
              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
              Chọn Ban Mục Vụ
@@ -85,33 +84,6 @@
            </div>
        </div>
 
-    <!-- Context Switcher SlideOver -->
-    <SlideOver v-model="isSwitchOpen" title="Chuyển đổi Ban Mục Vụ" size="md">
-        <template #default>
-            <div class="p-6 space-y-5">
-               <p class="text-sm text-gray-500 font-medium">Chọn một Ban Mục Vụ để làm việc.</p>
-               <div class="space-y-2">
-                  <div v-for="dept in availableDepartments" :key="dept.id"
-                    @click="switchDept(dept.id)"
-                    class="w-full text-left p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center justify-between group"
-                    :class="activeDepartment?.id === dept.id ? 'border-blue-500 bg-blue-50' : 'border-gray-100 bg-white hover:border-gray-300 hover:bg-gray-50'">
-                     <div class="flex items-center space-x-3 shrink-0">
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm shrink-0"
-                            :class="activeDepartment?.id === dept.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 group-hover:bg-gray-200'">
-                           {{ dept.name.charAt(0) }}
-                        </div>
-                        <div>
-                           <h4 class="text-sm font-black" :class="activeDepartment?.id === dept.id ? 'text-blue-900' : 'text-gray-900'">{{ dept.name }}</h4>
-                           <span v-if="activeDepartment?.id === dept.id" class="text-xs text-blue-600 font-bold">Đang hoạt động</span>
-                        </div>
-                     </div>
-                     <button v-if="activeDepartment?.id !== dept.id" class="px-3 py-1.5 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">Chọn</button>
-                     <svg v-else class="w-5 h-5 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                  </div>
-               </div>
-            </div>
-        </template>
-    </SlideOver>
 
   </PortalLayout>
 </template>
@@ -119,7 +91,6 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
-import SlideOver from '@/Components/SlideOver.vue';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
 
 const page = usePage();
@@ -140,14 +111,8 @@ const can = (key) => {
         || (key === 'members' && authPermissions.value?.['thanh-vien'] === true);
 };
 
-const isSwitchOpen = ref(!props.activeDepartment && props.isGlobalAdmin);
+// Redundant switcher state removed (handled in PortalLayout)
 
-const switchDept = (deptId) => {
-    router.post(route('ministry.switch-context'), { department_id: deptId }, {
-        preserveScroll: true,
-        onSuccess: () => { isSwitchOpen.value = false; }
-    });
-};
 
 // ── Feature Card Definitions (tất cả tính năng có trong hệ thống) ──────────
 // Mỗi entry map slug → route + UI. Chỉ hiển thị card nếu deptFeatures[slug] === true
