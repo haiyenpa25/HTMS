@@ -28,6 +28,61 @@
       <div v-if="openMenu" class="fixed inset-0 bg-black/30 z-30" @click="openMenu = null"></div>
     </transition>
 
+    <!-- Sub-menu: Tín Hữu -->
+    <transition name="slide-up">
+      <div v-if="openMenu === 'members'" class="fixed bottom-16 left-0 right-0 z-40 mx-auto max-w-md px-3 pb-2">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+          <div class="px-4 py-3 bg-blue-600">
+            <p class="text-xs font-black text-blue-200 uppercase tracking-wider">Tín Hữu</p>
+          </div>
+          <Link :href="route('members.index')" @click="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-blue-50 transition-colors border-b border-gray-100">
+            <div class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">Hồ sơ Tín hữu</p>
+              <p class="text-xs text-gray-400">Danh sách thành viên, Báp-tem</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </Link>
+          <a href="#" @click.prevent="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-emerald-50 transition-colors border-b border-gray-100">
+            <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">Thân Hữu <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-xs text-gray-400">Quản lý người mới đến</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#" @click.prevent="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-rose-50 transition-colors border-b border-gray-100">
+            <div class="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">Chăm Sóc <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-xs text-gray-400">Theo dõi vòng đời tín hữu</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#" @click.prevent="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-amber-50 transition-colors">
+            <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">Phiếu Yêu Cầu <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-xs text-gray-400">Cầu nguyện, xin thăm viếng (Ticketing)</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </transition>
+
     <!-- Sub-menu: Ban Ngành -->
     <transition name="slide-up">
       <div v-if="openMenu === 'department'" class="fixed bottom-16 left-0 right-0 z-40 mx-auto max-w-md px-3 pb-2">
@@ -42,7 +97,7 @@
             </div>
             <div>
               <p class="text-sm font-bold text-gray-900">Ban Ngành Sinh Hoạt</p>
-              <p class="text-xs text-gray-400">Báo cáo, điểm danh, tài chính</p>
+              <p class="text-xs text-gray-400">Điểm danh, Báo cáo, Tài chính Ban</p>
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </Link>
@@ -53,23 +108,12 @@
             </div>
             <div>
               <p class="text-sm font-bold text-gray-900">Ban Ngành Mục Vụ</p>
-              <p class="text-xs text-gray-400">Thăm viếng, giáo dục, mục vụ</p>
-            </div>
-            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </Link>
-          <Link :href="route('duty-rooster.index')" @click="openMenu = null"
-            class="flex items-center gap-3 px-4 py-3.5 hover:bg-orange-50 transition-colors border-b border-gray-100">
-            <div class="w-9 h-9 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
-              <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-            </div>
-            <div>
-              <p class="text-sm font-bold text-gray-900">Phân Công</p>
-              <p class="text-xs text-gray-400">Lịch hướng dẫn thờ phượng</p>
+              <p class="text-xs text-gray-400">Thăm viếng, Giáo dục (TCN)</p>
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </Link>
           <Link :href="route('deacon.index')" @click="openMenu = null"
-            class="flex items-center gap-3 px-4 py-3.5 hover:bg-amber-50 transition-colors">
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-amber-50 transition-colors border-b border-gray-100">
             <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
               <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
             </div>
@@ -79,16 +123,82 @@
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </Link>
+          <a href="#" @click.prevent="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-green-50 transition-colors border-b border-gray-100">
+            <div class="w-9 h-9 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">Tổ / Nhóm <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-xs text-gray-400">Quản lý hệ thống Cell Group</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
         </div>
       </div>
     </transition>
 
-    <!-- Sub-menu: Cài Đặt -->
+    <!-- Sub-menu: Sự Kiện (TAB MỚI) -->
+    <transition name="slide-up">
+      <div v-if="openMenu === 'events'" class="fixed bottom-16 left-0 right-0 z-40 mx-auto max-w-md px-3 pb-2">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+          <div class="px-4 py-3 bg-fuchsia-600">
+            <p class="text-xs font-black text-fuchsia-200 uppercase tracking-wider">Sự Kiện</p>
+          </div>
+          <Link :href="route('portal.index')" @click="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-fuchsia-50 transition-colors border-b border-gray-100">
+            <div class="w-9 h-9 rounded-xl bg-fuchsia-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-fuchsia-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">Lịch Hội Thánh <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-xs text-gray-400">Lịch tổng quát (Unified Calendar)</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </Link>
+          <Link :href="route('meetings.index')" @click="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-rose-50 transition-colors border-b border-gray-100">
+            <div class="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">Buổi Nhóm</p>
+              <p class="text-xs text-gray-400">Quản lý chương trình thờ phượng</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </Link>
+          <Link :href="route('duty-rooster.index')" @click="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-orange-50 transition-colors border-b border-gray-100">
+            <div class="w-9 h-9 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">Phân Công (Roster)</p>
+              <p class="text-xs text-gray-400">Xếp lịch hướng dẫn, phục vụ</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </Link>
+          <Link :href="route('speakers.index')" @click="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-teal-50 transition-colors">
+            <div class="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">Diễn Giả</p>
+              <p class="text-xs text-gray-400">Tra cứu thông tin Mục sư/Diễn giả</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </Link>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Sub-menu: Vận Hành (Cài Đặt cũ) -->
     <transition name="slide-up">
       <div v-if="openMenu === 'settings'" class="fixed bottom-16 left-0 right-0 z-40 mx-auto max-w-md px-3 pb-2">
         <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
           <div class="px-4 py-3 bg-slate-700">
-            <p class="text-xs font-black text-slate-300 uppercase tracking-wider">Cài Đặt</p>
+            <p class="text-xs font-black text-slate-300 uppercase tracking-wider">Vận Hành</p>
           </div>
           <Link :href="route('users.index')" @click="openMenu = null"
             class="flex items-center gap-3 px-4 py-3.5 hover:bg-slate-50 transition-colors border-b border-gray-100">
@@ -97,32 +207,54 @@
             </div>
             <div>
               <p class="text-sm font-bold text-gray-900">Quản lý User</p>
-              <p class="text-xs text-gray-400">Danh sách tài khoản hệ thống</p>
+              <p class="text-xs text-gray-400">Danh sách tài khoản & Phân quyền MAC</p>
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </Link>
-          <Link :href="route('meetings.index')" @click="openMenu = null"
-            class="flex items-center gap-3 px-4 py-3.5 hover:bg-slate-50 transition-colors border-b border-gray-100">
-            <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
-              <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
+          <a href="#" @click.prevent="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-emerald-50 transition-colors border-b border-gray-100">
+            <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
-              <p class="text-sm font-bold text-gray-900">Buổi Nhóm</p>
-              <p class="text-xs text-gray-400">Quản lý lịch sinh hoạt Hội Thánh</p>
+              <p class="text-sm font-bold text-gray-900">Tài Chính <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-xs text-gray-400">Sổ quỹ, Dâng hiến & Nhập sổ hàng loạt</p>
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </Link>
-          <Link :href="route('speakers.index')" @click="openMenu = null"
-            class="flex items-center gap-3 px-4 py-3.5 hover:bg-slate-50 transition-colors">
-            <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
-              <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+          </a>
+          <a href="#" @click.prevent="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-stone-50 transition-colors border-b border-gray-100">
+            <div class="w-9 h-9 rounded-xl bg-stone-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
             </div>
             <div>
-              <p class="text-sm font-bold text-gray-900">Diễn Giả</p>
-              <p class="text-xs text-gray-400">Quản lý danh sách diễn giả</p>
+              <p class="text-sm font-bold text-gray-900">Thiết bị</p>
+              <p class="text-xs text-gray-400">Quản lý thiết bị & Mượn/Trả</p>
             </div>
             <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </Link>
+          </a>
+          <a href="#" @click.prevent="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-cyan-50 transition-colors border-b border-gray-100">
+            <div class="w-9 h-9 rounded-xl bg-cyan-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">Tài Liệu <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-xs text-gray-400">Lưu trữ văn bản, file đám mây</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#" @click.prevent="openMenu = null"
+            class="flex items-center gap-3 px-4 py-3.5 hover:bg-violet-50 transition-colors border-b border-gray-100">
+            <div class="w-9 h-9 rounded-xl bg-violet-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">Truyền Thông <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-xs text-gray-400">Gửi Email Broadcasting hàng loạt</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
         </div>
       </div>
     </transition>
@@ -140,6 +272,16 @@
               <p class="text-xs text-gray-400">{{ page.props.auth?.user?.email || '' }}</p>
             </div>
           </div>
+          <a href="#" @click.prevent="openMenu = null"
+            class="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 transition-colors text-left border-b border-gray-100">
+            <div class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">Hồ sơ cá nhân <span class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold">MỚI</span></p>
+              <p class="text-xs text-gray-400">Chỉnh avatar, mật khẩu</p>
+            </div>
+          </a>
           <Link v-if="page.props.auth?.user?.home_portal" :href="page.props.auth.user.home_portal" @click="openMenu = null"
             class="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-blue-50 transition-colors text-left border-b border-gray-100">
             <div class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
@@ -147,7 +289,7 @@
             </div>
             <div>
               <p class="text-sm font-bold text-blue-600">Cổng Nội Bộ</p>
-              <p class="text-xs text-gray-400">Vào khu vực quản lý</p>
+              <p class="text-xs text-gray-400">Chuyển đổi portal quản trị</p>
             </div>
           </Link>
           <Link :href="route('logout')" method="post" as="button" @click="openMenu = null"
@@ -178,43 +320,59 @@
           <span class="text-[10px] font-medium">Trang chủ</span>
         </Link>
 
-        <!-- Tab 2: Members -->
-        <Link :href="route('members.index')"
+        <!-- Tab 2: Members (sub-menu toggle) -->
+        <button @click="toggleMenu('members')"
           class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
-          :class="route().current('members.*') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'">
-          <svg class="w-6 h-6" :fill="route().current('members.*') ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-          </svg>
-          <span class="text-[10px] font-medium">Tín hữu</span>
-        </Link>
+          :class="route().current('members.*') || openMenu === 'members' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'">
+          <div class="relative">
+            <svg class="w-6 h-6" :fill="route().current('members.*') ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+            <span v-if="openMenu === 'members'" class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-blue-500"></span>
+          </div>
+          <span class="text-[10px] font-medium">Tín Hữu</span>
+        </button>
 
         <!-- Tab 3: Ban Ngành (sub-menu toggle) -->
         <button @click="toggleMenu('department')"
           class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
-          :class="(route().current('portal.*')) || openMenu === 'department' ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-900'">
+          :class="(route().current('portal.*') || route().current('ministry.*') || route().current('deacon.*')) || openMenu === 'department' ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-900'">
           <div class="relative">
-            <svg class="w-6 h-6" :fill="route().current('portal.*') ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-6 h-6" :fill="(route().current('portal.*') || route().current('ministry.*') || route().current('deacon.*')) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
             </svg>
             <span v-if="openMenu === 'department'" class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-indigo-500"></span>
           </div>
           <span class="text-[10px] font-medium">Ban Ngành</span>
         </button>
+        
+        <!-- Tab 4: Sự Kiện (sub-menu toggle) -->
+        <button @click="toggleMenu('events')"
+          class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
+          :class="openMenu === 'events' ? 'text-fuchsia-600' : 'text-gray-500 hover:text-gray-900'">
+          <div class="relative">
+            <svg class="w-6 h-6" :fill="openMenu === 'events' ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span v-if="openMenu === 'events'" class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-fuchsia-500"></span>
+          </div>
+          <span class="text-[10px] font-medium">Sự Kiện</span>
+        </button>
 
-        <!-- Tab 4: Settings (sub-menu toggle) -->
+        <!-- Tab 5: Settings (sub-menu toggle) -->
         <button @click="toggleMenu('settings')"
           class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
-          :class="(route().current('meetings.*') || route().current('speakers.*')) || openMenu === 'settings' ? 'text-slate-700' : 'text-gray-500 hover:text-gray-900'">
+          :class="openMenu === 'settings' || route().current('users.*') ? 'text-slate-700' : 'text-gray-500 hover:text-gray-900'">
           <div class="relative">
-            <svg class="w-6 h-6" :fill="(route().current('meetings.*') || route().current('speakers.*')) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-6 h-6" :fill="route().current('users.*') ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
             <span v-if="openMenu === 'settings'" class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-slate-600"></span>
           </div>
-          <span class="text-[10px] font-medium">Cài đặt</span>
+          <span class="text-[10px] font-medium">Vận Hành</span>
         </button>
 
-        <!-- Tab 5: Account (sub-menu toggle) -->
+        <!-- Tab 6: Account (sub-menu toggle) -->
         <button @click="toggleMenu('account')"
           class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors"
           :class="openMenu === 'account' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900'">
