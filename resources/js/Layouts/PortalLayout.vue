@@ -112,6 +112,10 @@
         <div v-if="$page.props.flash?.error" class="mx-4 mt-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm font-bold rounded-r-xl shadow-sm">
           {{ $page.props.flash.error }}
         </div>
+        <!-- Backward-compat: render #header slot if provided (old-style pages) -->
+        <div v-if="$slots.header" class="bg-white border-b border-gray-100 px-6 py-4 shadow-sm">
+          <slot name="header" />
+        </div>
         <slot />
       </main>
     </div>
@@ -216,6 +220,7 @@ const props = defineProps({
   userPermissions:      { type: Object, default: () => ({}) },
   portalType:           { type: String, default: 'activities' },
   hideNav:              { type: Boolean, default: false },
+  title:                { type: String, default: null }, // backward-compat for old pages
 });
 
 // Sidebar / switcher state
