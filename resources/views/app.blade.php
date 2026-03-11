@@ -5,9 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#1e40af">
         <title inertia>CMS (Church Manage System)</title>
-        <link rel="icon" type="image/png" href="/LOGO.png">
-        <link rel="apple-touch-icon" href="/icon-192.png">
-        <link rel="manifest" href="/build/manifest.webmanifest">
+        <link rel="icon" type="image/png" href="{{ asset('LOGO.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('icon-192.png') }}">
+        <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

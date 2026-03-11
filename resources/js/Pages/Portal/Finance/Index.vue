@@ -1,4 +1,4 @@
-﻿<template>
+<template>
     <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" @open-switcher="isSwitchOpen = true">
         <Head title="Tài chính Ban ngành" />
 
@@ -139,7 +139,7 @@
         </div>
 
         <!-- === Finance SlideOver (ghi tiền dâng / chi cho 1 buổi nhóm) === -->
-        <SlideOver :show="showFinanceForm" @close="closeFinanceForm"
+        <SlideOver v-model="showFinanceForm"
             :title="selectedMeeting ? 'Ghi Tiền — ' + formatDate(selectedMeeting.meeting_date) : 'Ghi Tiền'"
             :wide="true">
             <div v-if="selectedMeeting" class="space-y-4">
@@ -238,7 +238,7 @@
         </SlideOver>
 
         <!-- Dept Switcher SlideOver -->
-        <SlideOver :show="isSwitchOpen" @close="isSwitchOpen = false" title="Chuyển Ban Ngành">
+        <SlideOver v-model="isSwitchOpen" title="Chuyển Ban Ngành">
             <div class="space-y-2">
                 <div v-for="dept in availableDepartments" :key="dept.id" @click="switchDept(dept.id)"
                     class="w-full text-left p-4 rounded-xl border-2 transition-all cursor-pointer"

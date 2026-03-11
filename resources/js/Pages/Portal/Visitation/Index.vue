@@ -257,7 +257,7 @@
         </div>
 
         <!-- SlideOver Form -->
-        <SlideOver :show="isFormOpen" @close="isFormOpen = false" :title="isEditing ? 'Cập nhật Chuyến Thăm' : 'Lập Kế hoạch Thăm Viếng'">
+        <SlideOver v-model="isFormOpen" :title="isEditing ? 'Cập nhật Chuyến Thăm' : 'Lập Kế hoạch Thăm Viếng'">
             <div class="space-y-5">
                 <!-- For department localized visitation, visitation_type is implicitly 'department' -->
                 
@@ -439,7 +439,7 @@
         </SlideOver>
 
         <!-- Suggestions Slide-Over -->
-        <SlideOver :show="isSuggOpen" @close="isSuggOpen = false" title="Đề Xuất Thăm Viếng">
+        <SlideOver v-model="isSuggOpen" title="Đề Xuất Thăm Viếng">
             <div class="space-y-4">
                 <!-- Dept Filter inside suggestions -->
                 <div v-if="portalType === 'ministry' && activityDepartments?.length" class="bg-amber-50 border border-amber-100 rounded-xl p-3">

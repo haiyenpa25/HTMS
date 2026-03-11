@@ -56,6 +56,22 @@ const blockColorMap = {
     amber: { active: 'bg-amber-500 border-amber-500 text-white shadow-amber-200', inactive: 'bg-white border-gray-200 text-gray-600 hover:border-amber-300 hover:bg-amber-50' },
 };
 
+// ── Feature icon map (slug → SVG path) ─────────────────────────────────────────────
+const featureIconMap = {
+    'attendance':       { path: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', color: 'text-blue-600 bg-blue-50' },
+    'visitation':       { path: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z', color: 'text-rose-600 bg-rose-50' },
+    'members':          { path: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', color: 'text-violet-600 bg-violet-50' },
+    'thanh-vien':       { path: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', color: 'text-violet-600 bg-violet-50' },
+    'reports':          { path: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', color: 'text-indigo-600 bg-indigo-50' },
+    'finance':          { path: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', color: 'text-emerald-600 bg-emerald-50' },
+    'assignments':      { path: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', color: 'text-amber-600 bg-amber-50' },
+    'education-classes':{ path: 'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z', color: 'text-cyan-600 bg-cyan-50' },
+    'education-report': { path: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', color: 'text-cyan-600 bg-cyan-50' },
+    'default':          { path: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z', color: 'text-gray-600 bg-gray-100' },
+};
+
+const getFeatureIcon = (slug) => featureIconMap[slug] || featureIconMap['default'];
+
 const availableDepts = computed(() =>
     props.departments.filter(d => d.block === form.value.block_type)
 );
@@ -142,6 +158,14 @@ const deptsByBlock = computed(() => {
         if (groups[d.block]) groups[d.block].push(d);
     });
     return groups;
+});
+
+// ── Matrix Block Filter ─────────────────────────────────────────────────────
+const selectedMatrixBlock = ref('activities'); // 'activities' | 'ministry' | 'leadership' | 'all'
+
+const visibleBlocksInMatrix = computed(() => {
+    if (selectedMatrixBlock.value === 'all') return blockTypes;
+    return blockTypes.filter(b => b.id === selectedMatrixBlock.value);
 });
 
 const isTogglingMatrix = ref(null);
@@ -294,10 +318,14 @@ const globalCount = computed(() => (props.systemConfig || []).filter(c => c.scop
                         activeFeatureId === f.id && !isCreating
                             ? 'bg-white border-indigo-300 shadow-sm'
                             : 'bg-transparent border-transparent hover:bg-white hover:border-gray-200 hover:shadow-sm']">
-                    <!-- Icon -->
-                    <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors text-lg',
-                        activeFeatureId === f.id && !isCreating ? 'bg-indigo-50' : 'bg-gray-100 group-hover:bg-indigo-50']">
-                        <span v-html="f.icon || '📦'"></span>
+                    <!-- SVG Icon -->
+                    <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors',
+                        activeFeatureId === f.id && !isCreating
+                            ? getFeatureIcon(f.slug).color
+                            : 'bg-gray-100 group-hover:' + getFeatureIcon(f.slug).color.split(' ')[1]]">
+                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" :d="getFeatureIcon(f.slug).path"/>
+                        </svg>
                     </div>
                     <!-- Text -->
                     <div class="flex-1 min-w-0">
@@ -375,8 +403,10 @@ const globalCount = computed(() => (props.systemConfig || []).filter(c => c.scop
             <div v-else-if="activeFeature" class="flex-1 flex flex-col overflow-hidden">
                 <!-- Feature header -->
                 <div class="px-6 sm:px-8 py-5 border-b border-gray-100 bg-white flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-2xl shrink-0">
-                        <span v-html="activeFeature.icon"></span>
+                    <div :class="['w-12 h-12 rounded-2xl flex items-center justify-center shrink-0', getFeatureIcon(activeFeature.slug).color]">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" :d="getFeatureIcon(activeFeature.slug).path"/>
+                        </svg>
                     </div>
                     <div class="flex-1 min-w-0">
                         <h2 class="text-lg font-black text-gray-900">{{ activeFeature.name }}</h2>
@@ -529,73 +559,98 @@ const globalCount = computed(() => (props.systemConfig || []).filter(c => c.scop
     <!-- ══════════════════════════════════════════════════════ -->
     <div v-else class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
 
-        <!-- Matrix header toolbar -->
-        <div class="px-5 py-3.5 border-b border-gray-100 flex items-center gap-3 flex-wrap">
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-                <span class="text-[11px] font-bold text-purple-700 uppercase tracking-wider">Global</span>
-            </div>
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
-                <span class="text-[11px] font-bold text-indigo-700 uppercase tracking-wider">Block (kế thừa)</span>
-            </div>
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Ban cụ thể</span>
-            </div>
-            <div class="flex items-center gap-2">
-                <div class="w-4 h-4 rounded-md bg-gray-100 border-2 border-gray-300 flex items-center justify-center">
-                    <svg class="w-2.5 h-2.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+        <!-- Matrix block selector + legend -->
+        <div class="px-5 py-4 border-b border-gray-100 bg-white space-y-3">
+            <!-- Block filter pills -->
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-black text-gray-500 uppercase tracking-widest shrink-0">Lọc theo khối:</span>
+                <div class="flex gap-1.5 flex-wrap">
+                    <button @click="selectedMatrixBlock = 'activities'"
+                        :class="['flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black border-2 transition-all',
+                            selectedMatrixBlock === 'activities'
+                                ? 'bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-200'
+                                : 'bg-white border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50']">
+                        <span>🎯</span> Ban Sinh Hoạt
+                        <span class="opacity-60 font-normal">({{ deptsByBlock.activities.length }})</span>
+                    </button>
+                    <button @click="selectedMatrixBlock = 'ministry'"
+                        :class="['flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black border-2 transition-all',
+                            selectedMatrixBlock === 'ministry'
+                                ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm shadow-emerald-200'
+                                : 'bg-white border-gray-200 text-gray-600 hover:border-emerald-300 hover:bg-emerald-50']">
+                        <span>⛪</span> Ban Mục Vụ
+                        <span class="opacity-60 font-normal">({{ deptsByBlock.ministry.length }})</span>
+                    </button>
+                    <button @click="selectedMatrixBlock = 'leadership'"
+                        :class="['flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black border-2 transition-all',
+                            selectedMatrixBlock === 'leadership'
+                                ? 'bg-amber-500 border-amber-500 text-white shadow-sm shadow-amber-200'
+                                : 'bg-white border-gray-200 text-gray-600 hover:border-amber-300 hover:bg-amber-50']">
+                        <span>🛡</span> Ban Chấp Sự
+                        <span class="opacity-60 font-normal">({{ deptsByBlock.leadership.length }})</span>
+                    </button>
+                    <button @click="selectedMatrixBlock = 'all'"
+                        :class="['flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black border-2 transition-all',
+                            selectedMatrixBlock === 'all'
+                                ? 'bg-gray-700 border-gray-700 text-white shadow-sm'
+                                : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400 hover:bg-gray-50']">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                        Tất Cả
+                    </button>
                 </div>
-                <span class="text-[11px] font-bold text-gray-600 uppercase tracking-wider">Từ chối rõ ràng</span>
             </div>
-            <div class="flex items-center gap-2">
-                <div class="w-4 h-4 rounded-md bg-emerald-200 border-2 border-emerald-200 flex items-center justify-center">
-                    <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-                </div>
-                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Kế thừa</span>
+            <!-- Legend -->
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-1.5"><div class="w-3.5 h-3.5 rounded-md bg-purple-600"></div><span class="text-[10px] font-bold text-purple-700">Global</span></div>
+                <div class="flex items-center gap-1.5"><div class="w-3.5 h-3.5 rounded-md bg-blue-400"></div><span class="text-[10px] font-bold text-blue-600">Block (tất cả)</span></div>
+                <div class="flex items-center gap-1.5"><div class="w-3.5 h-3.5 rounded-md bg-emerald-500"></div><span class="text-[10px] font-bold text-emerald-700">Ban cụ thể</span></div>
+                <div class="flex items-center gap-1.5"><div class="w-3.5 h-3.5 rounded-md bg-gray-100 border-2 border-gray-300 flex items-center justify-center"><svg class="w-2 h-2 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></div><span class="text-[10px] font-bold text-gray-500">Từ chối rõ</span></div>
+                <div class="flex items-center gap-1.5"><div class="w-3.5 h-3.5 rounded-md bg-emerald-200 border border-emerald-200"></div><span class="text-[10px] font-bold text-gray-400">Kế thừa</span></div>
+                <p class="ml-auto text-[10px] text-gray-400 italic hidden lg:block">Nhấn ô để bật/tắt tính năng.</p>
             </div>
-            <p class="ml-auto text-[10px] text-gray-400 italic hidden lg:block">Nhấn vào ô để bật/tắt từng tính năng cho từng ban ngành.</p>
         </div>
 
         <!-- Table wrapper -->
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[900px]">
+            <table class="w-full text-left border-collapse">
                 <thead>
                     <!-- Row 1: Block group headers -->
                     <tr class="bg-gray-50 border-b border-gray-200">
-                        <th class="p-4 text-xs font-black text-gray-500 uppercase tracking-widest sticky left-0 bg-gray-50 z-20 shadow-[2px_0_8px_rgba(0,0,0,0.06)] min-w-[160px]">
+                        <th class="p-4 text-xs font-black text-gray-500 uppercase tracking-widest sticky left-0 bg-gray-50 z-20 shadow-[2px_0_8px_rgba(0,0,0,0.06)] min-w-[180px] w-[180px]">
                             Module / Tính Năng
                         </th>
-                        <th class="p-3 text-[11px] font-black text-purple-700 uppercase tracking-wider text-center border-l border-gray-200 bg-purple-50/50">
+                        <th class="p-3 text-[11px] font-black text-purple-700 uppercase tracking-wider text-center border-l border-gray-200 bg-purple-50/60 w-[80px]">
                             <div class="flex flex-col items-center gap-0.5">
                                 <span>🌐</span>
                                 <span>Toàn HT</span>
                             </div>
                         </th>
-                        <th v-for="b in blockTypes" :key="b.id"
-                            :colspan="deptsByBlock[b.id].length + 1"
-                            class="p-3 text-[11px] font-black uppercase tracking-wider text-center border-l border-gray-200"
-                            :class="b.id === 'activities' ? 'text-blue-700 bg-blue-50/40' : b.id === 'ministry' ? 'text-emerald-700 bg-emerald-50/40' : 'text-amber-700 bg-amber-50/40'">
-                            <div class="flex items-center justify-center gap-1.5">
-                                <span>{{ b.icon }}</span>
-                                <span>{{ b.name }}</span>
-                                <span class="text-[9px] font-normal opacity-60 normal-case">({{ deptsByBlock[b.id].length }} ban)</span>
-                            </div>
-                        </th>
+                        <template v-for="b in visibleBlocksInMatrix" :key="b.id">
+                            <th :colspan="deptsByBlock[b.id].length + 1"
+                                class="p-3 text-[11px] font-black uppercase tracking-wider text-center border-l border-gray-200"
+                                :class="b.id === 'activities' ? 'text-blue-700 bg-blue-50/50' : b.id === 'ministry' ? 'text-emerald-700 bg-emerald-50/50' : 'text-amber-700 bg-amber-50/50'">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <span>{{ b.icon }}</span>
+                                    <span>{{ b.name }}</span>
+                                    <span class="text-[9px] font-normal opacity-60 normal-case">({{ deptsByBlock[b.id].length }} ban)</span>
+                                </div>
+                            </th>
+                        </template>
                     </tr>
-                    <!-- Row 2: Column labels -->
-                    <tr class="bg-white border-b border-gray-100 text-[10px]">
-                        <th class="sticky left-0 bg-white z-20 shadow-[2px_0_8px_rgba(0,0,0,0.06)] p-2"></th>
-                        <th class="p-2 text-center border-l border-gray-100 text-purple-400 italic font-bold">Global</th>
-                        <template v-for="b in blockTypes" :key="b.id">
-                            <th class="p-2 text-center border-l border-gray-200 italic font-black"
-                                :class="b.id === 'activities' ? 'text-blue-500' : b.id === 'ministry' ? 'text-emerald-500' : 'text-amber-500'">
+                    <!-- Row 2: Dept column labels -->
+                    <tr class="bg-white border-b border-gray-100">
+                        <th class="sticky left-0 bg-white z-20 shadow-[2px_0_8px_rgba(0,0,0,0.06)] p-2 w-[180px]"></th>
+                        <th class="p-2 text-center border-l border-gray-100 text-purple-400 italic font-bold text-[10px] w-[80px]">Global</th>
+                        <template v-for="b in visibleBlocksInMatrix" :key="b.id">
+                            <!-- Block "Tất cả" column -->
+                            <th class="p-2 text-center border-l border-gray-200 italic font-black text-[10px] w-[72px]"
+                                :class="b.id === 'activities' ? 'text-blue-500 bg-blue-50/30' : b.id === 'ministry' ? 'text-emerald-500 bg-emerald-50/30' : 'text-amber-500 bg-amber-50/30'">
                                 Tất cả
                             </th>
+                            <!-- Individual dept columns -->
                             <th v-for="d in deptsByBlock[b.id]" :key="d.id"
-                                class="p-2 text-center border-l border-gray-50 font-bold text-gray-500 max-w-[80px]">
-                                <div class="truncate max-w-[70px] mx-auto" :title="d.name">{{ d.code || d.name }}</div>
+                                class="p-2 text-center border-l border-gray-50 font-bold text-[10px] text-gray-600 min-w-[88px] max-w-[120px]">
+                                <div class="px-1 leading-tight" :title="d.name">{{ d.name }}</div>
                             </th>
                         </template>
                     </tr>
@@ -621,23 +676,23 @@ const globalCount = computed(() => (props.systemConfig || []).filter(c => c.scop
                             <button @click="toggleMatrix(f.id, null, null, 'global', getMatrixStatus(f.id, null, null, 'global').is_active)"
                                 :disabled="isTogglingMatrix === `${f.id}-global`"
                                 :title="getMatrixStatus(f.id, null, null, 'global').is_active ? 'Đang bật - Nhấn để tắt' : 'Đang tắt - Nhấn để bật'"
-                                :class="['w-8 h-8 rounded-xl border-2 flex items-center justify-center transition-all mx-auto hover:scale-110 active:scale-95',
+                                :class="['w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all mx-auto hover:scale-110 active:scale-95',
                                     getMatrixStatus(f.id, null, null, 'global').is_active
                                         ? 'bg-purple-600 border-purple-600 text-white shadow-md shadow-purple-200'
                                         : 'border-gray-200 hover:border-purple-300 bg-white']">
-                                <svg v-if="isTogglingMatrix === `${f.id}-global`" class="animate-spin w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                                <svg v-else-if="getMatrixStatus(f.id, null, null, 'global').is_active" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                <svg v-if="isTogglingMatrix === `${f.id}-global`" class="animate-spin w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                                <svg v-else-if="getMatrixStatus(f.id, null, null, 'global').is_active" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                             </button>
                         </td>
 
-                        <!-- Block & Dept checkboxes -->
-                        <template v-for="b in blockTypes" :key="b.id">
+                        <!-- Block & Dept checkboxes (filtered) -->
+                        <template v-for="b in visibleBlocksInMatrix" :key="b.id">
                             <!-- Block toggle -->
                             <td class="p-3 text-center border-l border-gray-200">
                                 <button @click="toggleMatrix(f.id, null, b.id, 'block', getMatrixStatus(f.id, null, b.id, 'block').is_active)"
                                     :disabled="isTogglingMatrix === `${f.id}-${b.id}`"
-                                    :title="getMatrixStatus(f.id, null, b.id, 'block').is_active ? 'Đang bật - Nhấn để tắt' : 'Đang tắt - Nhấn để bật'"
-                                    :class="['w-8 h-8 rounded-xl border-2 flex items-center justify-center transition-all mx-auto hover:scale-110 active:scale-95',
+                                    :title="b.name + ' - ' + (getMatrixStatus(f.id, null, b.id, 'block').is_active ? 'Đang bật' : 'Đang tắt')"
+                                    :class="['w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all mx-auto hover:scale-110 active:scale-95',
                                         getMatrixStatus(f.id, null, b.id, 'block').is_active
                                             ? (getMatrixStatus(f.id, null, b.id, 'block').is_explicit
                                                 ? (b.id === 'activities' ? 'bg-blue-600 border-blue-600' : b.id === 'ministry' ? 'bg-emerald-600 border-emerald-600' : 'bg-amber-500 border-amber-500') + ' text-white shadow-md'
@@ -657,7 +712,7 @@ const globalCount = computed(() => (props.systemConfig || []).filter(c => c.scop
                                 <button @click="toggleMatrix(f.id, d.id, b.id, 'specific', getMatrixStatus(f.id, d.id, b.id, 'specific').is_active)"
                                     :disabled="isTogglingMatrix === `${f.id}-${d.id}`"
                                     :title="d.name + ': ' + (getMatrixStatus(f.id, d.id, b.id, 'specific').is_active ? 'Đang bật' : 'Đang tắt')"
-                                    :class="['w-8 h-8 rounded-xl border-2 flex items-center justify-center transition-all mx-auto hover:scale-110 active:scale-95',
+                                    :class="['w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all mx-auto hover:scale-110 active:scale-95',
                                         getMatrixStatus(f.id, d.id, b.id, 'specific').is_active
                                             ? (getMatrixStatus(f.id, d.id, b.id, 'specific').is_explicit
                                                 ? 'bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-100'

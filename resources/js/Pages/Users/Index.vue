@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { ref, watch, computed, onMounted } from 'vue';
 import { router, Link, Head, useForm } from '@inertiajs/vue3';
 import AdminPortalLayout from '@/Layouts/AdminPortalLayout.vue';
@@ -282,26 +282,143 @@ const featureIcon = (slug) => ({
 })[slug] ?? '⚙️';
 
 const addDept = (dept) => { activeDeptId.value = dept.id; };
+
+// ── Sidebar state ─────────────────────────────────────────────────────────────
+const sidebarOpen = ref(false);
+const sidebarCollapsed = ref(false);
 </script>
 
 <template>
   <Head title="Quản Lý Hệ Thống" />
-  <AdminPortalLayout title="Quản Lý Hệ Thống" :hide-tabs="true">
 
-    <!-- ══ Slot: Tab bar ══ -->
-    <template #tabs>
-      <button v-for="tab in [
-          { id: 'dashboard',   label: '🏠 Tổng Quan' },
-          { id: 'users',       label: '👤 Người Dùng' },
-          { id: 'config',      label: '🧩 Tính Năng' },
-          { id: 'permissions', label: '🔐 Phân Quyền' },
-        ]" :key="tab.id"
-        @click="activeTab = tab.id"
-        :class="['px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2 cursor-pointer outline-none',
-                 activeTab === tab.id ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:text-white hover:border-indigo-300']">
-        {{ tab.label }}
-      </button>
-    </template>
+  <!-- Full-page sidebar layout, bypassing AdminPortalLayout tab strip -->
+  <div class="h-screen bg-gray-50 flex overflow-hidden font-sans text-gray-900">
+
+    <!-- Mobile overlay -->
+    <transition name="fade">
+      <div v-if="sidebarOpen" @click="sidebarOpen = false"
+        class="fixed inset-0 bg-black/40 z-30 lg:hidden backdrop-blur-sm" />
+    </transition>
+
+    <!-- ── Sidebar (desktop only) ── -->
+    <aside :class="[
+        'hidden lg:flex flex-col bg-white border-r border-gray-100 shadow-sm transition-all duration-300',
+        sidebarCollapsed ? 'w-[68px]' : 'w-[220px]'
+      ]">
+
+      <!-- Header -->
+      <div class="flex items-center gap-3 px-4 py-4 border-b border-gray-100 min-h-[64px] relative">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </div>
+        <div v-if="!sidebarCollapsed" class="min-w-0">
+          <p class="text-xs font-black text-gray-900 leading-tight">Quản Lý Hệ Thống</p>
+          <p class="text-[10px] text-indigo-500 font-bold uppercase tracking-wider">Cổng Quản Trị</p>
+        </div>
+        <!-- Collapse toggle -->
+        <button @click="sidebarCollapsed = !sidebarCollapsed"
+          class="hidden lg:flex items-center justify-center w-6 h-6 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all absolute -right-3 top-1/2 -translate-y-1/2 bg-white border border-gray-200 shadow-sm z-10">
+          <svg :class="['w-3 h-3 transition-transform', sidebarCollapsed ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Nav items -->
+      <nav class="flex-1 overflow-y-auto py-3 px-2.5 space-y-0.5">
+        <p v-if="!sidebarCollapsed" class="px-2 pt-1 pb-2 text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Menu</p>
+
+        <!-- Tổng Quan -->
+        <button @click="activeTab = 'dashboard'; sidebarOpen = false"
+          :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-black transition-all w-full',
+            activeTab === 'dashboard' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+            sidebarCollapsed ? 'justify-center' : '']"
+          :title="sidebarCollapsed ? 'Tổng Quan' : ''">
+          <svg class="w-4 h-4 shrink-0" :class="activeTab === 'dashboard' ? 'text-indigo-600' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Tổng Quan</span>
+          <span v-if="activeTab === 'dashboard' && !sidebarCollapsed" class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-600 shrink-0"></span>
+        </button>
+
+        <!-- Người Dùng -->
+        <button @click="activeTab = 'users'; sidebarOpen = false"
+          :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-black transition-all w-full',
+            activeTab === 'users' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+            sidebarCollapsed ? 'justify-center' : '']"
+          :title="sidebarCollapsed ? 'Người Dùng' : ''">
+          <svg class="w-4 h-4 shrink-0" :class="activeTab === 'users' ? 'text-indigo-600' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Người Dùng</span>
+          <span v-if="activeTab === 'users' && !sidebarCollapsed" class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-600 shrink-0"></span>
+        </button>
+
+        <!-- Tính Năng -->
+        <button @click="activeTab = 'config'; sidebarOpen = false"
+          :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-black transition-all w-full',
+            activeTab === 'config' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+            sidebarCollapsed ? 'justify-center' : '']"
+          :title="sidebarCollapsed ? 'Tính Năng' : ''">
+          <svg class="w-4 h-4 shrink-0" :class="activeTab === 'config' ? 'text-indigo-600' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Tính Năng</span>
+          <span v-if="activeTab === 'config' && !sidebarCollapsed" class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-600 shrink-0"></span>
+        </button>
+
+        <!-- Phân Quyền -->
+        <button @click="activeTab = 'permissions'; sidebarOpen = false"
+          :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-black transition-all w-full',
+            activeTab === 'permissions' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+            sidebarCollapsed ? 'justify-center' : '']"
+          :title="sidebarCollapsed ? 'Phân Quyền' : ''">
+          <svg class="w-4 h-4 shrink-0" :class="activeTab === 'permissions' ? 'text-indigo-600' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Phân Quyền</span>
+          <span v-if="activeTab === 'permissions' && !sidebarCollapsed" class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-600 shrink-0"></span>
+        </button>
+      </nav>
+
+      <!-- Sidebar footer -->
+      <div class="border-t border-gray-100 p-2.5 space-y-1">
+        <Link :href="route('dashboard')"
+          :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-indigo-50 hover:text-indigo-700 transition-all', sidebarCollapsed ? 'justify-center' : '']"
+          :title="sidebarCollapsed ? 'Bảng Điều Khiển' : ''">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          <span v-if="!sidebarCollapsed">Bảng Điều Khiển</span>
+        </Link>
+        <Link :href="route('logout')" method="post" as="button"
+          :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all w-full', sidebarCollapsed ? 'justify-center' : '']"
+          :title="sidebarCollapsed ? 'Đăng Xuất' : ''">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-6 0v-1m6-10V7a3 3 0 00-6 0v1"/></svg>
+          <span v-if="!sidebarCollapsed">Đăng Xuất</span>
+        </Link>
+      </div>
+    </aside>
+
+    <!-- ── Main ── -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+      <!-- Mobile top bar -->
+      <header class="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 shadow-sm z-20 shrink-0">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <p class="text-sm font-black text-gray-900">Quản Lý Hệ Thống</p>
+        </div>
+        <Link :href="route('dashboard')" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl hover:bg-indigo-100 transition-colors">
+          Bảng ĐKh <svg class="w-3 h-3 inline ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        </Link>
+      </header>
+
+      <!-- Content — pb-16 on mobile for bottom nav -->
+      <main class="flex-1 overflow-y-auto pb-16 lg:pb-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
     <!-- ══ TAB 1: TỔNG QUAN ════════════════════════════════════════════════ -->
     <div v-if="activeTab === 'dashboard'" class="animate-fade space-y-8">
@@ -340,12 +457,7 @@ const addDept = (dept) => { activeDeptId.value = dept.id; };
       <div v-for="(feats, portalType) in featuresByPortal" :key="portalType">
         <div class="flex items-center gap-3 mb-4">
           <div class="w-9 h-9 rounded-xl flex items-center justify-center text-xl"
-            :class="{
-              'bg-emerald-50': portalType === 'activities',
-              'bg-blue-50': portalType === 'ministry',
-              'bg-amber-50': portalType === 'leadership' || portalType === 'deacon',
-              'bg-indigo-50': !['activities','ministry','leadership','deacon'].includes(portalType),
-            }">
+            :class="{ 'bg-emerald-50': portalType === 'activities', 'bg-blue-50': portalType === 'ministry', 'bg-amber-50': ['leadership','deacon'].includes(portalType), 'bg-indigo-50': !['activities','ministry','leadership','deacon'].includes(portalType) }">
             {{ portalMeta(portalType).icon }}
           </div>
           <div>
@@ -542,7 +654,6 @@ const addDept = (dept) => { activeDeptId.value = dept.id; };
 
       <!-- Permission panels -->
       <div v-else-if="permUser" class="space-y-4">
-
         <!-- Global Roles -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
@@ -643,9 +754,7 @@ const addDept = (dept) => { activeDeptId.value = dept.id; };
               <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 <button v-for="dept in depts" :key="dept.id" @click="addDept(dept)"
                   class="flex items-center gap-1.5 text-xs px-3 py-2.5 rounded-xl border transition-all font-medium text-left"
-                  :class="grantedDeptIds.has(dept.id)
-                    ? 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
-                    : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50'">
+                  :class="grantedDeptIds.has(dept.id) ? 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100' : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50'">
                   <span v-if="grantedDeptIds.has(dept.id)" class="text-green-500">✓</span>
                   <span v-else class="text-gray-300">+</span>
                   <span class="truncate">{{ dept.name }}</span>
@@ -666,16 +775,51 @@ const addDept = (dept) => { activeDeptId.value = dept.id; };
       </Transition>
     </div>
 
-    <!-- Modals -->
-    <UserFormModal v-if="showModal" :show="showModal" :roles="roles" :editingUser="selectedUser" @close="closeModal" />
-    <DeleteConfirmModal v-if="showDeleteModal" :show="showDeleteModal" title="Xóa Tài Khoản"
-      :message="'Xóa tài khoản ' + userToDelete?.name + '? Hành động này không thể hoàn tác.'"
-      @close="showDeleteModal = false" @confirm="deleteUser" />
+        </div>
+      </main>
+    </div>
+  </div>
 
-  </AdminPortalLayout>
+  <!-- Modals -->
+  <UserFormModal v-if="showModal" :show="showModal" :roles="roles" :editingUser="selectedUser" @close="closeModal" />
+  <DeleteConfirmModal v-if="showDeleteModal" :show="showDeleteModal" title="Xóa Tài Khoản"
+    :message="'Xóa tài khoản ' + userToDelete?.name + '? Hành động này không thể hoàn tác.'"
+    @close="showDeleteModal = false" @confirm="deleteUser" />
+
+  <!-- ── Mobile Bottom Tab Bar ────────────────────────────────────────────── -->
+  <nav class="lg:hidden bg-white border-t border-gray-100 fixed bottom-0 left-0 right-0 z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.04)]" style="padding-bottom:env(safe-area-inset-bottom)">
+    <div class="flex justify-around items-center h-14 max-w-lg mx-auto">
+
+      <button v-for="tab in [{
+          id:'dashboard', label:'Tổng Quan',
+          icon:'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'
+        },{
+          id:'users', label:'Người Dùng',
+          icon:'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'
+        },{
+          id:'config', label:'Tính Năng',
+          icon:'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z'
+        },{
+          id:'permissions', label:'Phân Quyền',
+          icon:'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'
+        }]" :key="tab.id"
+        @click="activeTab = tab.id"
+        :class="['flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors text-[10px] font-bold',
+          activeTab === tab.id ? 'text-indigo-600' : 'text-gray-400']"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" :d="tab.icon"/>
+        </svg>
+        {{ tab.label }}
+      </button>
+    </div>
+  </nav>
+
 </template>
 
 <style scoped>
 .animate-fade { animation: fadein 0.18s ease; }
 @keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

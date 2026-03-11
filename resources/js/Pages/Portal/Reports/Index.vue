@@ -1,4 +1,4 @@
-﻿<template>
+<template>
     <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" @open-switcher="isSwitchOpen = true">
         <Head title="Báo cáo Ban ngành" />
 
@@ -465,7 +465,7 @@
 
         <!-- ══ SLIDE-OVER: REPORT FORM ══ -->
 
-        <SlideOver :show="showReportForm" @close="showReportForm = false" title="Lập / Cập nhật Báo cáo">
+        <SlideOver v-model="showReportForm" title="Lập / Cập nhật Báo cáo">
             <form class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="block text-xs font-bold text-gray-700 mb-1">Tháng *</label>
@@ -494,7 +494,7 @@
             </template>
         </SlideOver>
 
-        <SlideOver :show="isSwitchOpen" @close="isSwitchOpen=false" title="Chuyển Ban Ngành">
+        <SlideOver v-model="isSwitchOpen" title="Chuyển Ban Ngành">
             <div class="space-y-2">
                 <div v-for="d in availableDepartments" :key="d.id" @click="switchDept(d.id)"
                     class="p-4 rounded-xl border-2 cursor-pointer transition-all"

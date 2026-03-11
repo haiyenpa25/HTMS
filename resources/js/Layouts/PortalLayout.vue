@@ -1,282 +1,298 @@
 <template>
-  <div class="h-screen bg-gray-50 flex flex-col relative w-full overflow-hidden font-sans text-gray-900">
-    <!-- Header: Portal Navigation and Admin Back -->
-    <header class="bg-blue-600 text-white shadow-md relative z-20 shrink-0">
-       <div class="px-4 py-3 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-             <!-- Active Department Selector -->
-             <button 
-                @click="isSwitcherOpen = true"
-                class="flex items-center space-x-2 text-left group hover:bg-blue-700 p-1.5 -ml-1.5 rounded-xl transition-colors focus:outline-none"
-             >
-                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                   <svg v-if="department" class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                   <svg v-else class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                </div>
-                <div>
-                   <h1 class="text-sm sm:text-base font-black leading-tight">{{ department?.name || 'Chưa chọn Ban' }}</h1>
-                   <p class="text-[10px] sm:text-xs text-blue-200 font-medium">
-                      {{ portalType === 'activities' ? 'Cổng Sinh Hoạt' : portalType === 'ministry' ? 'Cổng Mục Vụ' : 'Cổng Chấp Sự' }}
-                   </p>
-                </div>
-                <!-- Only show chevron if there are multiple departments to switch or user is pastor -->
-                <svg v-if="(availableDepartments && availableDepartments.length > 1) || isGlobalAdmin" class="w-4 h-4 text-blue-300 group-hover:text-white transition-colors block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-             </button>
+  <div class="h-screen bg-gray-50 flex overflow-hidden font-sans text-gray-900">
+
+    <!-- ── Sidebar (desktop only) ─────────────────────────────────────────── -->
+    <aside
+      :class="['hidden lg:flex flex-col bg-white border-r border-gray-100 shadow-sm transition-all duration-300',
+        sidebarCollapsed ? 'w-[68px]' : 'w-[230px]']">
+
+      <!-- Dept header / switcher -->
+      <div class="flex items-center gap-3 px-4 py-4 border-b border-gray-100 min-h-[64px] relative">
+        <button @click="isSwitcherOpen = true" class="flex items-center gap-3 flex-1 min-w-0 group">
+          <div :class="[
+            'shrink-0 flex items-center justify-center rounded-xl font-black text-white text-sm transition-all',
+            sidebarCollapsed ? 'w-9 h-9' : 'w-10 h-10',
+            portalType === 'activities' ? 'bg-blue-600' : portalType === 'ministry' ? 'bg-emerald-600' : 'bg-amber-500']">
+            {{ department?.name?.charAt(0) || '?' }}
           </div>
-
-          <!-- Actions & Admin Back -->
-          <div class="flex items-center space-x-2">
-             <Link v-if="isGlobalAdmin" :href="route('dashboard')" class="text-xs font-bold bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg flex items-center transition-colors shadow-sm">
-                Quản trị <span class="hidden sm:inline ml-1"> Hệ thống</span>
-                <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-             </Link>
-             <Link :href="route('logout')" method="post" as="button" class="text-white bg-white/10 hover:text-red-200 transition-colors p-2 rounded-full hover:bg-white/20" title="Đăng xuất">
-                <svg class="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-6 0v-1m6-10V7a3 3 0 00-6 0v1"></path></svg>
-             </Link>
+          <div v-if="!sidebarCollapsed" class="min-w-0 flex-1 text-left">
+            <p class="text-xs font-black text-gray-900 truncate leading-tight">{{ department?.name || 'Cổng Ban Ngành' }}</p>
+            <p class="text-[10px] font-bold uppercase tracking-wider mt-0.5"
+              :class="portalType === 'activities' ? 'text-blue-500' : portalType === 'ministry' ? 'text-emerald-500' : 'text-amber-500'">
+              {{ portalType === 'activities' ? 'Cổng Sinh Hoạt' : portalType === 'ministry' ? 'Cổng Mục Vụ' : 'Cổng Chấp Sự' }}
+            </p>
           </div>
-       </div>
+          <svg v-if="!sidebarCollapsed && ((availableDepartments && availableDepartments.length > 1) || isGlobalAdmin)"
+            class="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-500 transition-colors shrink-0"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
+          </svg>
+        </button>
+        <button @click="sidebarCollapsed = !sidebarCollapsed"
+          class="flex items-center justify-center w-6 h-6 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all absolute -right-3 top-1/2 -translate-y-1/2 bg-white border border-gray-200 shadow-sm z-10">
+          <svg :class="['w-3 h-3 transition-transform', sidebarCollapsed ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+      </div>
 
-       <!-- Mobile Context Tabs (Optional based on design) -->
-       <div v-if="department && !hideNav" class="px-2 pb-0 flex overflow-x-auto no-scrollbar border-t border-white/10 max-w-7xl mx-auto w-full">
-           <!-- Activities Portal Links -->
-           <template v-if="portalType === 'activities'">
-               <Link :href="route('portal.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('portal.index') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                   Bảng điều khiển
-               </Link>
-               <Link v-if="deptFeatures && deptFeatures['attendance']" :href="route('portal.attendance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('portal.attendance.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['attendance']) ? 'opacity-50 pointer-events-none' : '']">
-                   Điểm danh
-               </Link>
-               <Link v-if="deptFeatures && deptFeatures['visitation']" :href="route('portal.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('portal.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['visitation']) ? 'opacity-50 pointer-events-none' : '']">
-                   Thăm viếng
-               </Link>
-               <Link v-if="deptFeatures && (deptFeatures['members'] || deptFeatures['thanh-vien'])" :href="route('portal.members.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('portal.members.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !(authPermissions['members'] || authPermissions['thanh-vien'])) ? 'opacity-50 pointer-events-none' : '']">
-                   Thành viên
-               </Link>
-               <Link v-if="deptFeatures && deptFeatures['reports']" :href="route('portal.reports.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('portal.reports.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['reports']) ? 'opacity-50 pointer-events-none' : '']">
-                   Báo cáo
-               </Link>
-                <Link v-if="deptFeatures && deptFeatures['finance']" :href="route('portal.finance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('portal.finance.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['finance']) ? 'opacity-50 pointer-events-none' : '']">
-                    Tài chính
-                </Link>
-                <Link :href="route('duty-rooster.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('duty-rooster.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                    Phân công
-                </Link>
-           </template>
+      <!-- Nav items -->
+      <nav class="flex-1 overflow-y-auto py-3 px-2.5 space-y-0.5">
+        <p v-if="!sidebarCollapsed" class="px-2 pt-1 pb-2 text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Menu</p>
+        <template v-for="item in visibleNavItems" :key="item.key">
+          <Link v-if="!item.disabled" :href="item.href"
+            :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-black transition-all',
+              item.active ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+              sidebarCollapsed ? 'justify-center' : '']"
+            :title="sidebarCollapsed ? item.label : ''">
+            <svg class="w-4 h-4 shrink-0" :class="item.active ? 'text-blue-600' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon"/>
+            </svg>
+            <span v-if="!sidebarCollapsed">{{ item.label }}</span>
+            <span v-if="item.active && !sidebarCollapsed" class="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0"></span>
+          </Link>
+          <span v-else
+            :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-black text-gray-300 cursor-not-allowed opacity-60',
+              sidebarCollapsed ? 'justify-center' : '']"
+            title="Bạn không có quyền truy cập">
+            <svg class="w-4 h-4 shrink-0 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon"/>
+            </svg>
+            <span v-if="!sidebarCollapsed">{{ item.label }}</span>
+          </span>
+        </template>
+      </nav>
 
-           <!-- Ministry Portal Links -->
-           <template v-else-if="portalType === 'ministry'">
-               <Link :href="route('ministry.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('ministry.index') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                   Bảng điều khiển
-               </Link>
-               <Link v-if="deptFeatures && (deptFeatures['members'] || deptFeatures['thanh-vien'])" :href="route('ministry.members.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('ministry.members.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !(authPermissions['members'] || authPermissions['thanh-vien'])) ? 'opacity-50 pointer-events-none' : '']">
-                   Thành viên
-               </Link>
-                <Link v-if="deptFeatures && deptFeatures['visitation']" :href="route('ministry.visitation.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('ministry.visitation.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['visitation']) ? 'opacity-50 pointer-events-none' : '']">
-                     Thăm viếng
-                 </Link>
-                 <!-- Education features integrated into Ministry -->
-                 <Link v-if="deptFeatures && deptFeatures['education-classes']" :href="route('ministry.education.classes')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('ministry.education.classes') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['education-classes']) ? 'opacity-50 pointer-events-none' : '']">
-                     Lớp Học
-                 </Link>
-                 <Link v-if="deptFeatures && deptFeatures['education-report']" :href="route('ministry.education.report')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="[route().current('ministry.education.report') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white', (!authPermissions || !authPermissions['education-report']) ? 'opacity-50 pointer-events-none' : '']">
-                     Báo Cáo GD
-                 </Link>
-                 <Link :href="route('duty-rooster.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('duty-rooster.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                     Phân công
-                 </Link>
-           </template>
+      <!-- Footer -->
+      <div class="border-t border-gray-100 p-2.5 space-y-1">
+        <Link v-if="isGlobalAdmin" :href="route('dashboard')"
+          :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-indigo-50 hover:text-indigo-700 transition-all', sidebarCollapsed ? 'justify-center' : '']"
+          :title="sidebarCollapsed ? 'Quản Trị Hệ Thống' : ''">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
+          <span v-if="!sidebarCollapsed">Quản Trị Hệ Thống</span>
+        </Link>
+        <Link :href="route('logout')" method="post" as="button"
+          :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all w-full', sidebarCollapsed ? 'justify-center' : '']"
+          :title="sidebarCollapsed ? 'Đăng Xuất' : ''">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-6 0v-1m6-10V7a3 3 0 00-6 0v1"/></svg>
+          <span v-if="!sidebarCollapsed">Đăng Xuất</span>
+        </Link>
+      </div>
+    </aside>
 
-           <!-- Education (CĐGD) Portal Links -->
-           <template v-else-if="portalType === 'education'">
-               <Link :href="route('ministry.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2 border-transparent text-blue-200 hover:text-white flex items-center gap-1">
-                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                   Mục Vụ
-               </Link>
-               <Link :href="route('education.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('education.index') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                   Tổng quan
-               </Link>
-               <Link :href="route('education.classes')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('education.classes') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                   Quản lý lớp
-               </Link>
-               <Link :href="route('education.report')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('education.report') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                   Báo cáo
-               </Link>
-           </template>
+    <!-- ── Main area ─────────────────────────────────────────────────────────── -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-           <!-- Finance Portal Links -->
-           <template v-else-if="portalType === 'finance'">
-               <Link :href="route('finance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('finance.index') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                   Bảng điều khiển
-               </Link>
-               <Link :href="route('finance.transactions.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('finance.transactions.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                   Sổ Cầm Quỹ
-               </Link>
-               <Link :href="route('finance.reports.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('finance.reports.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                   Báo cáo tháng
-               </Link>
-            </template>
+      <!-- Mobile top bar -->
+      <header class="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 shadow-sm z-20 shrink-0">
+        <button @click="isSwitcherOpen = true" class="flex items-center gap-2 min-w-0">
+          <div :class="['w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-black text-white text-sm',
+            portalType === 'activities' ? 'bg-blue-600' : portalType === 'ministry' ? 'bg-emerald-600' : 'bg-amber-500']">
+            {{ department?.name?.charAt(0) || '?' }}
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-black text-gray-900 truncate leading-tight">{{ department?.name || 'Ban Ngành' }}</p>
+            <p class="text-[9px] font-bold uppercase tracking-wider"
+              :class="portalType === 'activities' ? 'text-blue-500' : portalType === 'ministry' ? 'text-emerald-500' : 'text-amber-500'">
+              {{ portalType === 'activities' ? 'Sinh Hoạt' : portalType === 'ministry' ? 'Mục Vụ' : 'Chấp Sự' }}
+            </p>
+          </div>
+          <svg v-if="(availableDepartments && availableDepartments.length > 1) || isGlobalAdmin"
+            class="w-3.5 h-3.5 text-gray-400 shrink-0 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <Link v-if="isGlobalAdmin" :href="route('dashboard')" class="w-8 h-8 flex items-center justify-center rounded-xl text-indigo-500 hover:bg-indigo-50 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        </Link>
+      </header>
 
-            <!-- Deacon Portal Links -->
-            <template v-else-if="portalType === 'deacon'">
-                <Link :href="route('deacon.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('deacon.index') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                    Bảng điều khiển
-                </Link>
-                <!-- Thư Ký Links -->
-                <template v-if="department?.id === 'secretary'">
-                    <Link :href="route('deacon.attendance')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('deacon.attendance') || route().current('deacon.attendance.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                        Điểm danh
-                    </Link>
-                    <Link :href="route('deacon.report')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('deacon.report') || route().current('deacon.report.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                        Báo cáo
-                    </Link>
-                </template>
-                <!-- Thủ Quỹ Links -->
-                <template v-if="department?.id === 'treasurer'">
-                    <Link v-if="route().has('finance.funds.index')" :href="route('finance.funds.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('finance.funds.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                        Quản lý Quỹ
-                    </Link>
-                    <Link :href="route('finance.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('finance.index') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                        Tài chính
-                    </Link>
-                    <Link v-if="route().has('finance.reports.index')" :href="route('finance.reports.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('finance.reports.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                        Báo cáo
-                    </Link>
-                </template>
-
-                <!-- MAC: Thành viên (Global link available in Deacon too) -->
-                <template v-if="deptFeatures && (deptFeatures['members'] || deptFeatures['thanh-vien'])">
-                    <Link :href="route('ministry.members.index')" 
-                        class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" 
-                        :class="[
-                            route().current('ministry.members.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white',
-                            (!authPermissions || !(authPermissions['members'] || authPermissions['thanh-vien'])) ? 'opacity-50 grayscale pointer-events-none' : ''
-                        ]">
-                        Thành viên
-                    </Link>
-                    <Link :href="route('duty-rooster.index')" class="px-4 py-3 text-xs sm:text-sm font-bold whitespace-nowrap transition-colors border-b-2" :class="route().current('duty-rooster.*') ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white'">
-                        Phân công
-                    </Link>
-                </template>
-            </template>
-       </div>
-    </header>
-
-    <!-- Main Content Area -->
-    <main class="flex-1 overflow-x-hidden overflow-y-auto w-full relative pb-safe">
-        <div class="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8">
-            <!-- Flash Message -->
-            <div v-if="$page.props.flash.error" class="mt-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm font-bold rounded-r-xl shadow-sm animate-in fade-in slide-in-from-top-2">
-                {{ $page.props.flash.error }}
-            </div>
-            <slot />
+      <!-- Content — pb-16 on mobile to make room for bottom nav -->
+      <main class="flex-1 overflow-x-hidden overflow-y-auto pb-16 lg:pb-0">
+        <div v-if="$page.props.flash?.error" class="mx-4 mt-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm font-bold rounded-r-xl shadow-sm">
+          {{ $page.props.flash.error }}
         </div>
-    </main>
+        <slot />
+      </main>
+    </div>
 
   </div>
 
+  <!-- ── Mobile Bottom Tab Nav ────────────────────────────────────────────── -->
+  <nav class="lg:hidden bg-white border-t border-gray-100 fixed bottom-0 left-0 right-0 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]" style="padding-bottom: env(safe-area-inset-bottom)">
+    <div class="flex justify-around items-center h-14 max-w-lg mx-auto">
+
+      <!-- Dynamic nav from visibleNavItems (max 5) -->
+      <template v-for="item in mobileNavItems" :key="item.key">
+        <Link v-if="!item.disabled" :href="item.href"
+          class="flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors"
+          :class="item.active
+            ? (portalType === 'activities' ? 'text-blue-600' : portalType === 'ministry' ? 'text-emerald-600' : 'text-amber-500')
+            : 'text-gray-500'">
+          <svg class="w-5 h-5" :fill="item.active ? 'none' : 'none'" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" :d="item.icon"/>
+          </svg>
+          <span class="text-[9px] font-bold">{{ item.shortLabel || item.label }}</span>
+        </Link>
+        <span v-else
+          class="flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-gray-300 opacity-50 cursor-not-allowed">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" :d="item.icon"/>
+          </svg>
+          <span class="text-[9px] font-bold">{{ item.shortLabel || item.label }}</span>
+        </span>
+      </template>
+
+      <!-- Dept Switcher (always last on mobile if multi-dept) -->
+      <button v-if="(availableDepartments && availableDepartments.length > 1) || isGlobalAdmin"
+        @click="isSwitcherOpen = true"
+        class="flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-gray-500 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
+        </svg>
+        <span class="text-[9px] font-bold">Chuyển</span>
+      </button>
+
+    </div>
+  </nav>
+
   <!-- Global Context Switcher SlideOver -->
   <SlideOver v-model="isSwitcherOpen" title="Chuyển đổi Ban ngành" size="md">
-      <template #default>
-          <div class="p-6 space-y-8">
-              <div v-for="(depts, block) in allDeptsGrouped" :key="block">
-                  <template v-if="depts.length > 0">
-                      <h3 class="flex items-center gap-2 text-xs font-black uppercase tracking-widest mb-4" :class="blockInfo[block]?.color">
-                          <span class="w-8 h-8 rounded-lg flex items-center justify-center bg-current opacity-10" :class="blockInfo[block]?.bg"></span>
-                          <span>{{ blockInfo[block]?.icon }} {{ blockInfo[block]?.name }}</span>
-                      </h3>
-                      <div class="space-y-2">
-                          <button v-for="dept in depts" :key="dept.id"
-                              @click="switchDept(dept.id)"
-                              class="w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between group"
-                              :class="department?.id === dept.id && portalType === (block === 'leadership' ? 'deacon' : block) 
-                                  ? 'border-blue-500 bg-blue-50 ring-4 ring-blue-50' 
-                                  : 'border-gray-100 bg-white hover:border-blue-300 hover:bg-gray-50'">
-                              <div class="flex items-center space-x-4">
-                                  <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-colors"
-                                      :class="department?.id === dept.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-blue-100 group-hover:text-blue-600'">
-                                      {{ dept.name.charAt(0) }}
-                                  </div>
-                                  <div class="min-w-0">
-                                      <h4 class="text-sm font-black truncate" :class="department?.id === dept.id ? 'text-blue-900' : 'text-gray-900'">{{ dept.name }}</h4>
-                                      <p v-if="department?.id === dept.id" class="text-[10px] text-blue-600 font-bold uppercase tracking-wider">Đang hoạt động</p>
-                                      <p v-else class="text-[10px] text-gray-400 font-medium">Bấm để chuyển sang</p>
-                                  </div>
-                              </div>
-                              <svg v-if="department?.id === dept.id" class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
-                                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                              </svg>
-                              <svg v-else class="w-4 h-4 text-gray-300 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                              </svg>
-                          </button>
-                      </div>
-                  </template>
-              </div>
-              <!-- Empty state if no depts -->
-              <div v-if="Object.values(allDeptsGrouped).every(d => d.length === 0)" class="text-center py-12">
-                   <p class="text-gray-400 font-bold">Bạn chưa được phân quyền vào Ban ngành nào.</p>
-              </div>
-          </div>
-      </template>
+    <template #default>
+      <div class="p-6 space-y-8">
+        <div v-for="(depts, block) in allDeptsGrouped" :key="block">
+          <template v-if="depts.length > 0">
+            <h3 class="flex items-center gap-2 text-xs font-black uppercase tracking-widest mb-4" :class="blockInfo[block]?.color">
+              <span>{{ blockInfo[block]?.icon }}</span> {{ blockInfo[block]?.name }}
+            </h3>
+            <div class="space-y-2">
+              <button v-for="dept in depts" :key="dept.id"
+                @click="switchDept(dept.id)"
+                class="w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between group"
+                :class="department?.id === dept.id
+                  ? 'border-blue-500 bg-blue-50 ring-4 ring-blue-50'
+                  : 'border-gray-100 bg-white hover:border-blue-300 hover:bg-gray-50'">
+                <div class="flex items-center space-x-4">
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-colors"
+                    :class="department?.id === dept.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-blue-100 group-hover:text-blue-600'">
+                    {{ dept.name.charAt(0) }}
+                  </div>
+                  <div class="min-w-0">
+                    <h4 class="text-sm font-black truncate" :class="department?.id === dept.id ? 'text-blue-900' : 'text-gray-900'">{{ dept.name }}</h4>
+                    <p v-if="department?.id === dept.id" class="text-[10px] text-blue-600 font-bold uppercase tracking-wider">Đang hoạt động</p>
+                    <p v-else class="text-[10px] text-gray-400 font-medium">Bấm để chuyển sang</p>
+                  </div>
+                </div>
+                <svg v-if="department?.id === dept.id" class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                <svg v-else class="w-4 h-4 text-gray-300 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          </template>
+        </div>
+        <div v-if="Object.values(allDeptsGrouped).every(d => d.length === 0)" class="text-center py-12">
+          <p class="text-gray-400 font-bold">Bạn chưa được phân quyền vào Ban ngành nào.</p>
+        </div>
+      </div>
+    </template>
   </SlideOver>
 </template>
 
 <script setup>
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import SlideOver from '@/Components/SlideOver.vue';
+
+// Allow child pages to trigger the dept switcher via @open-switcher
+const emit = defineEmits(['openSwitcher']);
 
 const page = usePage();
 const deptFeatures = computed(() => page.props.departmentFeatures || {});
 const authPermissions = computed(() => page.props.userPermissions || {});
 
 const props = defineProps({
-    department: Object,
-    availableDepartments: Array,
-    isGlobalAdmin: Boolean,
-    userPermissions: {
-        type: Object,
-        default: () => ({})
-    },
-    portalType: {
-        type: String,
-        default: 'activities'
-    },
-    hideNav: {
-        type: Boolean,
-        default: false
-    }
+  department:           Object,
+  availableDepartments: Array,
+  isGlobalAdmin:        Boolean,
+  userPermissions:      { type: Object, default: () => ({}) },
+  portalType:           { type: String, default: 'activities' },
+  hideNav:              { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['open-switcher']);
-
-// ── Global Switcher Logic ──────────────────────────────────────────────────
-import SlideOver from '@/Components/SlideOver.vue';
-import { ref } from 'vue';
-
-const isSwitcherOpen = ref(false);
-const allDeptsGrouped = computed(() => page.props.allAvailableDepartments || {});
+// Sidebar / switcher state
+const sidebarCollapsed = ref(false);
+const isSwitcherOpen   = ref(false);
+const allDeptsGrouped  = computed(() => page.props.allAvailableDepartments || {});
 
 const blockInfo = {
-    activities: { name: 'Ban Ngành Sinh Hoạt', icon: '🎯', color: 'text-blue-600', bg: 'bg-blue-50' },
-    ministry:   { name: 'Ban Ngành Mục Vụ',   icon: '⛪', color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    leadership: { name: 'Ban Chấp Sự / Lãnh Đạo', icon: '🛡', color: 'text-amber-600', bg: 'bg-amber-50' }
+  activities: { name: 'Ban Ngành Sinh Hoạt',        icon: '🎯', color: 'text-blue-600' },
+  ministry:   { name: 'Ban Ngành Mục Vụ',            icon: '⛪', color: 'text-emerald-600' },
+  leadership: { name: 'Ban Chấp Sự / Lãnh Đạo',     icon: '🛡', color: 'text-amber-600' },
 };
 
 const switchDept = (deptId) => {
-    router.post(route('portal.switch-context'), { department_id: deptId }, {
-        preserveScroll: true,
-        onSuccess: () => { isSwitcherOpen.value = false; }
-    });
+  router.post(route('portal.switch-context'), { department_id: deptId }, {
+    preserveScroll: true,
+    onSuccess: () => { isSwitcherOpen.value = false; },
+  });
 };
+
+// ── Nav item definitions per portal type ─────────────────────────────────────
+// Icons are SVG `d` path strings from Heroicons
+const ICONS = {
+  dashboard:  'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
+  attendance: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
+  visitation: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
+  members:    'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
+  reports:    'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+  finance:    'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+  assignment: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+  education:  'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z',
+};
+
+// Computes nav items based on portal type + enabled features + user permissions
+const visibleNavItems = computed(() => {
+  const f = deptFeatures.value;
+  const p = authPermissions.value;
+  const type = props.portalType;
+
+  const always = [
+    { key: 'home', label: 'Tổng Quan', shortLabel: 'Tổng Quan', icon: ICONS.dashboard, href: type === 'activities' ? route('portal.index') : type === 'ministry' ? route('ministry.index') : route('deacon.index'), active: false, disabled: false },
+  ];
+
+  if (type === 'activities') {
+    return [
+      ...always,
+      f['attendance']   && { key: 'attendance',   label: 'Điểm Danh',   shortLabel: 'Điểm Danh',   icon: ICONS.attendance, href: route('portal.attendance.index'), active: route().current('portal.attendance.*'), disabled: !p['attendance'] },
+      f['visitation']   && { key: 'visitation',   label: 'Thăm Viếng',  shortLabel: 'Thăm Viếng',  icon: ICONS.visitation, href: route('portal.visitation.index'), active: route().current('portal.visitation.*'), disabled: !p['visitation'] },
+      (f['members']||f['thanh-vien']) && { key: 'members', label: 'Thành Viên', shortLabel: 'T.Viên', icon: ICONS.members, href: route('portal.members.index'), active: route().current('portal.members.*'), disabled: !(p['members']||p['thanh-vien']) },
+      f['reports']      && { key: 'reports',      label: 'Báo Cáo',     shortLabel: 'Báo Cáo',     icon: ICONS.reports,    href: route('portal.reports.index'),    active: route().current('portal.reports.*'),    disabled: !p['reports'] },
+      f['finance']      && { key: 'finance',      label: 'Tài Chính',   shortLabel: 'Tài Chính',   icon: ICONS.finance,    href: route('portal.finance.index'),    active: route().current('portal.finance.*'),    disabled: !p['finance'] },
+    ].filter(Boolean);
+  }
+
+  if (type === 'ministry') {
+    return [
+      ...always,
+      (f['members']||f['thanh-vien']) && { key: 'members', label: 'Thành Viên', shortLabel: 'T.Viên', icon: ICONS.members, href: route('ministry.members.index'), active: route().current('ministry.members.*'), disabled: !(p['members']||p['thanh-vien']) },
+      f['visitation']   && { key: 'visitation',   label: 'Thăm Viếng',  shortLabel: 'Thăm Viếng',  icon: ICONS.visitation, href: route('ministry.visitation.index'), active: route().current('ministry.visitation.*'), disabled: !p['visitation'] },
+      f['education-classes'] && { key: 'classes', label: 'Lớp Học',     shortLabel: 'Lớp Học',     icon: ICONS.education,  href: route('ministry.education.classes'), active: route().current('ministry.education.classes'), disabled: !p['education-classes'] },
+      f['education-report']  && { key: 'edu-rep', label: 'BC Giáo Dục', shortLabel: 'BC-GD',       icon: ICONS.reports,    href: route('ministry.education.report'),  active: route().current('ministry.education.report'),  disabled: !p['education-report'] },
+    ].filter(Boolean);
+  }
+
+  // deacon
+  return [
+    ...always,
+    { key: 'assignment', label: 'Phân Công', shortLabel: 'P.Công', icon: ICONS.assignment, href: route('duty-rooster.index'), active: route().current('duty-rooster.*'), disabled: false },
+  ];
+});
+
+// Mobile shows first 4 items only (space for switcher button)
+const mobileNavItems = computed(() => visibleNavItems.value.slice(0, 4));
 </script>
 
 <style scoped>
-/* Mobile safe area padding for modern devices */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-    .pb-safe {
-        padding-bottom: env(safe-area-inset-bottom);
-    }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 }
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>

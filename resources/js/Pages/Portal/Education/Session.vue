@@ -1,4 +1,4 @@
-﻿<template>
+<template>
     <PortalLayout :department="null" :available-departments="[]" :is-global-admin="false" :portalType="portalType">
         <div class="min-h-screen bg-gray-50">
             <!-- Focus Mode Header -->
@@ -578,7 +578,7 @@
         </SlideOver>
 
         <!-- ══ QUIZ INFO SLIDEOVER (bible_quiz only) ══ -->
-        <SlideOver :show="isQuizInfoOpen" @close="isQuizInfoOpen = false" title="Thông Tin Bài Kiểm Tra">
+        <SlideOver v-model="isQuizInfoOpen" title="Thông Tin Bài Kiểm Tra">
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Sách Kinh Thánh</label>
