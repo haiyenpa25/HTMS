@@ -1,5 +1,5 @@
 <template>
-  <AuthenticatedLayout>
+  <component :is="currentLayout">
     <template #header>Quản lý Cơ sở Vật chất</template>
 
     <div class="py-4 space-y-6 w-full">
@@ -332,21 +332,27 @@
         </div>
       </template>
     </SlideOver>
-  </AuthenticatedLayout>
+  </component>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import MobileLayout from '@/Layouts/MobileLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import SlideOver from '@/Components/SlideOver.vue';
 import Pagination from '@/Components/Pagination.vue';
+
+const currentLayout = computed(() => {
+    if (typeof window === 'undefined') return AuthenticatedLayout;
+    return window.innerWidth < 768 ? MobileLayout : AuthenticatedLayout;
+});
 
 const props = defineProps(['assets', 'filters', 'departments', 'stats']);
 

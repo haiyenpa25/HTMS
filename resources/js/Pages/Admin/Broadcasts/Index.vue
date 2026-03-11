@@ -1,5 +1,5 @@
-﻿<template>
-  <AuthenticatedLayout>
+<template>
+  <component :is="currentLayout">
     <template #header>Chiến dịch Truyền Thông (Email Broadcasting)</template>
 
     <div class="py-4 space-y-6 w-full">
@@ -113,13 +113,20 @@
             </div>
         </div>
     </div>
-  </AuthenticatedLayout>
+  </component>
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import MobileLayout from '@/Layouts/MobileLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
+
+const currentLayout = computed(() => {
+    if (typeof window === 'undefined') return AuthenticatedLayout;
+    return window.innerWidth < 768 ? MobileLayout : AuthenticatedLayout;
+});
 
 const props = defineProps(['broadcasts']);
 
