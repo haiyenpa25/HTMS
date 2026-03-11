@@ -61,28 +61,28 @@
             <!-- [Table LEFT | Chart RIGHT]                        -->
             <!-- ══════════════════════════════════════════════════ -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="px-5 py-3.5 bg-blue-900 flex items-center justify-between">
+                <div class="px-5 py-3.5 bg-slate-900 flex items-center justify-between">
                     <div>
-                        <h3 class="text-[15px] font-black text-white">A. BUỔI NHÓM HỘI THÁNH</h3>
-                        <p class="text-[11px] text-blue-200 mt-0.5">Số lượng hiện diện từng tuần trong tháng</p>
+                        <h3 class="text-[15px] font-black text-white flex items-center gap-2"><span class="text-slate-400">A.</span> BUỔI NHÓM HỘI THÁNH</h3>
+                        <p class="text-[11px] text-slate-300 mt-0.5">Số lượng hiện diện từng tuần trong tháng</p>
                     </div>
-                    <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full">{{ church_meetings.length }} buổi · TB {{ summary.avg_church }}</span>
+                    <span class="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full">{{ church_meetings.length }} buổi · TB {{ summary.avg_church }}</span>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
                     <!-- Table -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full">
-                            <thead class="bg-blue-50">
+                            <thead class="bg-slate-50">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-[13px] font-bold text-blue-900">Ngày</th>
-                                    <th class="px-4 py-3 text-left text-[13px] font-bold text-blue-900">Chủ đề</th>
-                                    <th class="px-4 py-3 text-left text-[13px] font-bold text-blue-900 hidden md:table-cell">Diễn giả</th>
-                                    <th class="px-4 py-3 text-center text-[13px] font-bold text-blue-900">Hiện Diện</th>
-                                    <th class="px-4 py-3 text-right text-[13px] font-bold text-blue-900 hidden sm:table-cell">Thu</th>
+                                    <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800">Ngày</th>
+                                    <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800">Chủ đề</th>
+                                    <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800 hidden md:table-cell">Diễn giả</th>
+                                    <th class="px-4 py-3 text-center text-[13px] font-bold text-slate-800">Hiện Diện</th>
+                                    <th class="px-4 py-3 text-right text-[13px] font-bold text-slate-800 hidden sm:table-cell">Thu</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                <tr v-for="m in church_meetings" :key="m.id" class="hover:bg-blue-50/50">
+                                <tr v-for="m in church_meetings" :key="m.id" class="hover:bg-slate-50/80 transition-colors">
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <p class="text-[13px] font-black text-gray-900">{{ m.date }}</p>
                                         <p class="text-[11px] text-gray-500 capitalize mt-0.5">{{ m.day }}</p>
@@ -96,8 +96,8 @@
                                     <td colspan="5" class="px-4 py-8 text-center text-[13px] text-gray-400">Chưa có buổi nhóm HT nào trong tháng</td>
                                 </tr>
                                 <!-- Weekly summary rows -->
-                                <tr class="bg-blue-900/5 border-t-2 border-blue-200">
-                                    <td colspan="2" class="px-4 py-3 text-[13px] font-black text-blue-900">TỔNG / TRUNG BÌNH</td>
+                                <tr class="bg-slate-50 border-t-2 border-slate-200">
+                                    <td colspan="2" class="px-4 py-3 text-[13px] font-black text-slate-900">TỔNG / TRUNG BÌNH</td>
                                     <td class="px-4 py-3 hidden md:table-cell"></td>
                                     <td class="px-4 py-3 text-center text-[15px] font-black text-amber-700">TB: {{ summary.avg_church }}</td>
                                     <td class="px-4 py-3 text-right text-sm font-black text-emerald-700 hidden sm:table-cell">{{ fmt(summary.church_total_income) }}</td>
@@ -124,28 +124,28 @@
             <!-- [Table LEFT | Chart RIGHT]                        -->
             <!-- ══════════════════════════════════════════════════ -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="px-5 py-3.5 bg-indigo-900 flex items-center justify-between">
+                <div class="px-5 py-3.5 bg-slate-900 flex items-center justify-between">
                     <div>
-                        <h3 class="text-[15px] font-black text-white">B. BUỔI NHÓM SINH HOẠT BAN NGÀNH</h3>
-                        <p class="text-[11px] text-indigo-200 mt-0.5">Số lượng hiện diện từng tuần trong tháng</p>
+                        <h3 class="text-[15px] font-black text-white flex items-center gap-2"><span class="text-slate-400">B.</span> BUỔI NHÓM SINH HOẠT BAN NGÀNH</h3>
+                        <p class="text-[11px] text-slate-300 mt-0.5">Số lượng hiện diện từng tuần trong tháng</p>
                     </div>
-                    <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full">{{ dept_meetings.length }} buổi · TB {{ summary.avg_dept }}</span>
+                    <span class="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full">{{ dept_meetings.length }} buổi · TB {{ summary.avg_dept }}</span>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
                     <!-- Table -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full">
-                            <thead class="bg-indigo-50">
+                            <thead class="bg-slate-50">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-[13px] font-bold text-indigo-900">Ngày</th>
-                                    <th class="px-4 py-3 text-left text-[13px] font-bold text-indigo-900">Chủ đề</th>
-                                    <th class="px-4 py-3 text-left text-[13px] font-bold text-indigo-900 hidden md:table-cell">Diễn giả</th>
-                                    <th class="px-4 py-3 text-center text-[13px] font-bold text-indigo-900">Hiện Diện</th>
-                                    <th class="px-4 py-3 text-right text-[13px] font-bold text-indigo-900 hidden sm:table-cell">Thu</th>
+                                    <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800">Ngày</th>
+                                    <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800">Chủ đề</th>
+                                    <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800 hidden md:table-cell">Diễn giả</th>
+                                    <th class="px-4 py-3 text-center text-[13px] font-bold text-slate-800">Hiện Diện</th>
+                                    <th class="px-4 py-3 text-right text-[13px] font-bold text-slate-800 hidden sm:table-cell">Thu</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                <tr v-for="m in dept_meetings" :key="m.id" class="hover:bg-indigo-50/50">
+                                <tr v-for="m in dept_meetings" :key="m.id" class="hover:bg-slate-50/80 transition-colors">
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <p class="text-[13px] font-black text-gray-900">{{ m.date }}</p>
                                         <p class="text-[11px] text-gray-500 capitalize mt-0.5">{{ m.day }}</p>
@@ -158,8 +158,8 @@
                                 <tr v-if="dept_meetings.length === 0">
                                     <td colspan="5" class="px-4 py-8 text-center text-[13px] text-gray-400">Chưa có buổi nhóm Ban nào trong tháng</td>
                                 </tr>
-                                <tr class="bg-indigo-900/5 border-t-2 border-indigo-200">
-                                    <td colspan="2" class="px-4 py-3 text-[13px] font-black text-indigo-900">TỔNG / TRUNG BÌNH</td>
+                                <tr class="bg-slate-50 border-t-2 border-slate-200">
+                                    <td colspan="2" class="px-4 py-3 text-[13px] font-black text-slate-900">TỔNG / TRUNG BÌNH</td>
                                     <td class="px-4 py-3 hidden md:table-cell"></td>
                                     <td class="px-4 py-3 text-center text-[15px] font-black text-amber-700">TB: {{ summary.avg_dept }}</td>
                                     <td class="px-4 py-3 text-right text-sm font-black text-emerald-700 hidden sm:table-cell">{{ fmt(summary.dept_total_income) }}</td>
@@ -190,30 +190,30 @@
 
             <!-- ══ FINANCE TABLE (dept meetings only) ══ -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="px-5 py-3.5 bg-green-900 flex items-center justify-between">
+                <div class="px-5 py-3.5 bg-slate-900 flex items-center justify-between">
                     <div>
-                        <h3 class="text-[15px] font-black text-white">D. TÀI CHÍNH — TIỀN DÂNG BAN NGÀNH SINH HOẠT</h3>
-                        <p class="text-[11px] text-green-200 mt-0.5">Chỉ buổi nhóm Ban Ngành mới có tiền dâng · Tháng {{ localMonth }}/{{ localYear }}</p>
+                        <h3 class="text-[15px] font-black text-white flex items-center gap-2"><span class="text-slate-400">D.</span> TÀI CHÍNH — TIỀN DÂNG BAN NGÀNH SINH HOẠT</h3>
+                        <p class="text-[11px] text-slate-300 mt-0.5">Chỉ buổi nhóm Ban Ngành mới có tiền dâng · Tháng {{ localMonth }}/{{ localYear }}</p>
                     </div>
-                    <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full">{{ dept_meetings.length }} buổi</span>
+                    <span class="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full">{{ dept_meetings.length }} buổi</span>
                 </div>
                 <!-- Per-meeting detail rows -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-100">
-                        <thead class="bg-green-50">
+                        <thead class="bg-slate-50">
                             <tr>
-                                <th class="px-4 py-3 text-left text-[13px] font-bold text-green-900 whitespace-nowrap">Ngày</th>
-                                <th class="px-4 py-3 text-left text-[13px] font-bold text-green-900">Chủ đề</th>
-                                <th class="px-4 py-3 text-left text-[13px] font-bold text-green-900 hidden lg:table-cell">Kinh thánh</th>
-                                <th class="px-4 py-3 text-left text-[13px] font-bold text-green-900 hidden xl:table-cell">Câu gốc</th>
-                                <th class="px-4 py-3 text-center text-[13px] font-bold text-green-900">HD</th>
-                                <th class="px-4 py-3 text-right text-[13px] font-bold text-green-900">Tiền Dâng</th>
-                                <th class="px-4 py-3 text-right text-[13px] font-bold text-green-900 hidden sm:table-cell">Chi</th>
-                                <th class="px-4 py-3 text-center text-[13px] font-bold text-green-900 hidden sm:table-cell">Tuần</th>
+                                <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800 whitespace-nowrap">Ngày</th>
+                                <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800">Chủ đề</th>
+                                <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800 hidden lg:table-cell">Kinh thánh</th>
+                                <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800 hidden xl:table-cell">Câu gốc</th>
+                                <th class="px-4 py-3 text-center text-[13px] font-bold text-slate-800">HD</th>
+                                <th class="px-4 py-3 text-right text-[13px] font-bold text-slate-800">Tiền Dâng</th>
+                                <th class="px-4 py-3 text-right text-[13px] font-bold text-slate-800 hidden sm:table-cell">Chi</th>
+                                <th class="px-4 py-3 text-center text-[13px] font-bold text-slate-800 hidden sm:table-cell">Tuần</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            <tr v-for="m in dept_meetings" :key="m.id" class="hover:bg-green-50/40">
+                            <tr v-for="m in dept_meetings" :key="m.id" class="hover:bg-slate-50/80 transition-colors">
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     <p class="text-[13px] font-black text-gray-900">{{ m.date }}</p>
                                     <p class="text-[11px] text-gray-500 capitalize mt-0.5">{{ m.day }}</p>
@@ -225,7 +225,7 @@
                                 <td class="px-4 py-3 text-right text-[15px] font-bold text-emerald-700">{{ m.income > 0 ? fmt(m.income) : '—' }}</td>
                                 <td class="px-4 py-3 text-right text-[13px] font-medium text-rose-700 hidden sm:table-cell">{{ m.expense > 0 ? fmt(m.expense) : '—' }}</td>
                                 <td class="px-4 py-3 text-center hidden sm:table-cell">
-                                    <span class="text-[11px] font-bold bg-green-100 text-green-700 px-2.5 py-1 rounded-full">T{{ m.week_no }}</span>
+                                    <span class="text-[11px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200">T{{ m.week_no }}</span>
                                 </td>
                             </tr>
                             <tr v-if="dept_meetings.length === 0">
@@ -262,59 +262,59 @@
 
             <!-- ══ VISITATION ══ -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="px-5 py-3.5 bg-purple-800 flex flex-wrap items-center justify-between gap-3">
+                <div class="px-5 py-3.5 bg-slate-900 flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h3 class="text-[15px] font-black text-white">F. CÔNG TÁC THĂM VIẾNG</h3>
-                        <p class="text-[11px] text-purple-200 mt-0.5">Tháng {{ localMonth }}/{{ localYear }}</p>
+                        <h3 class="text-[15px] font-black text-white flex items-center gap-2"><span class="text-slate-400">F.</span> CÔNG TÁC THĂM VIẾNG</h3>
+                        <p class="text-[11px] text-slate-300 mt-0.5">Tháng {{ localMonth }}/{{ localYear }}</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <span class="bg-white/20 text-white text-[11px] font-bold px-2.5 py-1 rounded-full">{{ summary.visit_planned }} kế hoạch</span>
-                        <span class="bg-green-400/30 text-green-100 text-[11px] font-bold px-2.5 py-1 rounded-full">✓ {{ summary.visit_completed }} đã thăm</span>
-                        <span class="text-[11px] font-bold px-2.5 py-1 rounded-full"
-                            :class="summary.visit_pct>=80?'bg-emerald-400/30 text-emerald-100':summary.visit_pct>=50?'bg-amber-400/30 text-amber-100':'bg-red-400/30 text-red-100'">
+                        <span class="bg-white/10 text-white text-[11px] font-bold px-2.5 py-1 rounded-full border border-white/5">{{ summary.visit_planned }} kế hoạch</span>
+                        <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold px-2.5 py-1 rounded-full">✓ {{ summary.visit_completed }} đã thăm</span>
+                        <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border"
+                            :class="summary.visit_pct>=80?'bg-emerald-500/20 text-emerald-300 border-emerald-500/30':summary.visit_pct>=50?'bg-amber-500/20 text-amber-300 border-amber-500/30':'bg-rose-500/20 text-rose-300 border-rose-500/30'">
                             {{ summary.visit_pct }}%
                         </span>
                     </div>
                 </div>
                 <!-- Progress bar + summary text -->
-                <div class="px-5 py-4 bg-purple-50 border-b border-purple-100">
+                <div class="px-5 py-4 bg-slate-50 border-b border-slate-100">
                     <div class="flex items-center gap-4 mb-2">
-                        <div class="flex-1 bg-gray-200 rounded-full h-3">
+                        <div class="flex-1 bg-slate-200 rounded-full h-3">
                             <div class="h-3 rounded-full transition-all duration-700"
                                 :class="summary.visit_pct>=80?'bg-emerald-500':summary.visit_pct>=50?'bg-amber-500':'bg-rose-500'"
                                 :style="`width: ${summary.visit_pct}%`"></div>
                         </div>
-                        <span class="text-[13px] font-black text-gray-700 w-12 text-right">{{ summary.visit_pct }}%</span>
+                        <span class="text-[13px] font-black text-slate-700 w-12 text-right">{{ summary.visit_pct }}%</span>
                     </div>
-                    <p class="text-xs text-gray-600 leading-relaxed">
-                        Đã thực hiện <strong class="text-purple-800">{{ summary.visit_completed }}</strong> /
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Đã thực hiện <strong class="text-slate-900">{{ summary.visit_completed }}</strong> /
                         <strong>{{ summary.visit_planned }}</strong> lượt thăm viếng được lên kế hoạch.
-                        <span v-if="summary.visit_pct >= 80" class="text-emerald-700 font-bold ml-1">🎉 Xuất sắc!</span>
-                        <span v-else-if="summary.visit_pct >= 50" class="text-amber-700 ml-1">Cần cố gắng thêm.</span>
-                        <span v-else-if="summary.visit_planned === 0" class="text-gray-400 ml-1">Chưa có kế hoạch thăm viếng.</span>
-                        <span v-else class="text-rose-700 font-bold ml-1">⚠️ Cần chú trọng thăm viếng!</span>
+                        <span v-if="summary.visit_pct >= 80" class="text-emerald-600 font-bold ml-1">🎉 Xuất sắc!</span>
+                        <span v-else-if="summary.visit_pct >= 50" class="text-amber-600 font-medium ml-1">Cần cố gắng thêm.</span>
+                        <span v-else-if="summary.visit_planned === 0" class="text-slate-400 ml-1">Chưa có kế hoạch thăm viếng.</span>
+                        <span v-else class="text-rose-600 font-bold ml-1">⚠️ Cần chú trọng thăm viếng!</span>
                     </p>
                 </div>
                 <div v-if="visitations.length > 0" class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-100">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-gray-50 border-b border-gray-100">
                             <tr>
-                                <th class="px-4 py-3 text-left text-[13px] font-bold text-gray-600">Ngày</th>
-                                <th class="px-4 py-3 text-left text-[13px] font-bold text-gray-600">Tín hữu</th>
-                                <th class="px-4 py-3 text-left text-[13px] font-bold text-gray-600 hidden md:table-cell">Lý do</th>
-                                <th class="px-4 py-3 text-left text-[13px] font-bold text-gray-600 hidden lg:table-cell">Người đi thăm</th>
-                                <th class="px-4 py-3 text-center text-[13px] font-bold text-gray-600">TT</th>
+                                <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800">Ngày</th>
+                                <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800">Tín hữu</th>
+                                <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800 hidden md:table-cell">Lý do</th>
+                                <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800 hidden lg:table-cell">Người đi thăm</th>
+                                <th class="px-4 py-3 text-center text-[13px] font-bold text-slate-800">TT</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            <tr v-for="v in visitations" :key="v.id" class="hover:bg-purple-50 shrink-0">
+                            <tr v-for="v in visitations" :key="v.id" class="hover:bg-slate-50/80 transition-colors shrink-0">
                                 <td class="px-4 py-3 text-[13px] font-bold text-gray-900 whitespace-nowrap">{{ v.visit_date }}</td>
                                 <td class="px-4 py-3 text-[15px] font-medium text-gray-900">{{ v.member_name }}</td>
                                 <td class="px-4 py-3 text-[13px] text-gray-600 hidden md:table-cell">{{ v.reason || '—' }}</td>
                                 <td class="px-4 py-3 text-[13px] text-gray-500 hidden lg:table-cell">{{ v.visitors || '—' }}</td>
                                 <td class="px-4 py-3 text-center whitespace-nowrap">
-                                    <span class="text-[11px] font-bold px-2.5 py-1 rounded-full"
-                                        :class="v.status==='completed'?'bg-green-100 text-green-700':'bg-amber-100 text-amber-700'">
+                                    <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border"
+                                        :class="v.status==='completed'?'bg-emerald-50 text-emerald-700 border-emerald-200':'bg-amber-50 text-amber-700 border-amber-200'">
                                         {{ v.status === 'completed' ? '✓ Đã thăm' : '⏳ KH' }}
                                     </span>
                                 </td>
@@ -327,33 +327,33 @@
 
             <!-- ══ NEXT MONTH ══ -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="px-5 py-3.5 bg-amber-700 flex items-center justify-between">
+                <div class="px-5 py-3.5 bg-slate-900 flex items-center justify-between">
                     <div>
-                        <h3 class="text-[15px] font-black text-white">G. CHƯƠNG TRÌNH THÁNG TIẾP THEO</h3>
-                        <p class="text-[11px] text-amber-200 mt-0.5">{{ next_month_label }}</p>
+                        <h3 class="text-[15px] font-black text-white flex items-center gap-2"><span class="text-slate-400">G.</span> CHƯƠNG TRÌNH THÁNG TIẾP THEO</h3>
+                        <p class="text-[11px] text-slate-300 mt-0.5">{{ next_month_label }}</p>
                     </div>
-                    <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full">{{ next_month_meetings.length }} buổi</span>
+                    <span class="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full">{{ next_month_meetings.length }} buổi</span>
                 </div>
                 <div v-if="next_month_meetings.length > 0" class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-100">
-                        <thead class="bg-amber-50">
+                        <thead class="bg-slate-50">
                             <tr>
-                                <th class="px-4 py-3 text-left text-[13px] font-bold text-amber-900">Ngày</th>
-                                <th class="px-4 py-3 text-left text-[13px] font-bold text-amber-900 hidden sm:table-cell">Loại</th>
-                                <th class="px-4 py-3 text-left text-[13px] font-bold text-amber-900">Chủ đề</th>
-                                <th class="px-4 py-3 text-left text-[13px] font-bold text-amber-900 hidden md:table-cell">Kinh thánh</th>
-                                <th class="px-4 py-3 text-left text-[13px] font-bold text-amber-900 hidden md:table-cell">Câu gốc</th>
-                                <th class="px-4 py-3 text-left text-[13px] font-bold text-amber-900">Diễn giả</th>
+                                <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800">Ngày</th>
+                                <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800 hidden sm:table-cell">Loại</th>
+                                <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800">Chủ đề</th>
+                                <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800 hidden md:table-cell">Kinh thánh</th>
+                                <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800 hidden md:table-cell">Câu gốc</th>
+                                <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800">Diễn giả</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            <tr v-for="m in next_month_meetings" :key="m.id" class="hover:bg-amber-50">
+                            <tr v-for="m in next_month_meetings" :key="m.id" class="hover:bg-slate-50/80 transition-colors">
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     <p class="text-[15px] font-black text-gray-900">{{ m.date }}</p>
                                     <p class="text-[11px] text-gray-500 capitalize mt-0.5">{{ m.day }}</p>
                                 </td>
                                 <td class="px-4 py-3 hidden sm:table-cell">
-                                    <span class="text-[11px] font-bold px-2.5 py-1 rounded-full" :class="m.is_dept?'bg-indigo-100 text-indigo-700':'bg-blue-100 text-blue-700'">
+                                    <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-200" :class="m.is_dept?'bg-indigo-50 text-indigo-700':'bg-blue-50 text-blue-700'">
                                         {{ m.is_dept ? 'Ban Ngành' : 'Hội Thánh' }}
                                     </span>
                                 </td>
