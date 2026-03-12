@@ -71,9 +71,7 @@
                                 <th class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800">Chủ đề</th>
                                 <th class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800 hidden lg:table-cell">Kinh thánh</th>
                                 <th class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800 hidden xl:table-cell">Câu gốc</th>
-                                <th class="px-5 py-3.5 text-center text-[13px] font-bold text-slate-800">HD</th>
                                 <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800">Tiền Dâng</th>
-                                <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800 hidden sm:table-cell">Chi</th>
                                 <th class="px-5 py-3.5 w-8" v-if="canManage"></th>
                             </tr>
                         </thead>
@@ -92,13 +90,8 @@
                                 <td class="px-5 py-4 text-[13px] sm:text-[15px] font-medium text-gray-800 max-w-[200px] truncate">{{ m.topic || '—' }}</td>
                                 <td class="px-5 py-4 text-[13px] sm:text-sm text-gray-600 hidden lg:table-cell">{{ m.scripture || '—' }}</td>
                                 <td class="px-5 py-4 text-[13px] sm:text-sm text-gray-500 italic hidden xl:table-cell max-w-[150px] truncate">{{ m.memory_verse || '—' }}</td>
-                                <td class="px-5 py-4 text-center text-[15px] font-black text-amber-700">{{ m.attendance > 0 ? m.attendance : '—' }}</td>
                                 <td class="px-5 py-4 text-right">
                                     <span v-if="m.session_income > 0" class="text-[15px] font-bold text-emerald-700">{{ formatCurrency(m.session_income) }}</span>
-                                    <span v-else class="text-gray-300 text-[15px]">—</span>
-                                </td>
-                                <td class="px-5 py-4 text-right hidden sm:table-cell">
-                                    <span v-if="m.session_expense > 0" class="text-sm font-medium text-rose-700">{{ formatCurrency(m.session_expense) }}</span>
                                     <span v-else class="text-gray-300 text-[15px]">—</span>
                                 </td>
                                 <td class="px-5 py-4 text-right" v-if="canManage">
@@ -108,7 +101,7 @@
 
                             <!-- Empty state -->
                             <tr v-if="meetings.length === 0">
-                                <td :colspan="canManage ? 8 : 7" class="px-5 py-12 text-center">
+                                <td :colspan="canManage ? 6 : 5" class="px-5 py-12 text-center">
                                     <div class="w-14 h-14 mx-auto mb-4 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100">
                                         <svg class="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                     </div>
@@ -122,9 +115,7 @@
                                 <td class="px-5 py-3.5 text-sm font-black text-white" colspan="2">TỔNG KẾT THÁNG</td>
                                 <td class="px-5 py-3.5 hidden lg:table-cell"></td>
                                 <td class="px-5 py-3.5 hidden xl:table-cell"></td>
-                                <td class="px-5 py-3.5 text-center text-sm text-green-300 font-bold">{{ meetings.length }} buổi</td>
                                 <td class="px-5 py-3.5 text-right text-[15px] font-black text-emerald-300">{{ formatCurrency(summary.month_income) }}</td>
-                                <td class="px-5 py-3.5 text-right text-[15px] font-black text-rose-300 hidden sm:table-cell">{{ formatCurrency(summary.month_expense) }}</td>
                                 <td class="px-5 py-3.5" v-if="canManage"></td>
                             </tr>
                         </tbody>
@@ -187,6 +178,7 @@
                                     <option v-if="row.type === 'thu'" value="Tiền hộp tuần">Tiền hộp tuần</option>
                                     <option v-if="row.type === 'thu'" value="Tiền dâng lạc quyên">Tiền dâng lạc quyên</option>
                                     <option v-if="row.type === 'thu'" value="Tiền phần mười (1/10)">Tiền phần mười (1/10)</option>
+                                    <option v-if="row.type === 'thu'" value="Tồn đầu tháng">Tồn đầu tháng</option>
                                     <option v-if="row.type === 'chi'" value="Chi hoạt động">Chi hoạt động</option>
                                     <option v-if="row.type === 'chi'" value="Thăm viếng">Thăm viếng</option>
                                     <option v-if="row.type === 'chi'" value="Chi sinh hoạt">Chi sinh hoạt</option>

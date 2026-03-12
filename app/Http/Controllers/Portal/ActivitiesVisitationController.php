@@ -178,6 +178,7 @@ class ActivitiesVisitationController extends Controller
                         'latitude' => $m->latitude, 'longitude' => $m->longitude,
                     ]);
                 }
+            }
             $suggestions = $suggestions->sortBy(fn($s) => $s['priority'] === 'high' ? 0 : 1)->values();
         }
 

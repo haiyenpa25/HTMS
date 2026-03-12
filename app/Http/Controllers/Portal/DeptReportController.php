@@ -124,6 +124,9 @@ class DeptReportController extends Controller
         $prevDeptRows   = $prevDept->map(fn($m)   => $this->mapMeetingRow($m, $deptId))->toArray();
         $prevAvgChurch  = count($prevChurchRows) > 0 ? round(array_sum(array_column($prevChurchRows, 'attendance')) / count($prevChurchRows), 1) : 0;
         $prevAvgDept    = count($prevDeptRows)   > 0 ? round(array_sum(array_column($prevDeptRows,   'attendance')) / count($prevDeptRows),   1) : 0;
+        
+        $prevChurchWeekly = $this->weeklyFromRows($prevChurchRows);
+        $prevDeptWeekly   = $this->weeklyFromRows($prevDeptRows);
 
         $calcChange = fn($c, $p) => $p > 0 ? round((($c - $p) / $p) * 100, 1) : ($c > 0 ? 100.0 : 0.0);
 
@@ -193,7 +196,7 @@ class DeptReportController extends Controller
         $visitPct       = $visitPlanned > 0 ? round($visitCompleted / $visitPlanned * 100) : 0;
 
         // ── Next month schedule ───────────────────────────────────
-        $nextMonthMeetings = Meeting::where(fn($q) => $q->where('department_id', $deptId)->orWhereNull('department_id'))
+        $nextMonthMeetings = Meeting::where('department_id', $deptId)->where('type', 'department')
             ->whereBetween('date', [$nextStart->toDateString(), $nextEnd->toDateString()])
             ->orderBy('date')->with('speaker')->get()
             ->map(fn($m) => [
@@ -231,6 +234,8 @@ class DeptReportController extends Controller
             // Charts: weekly attendance data
             'church_weekly'        => $churchWeekly,   // [{week, attendance, sessions}, ...]
             'dept_weekly'          => $deptWeekly,
+            'prev_church_weekly'   => $prevChurchWeekly,
+            'prev_dept_weekly'     => $prevDeptWeekly,
             'combined_weekly'      => $combinedWeekly, // [{week, church, dept}, ...]
 
             // Finance

@@ -159,7 +159,12 @@
                     </div>
                     <!-- Chart -->
                     <div class="p-5">
-                        <p class="text-[13px] font-bold text-gray-700 mb-3">📈 Biểu Đồ Hiện Diện Theo Tuần</p>
+                        <div class="flex items-center justify-between mb-3">
+                            <p class="text-[13px] font-bold text-gray-700">📈 Biểu Đồ Hiện Diện Theo Tuần</p>
+                            <label class="flex items-center gap-1.5 cursor-pointer text-xs font-medium text-gray-500 hover:text-gray-700">
+                                <input type="checkbox" v-model="compareChurch" class="rounded text-amber-600 border-gray-300 focus:ring-amber-500 w-3.5 h-3.5 transition-colors"> So sánh tháng trước
+                            </label>
+                        </div>
                         <div v-if="church_meetings.length > 0">
                             <apexchart type="area" height="240" :options="churchAttChartOpts" :series="churchAttSeries" />
                         </div>
@@ -261,7 +266,12 @@
                     </div>
                     <!-- Chart -->
                     <div class="p-5">
-                        <p class="text-[13px] font-bold text-gray-700 mb-3">📈 Biểu Đồ Hiện Diện Theo Tuần</p>
+                        <div class="flex items-center justify-between mb-3">
+                            <p class="text-[13px] font-bold text-gray-700">📈 Biểu Đồ Hiện Diện Theo Tuần</p>
+                            <label class="flex items-center gap-1.5 cursor-pointer text-xs font-medium text-gray-500 hover:text-gray-700">
+                                <input type="checkbox" v-model="compareDept" class="rounded text-indigo-600 border-gray-300 focus:ring-indigo-500 w-3.5 h-3.5 transition-colors"> So sánh tháng trước
+                            </label>
+                        </div>
                         <div v-if="dept_meetings.length > 0">
                             <apexchart type="area" height="240" :options="deptAttChartOpts" :series="deptAttSeries" />
                         </div>
@@ -298,9 +308,7 @@
                                 <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800">Chủ đề</th>
                                 <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800 hidden lg:table-cell">Kinh thánh</th>
                                 <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800 hidden xl:table-cell">Câu gốc</th>
-                                <th class="px-4 py-3 text-center text-[13px] font-bold text-slate-800">HD</th>
                                 <th class="px-4 py-3 text-right text-[13px] font-bold text-slate-800">Tiền Dâng</th>
-                                <th class="px-4 py-3 text-right text-[13px] font-bold text-slate-800 hidden sm:table-cell">Chi</th>
                                 <th class="px-4 py-3 text-center text-[13px] font-bold text-slate-800 hidden sm:table-cell">Tuần</th>
                             </tr>
                         </thead>
@@ -324,9 +332,7 @@
                                     <td class="px-4 py-3 text-[13px] font-medium text-gray-800 max-w-[160px] truncate">{{ m.topic || '—' }}</td>
                                     <td class="px-4 py-3 text-[13px] text-gray-600 hidden lg:table-cell">{{ m.scripture || '—' }}</td>
                                     <td class="px-4 py-3 text-[13px] text-gray-500 italic hidden xl:table-cell max-w-[130px] truncate">{{ m.memory_verse || '—' }}</td>
-                                    <td class="px-4 py-3 text-center text-[15px] font-black text-amber-700">{{ m.attendance > 0 ? m.attendance : '—' }}</td>
                                     <td class="px-4 py-3 text-right text-[15px] font-bold text-emerald-700">{{ m.income > 0 ? fmt(m.income) : '—' }}</td>
-                                    <td class="px-4 py-3 text-right text-[13px] font-medium text-rose-700 hidden sm:table-cell">{{ m.expense > 0 ? fmt(m.expense) : '—' }}</td>
                                     <td class="px-4 py-3 text-center hidden sm:table-cell">
                                         <span class="text-[11px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200">T{{ m.week_no }}</span>
                                     </td>
@@ -344,23 +350,15 @@
                                                 <span class="text-gray-700 italic">{{ m.memory_verse || '—' }}</span>
                                             </div>
                                             <div class="sm:hidden">
-                                                <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Chi</span>
-                                                <span class="text-rose-700 font-bold">{{ m.expense > 0 ? fmt(m.expense) : '—' }}</span>
-                                            </div>
-                                            <div class="sm:hidden">
                                                 <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Biên lai thu</span>
                                                 <span class="text-gray-700">{{ m.income_receipt_no || '—' }}</span>
-                                            </div>
-                                            <div class="sm:col-span-2 md:col-span-1">
-                                                <span class="font-bold text-gray-500 block mb-1 text-[11px] uppercase tracking-wider">Lý do chi</span>
-                                                <span class="text-gray-700">{{ m.expense_reason || '—' }}</span>
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
                             </template>
                             <tr v-if="dept_meetings.length === 0">
-                                <td colspan="8" class="px-4 py-8 text-center text-[13px] text-gray-400">Chưa có buổi nhóm Ban Ngành nào trong tháng</td>
+                                <td colspan="6" class="px-4 py-8 text-center text-[13px] text-gray-400">Chưa có buổi nhóm Ban Ngành nào trong tháng</td>
                             </tr>
                         </tbody>
                     </table>
@@ -738,6 +736,8 @@ const props = defineProps({
     dept_meetings:   { type: Array, default: () => [] },
     church_weekly:   { type: Array, default: () => [] },
     dept_weekly:     { type: Array, default: () => [] },
+    prev_church_weekly: { type: Array, default: () => [] },
+    prev_dept_weekly:   { type: Array, default: () => [] },
     combined_weekly: { type: Array, default: () => [] },
     weekly_finance:  { type: Array, default: () => [] },
     three_month_chart: { type: Array, default: () => [] },
@@ -811,13 +811,31 @@ const areaOpts = (color, categories) => ({
 });
 
 // Use actual meeting dates for chart categories, churchWeekly for weekly bars
-const churchAttCategories = computed(() => props.church_meetings.map(m => m.date));
-const churchAttChartOpts  = computed(() => areaOpts('#F59E0B', churchAttCategories.value));
-const churchAttSeries     = computed(() => [{ name: 'Hiện Diện HT', data: props.church_meetings.map(m => m.attendance) }]);
+const compareChurch = ref(false);
+const churchAttChartOpts  = computed(() => {
+    let opts = areaOpts('#F59E0B', WEEK_LABELS);
+    opts.colors = compareChurch.value ? ['#F59E0B', '#9CA3AF'] : ['#F59E0B'];
+    opts.legend = { show: compareChurch.value, position: 'top', horizontalAlign: 'right', fontSize: '11px' };
+    return opts;
+});
+const churchAttSeries     = computed(() => {
+    let s = [{ name: 'Tháng này', data: props.church_weekly.map(m => m.attendance) }];
+    if (compareChurch.value) s.push({ name: 'Tháng trước', data: props.prev_church_weekly.map(m => m.attendance) });
+    return s;
+});
 
-const deptAttCategories = computed(() => props.dept_meetings.map(m => m.date));
-const deptAttChartOpts  = computed(() => areaOpts('#6366F1', deptAttCategories.value));
-const deptAttSeries     = computed(() => [{ name: 'Hiện Diện Ban', data: props.dept_meetings.map(m => m.attendance) }]);
+const compareDept = ref(false);
+const deptAttChartOpts  = computed(() => {
+    let opts = areaOpts('#6366F1', WEEK_LABELS);
+    opts.colors = compareDept.value ? ['#6366F1', '#9CA3AF'] : ['#6366F1'];
+    opts.legend = { show: compareDept.value, position: 'top', horizontalAlign: 'right', fontSize: '11px' };
+    return opts;
+});
+const deptAttSeries     = computed(() => {
+    let s = [{ name: 'Tháng này', data: props.dept_weekly.map(m => m.attendance) }];
+    if (compareDept.value) s.push({ name: 'Tháng trước', data: props.prev_dept_weekly.map(m => m.attendance) });
+    return s;
+});
 
 // ── Combined bar chart (weekly) ────────────────────────────────
 const combinedBarOpts = computed(() => ({
