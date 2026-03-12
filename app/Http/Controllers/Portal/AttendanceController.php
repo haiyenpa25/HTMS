@@ -32,7 +32,7 @@ class AttendanceController extends Controller
         // Filters
         $month  = $request->input('month', now()->month);
         $year   = $request->input('year', now()->year);
-        $type   = $request->input('type', '');   // '' = all, or 'church'/'department'/'holiday'
+        $type   = $request->input('type', 'church');   // default to church
         $search = $request->input('search', '');
 
         // Get Meetings relevant to this department

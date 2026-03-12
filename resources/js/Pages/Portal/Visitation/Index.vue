@@ -1,18 +1,21 @@
 <template>
     <PortalLayout :department="department" :available-departments="[department]" :is-global-admin="isGlobalAdmin" :portalType="portalType || 'activities'">
         <template #header>
-            <div class="flex items-center gap-2">
-                <h2 class="font-bold text-xl text-gray-800 leading-tight">Thăm Viếng Nội Bộ Ban: {{ department?.name }}</h2>
-                <!-- Tooltip Helper -->
-                <div class="relative group cursor-help">
-                    <svg class="w-5 h-5 text-gray-400 group-hover:text-amber-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <div class="absolute top-full left-0 sm:left-1/2 sm:-translate-x-1/2 mt-2 w-64 p-3 bg-gray-900 text-white text-[11px] font-medium rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 shadow-xl pointer-events-none">
-                        Nhấn "Lên Kế Hoạch" để lên lịch đi thăm tín hữu. Dùng "Khẩn Cấp" cho các trường hợp đặc biệt không thể báo trước. Ban điều hành sẽ xem "Đề Xuất" do phần mềm gợi ý dựa vào dữ liệu vắng nhóm của tín hữu.
-                        <div class="absolute bottom-full left-4 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-b-gray-900"></div>
+            <div class="flex flex-col gap-1">
+                <div class="flex items-center gap-2">
+                    <h2 class="font-bold text-xl text-gray-800 leading-tight">Thăm Viếng {{ department?.name || 'Hội Thánh' }}</h2>
+                    <!-- Tooltip Helper -->
+                    <div class="relative group cursor-help focus:outline-none" tabindex="0">
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-amber-500 group-focus:text-amber-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="absolute top-full left-0 sm:left-1/2 sm:-translate-x-1/2 mt-2 w-64 p-3 bg-gray-900 text-white text-[11px] font-medium rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus:opacity-100 group-focus:visible transition-all z-20 shadow-xl pointer-events-none">
+                            Nhấn "Lên Kế Hoạch" để lên lịch đi thăm tín hữu. Dùng "Khẩn Cấp" cho các trường hợp đặc biệt không thể báo trước. Ban điều hành sẽ xem "Đề Xuất" do phần mềm gợi ý dựa vào dữ liệu vắng nhóm.
+                            <div class="absolute bottom-full left-4 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-b-gray-900"></div>
+                        </div>
                     </div>
                 </div>
+                <p class="text-sm text-gray-500">Quản lý và cập nhật báo cáo các chuyến đi thăm viếng chăm sóc tín hữu.</p>
             </div>
         </template>
 
@@ -40,12 +43,15 @@
                             <option v-for="r in reasons" :key="r" :value="r">{{ r }}</option>
                         </select>
                         <div class="w-px h-6 bg-gray-200 mx-1"></div>
-                        <!-- Period Filters -->
-                        <button @click="setPeriod('1m')" :class="[filtersForm.period === '1m' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50', 'px-3 py-1.5 border rounded-lg text-sm font-medium transition-colors shadow-sm']">1 tháng</button>
-                        <button @click="setPeriod('3m')" :class="[filtersForm.period === '3m' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50', 'px-3 py-1.5 border rounded-lg text-sm font-medium transition-colors shadow-sm']">3 tháng</button>
-                        <button @click="setPeriod('6m')" :class="[filtersForm.period === '6m' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50', 'px-3 py-1.5 border rounded-lg text-sm font-medium transition-colors shadow-sm']">6 tháng</button>
-                        <button @click="setPeriod('1y')" :class="[filtersForm.period === '1y' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50', 'px-3 py-1.5 border rounded-lg text-sm font-medium transition-colors shadow-sm']">1 năm</button>
-                        <button v-if="filtersForm.period || filtersForm.reason || filtersForm.filter_dept || search" @click="clearFilters" class="px-3 py-1.5 text-gray-400 hover:text-red-600 text-sm font-medium transition-colors">Xóa lọc</button>
+                        <!-- Period Filters dropdown -->
+                        <select v-model="filtersForm.period" @change="updateFilters" class="rounded-lg border-gray-200 text-sm font-medium py-1.5 pl-3 pr-8 text-gray-700 bg-white hover:bg-gray-50 focus:ring-amber-500 focus:border-amber-500 transition-colors shadow-sm">
+                            <option value="">Tất cả thời gian</option>
+                            <option value="1m">1 tháng gần đây</option>
+                            <option value="3m">3 tháng gần đây</option>
+                            <option value="6m">6 tháng gần đây</option>
+                            <option value="1y">1 năm gần đây</option>
+                        </select>
+                        <button v-if="filtersForm.period || filtersForm.reason || filtersForm.filter_dept || search" @change="updateFilters" @click="clearFilters" class="px-3 py-1.5 text-gray-400 hover:text-red-600 text-sm font-medium transition-colors">Xóa lọc</button>
                     </div>
                 </template>
 
@@ -411,11 +417,19 @@
                     </div>
 
                     <div class="flex-1">
-                        <label class="block text-[15px] font-bold text-gray-700 mb-1.5">Lý do thăm viếng <span class="text-red-500">*</span></label>
-                        <select v-model="form.reason" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-[15px] py-2 capitalize">
-                            <option value="">-- Chọn lý do --</option>
-                            <option v-for="r in reasons" :key="r" :value="r">{{ r }}</option>
-                        </select>
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label class="block text-[15px] font-bold text-gray-700">Lý do thăm viếng <span class="text-red-500">*</span></label>
+                            <button type="button" @click="addReason" class="text-[13px] text-amber-600 font-bold hover:text-amber-800 transition-colors bg-amber-50 px-2 py-0.5 rounded shadow-sm border border-amber-100">+ Thêm lý do</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <select v-model="form.reason" class="flex-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-[15px] py-2 capitalize">
+                                <option value="">-- Chọn lý do --</option>
+                                <option v-for="r in reasons" :key="r" :value="r">{{ r }}</option>
+                            </select>
+                            <button type="button" v-if="form.reason && canDeleteReason(form.reason)" @click="deleteReason(form.reason)" title="Xóa lý do này khỏi bộ nhớ" class="p-2 text-red-500 hover:bg-red-50 rounded-lg shrink-0 border border-transparent hover:border-red-200 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
                         <p v-if="form.errors.reason" class="mt-1.5 text-sm text-red-500">{{ form.errors.reason }}</p>
                     </div>
                 </div>
@@ -530,6 +544,7 @@ const props = defineProps({
     canManage: Boolean,
     visitationTypes: Object,
     reasons: Array,
+    dbReasons: Array,
     department: Object,
     isGlobalAdmin: Boolean,
     routePrefix: String,
@@ -599,10 +614,46 @@ const setPeriod = (periodValue) => {
 
 const clearFilters = () => {
     search.value = '';
-    filtersForm.value.period = '';
-    filtersForm.value.reason = '';
-    filtersForm.value.filter_dept = '';
+    filtersForm.value = {
+        period: '',
+        reason: '',
+        filter_dept: '',
+    };
+    suggDept.value = '';
     updateFilters();
+};
+
+const addReason = () => {
+    const reasonName = prompt('Nhập tên lý do thăm viếng mới:');
+    if (reasonName && reasonName.trim()) {
+        router.post(route('visitation-reasons.store'), { name: reasonName.trim() }, {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                form.reason = reasonName.trim().toLowerCase();
+            }
+        });
+    }
+};
+
+const canDeleteReason = (name) => {
+    if (!props.dbReasons) return false;
+    const dbR = props.dbReasons.find(r => r.name === name);
+    return dbR && (dbR.department_id === props.department?.id || props.isGlobalAdmin);
+};
+
+const deleteReason = (name) => {
+    const dbR = props.dbReasons.find(r => r.name === name);
+    if (!dbR) return;
+    if (confirm(`Bạn có chắc muốn xóa lý do: ${name}?`)) {
+        router.delete(route('visitation-reasons.destroy', dbR.id), {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                form.reason = '';
+            }
+        });
+    }
 };
 
 // Visitors selection logic

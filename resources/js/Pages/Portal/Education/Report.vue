@@ -327,36 +327,38 @@
                             <h2 class="font-black text-base">Tài Chính Tháng</h2>
                             <p class="text-green-200 text-xs mt-0.5">Thu chi theo từng lớp học</p>
                         </div>
-                        <table class="w-full text-sm">
-                            <thead class="bg-slate-50 border-b border-gray-100">
-                                <tr>
-                                    <th class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800">Lớp</th>
-                                    <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800">Tổng Thu</th>
-                                    <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800">Tổng Chi</th>
-                                    <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800">Tồn</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100">
-                                <tr v-for="cls in classesWithFinance" :key="cls.id" class="hover:bg-gray-50">
-                                    <td class="px-5 py-3 font-bold text-gray-900">{{ cls.name }}</td>
-                                    <td class="px-5 py-3 text-right text-green-700 font-bold">{{ formatMoney(cls.total_income) }}</td>
-                                    <td class="px-5 py-3 text-right text-red-500 font-bold">{{ formatMoney(cls.total_expense) }}</td>
-                                    <td class="px-5 py-3 text-right font-black" :class="(cls.total_income - cls.total_expense) >= 0 ? 'text-indigo-700' : 'text-red-700'">
-                                        {{ formatMoney(cls.total_income - cls.total_expense) }}
-                                    </td>
-                                </tr>
-                            </tbody>
-                            <tfoot class="border-t-2 border-green-200 bg-green-50 font-black">
-                                <tr>
-                                    <td class="px-5 py-3 text-green-900">Tổng cộng</td>
-                                    <td class="px-5 py-3 text-right text-green-800">{{ formatMoney(totalIncome) }}</td>
-                                    <td class="px-5 py-3 text-right text-red-700">{{ formatMoney(totalExpense) }}</td>
-                                    <td class="px-5 py-3 text-right" :class="(totalIncome - totalExpense) >= 0 ? 'text-indigo-800' : 'text-red-700'">
-                                        {{ formatMoney(totalIncome - totalExpense) }}
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-50 border-b border-gray-100">
+                                    <tr>
+                                        <th class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800">Lớp</th>
+                                        <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800">Tổng Thu</th>
+                                        <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800">Tổng Chi</th>
+                                        <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800">Tồn</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr v-for="cls in classesWithFinance" :key="cls.id" class="hover:bg-gray-50">
+                                        <td class="px-5 py-3 font-bold text-gray-900">{{ cls.name }}</td>
+                                        <td class="px-5 py-3 text-right text-green-700 font-bold">{{ formatMoney(cls.total_income) }}</td>
+                                        <td class="px-5 py-3 text-right text-red-500 font-bold">{{ formatMoney(cls.total_expense) }}</td>
+                                        <td class="px-5 py-3 text-right font-black" :class="(cls.total_income - cls.total_expense) >= 0 ? 'text-indigo-700' : 'text-red-700'">
+                                            {{ formatMoney(cls.total_income - cls.total_expense) }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot class="border-t-2 border-green-200 bg-green-50 font-black">
+                                    <tr>
+                                        <td class="px-5 py-3 text-green-900">Tổng cộng</td>
+                                        <td class="px-5 py-3 text-right text-green-800">{{ formatMoney(totalIncome) }}</td>
+                                        <td class="px-5 py-3 text-right text-red-700">{{ formatMoney(totalExpense) }}</td>
+                                        <td class="px-5 py-3 text-right" :class="(totalIncome - totalExpense) >= 0 ? 'text-indigo-800' : 'text-red-700'">
+                                            {{ formatMoney(totalIncome - totalExpense) }}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div>
                     <!-- Finance bar chart (1/3) -->
                     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">

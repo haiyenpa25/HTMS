@@ -178,8 +178,16 @@ class ActivitiesVisitationController extends Controller
                         'latitude' => $m->latitude, 'longitude' => $m->longitude,
                     ]);
                 }
-            }
             $suggestions = $suggestions->sortBy(fn($s) => $s['priority'] === 'high' ? 0 : 1)->values();
+        }
+
+        $dbReasons = \App\Models\VisitationReason::whereNull('department_id')
+            ->when($departmentId, fn($q) => $q->orWhere('department_id', $departmentId))
+            ->get();
+            
+        $reasons = $dbReasons->pluck('name')->toArray();
+        if (empty($reasons)) {
+            $reasons = ['ốm đau', 'mới tin Chúa', 'khích lệ', 'khác'];
         }
 
         return Inertia::render('Portal/Visitation/Index', [
@@ -189,7 +197,8 @@ class ActivitiesVisitationController extends Controller
             'filters' => $request->only(['reason', 'period', 'search', 'start_date', 'end_date']),
             'canManage' => Gate::allows('manage_visitations') || $user->hasPermissionTo('create_visitation_requests') || $user->hasRole(['Department_Lead', 'Team_Lead']),
             'visitationTypes' => ['department' => 'Ban Ngành'],
-            'reasons' => ['ốm đau', 'mới tin Chúa', 'khích lệ', 'khác'],
+            'reasons' => $reasons,
+            'dbReasons' => $dbReasons,
             'department' => $department,
             'isGlobalAdmin' => $user->hasRole(['Pastor', 'Super_Admin']),
             'routePrefix' => 'portal.visitation',

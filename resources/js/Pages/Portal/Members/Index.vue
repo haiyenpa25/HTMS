@@ -7,11 +7,11 @@
                     <div class="flex items-center gap-2">
                         <h2 class="text-2xl font-black text-gray-900 tracking-tight truncate">Thành Viên Ban Ngành</h2>
                         <!-- Tooltip Helper -->
-                        <div class="relative group cursor-help mt-1">
-                            <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="relative group cursor-help mt-1 focus:outline-none" tabindex="0">
+                            <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-500 group-focus:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 text-white text-xs font-medium rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 shadow-xl pointer-events-none">
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 text-white text-xs font-medium rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus:opacity-100 group-focus:visible transition-all z-20 shadow-xl pointer-events-none">
                                 Tab "Ban Điều Hành" hiển thị cơ cấu nhân sự nòng cốt. Tab "Toàn Ban" dùng để quản lý toàn bộ Tín Hữu, danh sách Tổ, phân quyền và tạo Tài Khoản truy cập.
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
                             </div>
@@ -52,7 +52,7 @@
             </div>
 
             <!-- Tabs -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex overflow-hidden mb-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex overflow-hidden mb-6 hidden sm:flex">
                 <button 
                     @click="activeTab = 'board'"
                     class="flex-1 py-4 text-center font-bold text-base transition-colors relative"
@@ -69,6 +69,14 @@
                     Toàn Ban
                     <div v-if="activeTab === 'all'" class="absolute bottom-0 left-0 w-full h-[3px] bg-blue-600"></div>
                 </button>
+            </div>
+            
+            <!-- Mobile Tab Dropdown -->
+            <div class="sm:hidden mb-4">
+                <select v-model="activeTab" class="w-full border-gray-200 rounded-xl font-bold focus:ring-blue-500 focus:border-blue-500 bg-white py-3 pl-4 pr-8 text-blue-900 shadow-sm">
+                    <option value="board">Nhân sự Ban Điều Hành</option>
+                    <option value="all">Danh sách Toàn Ban</option>
+                </select>
             </div>
 
             <!-- Board Tab -->
@@ -216,11 +224,11 @@
                                         <span v-if="member.team_name" class="inline-flex items-center px-2 py-0.5 rounded text-[13px] font-bold bg-gray-100 text-gray-600">
                                             {{ member.team_name }}
                                         </span>
-                                        <span v-if="member.is_active" class="inline-flex items-center px-2 py-0.5 rounded text-[13px] font-bold bg-emerald-100 text-emerald-700">
-                                            Đang SH
+                                        <span v-if="member.is_active" class="inline-flex items-center px-2 py-0.5 rounded text-[13px] font-bold bg-emerald-100 text-emerald-700 whitespace-nowrap">
+                                            Đang sinh hoạt
                                         </span>
-                                        <span v-else class="inline-flex items-center px-2 py-0.5 rounded text-[13px] font-bold bg-gray-100 text-gray-500">
-                                            Không SH
+                                        <span v-else class="inline-flex items-center px-2 py-0.5 rounded text-[13px] font-bold bg-gray-100 text-gray-500 whitespace-nowrap">
+                                            Không sinh hoạt
                                         </span>
                                     </div>
                                 </td>
@@ -294,21 +302,27 @@
                                 <span v-if="member.team_name" class="inline-flex items-center px-2 py-0.5 rounded text-[11px] sm:text-xs font-bold bg-gray-100 text-gray-600">
                                     {{ member.team_name }}
                                 </span>
-                                <span v-if="member.is_active" class="inline-flex items-center px-2 py-0.5 rounded text-[11px] sm:text-xs font-bold bg-emerald-100 text-emerald-700">
-                                    Đang SH
+                                <span v-if="member.is_active" class="inline-flex items-center px-2 py-0.5 rounded text-[11px] sm:text-xs font-bold bg-emerald-100 text-emerald-700 whitespace-nowrap">
+                                    Đang sinh hoạt
                                 </span>
-                                <span v-else class="inline-flex items-center px-2 py-0.5 rounded text-[11px] sm:text-xs font-bold bg-gray-100 text-gray-500">
-                                    Không SH
+                                <span v-else class="inline-flex items-center px-2 py-0.5 rounded text-[11px] sm:text-xs font-bold bg-gray-100 text-gray-500 whitespace-nowrap">
+                                    Không sinh hoạt
                                 </span>
                             </div>
                           </div>
                           
                           <!-- Mobile action button -->
                           <div class="mt-4 pt-4 border-t border-gray-50 flex justify-between items-center gap-2">
-                              <button v-if="!member.user_id" @click.stop="generateAccount(member.id)" class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1.5 rounded hover:bg-emerald-100 flex-1 text-left">Tạo TK</button>
-                              <div class="flex items-center gap-3 w-full justify-end">
-                                  <button @click.stop="deleteMember(member.id)" class="text-sm font-bold text-red-500 hover:text-red-700 block">Rời Ban</button>
-                                  <button @click.stop="openMemberSlideOver(member)" class="text-sm font-bold text-blue-600 hover:text-blue-800">Cập nhật >></button>
+                              <button v-if="!member.user_id" @click.stop="generateAccount(member.id)" title="Tạo Tài Khoản" class="p-2 rounded-lg text-emerald-600 bg-emerald-50 hover:bg-emerald-100 flex items-center justify-center transition-colors">
+                                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                              </button>
+                              <div class="flex items-center gap-2 w-full justify-end">
+                                  <button @click.stop="deleteMember(member.id)" title="Rời Ban" class="p-2 rounded-lg bg-red-50 text-red-500 hover:text-red-700 hover:bg-red-100 flex items-center justify-center transition-colors">
+                                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                  </button>
+                                  <button @click.stop="openMemberSlideOver(member)" title="Cập nhật" class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:text-blue-800 hover:bg-blue-100 flex items-center justify-center transition-colors">
+                                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                  </button>
                               </div>
                           </div>
                      </div>
@@ -347,18 +361,17 @@
         <SlideOver v-model="isMemberSlideOpen" :title="selectedMember ? selectedMember.full_name : 'Chi tiết'" size="md">
             <template #default>
                 <div v-if="selectedMember" class="p-6 space-y-6">
-                     <div class="flex items-center justify-between mb-4">
-                        <span v-if="selectedMember.is_active" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
-                            🟢 Đang sinh hoạt
-                        </span>
-                        <span v-else class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500">
-                            ⚫ Không sinh hoạt
-                        </span>
-
-                        <button @click="toggleActiveStatus" class="px-3 py-1.5 text-xs sm:text-sm font-bold rounded-lg border transition-colors shadow-sm"
-                            :class="selectedMember.is_active ? 'bg-white border-red-200 text-red-600 hover:bg-red-50' : 'bg-white border-emerald-200 text-emerald-600 hover:bg-emerald-50'">
-                            {{ selectedMember.is_active ? 'Tạm dừng sinh hoạt' : 'Khôi phục sinh hoạt' }}
-                        </button>
+                     <div class="flex items-center justify-between mb-4 bg-gray-50 p-2 rounded-xl border border-gray-100">
+                        <div class="flex items-center gap-2">
+                            <span v-if="selectedMember.is_active" class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200"></span>
+                            <span v-else class="w-3 h-3 rounded-full bg-gray-400 shadow-sm"></span>
+                            <span class="text-sm font-bold text-gray-700">Trạng thái:</span>
+                        </div>
+                        
+                        <select :value="selectedMember.is_active" @change="toggleActiveStatus" class="rounded-lg text-sm font-bold border-gray-200 bg-white py-1.5 pl-3 pr-8 shadow-sm focus:ring-blue-500 focus:border-blue-500 cursor-pointer" :class="selectedMember.is_active ? 'text-emerald-700' : 'text-gray-600'">
+                            <option :value="true">Đang sinh hoạt</option>
+                            <option :value="false">Không sinh hoạt</option>
+                        </select>
                      </div>
                      <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">Số điện thoại</label>

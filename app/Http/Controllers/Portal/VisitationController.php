@@ -111,6 +111,15 @@ class VisitationController extends Controller
         $suggDeptId = $request->input('sugg_dept');
         $suggestions = $this->buildSuggestions($suggDeptId);
 
+        $dbReasons = \App\Models\VisitationReason::whereNull('department_id')
+            ->when($departmentId, fn($q) => $q->orWhere('department_id', $departmentId))
+            ->get();
+            
+        $reasons = $dbReasons->pluck('name')->toArray();
+        if (empty($reasons)) {
+            $reasons = ['ốm đau', 'mới tin Chúa', 'khích lệ', 'khác'];
+        }
+
         return Inertia::render('Portal/Visitation/Index', [
             'visitations' => $visitations,
             'members' => $members,
@@ -118,7 +127,8 @@ class VisitationController extends Controller
             'filters' => $request->only(['reason', 'period', 'search', 'month', 'year', 'filter_dept', 'sugg_dept']),
             'canManage' => $canManage,
             'visitationTypes' => ['church' => 'Hội Thánh', 'department' => 'Ban Ngành'],
-            'reasons' => ['ốm đau', 'mới tin Chúa', 'khích lệ', 'khác'],
+            'reasons' => $reasons,
+            'dbReasons' => $dbReasons,
             'department' => $departmentId ? Department::find($departmentId) : null,
             'isGlobalAdmin' => $user->hasRole(['Pastor', 'Super_Admin', 'Visitation_Staff']),
             'routePrefix' => 'ministry.visitation',
@@ -311,6 +321,35 @@ class VisitationController extends Controller
         $visitation->delete();
 
         return redirect()->back()->with('success', 'Đã xoá thông tin thăm viếng.');
+    }
+
+    public function storeReason(Request $request)
+    {
+        $request->validate(['name' => 'required|string|max:255']);
+        $deptId = session('active_ministry_dept_id') ?? session('active_portal_dept_id');
+        
+        if (auth()->user()->hasRole(['Pastor', 'Super_Admin'])) {
+            $deptId = null;
+        }
+
+        \App\Models\VisitationReason::firstOrCreate([
+            'name' => mb_strtolower(trim($request->name), 'UTF-8'),
+            'department_id' => $deptId
+        ]);
+
+        return back()->with('success', 'Đã thêm lý do thăm viếng mới.');
+    }
+
+    public function destroyReason(\App\Models\VisitationReason $reason)
+    {
+        $deptId = session('active_ministry_dept_id') ?? session('active_portal_dept_id');
+        
+        if ($reason->department_id === $deptId || auth()->user()->hasRole(['Pastor', 'Super_Admin'])) {
+            $reason->delete();
+            return back()->with('success', 'Đã xoá lý do thăm viếng.');
+        }
+
+        abort(403, 'Không có quyền xoá lý do này.');
     }
 }
 

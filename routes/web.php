@@ -24,6 +24,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('api/members', [\App\Http\Controllers\MemberController::class, 'apiIndex'])->name('api.members.index');
     Route::resource('members', \App\Http\Controllers\MemberController::class)->except(['create', 'edit']);
+
+    // Visitation Reasons
+    Route::post('/visitation-reasons', [\App\Http\Controllers\Portal\VisitationController::class, 'storeReason'])->name('visitation-reasons.store');
+    Route::delete('/visitation-reasons/{reason}', [\App\Http\Controllers\Portal\VisitationController::class, 'destroyReason'])->name('visitation-reasons.destroy');
     
     // Search
     Route::get('api/search', [\App\Http\Controllers\SearchController::class, 'search'])->name('search.global');

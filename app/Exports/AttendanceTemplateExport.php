@@ -32,10 +32,14 @@ class AttendanceTemplateExport implements FromArray, WithStyles, WithTitle, With
             ->where('is_active', true)
             ->pluck('member_id');
 
-        $this->members = Member::whereIn('id', $memberIds)
+        $members = Member::whereIn('id', $memberIds)
             ->whereNull('deleted_at')
-            ->orderBy('full_name')
             ->get();
+
+        $this->members = $members->sortBy(function($member) {
+            $parts = explode(' ', trim($member->full_name));
+            return end($parts) . ' ' . $member->full_name;
+        })->values();
 
         // Load existing attendances for this meeting
         $this->existingAttendances = MeetingAttendance::where('meeting_id', $meeting->id)

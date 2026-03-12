@@ -7,13 +7,13 @@
                     <div class="flex items-center gap-2">
                         <h2 class="text-2xl font-black text-gray-900 tracking-tight truncate">Điểm danh Buổi nhóm</h2>
                         <!-- Tooltip Helper -->
-                        <div class="relative group cursor-help mt-1 shrink-0">
+                        <div class="relative group cursor-help mt-1 shrink-0" tabindex="0">
                             <svg class="w-5 h-5 text-gray-400 group-hover:text-emerald-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <div class="absolute top-full left-0 mt-2 w-72 p-3 bg-gray-900 text-white text-[11px] font-medium rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-xl pointer-events-none">
+                            <div class="absolute sm:top-full top-auto bottom-full sm:bottom-auto mb-2 sm:mb-0 left-0 sm:mt-2 w-72 p-3 bg-gray-900 text-white text-[11px] font-medium rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus:opacity-100 group-focus:visible transition-all z-50 shadow-xl pointer-events-none">
                                 Chọn một buổi nhóm để ghi điểm danh thủ công. Hoặc bạn có thể xuất Template Excel của buổi nhóm đó, điền vào và dùng nút "Import Excel" để cập nhật nhanh chóng.
-                                <div class="absolute bottom-full left-4 border-4 border-transparent border-b-gray-900"></div>
+                                <div class="absolute sm:bottom-full sm:top-auto top-full left-4 border-4 border-transparent sm:border-b-gray-900 border-t-gray-900"></div>
                             </div>
                         </div>
                     </div>
@@ -290,7 +290,7 @@ const handleMeetingSuccess = () => {
 const filters = reactive({
     month:  props.filters?.month  || new Date().getMonth() + 1,
     year:   props.filters?.year   || new Date().getFullYear(),
-    type:   props.filters?.type   || '',
+    type:   props.filters?.type !== undefined ? props.filters.type : 'church',
     search: props.filters?.search || '',
 });
 
