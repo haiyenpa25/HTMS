@@ -10,13 +10,13 @@
       <div class="flex items-center gap-3 px-4 py-4 border-b border-gray-100 min-h-[64px] relative">
         <button @click="isSwitcherOpen = true" class="flex items-center gap-3 flex-1 min-w-0 group">
           <div :class="[
-            'shrink-0 flex items-center justify-center rounded-xl font-black text-white text-sm transition-all',
+            'shrink-0 flex items-center justify-center rounded-xl font-bold text-white text-sm transition-all',
             sidebarCollapsed ? 'w-9 h-9' : 'w-10 h-10',
             portalType === 'activities' ? 'bg-blue-600' : portalType === 'ministry' ? 'bg-emerald-600' : 'bg-amber-500']">
             {{ department?.name?.charAt(0) || '?' }}
           </div>
           <div v-if="!sidebarCollapsed" class="min-w-0 flex-1 text-left">
-            <p class="text-xs font-black text-gray-900 truncate leading-tight">{{ department?.name || 'Cổng Ban Ngành' }}</p>
+            <p class="text-[14px] font-bold text-gray-900 truncate leading-tight">{{ department?.name || 'Cổng Ban Ngành' }}</p>
             <p class="text-[10px] font-bold uppercase tracking-wider mt-0.5"
               :class="portalType === 'activities' ? 'text-blue-500' : portalType === 'ministry' ? 'text-emerald-500' : 'text-amber-500'">
               {{ portalType === 'activities' ? 'Cổng Sinh Hoạt' : portalType === 'ministry' ? 'Cổng Mục Vụ' : 'Cổng Chấp Sự' }}
@@ -37,25 +37,25 @@
       </div>
 
       <!-- Nav items -->
-      <nav class="flex-1 overflow-y-auto py-3 px-2.5 space-y-0.5">
-        <p v-if="!sidebarCollapsed" class="px-2 pt-1 pb-2 text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Menu</p>
+      <nav class="flex-1 overflow-y-auto py-3 px-3 space-y-1 hide-scrollbar">
+        <p v-if="!sidebarCollapsed" class="px-2 pt-1 pb-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Menu</p>
         <template v-for="item in visibleNavItems" :key="item.key">
           <Link v-if="!item.disabled" :href="item.href"
-            :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-black transition-all',
+            :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all',
               item.active ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
               sidebarCollapsed ? 'justify-center' : '']"
             :title="sidebarCollapsed ? item.label : ''">
-            <svg class="w-4 h-4 shrink-0" :class="item.active ? 'text-blue-600' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 shrink-0" :class="item.active ? 'text-blue-600' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon"/>
             </svg>
             <span v-if="!sidebarCollapsed">{{ item.label }}</span>
             <span v-if="item.active && !sidebarCollapsed" class="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0"></span>
           </Link>
           <span v-else
-            :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-black text-gray-300 cursor-not-allowed opacity-60',
+            :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-300 cursor-not-allowed opacity-60',
               sidebarCollapsed ? 'justify-center' : '']"
             title="Bạn không có quyền truy cập">
-            <svg class="w-4 h-4 shrink-0 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 shrink-0 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon"/>
             </svg>
             <span v-if="!sidebarCollapsed">{{ item.label }}</span>
@@ -64,23 +64,23 @@
       </nav>
 
       <!-- Footer -->
-      <div class="border-t border-gray-100 p-2.5 space-y-1">
+      <div class="border-t border-gray-100 p-3 space-y-1">
         <Link v-if="isGlobalAdmin" :href="route('dashboard')"
-          :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-indigo-50 hover:text-indigo-700 transition-all', sidebarCollapsed ? 'justify-center' : '']"
+          :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:bg-indigo-50 hover:text-indigo-700 transition-all', sidebarCollapsed ? 'justify-center' : '']"
           :title="sidebarCollapsed ? 'Quản Trị Hệ Thống' : ''">
-          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
           <span v-if="!sidebarCollapsed">Quản Trị Hệ Thống</span>
         </Link>
         <Link :href="route('member.portal.index')"
-          :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-indigo-50 hover:text-indigo-700 transition-all w-full', sidebarCollapsed ? 'justify-center' : '']"
+          :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:bg-indigo-50 hover:text-indigo-700 transition-all w-full', sidebarCollapsed ? 'justify-center' : '']"
           :title="sidebarCollapsed ? 'Hồ Sơ Của Tôi' : ''">
-          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
           <span v-if="!sidebarCollapsed">Hồ Sơ Của Tôi</span>
         </Link>
         <Link :href="route('logout')" method="post" as="button"
-          :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all w-full', sidebarCollapsed ? 'justify-center' : '']"
+          :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all w-full', sidebarCollapsed ? 'justify-center' : '']"
           :title="sidebarCollapsed ? 'Đăng Xuất' : ''">
-          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-6 0v-1m6-10V7a3 3 0 00-6 0v1"/></svg>
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-6 0v-1m6-10V7a3 3 0 00-6 0v1"/></svg>
           <span v-if="!sidebarCollapsed">Đăng Xuất</span>
         </Link>
       </div>
@@ -92,13 +92,13 @@
       <!-- Mobile top bar -->
       <header class="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 shadow-sm z-20 shrink-0">
         <button @click="isSwitcherOpen = true" class="flex items-center gap-2 min-w-0">
-          <div :class="['w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-black text-white text-sm',
+          <div :class="['w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-bold text-white text-sm',
             portalType === 'activities' ? 'bg-blue-600' : portalType === 'ministry' ? 'bg-emerald-600' : 'bg-amber-500']">
             {{ department?.name?.charAt(0) || '?' }}
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-black text-gray-900 truncate leading-tight">{{ department?.name || 'Ban Ngành' }}</p>
-            <p class="text-[9px] font-bold uppercase tracking-wider"
+            <p class="text-[14px] font-bold text-gray-900 truncate leading-tight">{{ department?.name || 'Ban Ngành' }}</p>
+            <p class="text-[10px] font-bold uppercase tracking-wider"
               :class="portalType === 'activities' ? 'text-blue-500' : portalType === 'ministry' ? 'text-emerald-500' : 'text-amber-500'">
               {{ portalType === 'activities' ? 'Sinh Hoạt' : portalType === 'ministry' ? 'Mục Vụ' : 'Chấp Sự' }}
             </p>
