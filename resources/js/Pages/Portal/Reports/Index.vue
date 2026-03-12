@@ -309,6 +309,7 @@
                                 <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800 hidden lg:table-cell">Kinh thánh</th>
                                 <th class="px-4 py-3 text-left text-[13px] font-bold text-slate-800 hidden xl:table-cell">Câu gốc</th>
                                 <th class="px-4 py-3 text-right text-[13px] font-bold text-slate-800">Tiền Dâng</th>
+                                <th class="px-4 py-3 text-right text-[13px] font-bold text-slate-800 hidden sm:table-cell">Chi</th>
                                 <th class="px-4 py-3 text-center text-[13px] font-bold text-slate-800 hidden sm:table-cell">Tuần</th>
                             </tr>
                         </thead>
@@ -333,6 +334,7 @@
                                     <td class="px-4 py-3 text-[13px] text-gray-600 hidden lg:table-cell">{{ m.scripture || '—' }}</td>
                                     <td class="px-4 py-3 text-[13px] text-gray-500 italic hidden xl:table-cell max-w-[130px] truncate">{{ m.memory_verse || '—' }}</td>
                                     <td class="px-4 py-3 text-right text-[15px] font-bold text-emerald-700">{{ m.income > 0 ? fmt(m.income) : '—' }}</td>
+                                    <td class="px-4 py-3 text-right text-[15px] font-bold text-rose-700 hidden sm:table-cell">{{ m.expense > 0 ? fmt(m.expense) : '—' }}</td>
                                     <td class="px-4 py-3 text-center hidden sm:table-cell">
                                         <span class="text-[11px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200">T{{ m.week_no }}</span>
                                     </td>
@@ -358,7 +360,7 @@
                                 </tr>
                             </template>
                             <tr v-if="dept_meetings.length === 0">
-                                <td colspan="6" class="px-4 py-8 text-center text-[13px] text-gray-400">Chưa có buổi nhóm Ban Ngành nào trong tháng</td>
+                                <td colspan="7" class="px-4 py-8 text-center text-[13px] text-gray-400">Chưa có buổi nhóm Ban Ngành nào trong tháng</td>
                             </tr>
                         </tbody>
                     </table>
@@ -908,3 +910,63 @@ const switchDept = (id) => {
 // ── Print ─────────────────────────────────────────────────────────────────
 const printReport = () => window.print();
 </script>
+
+<style>
+@media print {
+    body { 
+        background-color: white !important; 
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact; 
+    }
+    
+    .no-print { display: none !important; }
+    .print-only { display: block !important; }
+    
+    .print-letterhead {
+        text-align: center;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid #111827;
+        padding-bottom: 1rem;
+    }
+    .print-letterhead h1 { font-size: 1.5rem; font-weight: 900; margin: 0; color: #111827 !important; }
+    .print-letterhead p { font-size: 1.1rem; font-weight: 700; margin: 0.25rem 0 0; color: #374151 !important; }
+    
+    /* Clean up UI for print */
+    .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl { box-shadow: none !important; }
+    .rounded-xl, .rounded-2xl { border-radius: 0 !important; }
+    .border { border-color: #e5e7eb !important; }
+    .bg-white { background-color: transparent !important; }
+    
+    /* Simplify dark headers */
+    .bg-slate-900, .bg-blue-900 { 
+        background-color: #f3f4f6 !important; 
+    }
+    .bg-slate-900 * { color: #111827 !important; }
+    
+    /* Table styles */
+    table { width: 100% !important; border-collapse: collapse !important; border: 1px solid #d1d5db !important; }
+    th, td { border: 1px solid #d1d5db !important; padding: 0.5rem !important; }
+    .bg-slate-50 { background-color: #f9fafb !important; }
+    
+    /* Ensure tables don't get truncated */
+    .overflow-x-auto, .overflow-hidden { overflow: visible !important; }
+    
+    /* Avoid breaking tables across pages if possible */
+    table { page-break-inside: auto; }
+    tr { page-break-inside: avoid; page-break-after: auto; }
+    thead { display: table-header-group; }
+    
+    /* Hide charts on print as they lose context and rendering in standard print is bad */
+    .apexcharts-canvas { display: none !important; }
+    
+    /* KPI grid adjust */
+    .grid { display: grid !important; }
+    
+    /* General margins */
+    @page { margin: 15mm; }
+    
+    /* Ensure text colors are readable */
+    .text-white { color: #000 !important; }
+    .text-slate-300, .text-slate-400 { color: #4b5563 !important; }
+}
+</style>

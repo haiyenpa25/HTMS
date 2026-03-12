@@ -72,6 +72,7 @@
                                 <th class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800 hidden lg:table-cell">Kinh thánh</th>
                                 <th class="px-5 py-3.5 text-left text-[13px] font-bold text-slate-800 hidden xl:table-cell">Câu gốc</th>
                                 <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800">Tiền Dâng</th>
+                                <th class="px-5 py-3.5 text-right text-[13px] font-bold text-slate-800 hidden sm:table-cell">Chi</th>
                                 <th class="px-5 py-3.5 w-8" v-if="canManage"></th>
                             </tr>
                         </thead>
@@ -94,6 +95,10 @@
                                     <span v-if="m.session_income > 0" class="text-[15px] font-bold text-emerald-700">{{ formatCurrency(m.session_income) }}</span>
                                     <span v-else class="text-gray-300 text-[15px]">—</span>
                                 </td>
+                                <td class="px-5 py-4 text-right hidden sm:table-cell">
+                                    <span v-if="m.session_expense > 0" class="text-[15px] font-bold text-rose-700">{{ formatCurrency(m.session_expense) }}</span>
+                                    <span v-else class="text-gray-300 text-[15px]">—</span>
+                                </td>
                                 <td class="px-5 py-4 text-right" v-if="canManage">
                                     <svg class="w-5 h-5 text-gray-300 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                 </td>
@@ -101,7 +106,7 @@
 
                             <!-- Empty state -->
                             <tr v-if="meetings.length === 0">
-                                <td :colspan="canManage ? 6 : 5" class="px-5 py-12 text-center">
+                                <td :colspan="canManage ? 7 : 6" class="px-5 py-12 text-center">
                                     <div class="w-14 h-14 mx-auto mb-4 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100">
                                         <svg class="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                     </div>
@@ -116,6 +121,7 @@
                                 <td class="px-5 py-3.5 hidden lg:table-cell"></td>
                                 <td class="px-5 py-3.5 hidden xl:table-cell"></td>
                                 <td class="px-5 py-3.5 text-right text-[15px] font-black text-emerald-300">{{ formatCurrency(summary.month_income) }}</td>
+                                <td class="px-5 py-3.5 text-right text-[15px] font-black text-rose-300 hidden sm:table-cell">{{ formatCurrency(summary.month_expense) }}</td>
                                 <td class="px-5 py-3.5" v-if="canManage"></td>
                             </tr>
                         </tbody>

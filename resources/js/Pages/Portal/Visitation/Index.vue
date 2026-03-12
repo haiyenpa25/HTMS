@@ -19,7 +19,7 @@
             </div>
         </template>
 
-        <div class="w-full">
+        <div class="w-full space-y-6">
             <!-- Data Toolbar -->
             <DataToolbar
                 v-model:search="search"
