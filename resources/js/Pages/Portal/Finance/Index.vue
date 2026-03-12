@@ -6,7 +6,19 @@
             <!-- Header -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-2xl font-black text-gray-900">Tài chính Ban ngành</h2>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-2xl font-black text-gray-900">Tài chính Ban ngành</h2>
+                        <!-- Tooltip Helper -->
+                        <div class="relative group cursor-help mt-1">
+                            <svg class="w-5 h-5 text-gray-400 group-hover:text-emerald-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="absolute bottom-full left-4 sm:left-1/2 sm:-translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 text-white text-xs font-medium rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 shadow-xl pointer-events-none">
+                                Chỉ có Quỹ thu được từ việc dâng hiến trong Buổi Nhóm hàng tuần của Ban ngành mới được quản lý ở đây. Bấm vào từng buổi nhóm trong bảng để bắt đầu ghi Nhận/Chi tiền.
+                                <div class="absolute top-full left-4 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                        </div>
+                    </div>
                     <p class="text-[13px] text-gray-500 mt-1">{{ department?.name }} · Tháng {{ localMonth }}/{{ localYear }} · Bấm vào buổi nhóm để ghi tiền</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">

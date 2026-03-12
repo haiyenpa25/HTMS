@@ -35,6 +35,25 @@ Tất cả portal đều dùng chung `PortalLayout.vue`. Việc phân biệt gia
 - Chỉ dùng **ApexCharts** (`vue3-apexcharts`). KHÔNG dùng Chart.js để tránh nặng Bundle.
 - Area chart cho dữ liệu theo tuần/thời gian. Bar chart cho phép so sánh tổng quan.
 
+### 2.5 Tooltip / Hướng dẫn ngữ cảnh (Helper Icon)
+> **Bắt buộc:** Ở các tính năng phức tạp (các bảng biểu khó hiểu, cấu hình hệ thống), luôn cung cấp một biểu tượng `(i)` nhỏ để người dùng click vảo (hoặc hover) và xem giải thích ngắn gọn cách dùng tính năng đó.
+```html
+<div class="flex items-center gap-2 mb-4">
+  <h3 class="text-sm font-black text-gray-900">Tính Năng Đặc Thù</h3>
+  <div class="relative group cursor-help">
+    <!-- Icon (i) -->
+    <svg class="w-4 h-4 text-gray-400 group-hover:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <!-- Tooltip Box (Xuất hiện khi Hover) -->
+    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-gray-900 text-white text-[11px] font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 shadow-xl">
+      Nội dung hướng dẫn ngắn gọn cách dùng tính năng này cho Tín hữu / User.
+      <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+    </div>
+  </div>
+</div>
+```
+
 ## 3. CHECKLIST TRƯỚC VÀ TRONG KHI DEV
 1. **Hỏi trước khi code:** "Tính năng này thuộc portal nào?". Áp dụng màu sắc đúng.
 2. **Safe Prop Access:**

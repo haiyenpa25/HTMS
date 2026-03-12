@@ -14,8 +14,20 @@
 
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 no-print">
                 <div>
-                    <h2 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">📑 BÁO CÁO TÌNH HÌNH SINH HOẠT</h2>
-                    <p class="text-[15px] text-gray-500 mt-2 font-medium">{{ department?.name }} · Tháng {{ localMonth }}/{{ localYear }}</p>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">📑 BÁO CÁO TÌNH HÌNH SINH HOẠT</h2>
+                        <!-- Tooltip Helper -->
+                        <div class="relative group cursor-help mt-1">
+                            <svg class="w-5 h-5 text-gray-400 group-hover:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="absolute bottom-full left-4 sm:left-1/2 sm:-translate-x-1/2 mb-2 w-72 p-3 bg-gray-900 text-white text-xs font-medium rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 shadow-xl pointer-events-none">
+                                Giao diện này hiển thị Tổng Hợp Dữ Liệu theo thời gian thực từ các hệ thống khác (Thăm viếng, Điểm danh, Tài chính...). Để nộp báo cáo cho Mục Sư, bạn cần nhấn "Lập Báo Cáo Mới" để chốt số liệu.
+                                <div class="absolute top-full left-4 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[15px] text-gray-500 mt-1 font-medium">{{ department?.name }} · Tháng {{ localMonth }}/{{ localYear }}</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
                     <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm">

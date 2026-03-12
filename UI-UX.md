@@ -83,7 +83,27 @@ font-family: 'Inter', 'Roboto', system-ui, sans-serif;
 </div>
 ```
 
-### C. DATA TABLE (Bảng dữ liệu)
+### C. TOOLTIP / HELPER ICON (Bắt buộc cho các tính năng phức tạp)
+Dùng để giải thích tính năng khi người dùng hover/nhấp vào nút `(i)`.
+```html
+<div class="flex items-center gap-2">
+  <h2 class="text-xl font-black text-gray-900">Tên Tính Năng</h2>
+  <div class="relative group cursor-help">
+    <!-- Icon (i) -->
+    <svg class="w-5 h-5 text-gray-400 group-hover:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <!-- Tooltip Box -->
+    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 text-white text-xs font-medium rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 shadow-xl pointer-events-none">
+      Giải thích chi tiết về tính năng này ở đây...
+      <!-- Mũi tên chỉ xuống -->
+      <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+    </div>
+  </div>
+</div>
+```
+
+### D. DATA TABLE (Bảng dữ liệu)
 ```html
 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
   <!-- Table Header với Actions -->
@@ -109,7 +129,7 @@ font-family: 'Inter', 'Roboto', system-ui, sans-serif;
 </div>
 ```
 
-### D. CARD DANH SÁCH (Item Cards)
+### E. CARD DANH SÁCH (Item Cards)
 ```html
 <!-- Card item với hover effect (dùng thay cho Table trên Mobile) -->
 <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all group cursor-pointer">
@@ -132,7 +152,7 @@ font-family: 'Inter', 'Roboto', system-ui, sans-serif;
 </div>
 ```
 
-### E. BADGE TRẠNG THÁI
+### F. BADGE TRẠNG THÁI
 ```html
 <!-- Dùng rounded-full, text nhỏ font-bold uppercase -->
 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">Hoàn thành</span>
@@ -141,6 +161,7 @@ font-family: 'Inter', 'Roboto', system-ui, sans-serif;
 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-gray-100 text-gray-700">Không xác định</span>
 ```
 
+### G. BUTTONS
 ```html
 <!-- Primary -->
 <button class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm active:scale-95">

@@ -1,35 +1,26 @@
 ---
-description: Git commit, push lên GitHub và deploy lên server production
+description: Build frontend, commit and push to main branch
 ---
 
-🚀 WORKFLOW: GIT DEPLOY (WINDOWS ➔ SERVER)
-⚠️ **LƯU Ý WINDOWS**: Tuyệt đối KHÔNG dùng `&&` để nối lệnh trên PowerShell. Hãy sử dụng dấu `;` hoặc chạy từng lệnh.
+This workflow automates the process of building the frontend, committing the changes, and pushing them to the main branch on GitHub.
 
-
----
-
-💻 **BƯỚC 1: LOCAL — Commit + Build + Push**
-
-```powershell
-# 1.1 Commit code
-git add -A; git commit -m "Update logic and features"
-
-# 1.2 Build (BẮT BUỘC)
+// turbo-all
+1. Build the frontend
+```bash
 npm run build
+```
 
-# 1.3 Commit build assets và push
-git add public/build; git commit -m "Deploy: Vite build assets production"
+2. Add all changes to git
+```bash
+git add .
+```
+
+3. Commit the changes
+```bash
+git commit -m "Auto-deploy: Built frontend and updated codes"
+```
+
+4. Push to main branch
+```bash
 git push origin main
 ```
-
----
-
-🌐 **BƯỚC 2: SERVER — In lệnh để bạn chép vào terminal**
-
-Sau khi push xong, thông báo cho người dùng copy đoạn lệnh sau vào SSH terminal của server:
-
-```bash
-cd ~/public_html && git fetch origin && git reset --hard origin/main && php artisan optimize && php artisan view:clear
-```
-
-*Lưu ý: Nếu bị lỗi quyền ghi file, chạy thêm: `chmod -R 775 storage bootstrap/cache`*

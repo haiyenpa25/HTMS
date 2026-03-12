@@ -1,18 +1,20 @@
-# 04. Quy Trình Cài Đặt (SOP) & Triển Khai Deployment
+# 04. Quy Trình Cài Đặt & Triển Khai (SOP) chuẩn hóa
 
-Tài liệu này hướng dẫn các bước từ Setup dự án Local, cấu hình Server cho Hội Thánh mới và nâng cấp Code trên Production.
+Tài liệu này là quy trình chuẩn mực nhất để phát triển code trên máy cá nhân (Local) và đẩy lên vận hành trên Server (Production).
 
 ---
 
 ## 1. YÊU CẦU HỆ THỐNG
-- PHP >= 8.2 (mbstring, xml, bcmath, openssl). Node.js, NPM, Composer.
-- MySQL / MariaDB (Database quản lý).
+- **PHP >= 8.2** (mbstring, xml, bcmath, openssl).
+- **Node.js, NPM, Composer.**
+- **MySQL / MariaDB** (Database).
 
-## 2. SETUP DỰ ÁN MỚI HOẶC LOCAL
+## 2. SETUP DỰ ÁN MỚI (LOCAL)
+Chạy khi mới clone code về máy cá nhân:
 ```powershell
 # 1. Clone Source
-git clone [URL_GITHUB] directory_name
-cd directory_name
+git clone [URL_GITHUB] cms
+cd cms
 
 # 2. Cài Packages
 composer install
@@ -22,54 +24,61 @@ npm install
 cp .env.example .env
 php artisan key:generate
 ```
-**Cấu hình .env chuẩn cho Hội Thánh mới:** Cần điền đầy đủ `CHURCH_NAME`, `SYSTEM_DOMAIN`, `CHURCH_EMAIL`.
+**Cấu hình .env chuẩn:** Cần điền đầy đủ `CHURCH_NAME`, `SYSTEM_DOMAIN`, `CHURCH_EMAIL`.
 
-## 3. SEEDING & DATABASE SKELETON
-Thay vì nhập từ đầu, sử dụng lệnh sau để định hình lại hệ thống Data:
 ```powershell
+# 4. Tạo Database và Chạy dữ liệu mẫu
 php artisan migrate
-
-# Tạo cấu trúc hệ thống (Ban ngành, Superadmin Default -> Pass: Abc.1234)
 php artisan db:seed --class=SystemSkeletonSeeder
-
-# Nếu Dev Local cần data kiểm tra
-php artisan db:seed --class=ThanhTrangFourMonthsSeeder
-php artisan portal:seed-test-data
-php artisan seed:deacon:attendance
 ```
+*(Superadmin Default -> Pass: Abc.1234)*
 
-## 4. QUY TRÌNH DEPLOY CODE
-### Bước 1: Commit & Push (Local/DEV)
-*Lưu ý trên Windows Powershell phải chạy từng dòng.*
+---
+
+## 3. WORKFLOW: TỪ LOCAL LÊN SERVER (QUAN TRỌNG)
+
+Hệ thống quản lý phiên bản (Git) thường bị lỗi `conflict` ở thư mục `public/build` do thư mục này đang được push lên Github. 
+Để tránh xung đột, chúng ta tuân thủ tuyệt đối vai trò: **Máy cá nhân là nơi Build giao diện, Server chỉ là nơi nhận Code**.
+
+### BƯỚC 1: Xử lý tại Máy Của Bạn (Local/Dev)
+Mỗi khi bạn code xong một tính năng, bạn tiến hành Build giao diện và đẩy toàn bộ lên Github.
 ```powershell
-# Chạy Build Nodejs để complie Vue + Tailwind trước khi Up lên Github
+# 1. Build giao diện mới nhất
 npm run build
-git add public/build
-git commit -m "chore: compile frontend"
 
-# Hoặc commit bình thường
-git add -A
-git commit -m "feat/fix: update codes"
+# 2. Lưu lại lên Github
+git add .
+git commit -m "Cập nhật tính năng ABC..."
 git push origin main
 ```
+> **Mẹo:** Bạn có thể tạo file `.agents/workflows/git-deploy.md` để dùng lệnh gõ `/git-deploy` nhờ Antigravity tự động làm 3 dòng trên.
 
-### Bước 2: Kéo Code Từ Server (Production SSH - Bash Linux)
+### BƯỚC 2: Kéo Web Mới Tự Động Tại Server (Production)
+Vào Terminal (SSH) của Server, bạn chỉ cần gõ cụm lệnh sau để nó tự làm mới toàn bộ.
+**TUYỆT ĐỐI KHÔNG CHẠY `npm run build` TRÊN SERVER NỮA NHÉ.**
+
 ```bash
-# Vào source, Pull code:
+# Vào thư mục
 cd ~/public_html
+
+# 1. Xóa các tệp file rác của Server sinh ra để tránh Conflict với Local
+git stash
+git clean -d -f public/build/
+
+# 2. Kéo Source Code Mới (Bao gồm cả public/build đã xử xong từ máy cá nhân)
 git pull origin main
 
-# Mệnh lệnh bắt buộc (Kết hợp luôn vào 1 dòng do chạy trên Linux)
-composer install --no-dev --optimize-autoloader && php artisan migrate --force && php artisan optimize:clear && php artisan optimize
+# 3. Cập nhật Backend & Tối Ưu Hệ Thống
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan optimize:clear
+php artisan optimize
 ```
-> **VÌ SAO `--force`?** Vì trên Production môi trường không cho phép Migrate Interactive Prompt.
+> **VÌ SAO `--force`?** Vì trên máy chủ Production, hệ thống Laravel không cho phép cửa sổ bật lên hỏi Interactive Prompt Y/N. Cần `--force` để ép chạy ngầm.
 
-### Bước 3: Build Node trên Server (Nếu cần thiết)
-Nếu bạn không Build `npm run build` ở local rồi Push lên Github, bạn bắt buộc phải build trên máy chủ: `npm run build` trong Terminal.
+---
 
-## 5. THAY THẾ LOGO HỘI THÁNH
+## 4. THAY THẾ LOGO HỘI THÁNH
 - Đường dẫn SVG: `resources/js/Layouts/PortalLayout.vue`.
-- Đổi file ảnh (vd. `logo.png`) vào `public/images/`. Thay thế đoạn `<svg>...</svg>` thành thẻ hình `<img>`.
-
-## 6. LỖI THƯỜNG GẶP KHU VỰC BUILD
-- **Font tiếng Việt bị gãy, hiển thị bậy:** Nguyên nhân do thư mục `public/build` bị lỗi encoding. Code Vue không lưu thành chuẩn `UTF-8`. Hãy check file Code, lưu lại UTF-8 và chạy `npm run build` lần nữa.
+- Đổi file ảnh (vd. `logo.png`) vào `public/images/`.
+- Hãy thay thế đoạn `<svg>...</svg>` thành thẻ hình HTML: `<img src="/images/logo.png" ...>`

@@ -4,7 +4,19 @@
             
             <div class="flex items-start justify-between gap-3 mb-6">
                 <div class="min-w-0">
-                    <h2 class="text-2xl font-black text-gray-900 tracking-tight truncate">Thành Viên Ban Ngành</h2>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-2xl font-black text-gray-900 tracking-tight truncate">Thành Viên Ban Ngành</h2>
+                        <!-- Tooltip Helper -->
+                        <div class="relative group cursor-help mt-1">
+                            <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 text-white text-xs font-medium rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 shadow-xl pointer-events-none">
+                                Tab "Ban Điều Hành" hiển thị cơ cấu nhân sự nòng cốt. Tab "Toàn Ban" dùng để quản lý toàn bộ Tín Hữu, danh sách Tổ, phân quyền và tạo Tài Khoản truy cập.
+                                <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                        </div>
+                    </div>
                     <p class="text-base text-gray-500 font-medium mt-1">Quản lý nhân sự và ban viên.</p>
                 </div>
                 <!-- Global Actions -->
