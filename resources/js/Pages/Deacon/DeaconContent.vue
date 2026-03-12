@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="space-y-5">
 
     <!-- ══ ROLE SWITCHER ══════════════════════════════════════════ -->
@@ -11,7 +11,7 @@
         class="flex flex-col items-center gap-2 rounded-2xl px-4 py-5 transition-all duration-200 cursor-pointer">
         <span class="text-2xl">🗂️</span>
         <div class="text-center">
-          <p class="font-black text-sm">Thư Ký</p>
+          <p class="font-bold text-sm">Thư Ký</p>
           <p :class="activeRole === 'secretary' ? 'text-indigo-200' : 'text-gray-400'" class="text-xs">Hội Thánh</p>
         </div>
         <span v-if="activeRole === 'secretary'" class="w-2 h-2 rounded-full bg-white/80"></span>
@@ -22,7 +22,7 @@
         class="flex flex-col items-center gap-2 rounded-2xl px-4 py-5 transition-all duration-200 cursor-pointer bg-white text-gray-700 border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50">
         <span class="text-2xl">💰</span>
         <div class="text-center">
-          <p class="font-black text-sm">Thủ Quỹ</p>
+          <p class="font-bold text-sm">Thủ Quỹ</p>
           <p class="text-xs text-gray-400">Hội Thánh</p>
         </div>
         <span class="text-xs text-emerald-500 font-bold">→ Finance Portal</span>
@@ -35,15 +35,15 @@
       <!-- KPI thống kê nhanh -->
       <div class="grid grid-cols-3 gap-3">
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4 text-center">
-          <p class="text-2xl font-black text-indigo-700">{{ stats.total_members }}</p>
+          <p class="text-2xl font-bold text-indigo-700">{{ stats.total_members }}</p>
           <p class="text-xs text-gray-500 mt-1">Tổng TH</p>
         </div>
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4 text-center">
-          <p class="text-2xl font-black text-emerald-600">{{ stats.official_count }}</p>
+          <p class="text-2xl font-bold text-emerald-600">{{ stats.official_count }}</p>
           <p class="text-xs text-gray-500 mt-1">Chính thức</p>
         </div>
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4 text-center">
-          <p class="text-2xl font-black" :class="stats.pending_reports > 0 ? 'text-amber-600' : 'text-gray-400'">{{ stats.pending_reports }}</p>
+          <p class="text-2xl font-bold" :class="stats.pending_reports > 0 ? 'text-amber-600' : 'text-gray-400'">{{ stats.pending_reports }}</p>
           <p class="text-xs text-gray-500 mt-1">Đang chờ duyệt</p>
         </div>
       </div>
@@ -51,7 +51,7 @@
       <!-- Báo cáo chờ duyệt -->
       <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="px-5 py-3 bg-amber-500 flex items-center justify-between">
-          <h3 class="text-sm font-black text-white">📋 Báo Cáo Chờ Duyệt</h3>
+          <h3 class="text-sm font-bold text-white">📋 Báo Cáo Chờ Duyệt</h3>
           <span class="bg-white/30 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ pendingReports.length }}</span>
         </div>
         <div v-if="pendingReports.length > 0">
@@ -75,7 +75,7 @@
       <!-- Điểm danh tổng hợp các ban tháng này -->
       <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="px-5 py-3 bg-indigo-700 flex items-center justify-between">
-          <h3 class="text-sm font-black text-white">📊 Điểm Danh Tháng {{ currentMonth }}</h3>
+          <h3 class="text-sm font-bold text-white">📊 Điểm Danh Tháng {{ currentMonth }}</h3>
         </div>
         <div v-if="attendanceSummary.length > 0" class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-100">
@@ -90,7 +90,7 @@
               <tr v-for="dept in attendanceSummary" :key="dept.dept_name" class="hover:bg-indigo-50/30">
                 <td class="px-4 py-2.5 text-xs font-bold text-gray-800">{{ dept.dept_name }}</td>
                 <td class="px-4 py-2.5 text-center text-sm text-gray-500">{{ dept.session_count }}</td>
-                <td class="px-4 py-2.5 text-center text-sm font-black text-indigo-700">{{ dept.total_att }}</td>
+                <td class="px-4 py-2.5 text-center text-sm font-bold text-indigo-700">{{ dept.total_att }}</td>
               </tr>
             </tbody>
           </table>
@@ -101,7 +101,7 @@
       <!-- Quản lý Tín Hữu -->
       <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="px-5 py-3 bg-slate-700 flex items-center justify-between">
-          <h3 class="text-sm font-black text-white">👤 Quản Lý Hội Thánh</h3>
+          <h3 class="text-sm font-bold text-white">👤 Quản Lý Hội Thánh</h3>
         </div>
         <div class="grid grid-cols-2 gap-2 p-4">
           <Link :href="route('members.index')"

@@ -33,17 +33,45 @@ class DutyRosterController extends Controller
         $startDate   = Carbon::parse($month)->startOfMonth();
         $endDate     = Carbon::parse($month)->endOfMonth();
 
+        // Determine context
+        $deptContext = $request->attributes->get('department');
+        $portalType  = $request->attributes->get('portalType', 'deacon');
+        $thisDeptId  = $deptContext->id ?? null;
+
         $meetingsQuery = Meeting::whereBetween('date', [$startDate, $endDate])
             ->with(['dutyAssignments.role.department', 'dutyAssignments.member'])
             ->orderBy('date')->orderBy('time');
+
+        // Apply context filtering
+        if ($thisDeptId) {
+            $meetingsQuery->where(function ($query) use ($thisDeptId) {
+                // Should see church meetings (where departments serve) AND specific department meetings
+                $query->where('type', 'church')
+                      ->orWhere('department_id', $thisDeptId);
+            });
+        }
 
         if ($meetingType) {
             $meetingsQuery->where('type', $meetingType);
         }
 
         $meetings     = $meetingsQuery->get();
-        $departments  = Department::with(['dutyRoles' => fn($q) => $q->orderBy('section')->orderBy('sort_order')])->get();
-        $templates    = RosterTemplate::with('roles.departmentRole')->get();
+        
+        $deptsQuery = Department::with(['dutyRoles' => fn($q) => $q->orderBy('section')->orderBy('sort_order')]);
+        $templatesQuery = RosterTemplate::with('roles.departmentRole');
+
+        if ($thisDeptId) {
+            // Only load roles for the specific department
+            $deptsQuery->where('id', $thisDeptId);
+            // Load templates: Church templates OR specific Department templates
+            $templatesQuery->where(function($q) use ($thisDeptId) {
+                $q->where('type', 'church')
+                  ->orWhere('department_id', $thisDeptId);
+            });
+        }
+        
+        $departments  = $deptsQuery->get();
+        $templates    = $templatesQuery->get();
         $meetingTypes = Meeting::distinct()->pluck('type')->filter()->values()->toArray();
 
         return Inertia::render('DutyRoster/HolisticView', [
@@ -57,17 +85,44 @@ class DutyRosterController extends Controller
     }
 
     // ── Show (Meeting detail with assignments) ─────────────
-    public function show(Meeting $meeting)
+    public function show(Request $request, Meeting $meeting)
     {
-        $meeting->load(['dutyAssignments.role.department', 'dutyAssignments.member']);
+        $meeting->load(['dutyAssignments.role.department', 'dutyAssignments.member', 'department']);
+
+        // Context
+        $deptContext = $request->attributes->get('department');
+        $portalType  = $request->attributes->get('portalType', 'deacon');
+        $thisDeptId  = $deptContext->id ?? null;
+
+        // Verify Access
+        if ($thisDeptId && $meeting->type === 'department' && $meeting->department_id !== $thisDeptId) {
+            abort(403, 'Bạn không có quyền truy cập buổi nhóm của ban ngành khác.');
+        }
 
         // Only departments that have roles
-        $departments = Department::with([
+        $deptsQuery = Department::with([
             'dutyRoles' => fn($q) => $q->orderBy('section')->orderBy('sort_order')
-        ])->whereHas('dutyRoles')->get();
+        ])->whereHas('dutyRoles');
+        
+        // If within a department portal, limit the available departments that can be added to the meeting
+        if ($thisDeptId) {
+             // Let them see other departments in Church view to understand the whole roster, but UI will restrict edits
+             // However, for department meetings, restrict entirely
+             if ($meeting->type !== 'church') {
+                 $deptsQuery->where('id', $thisDeptId);
+             }
+        }
+        $departments = $deptsQuery->get();
 
         $members   = Member::orderBy('full_name')->get(['id', 'full_name']);
-        $templates = RosterTemplate::with('roles.departmentRole')->get();
+        
+        $templatesQuery = RosterTemplate::with('roles.departmentRole');
+        if ($thisDeptId) {
+            $templatesQuery->where(function($q) use ($thisDeptId) {
+                $q->where('type', 'church')->orWhere('department_id', $thisDeptId);
+            });
+        }
+        $templates = $templatesQuery->get();
 
         // Speakers list (for Diễn Giả role)
         $speakers  = DB::table('speakers')
@@ -113,10 +168,23 @@ class DutyRosterController extends Controller
     }
 
     // ── Templates Index ────────────────────────────────────
-    public function templatesIndex()
+    public function templatesIndex(Request $request)
     {
-        $templates   = RosterTemplate::with(['roles.departmentRole.department'])->get();
-        $departments = Department::with(['dutyRoles' => fn($q) => $q->orderBy('section')->orderBy('sort_order')])->get();
+        $deptContext = $request->attributes->get('department');
+        $thisDeptId  = $deptContext->id ?? null;
+
+        $templatesQuery = RosterTemplate::with(['roles.departmentRole.department']);
+        $deptsQuery = Department::with(['dutyRoles' => fn($q) => $q->orderBy('section')->orderBy('sort_order')]);
+
+        if ($thisDeptId) {
+            $templatesQuery->where(function($q) use ($thisDeptId) {
+                $q->where('type', 'church')->orWhere('department_id', $thisDeptId);
+            });
+            $deptsQuery->where('id', $thisDeptId);
+        }
+
+        $templates = $templatesQuery->get();
+        $departments = $deptsQuery->get();
 
         return Inertia::render('DutyRoster/Templates/Index', [
             'templates'   => $templates,
@@ -125,19 +193,46 @@ class DutyRosterController extends Controller
     }
 
     // ── Template Create (GET) ──────────────────────────────
-    public function templateCreate()
+    public function templateCreate(Request $request)
     {
-        $departments = Department::with(['dutyRoles' => fn($q) => $q->orderBy('section')->orderBy('sort_order')])->get();
+        $deptContext = $request->attributes->get('department');
+        $thisDeptId  = $deptContext->id ?? null;
+
+        $deptsQuery = Department::with(['dutyRoles' => fn($q) => $q->orderBy('section')->orderBy('sort_order')]);
+        
+        if ($thisDeptId) {
+            $deptsQuery->where('id', $thisDeptId);
+        }
+        
+        $departments = $deptsQuery->get();
+        
         return Inertia::render('DutyRoster/Templates/Create', [
             'departments' => $departments,
+            'defaultType' => $thisDeptId ? 'department' : 'church',
+            'defaultDeptId' => $thisDeptId,
         ]);
     }
 
     // ── Template Show/Edit ─────────────────────────────────
-    public function templateShow(RosterTemplate $template)
+    public function templateShow(Request $request, RosterTemplate $template)
     {
+        $deptContext = $request->attributes->get('department');
+        $thisDeptId  = $deptContext->id ?? null;
+
+        // Verify Access
+        if ($thisDeptId) {
+            if ($template->type === 'department' && $template->department_id !== $thisDeptId) {
+                abort(403, 'Bạn không thể chỉnh sửa mẫu phân công của ban ngành khác.');
+            }
+        }
+
         $template->load(['roles.departmentRole.department']);
-        $departments = Department::with(['dutyRoles' => fn($q) => $q->orderBy('section')->orderBy('sort_order')])->get();
+        
+        $deptsQuery = Department::with(['dutyRoles' => fn($q) => $q->orderBy('section')->orderBy('sort_order')]);
+        if ($thisDeptId && $template->type === 'department') {
+            $deptsQuery->where('id', $thisDeptId); // Only allow adding their own roles to department template
+        }
+        $departments = $deptsQuery->get();
 
         // Get dept IDs that have roles in this template
         $participatingDeptIds = $template->roles
@@ -155,8 +250,10 @@ class DutyRosterController extends Controller
     public function storeTemplate(Request $request)
     {
         $validated = $request->validate([
-            'name'        => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'name'          => 'required|string|max:255',
+            'description'   => 'nullable|string',
+            'type'          => 'required|in:church,department',
+            'department_id' => 'nullable|exists:departments,id',
         ]);
 
         $template = RosterTemplate::create($validated);
@@ -175,6 +272,8 @@ class DutyRosterController extends Controller
         $validated = $request->validate([
             'name'             => 'sometimes|required|string|max:255',
             'description'      => 'nullable|string',
+            'type'             => 'sometimes|required|in:church,department',
+            'department_id'    => 'nullable|exists:departments,id',
             'dept_ids'         => 'sometimes|array',      // participating dept IDs
             'dept_ids.*'       => 'exists:departments,id',
         ]);

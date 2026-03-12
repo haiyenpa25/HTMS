@@ -41,9 +41,16 @@ const fmtDate = computed(() => {
 
 // ── Permission helpers ─────────────────────────────────────
 // Section I (Chương Trình Lễ): mở cho tất cả người dùng có quyền vào trang
-const canEditSectionI = computed(() => true);
+const canEditSectionI = computed(() => {
+  if (page.props.auth.user.roles.some(r => ['Super_Admin', 'Pastor', 'BTS_Admin'].includes(r.name))) return true;
+  return props.meeting.type === 'church';
+});
+
 // Section II: each dept edits their own only
-const canEditSectionII = (deptId) => !props.authDeptIds?.length || props.authDeptIds.includes(deptId);
+const canEditSectionII = (deptId) => {
+  if (page.props.auth.user.roles.some(r => ['Super_Admin', 'Pastor', 'BTS_Admin'].includes(r.name))) return true;
+  return !props.authDeptIds?.length || props.authDeptIds.includes(deptId);
+};
 const canEdit = canEditSectionII; // backward-compat for modal
 
 const getAsgn = (rid, slot=1) =>
@@ -86,9 +93,18 @@ const togP = (rid, s, deptId, roleName) => {
   const k = pKey(rid,s);
   if (openPicker.value === k) { openPicker.value = null; return; }
   openPicker.value = k;
+  
+  // Define default picker mode
   if (!pickerMode[k]) {
-    pickerMode[k] = isSpeakerRole(roleName) ? 'speaker'
-      : (props.deptMembers?.[deptId]||[]).length > 0 ? 'dept' : 'church';
+    const isDeptHead = page.props.auth.user.roles.some(r => !['Super_Admin', 'Pastor', 'BTS_Admin'].includes(r.name));
+    
+    if (isSpeakerRole(roleName)) {
+      pickerMode[k] = 'speaker';
+    } else if (props.meeting.type === 'department' || (isDeptHead && hasDeptMbrs(deptId))) {
+      pickerMode[k] = 'dept';
+    } else {
+      pickerMode[k] = 'church';
+    }
   }
 };
 const closeP   = () => { openPicker.value = null; };
@@ -97,6 +113,8 @@ const setMode  = (k, m) => { pickerMode[k] = m; };
 const pickerList = (rid, s, deptId) => {
   const k    = pKey(rid,s);
   const mode = pickerMode[k] || 'church';
+  const isDeptHead = page.props.auth.user.roles.some(r => !['Super_Admin', 'Pastor', 'BTS_Admin'].includes(r.name));
+
   let pool;
   if (mode === 'speaker') {
     pool = (props.speakers || []).map(sp => ({
@@ -104,7 +122,7 @@ const pickerList = (rid, s, deptId) => {
       full_name: [sp.title, sp.full_name].filter(Boolean).join(' '),
       _isSpeaker: true,
     }));
-  } else if (mode === 'dept') {
+  } else if (mode === 'dept' || (isDeptHead && props.meeting.type === 'church')) {
     pool = props.deptMembers?.[deptId] || props.members;
   } else {
     pool = props.members;
@@ -114,6 +132,10 @@ const pickerList = (rid, s, deptId) => {
 };
 
 const hasDeptMbrs = deptId => (props.deptMembers?.[deptId]||[]).length > 0;
+const isRestrictedDeptView = deptId => {
+  const isDeptHead = page.props.auth.user.roles.some(r => !['Super_Admin', 'Pastor', 'BTS_Admin'].includes(r.name));
+  return isDeptHead;
+};
 
 // ── Actions ────────────────────────────────────────────────
 const assign = async (rid, slot, mid) => {
@@ -262,12 +284,12 @@ const print = () => window.print();
                       :class="(pickerMode[pKey(item.role.id,item.slot)]||'church')==='speaker' ? 'bg-amber-50 text-amber-700 border-b-2 border-amber-500' : 'text-gray-400 hover:text-gray-600'">
                       🎤 Diễn Giả
                     </button>
-                    <button @click="setMode(pKey(item.role.id,item.slot),'church')"
+                    <button v-if="meeting.type === 'church' && !isRestrictedDeptView(item.dept.id)" @click="setMode(pKey(item.role.id,item.slot),'church')"
                       class="flex-1 py-2 text-[11px] font-black transition-colors"
                       :class="(pickerMode[pKey(item.role.id,item.slot)]||'church')==='church' ? 'bg-indigo-50 text-indigo-700 border-b-2 border-indigo-500' : 'text-gray-400 hover:text-gray-600'">
                       Hội Thánh
                     </button>
-                    <button @click="setMode(pKey(item.role.id,item.slot),'dept')" :disabled="!hasDeptMbrs(item.dept.id)"
+                    <button v-if="hasDeptMbrs(item.dept.id)" @click="setMode(pKey(item.role.id,item.slot),'dept')"
                       class="flex-1 py-2 text-[11px] font-black transition-colors disabled:opacity-30"
                       :class="(pickerMode[pKey(item.role.id,item.slot)]||'church')==='dept' ? 'bg-emerald-50 text-emerald-700 border-b-2 border-emerald-500' : 'text-gray-400 hover:text-gray-600'">
                       {{ item.dept.name }}
@@ -358,12 +380,12 @@ const print = () => window.print();
                       <div v-if="openPicker===pKey(role.id,slot)"
                         class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-2xl shadow-2xl z-[50] overflow-hidden" style="min-width:220px" @click.stop>
                         <div class="flex border-b border-gray-100">
-                          <button @click="setMode(pKey(role.id,slot),'church')"
+                          <button v-if="meeting.type === 'church' && !isRestrictedDeptView(dept.id)" @click="setMode(pKey(role.id,slot),'church')"
                             class="flex-1 py-2 text-[11px] font-black transition-colors"
                             :class="(pickerMode[pKey(role.id,slot)]||'church')==='church' ? 'bg-indigo-50 text-indigo-700 border-b-2 border-indigo-500' : 'text-gray-400'">
                             Hội Thánh
                           </button>
-                          <button @click="setMode(pKey(role.id,slot),'dept')" :disabled="!hasDeptMbrs(dept.id)"
+                          <button v-if="hasDeptMbrs(dept.id)" @click="setMode(pKey(role.id,slot),'dept')"
                             class="flex-1 py-2 text-[11px] font-black transition-colors disabled:opacity-30"
                             :class="(pickerMode[pKey(role.id,slot)]||'church')==='dept' ? 'bg-emerald-50 text-emerald-700 border-b-2 border-emerald-500' : 'text-gray-400'">
                             {{ dept.name }}

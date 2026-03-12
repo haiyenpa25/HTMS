@@ -183,13 +183,13 @@ const allFeatureCards = [
         icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>`,
     },
     {
-        key: 'duty-rooster',
-        label: 'Lịch Sinh Hoạt',
+        key: 'assignments',
+        label: 'Phân Công',
         subtitle: 'Bảng phân công',
-        href: route('duty-rooster.index'),
-        bg: 'bg-amber-50', text: 'text-amber-500', hoverBg: 'group-hover:bg-amber-500',
-        hoverBorder: 'hover:border-amber-200', sub: 'text-amber-600',
-        icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>`,
+        href: route('ministry.duty-rooster.index'),
+        bg: 'bg-indigo-50', text: 'text-indigo-500', hoverBg: 'group-hover:bg-indigo-600',
+        hoverBorder: 'hover:border-indigo-200', sub: 'text-indigo-600',
+        icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/>`,
     },
 ];
 

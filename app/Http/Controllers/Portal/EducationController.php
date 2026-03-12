@@ -188,7 +188,7 @@ class EducationController extends Controller
             'classes'     => $classes,
             'department'  => $department,
             'isAdmin'     => $isAdmin,
-            'portalType'  => 'education',
+            'portalType'  => 'ministry',
             'routePrefix' => $this->getRoutePrefix(),
             'availableDepartments' => $this->getAvailableDepts($user),
             'isGlobalAdmin' => $user->hasRole(['Super_Admin', 'Pastor']),
@@ -244,7 +244,7 @@ class EducationController extends Controller
             ],
             'sessions'   => $sessions,
             'canManage'  => Gate::allows('markAttendance', $eduClass),
-            'portalType' => 'education',
+            'portalType' => 'ministry',
             'routePrefix' => $this->getRoutePrefix(),
         ]);
     }
@@ -502,7 +502,7 @@ class EducationController extends Controller
             'funds'             => $funds,
             'canMarkAttendance' => $canMarkAttendance,
             'canRecordOffering' => $canRecordOffering,
-            'portalType'        => 'education',
+            'portalType'        => 'ministry',
         ]);
     }
 

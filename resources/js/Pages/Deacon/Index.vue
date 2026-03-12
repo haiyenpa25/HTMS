@@ -10,7 +10,7 @@
            <div class="w-24 h-24 mb-6 rounded-3xl bg-amber-100 flex items-center justify-center text-amber-500 shadow-inner">
                <svg class="w-12 h-12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
            </div>
-           <h2 class="text-xl font-black text-gray-900 mb-2">Lãnh Đạo Hội Thánh</h2>
+           <h2 class="text-xl font-bold text-gray-900 mb-2">Lãnh Đạo Hội Thánh</h2>
            <p class="text-sm text-gray-500 max-w-xs mb-8">Vui lòng chọn chức vụ để tiếp tục.</p>
        </div>
 
@@ -29,7 +29,7 @@
                </div>
                <div>
                    <p class="text-xs text-gray-500 font-medium uppercase tracking-widest">Đang xem với chức vụ</p>
-                   <h2 class="text-lg font-black text-gray-900">{{ roleLabel }}</h2>
+                   <h2 class="text-lg font-bold text-gray-900">{{ roleLabel }}</h2>
                </div>
            </div>
            
@@ -39,7 +39,7 @@
               <!-- Card: Điểm danh HT (Secretary only) -->
               <Link v-if="activeRole === 'secretary'" :href="route('deacon.attendance')" 
                 class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-amber-200 transition-all active:scale-95 duration-200 relative">
-                  <div v-if="pendingAttendance > 0" class="absolute top-4 right-4 bg-amber-500 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center shadow-md animate-pulse">
+                  <div v-if="pendingAttendance > 0" class="absolute top-4 right-4 bg-amber-500 text-white text-[10px] font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-md animate-pulse">
                       {{ pendingAttendance }}
                   </div>
                   <div class="w-16 h-16 mb-3 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
@@ -51,7 +51,7 @@
               <!-- Card: Báo cáo ban ngành (Secretary) -->
               <Link v-if="activeRole === 'secretary'" :href="route('deacon.report')" 
                 class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-amber-200 transition-all active:scale-95 duration-200 relative">
-                  <div v-if="pendingReports.length > 0" class="absolute top-4 right-4 bg-amber-500 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center shadow-md animate-pulse">
+                  <div v-if="pendingReports.length > 0" class="absolute top-4 right-4 bg-amber-500 text-white text-[10px] font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-md animate-pulse">
                       {{ pendingReports.length }}
                   </div>
                   <div class="w-16 h-16 mb-3 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
@@ -72,7 +72,7 @@
               <!-- Card: Tài chính HT (Treasurer) -->
               <Link v-if="activeRole === 'treasurer'" :href="route('finance.index')" 
                 class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md hover:border-rose-200 transition-all active:scale-95 duration-200 relative">
-                  <div v-if="pendingTx > 0" class="absolute top-4 right-4 bg-amber-500 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center shadow-md animate-pulse">{{ pendingTx }}</div>
+                  <div v-if="pendingTx > 0" class="absolute top-4 right-4 bg-amber-500 text-white text-[10px] font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-md animate-pulse">{{ pendingTx }}</div>
                   <div class="w-16 h-16 mb-3 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center group-hover:bg-rose-600 group-hover:text-white transition-colors duration-300">
                       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   </div>
@@ -108,7 +108,7 @@
            </div>
             
            <div class="mt-8 bg-amber-50 rounded-3xl p-6 border border-amber-100 shadow-sm">
-              <h3 class="text-sm font-black text-amber-900 tracking-wider mb-2 px-1 flex items-center">
+              <h3 class="text-sm font-bold text-amber-900 tracking-wider mb-2 px-1 flex items-center">
                   <svg class="w-5 h-5 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   Cổng Nội Bộ – Lãnh Đạo Hội Thánh
               </h3>
@@ -143,8 +143,8 @@ const props = defineProps({
   pendingTx:            { type: Number, default: 0 },
 });
 
-// �?c activeRole t? Inertia shared (EnsureDeaconContext shares 'activeDeaconRole')
-// Fallback v? prop n?u kh�ng c�
+// Đọc activeRole từ Inertia shared (EnsureDeaconContext shares 'activeDeaconRole')
+// Fallback về prop nếu không có
 const activeRole = computed(() => page.props.activeDeaconRole ?? props.activeRole);
 
 // Redundant switcher state removed (handled in PortalLayout)
@@ -156,10 +156,10 @@ const can = (key) => {
         || (key === 'members' && authPermissions.value?.['thanh-vien'] === true);
 };
 
-// Vai tr� v� t�n hi?n th?
+// Vai trò và tên hiển thị
 const availableRoles = [
-    { id: 'secretary', name: 'Thu k� H?i Th�nh',  desc: '�i?m danh, b�o c�o ban ng�nh' },
-    { id: 'treasurer', name: 'Th? Qu? H?i Th�nh', desc: 'Qu?n l� t�i ch�nh, thu chi' },
+    { id: 'secretary', name: 'Thư Ký Hội Thánh',  desc: 'Điểm danh, báo cáo ban ngành' },
+    { id: 'treasurer', name: 'Thủ Quỹ Hội Thánh', desc: 'Quản lý tài chính, thu chi' },
 ];
 
 const roleLabel = computed(() => {
@@ -173,9 +173,9 @@ const switchRole = (roleId) => {
     });
 };
 
-// -- C�c card t�nh nang "extra" du?c g�n d?ng cho Ban Ch?p S? qua FeatureDepartment --
-// Nh?ng card c? d?nh (�i?m danh HT, B�o c�o, Qu?, TC) d� hardcode ? tr�n.
-// ? d�y ch? render c�c t�nh nang TH�M du?c c?u h�nh qua SystemFeaturesTab.
+// -- Các card tính năng "extra" được gán động cho Ban Chấp Sự qua FeatureDepartment --
+// Những card cố định (Điểm danh HT, Báo cáo, Quỹ, TC) đã hardcode ở trên.
+// Ở đây chỉ render các tính năng THÊM được cấu hình qua SystemFeaturesTab.
 const FIXED_KEYS_SECRETARY  = ['attendance', 'reports'];
 const FIXED_KEYS_TREASURER  = ['finance'];
 
@@ -214,7 +214,7 @@ const visibleExtraCards = computed(() => {
     const features = deptFeatures.value;
     const fixedKeys = props.activeRole === 'secretary' ? FIXED_KEYS_SECRETARY : FIXED_KEYS_TREASURER;
     return allExtraCards.filter(card => {
-        if (fixedKeys.includes(card.key)) return false; // d� c� card c?ng
+        if (fixedKeys.includes(card.key)) return false; // đã có card cứng
         return features[card.key] === true
             || (card.key === 'members' && features['thanh-vien'] === true);
     });

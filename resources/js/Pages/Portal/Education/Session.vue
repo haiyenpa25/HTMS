@@ -1,5 +1,5 @@
 <template>
-    <PortalLayout :department="null" :available-departments="[]" :is-global-admin="false" :portalType="portalType">
+    <PortalLayout :department="eduClass.department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" portal-type="ministry">
         <div class="min-h-screen bg-gray-50">
             <!-- Focus Mode Header -->
             <div class="bg-gradient-to-r from-indigo-700 to-indigo-600 text-white">
@@ -9,7 +9,7 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </Link>
                     <div class="flex-1 min-w-0">
-                        <h1 class="font-black text-base leading-tight truncate">{{ eduClass.name }}</h1>
+                        <h1 class="font-bold text-base leading-tight truncate">{{ eduClass.name }}</h1>
                         <p class="text-indigo-200 text-xs">{{  eduClass.class_type === 'gospel' ? 'Lớp Giáo Lý (linh hoạt)' : 'Buổi nhóm CĐGD — Cố định Chủ Nhật' }}</p>
                     </div>
                     <!-- CN navigation -->
@@ -19,7 +19,7 @@
                             title="Chủ Nhật trước">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                         </button>
-                        <span class="text-xs font-black bg-white/15 px-3 py-1.5 rounded-lg min-w-[120px] text-center">
+                        <span class="text-xs font-bold bg-white/15 px-3 py-1.5 rounded-lg min-w-[120px] text-center">
                             {{ formatShortDate(navigation.current_date) }}
                         </span>
                         <button @click="goToSunday(navigation.next_sunday)"
@@ -39,7 +39,7 @@
                         class="bg-white/10 backdrop-blur rounded-xl px-4 py-3 flex items-start justify-between gap-3">
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <span v-if="session.lesson_number" class="bg-white text-indigo-700 text-xs font-black px-2 py-0.5 rounded-full shrink-0">
+                                <span v-if="session.lesson_number" class="bg-white text-indigo-700 text-xs font-bold px-2 py-0.5 rounded-full shrink-0">
                                     Bài {{ session.lesson_number }}
                                 </span>
                                 <span v-if="session.lesson_series" class="text-indigo-200 text-xs font-bold truncate">
@@ -51,7 +51,7 @@
                                     GV: {{ session.teacher_name }}
                                 </span>
                             </div>
-                            <p v-if="session.topic" class="font-black text-white text-base mt-1 leading-snug truncate">
+                            <p v-if="session.topic" class="font-bold text-white text-base mt-1 leading-snug truncate">
                                 &ldquo;{{ session.topic }}&rdquo;
                             </p>
                             <p v-if="session.scripture" class="text-indigo-200 text-xs mt-0.5">
@@ -81,7 +81,7 @@
                         <button @click="activeTab = 'scores'" :class="activeTab === 'scores' ? 'border-b-2 border-white text-white' : 'text-indigo-300 hover:text-white'" class="px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             Chấm Điểm
-                            <span v-if="scoredCount > 0" class="bg-amber-400/30 text-amber-100 text-[10px] font-black px-1.5 py-0.5 rounded-full">{{ scoredCount }}/{{ localRecords.length }}</span>
+                            <span v-if="scoredCount > 0" class="bg-amber-400/30 text-amber-100 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{{ scoredCount }}/{{ localRecords.length }}</span>
                         </button>
                         <button @click="activeTab = 'ranking'" :class="activeTab === 'ranking' ? 'border-b-2 border-white text-white' : 'text-indigo-300 hover:text-white'" class="px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
@@ -93,12 +93,12 @@
                         <button @click="activeTab = 'attendance'" :class="activeTab === 'attendance' ? 'border-b-2 border-white text-white' : 'text-indigo-300 hover:text-white'" class="px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                             Điểm Danh
-                            <span class="bg-white/20 text-[10px] font-black px-1.5 py-0.5 rounded-full">{{ presentCount }}/{{ localRecords.length }}</span>
+                            <span class="bg-white/20 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{{ presentCount }}/{{ localRecords.length }}</span>
                         </button>
                         <button v-if="eduClass.class_type !== 'gospel'" @click="activeTab = 'finance'" :class="activeTab === 'finance' ? 'border-b-2 border-white text-white' : 'text-indigo-300 hover:text-white'" class="px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                             Tiền Dâng
-                            <span v-if="totalSessionIncome > 0" class="bg-green-400/30 text-green-100 text-[10px] font-black px-1.5 py-0.5 rounded-full">{{ formatMoney(totalSessionIncome) }}</span>
+                            <span v-if="totalSessionIncome > 0" class="bg-green-400/30 text-green-100 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{{ formatMoney(totalSessionIncome) }}</span>
                         </button>
                     </template>
                 </div>
@@ -118,12 +118,12 @@
                     <!-- Mode Toggle -->
                     <div class="flex items-center gap-1 mb-4 bg-gray-100 p-1 rounded-xl w-fit">
                         <button @click="attendanceMode = 'quick'"
-                            :class="attendanceMode === 'quick' ? 'bg-white text-indigo-700 shadow-sm font-black' : 'text-gray-500 font-medium hover:text-gray-700'"
+                            :class="attendanceMode === 'quick' ? 'bg-white text-indigo-700 shadow-sm font-bold' : 'text-gray-500 font-medium hover:text-gray-700'"
                             class="px-4 py-1.5 rounded-lg text-sm transition-all">
                             ⚡ Nhập nhanh
                         </button>
                         <button @click="attendanceMode = 'checkin'"
-                            :class="attendanceMode === 'checkin' ? 'bg-white text-indigo-700 shadow-sm font-black' : 'text-gray-500 font-medium hover:text-gray-700'"
+                            :class="attendanceMode === 'checkin' ? 'bg-white text-indigo-700 shadow-sm font-bold' : 'text-gray-500 font-medium hover:text-gray-700'"
                             class="px-4 py-1.5 rounded-lg text-sm transition-all">
                             ✓ Điểm danh tên
                         </button>
@@ -134,19 +134,19 @@
                         <div class="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6 space-y-5">
                             <div class="flex items-center gap-2 text-indigo-700 mb-1">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                <span class="font-black text-sm">Nhập số nhanh — không cần tích tên từng người</span>
+                                <span class="font-bold text-sm">Nhập số nhanh — không cần tích tên từng người</span>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-2">✅ Có mặt</label>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">✅ Có mặt</label>
                                     <input v-model.number="quickPresent" type="number" min="0"
-                                        class="w-full rounded-xl border-green-300 focus:border-green-500 focus:ring-green-500 text-center text-2xl font-black text-green-700 py-3 shadow-sm"
+                                        class="w-full rounded-xl border-green-300 focus:border-green-500 focus:ring-green-500 text-center text-2xl font-bold text-green-700 py-3 shadow-sm"
                                         placeholder="0" />
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-2">❌ Vắng</label>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">❌ Vắng</label>
                                     <input v-model.number="quickAbsent" type="number" min="0"
-                                        class="w-full rounded-xl border-red-300 focus:border-red-500 focus:ring-red-500 text-center text-2xl font-black text-red-500 py-3 shadow-sm"
+                                        class="w-full rounded-xl border-red-300 focus:border-red-500 focus:ring-red-500 text-center text-2xl font-bold text-red-500 py-3 shadow-sm"
                                         placeholder="0" />
                                 </div>
                             </div>
@@ -157,7 +157,7 @@
                                 <span class="text-red-600 font-bold">❌ {{ quickAbsent || 0 }} vắng</span>
                             </div>
                             <button v-if="canMarkAttendance" @click="saveQuick" :disabled="attendanceLoading"
-                                class="w-full py-3 bg-gradient-to-r from-green-600 to-green-500 text-white font-black rounded-xl hover:from-green-700 hover:to-green-600 transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
+                                class="w-full py-3 bg-gradient-to-r from-green-600 to-green-500 text-white font-bold rounded-xl hover:from-green-700 hover:to-green-600 transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
                                 <svg v-if="attendanceLoading" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                 {{ attendanceLoading ? 'Đang lưu...' : '⚡ Lưu Nhanh' }}
                             </button>
@@ -174,15 +174,15 @@
                     <!-- Quick stats -->
                     <div class="grid grid-cols-3 gap-3 mb-4">
                         <div class="bg-white rounded-xl border border-gray-100 py-3 text-center shadow-sm">
-                            <div class="text-2xl font-black text-green-600">{{ presentCount }}</div>
+                            <div class="text-2xl font-bold text-green-600">{{ presentCount }}</div>
                             <div class="text-[11px] text-gray-500 font-medium">Có mặt</div>
                         </div>
                         <div class="bg-white rounded-xl border border-gray-100 py-3 text-center shadow-sm">
-                            <div class="text-2xl font-black text-red-500">{{ absentCount }}</div>
+                            <div class="text-2xl font-bold text-red-500">{{ absentCount }}</div>
                             <div class="text-[11px] text-gray-500 font-medium">Vắng</div>
                         </div>
                         <div class="bg-white rounded-xl border border-gray-100 py-3 text-center shadow-sm">
-                            <div class="text-2xl font-black text-indigo-600">{{ memorizedCount }}</div>
+                            <div class="text-2xl font-bold text-indigo-600">{{ memorizedCount }}</div>
                             <div class="text-[11px] text-gray-500 font-medium">Thuộc câu gốc</div>
                         </div>
                     </div>
@@ -207,7 +207,7 @@
                         <div class="divide-y divide-gray-100">
                             <div v-for="rec in localRecords" :key="rec.member_id" class="px-4 py-3 flex items-center gap-3 hover:bg-gray-50/50 transition-colors">
                                 <!-- Avatar -->
-                                <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-black shrink-0 transition-colors"
+                                <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0 transition-colors"
                                     :class="rec.attendance === 'present' ? 'bg-green-100 text-green-800' : rec.attendance === 'excused' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-700'">
                                     {{ rec.full_name?.charAt(0) }}
                                 </div>
@@ -248,7 +248,7 @@
 
                     <!-- Save button -->
                     <div v-if="canMarkAttendance && localRecords.length > 0" class="mt-4">
-                        <button @click="saveAttendance" :disabled="attendanceLoading" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-black rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
+                        <button @click="saveAttendance" :disabled="attendanceLoading" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-bold rounded-xl hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
                             <svg v-if="attendanceLoading" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                             {{ attendanceLoading ? 'Đang lưu...' : '✅ Lưu Điểm Danh' }}
                         </button>
@@ -264,8 +264,8 @@
                     <div class="bg-amber-50 rounded-2xl border border-amber-100 px-5 py-3 flex items-center justify-between">
                         <div>
                             <div class="flex items-center gap-3 flex-wrap">
-                                <span v-if="session.book" class="bg-amber-200 text-amber-900 text-xs font-black px-2.5 py-0.5 rounded-full">Sách: {{ session.book }}</span>
-                                <span v-if="session.total_questions" class="bg-indigo-100 text-indigo-800 text-xs font-black px-2.5 py-0.5 rounded-full">ℓ {{ session.total_questions }} câu</span>
+                                <span v-if="session.book" class="bg-amber-200 text-amber-900 text-xs font-bold px-2.5 py-0.5 rounded-full">Sách: {{ session.book }}</span>
+                                <span v-if="session.total_questions" class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-0.5 rounded-full">ℓ {{ session.total_questions }} câu</span>
                                 <span v-if="session.grader_name" class="bg-gray-100 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded-full">👤 {{ session.grader_name }}</span>
                                 <span v-if="!session.book && !session.total_questions" class="text-amber-600 text-xs italic">Chưa nhập thông tin bài thi</span>
                             </div>
@@ -292,7 +292,7 @@
                     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                         <div class="px-5 py-3 bg-indigo-900 flex items-center gap-2">
                             <svg class="w-4 h-4 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            <span class="text-sm font-black text-white">Chấm Điểm Học Viên</span>
+                            <span class="text-sm font-bold text-white">Chấm Điểm Học Viên</span>
                             <span class="text-xs text-indigo-300 ml-auto">Nhấn tên để nhập điểm</span>
                         </div>
 
@@ -310,7 +310,7 @@
                                         canMarkAttendance ? 'cursor-pointer' : ''
                                     ]">
                                     <!-- Avatar / rank badge -->
-                                    <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-black shrink-0"
+                                    <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
                                         :class="rec.quiz_score !== null && rec.quiz_score !== undefined ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'">
                                         {{ rec.full_name?.charAt(0) }}
                                     </div>
@@ -342,16 +342,16 @@
                                     class="px-4 pb-4 bg-amber-50/60 border-t border-amber-100">
                                     <div class="flex items-center gap-3 pt-3">
                                         <div class="flex-1">
-                                            <label class="block text-xs font-black text-gray-600 mb-1 uppercase tracking-wider">Điểm số (tối đa {{ session.total_questions || 100 }})</label>
+                                            <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wider">Điểm số (tối đa {{ session.total_questions || 100 }})</label>
                                             <div class="flex items-center gap-3">
                                                 <input v-model.number="rec.quiz_score"
                                                     type="number" :min="0" :max="session.total_questions || 100"
-                                                    class="w-24 text-center text-xl font-black rounded-xl border-amber-300 focus:border-amber-500 focus:ring-amber-500 py-2 shadow-sm"
+                                                    class="w-24 text-center text-xl font-bold rounded-xl border-amber-300 focus:border-amber-500 focus:ring-amber-500 py-2 shadow-sm"
                                                     placeholder="0"
                                                     @keyup.enter="saveAttendanceAndClose">
                                                 <span class="text-sm text-gray-400">/ {{ session.total_questions || 100 }}</span>
                                                 <span v-if="rec.quiz_score !== null && rec.quiz_score !== undefined"
-                                                    class="text-lg font-black"
+                                                    class="text-lg font-bold"
                                                     :class="rec.quiz_score / (session.total_questions || 100) >= 0.8 ? 'text-green-600' : rec.quiz_score / (session.total_questions || 100) >= 0.5 ? 'text-amber-600' : 'text-red-600'">
                                                     {{ Math.round(rec.quiz_score / (session.total_questions || 100) * 100) }}%
                                                 </span>
@@ -364,7 +364,7 @@
                                             </button>
                                             <button @click="saveAttendanceAndClose"
                                                 :disabled="attendanceLoading"
-                                                class="px-4 py-2 bg-amber-600 text-white text-xs font-black rounded-xl hover:bg-amber-700 transition-colors disabled:opacity-50">
+                                                class="px-4 py-2 bg-amber-600 text-white text-xs font-bold rounded-xl hover:bg-amber-700 transition-colors disabled:opacity-50">
                                                 {{ attendanceLoading ? '...' : 'Lưu' }}
                                             </button>
                                         </div>
@@ -377,7 +377,7 @@
                         <!-- Save all button -->
                         <div v-if="canMarkAttendance && localRecords.length > 0" class="px-5 py-4 bg-gray-50 border-t border-gray-100">
                             <button @click="saveAttendance" :disabled="attendanceLoading"
-                                class="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 text-white font-black rounded-xl hover:from-amber-700 hover:to-amber-600 transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
+                                class="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 text-white font-bold rounded-xl hover:from-amber-700 hover:to-amber-600 transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
                                 <svg v-if="attendanceLoading" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                 {{ attendanceLoading ? 'Đang lưu...' : '💾 Lưu Tất Cả Điểm' }}
                             </button>
@@ -391,15 +391,15 @@
                     <!-- Stats summary -->
                     <div class="grid grid-cols-3 gap-3">
                         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm py-4 text-center">
-                            <div class="text-2xl font-black text-amber-600">{{ avgScore }}</div>
+                            <div class="text-2xl font-bold text-amber-600">{{ avgScore }}</div>
                             <div class="text-[11px] text-gray-500 mt-1">Điểm TB bài này</div>
                         </div>
                         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm py-4 text-center">
-                            <div class="text-2xl font-black text-green-600">{{ scoredCount }}</div>
+                            <div class="text-2xl font-bold text-green-600">{{ scoredCount }}</div>
                             <div class="text-[11px] text-gray-500 mt-1">Đã nộp bài</div>
                         </div>
                         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm py-4 text-center">
-                            <div class="text-2xl font-black text-red-500">{{ localRecords.length - scoredCount }}</div>
+                            <div class="text-2xl font-bold text-red-500">{{ localRecords.length - scoredCount }}</div>
                             <div class="text-[11px] text-gray-500 mt-1">Chưa nộp</div>
                         </div>
                     </div>
@@ -407,7 +407,7 @@
                     <!-- Bảng xếp hạng bài này -->
                     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                         <div class="px-5 py-3 bg-gradient-to-r from-amber-600 to-amber-500 flex items-center justify-between">
-                            <h3 class="text-sm font-black text-white">🏆 Xếp Hạng Bài Này</h3>
+                            <h3 class="text-sm font-bold text-white">🏆 Xếp Hạng Bài Này</h3>
                             <span class="text-xs text-amber-100">{{ session.total_questions || 100 }} câu</span>
                         </div>
                         <div v-if="ranking.length === 0" class="py-10 text-center text-gray-400 text-sm">
@@ -419,7 +419,7 @@
                                 :class="i === 0 ? 'bg-yellow-50' : i === 1 ? 'bg-gray-50/80' : i === 2 ? 'bg-orange-50/50' : ''">
                                 <div class="w-9 text-center">
                                     <span v-if="i < 3" class="text-xl">{{ i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉' }}</span>
-                                    <span v-else class="text-sm font-black text-gray-400">{{ i + 1 }}</span>
+                                    <span v-else class="text-sm font-bold text-gray-400">{{ i + 1 }}</span>
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="font-bold text-sm text-gray-900">{{ r.full_name }}</div>
@@ -433,7 +433,7 @@
                                     </div>
                                 </div>
                                 <div class="shrink-0 text-right">
-                                    <span class="text-xl font-black"
+                                    <span class="text-xl font-bold"
                                         :class="r.percent >= 80 ? 'text-green-700' : r.percent >= 50 ? 'text-amber-700' : 'text-red-600'">
                                         {{ r.score }}
                                     </span>
@@ -448,7 +448,7 @@
                                     <div class="font-bold text-sm text-gray-500">{{ rec.full_name }}</div>
                                     <div class="text-xs text-gray-400">Chưa nộp bài</div>
                                 </div>
-                                <span class="text-sm font-black text-gray-300">0</span>
+                                <span class="text-sm font-bold text-gray-300">0</span>
                             </div>
                         </div>
                     </div>
@@ -461,7 +461,7 @@
                         <!-- Fund header -->
                         <div class="flex items-center justify-between mb-3">
                             <div>
-                                <h3 class="font-black text-gray-900">{{ fund.name }}</h3>
+                                <h3 class="font-bold text-gray-900">{{ fund.name }}</h3>
                                 <p class="text-xs text-gray-500">Tổng quỹ: <span class="font-bold text-green-600">{{ formatMoney(fund.balance) }}</span></p>
                             </div>
                             <button v-if="canRecordOffering" @click="openOfferingForm(fund)" class="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 border border-green-200 rounded-xl text-sm font-bold hover:bg-green-100 transition-colors">
@@ -473,7 +473,7 @@
                             <div v-if="fund.transactions.length === 0" class="py-8 text-center text-gray-400 text-sm italic">Chưa có giao dịch trong buổi học này.</div>
                             <div v-else class="divide-y divide-gray-100">
                                 <div v-for="tx in fund.transactions" :key="tx.id" class="px-4 py-3 flex items-center gap-3">
-                                    <div :class="tx.type === 'income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'" class="w-8 h-8 rounded-full flex items-center justify-center text-base shrink-0 font-black">
+                                    <div :class="tx.type === 'income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'" class="w-8 h-8 rounded-full flex items-center justify-center text-base shrink-0 font-bold">
                                         {{ tx.type === 'income' ? '↑' : '↓' }}
                                     </div>
                                     <div class="flex-1">
@@ -641,6 +641,8 @@ const props = defineProps({
     canMarkAttendance: Boolean,
     canRecordOffering: Boolean,
     portalType: String,
+    availableDepartments: Array,
+    isGlobalAdmin: Boolean,
 });
 
 // ── State ────────────────────────────────────────────────────────

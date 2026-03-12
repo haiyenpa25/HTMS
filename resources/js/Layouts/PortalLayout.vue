@@ -19,7 +19,7 @@
             <p class="text-[14px] font-bold text-gray-900 truncate leading-tight">{{ department?.name || 'Cổng Ban Ngành' }}</p>
             <p class="text-[10px] font-bold uppercase tracking-wider mt-0.5"
               :class="portalType === 'activities' ? 'text-blue-500' : portalType === 'ministry' ? 'text-emerald-500' : 'text-amber-500'">
-              {{ portalType === 'activities' ? 'Cổng Sinh Hoạt' : portalType === 'ministry' ? 'Cổng Mục Vụ' : 'Cổng Chấp Sự' }}
+              {{ portalType === 'activities' ? 'Cổng Sinh Hoạt' : portalType === 'ministry' ? 'Cổng Mục Vụ' : 'Lãnh Đạo HT' }}
             </p>
           </div>
           <svg v-if="!sidebarCollapsed && ((availableDepartments && availableDepartments.length > 1) || isGlobalAdmin)"
@@ -38,7 +38,7 @@
 
       <!-- Nav items -->
       <nav class="flex-1 overflow-y-auto py-3 px-3 space-y-1 hide-scrollbar">
-        <p v-if="!sidebarCollapsed" class="px-2 pt-1 pb-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Menu</p>
+        <p v-if="!sidebarCollapsed" class="px-2 pt-1 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Menu</p>
         <template v-for="item in visibleNavItems" :key="item.key">
           <Link v-if="!item.disabled" :href="item.href"
             :class="['flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all',
@@ -100,7 +100,7 @@
             <p class="text-[14px] font-bold text-gray-900 truncate leading-tight">{{ department?.name || 'Ban Ngành' }}</p>
             <p class="text-[10px] font-bold uppercase tracking-wider"
               :class="portalType === 'activities' ? 'text-blue-500' : portalType === 'ministry' ? 'text-emerald-500' : 'text-amber-500'">
-              {{ portalType === 'activities' ? 'Sinh Hoạt' : portalType === 'ministry' ? 'Mục Vụ' : 'Chấp Sự' }}
+              {{ portalType === 'activities' ? 'Sinh Hoạt' : portalType === 'ministry' ? 'Mục Vụ' : 'Lãnh Đạo' }}
             </p>
           </div>
           <svg v-if="(availableDepartments && availableDepartments.length > 1) || isGlobalAdmin"
@@ -179,7 +179,7 @@
         <div v-for="(depts, block) in allDeptsGrouped" :key="block" class="mb-4">
           <template v-if="depts.length > 0">
             <button @click="toggleBlock(block)" class="w-full flex items-center justify-between text-left focus:outline-none mb-3 group">
-              <h3 class="flex items-center gap-2 text-xs font-black uppercase tracking-widest" :class="blockInfo[block]?.color">
+              <h3 class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest" :class="blockInfo[block]?.color">
                 <span>{{ blockInfo[block]?.icon }}</span> {{ blockInfo[block]?.name }}
               </h3>
               <div class="w-6 h-6 rounded flex items-center justify-center transition-colors" :class="expandedBlocks[block] ? 'bg-gray-100 text-gray-500' : 'bg-gray-50 text-gray-400 group-hover:bg-gray-100'">
@@ -194,12 +194,12 @@
                   ? 'border-blue-500 bg-blue-50 ring-4 ring-blue-50'
                   : 'border-gray-100 bg-white hover:border-blue-300 hover:bg-gray-50'">
                 <div class="flex items-center space-x-4">
-                  <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-colors"
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-colors"
                     :class="department?.id === dept.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-blue-100 group-hover:text-blue-600'">
                     {{ dept.name.charAt(0) }}
                   </div>
                   <div class="min-w-0">
-                    <h4 class="text-sm font-black truncate" :class="department?.id === dept.id ? 'text-blue-900' : 'text-gray-900'">{{ dept.name }}</h4>
+                    <h4 class="text-sm font-bold truncate" :class="department?.id === dept.id ? 'text-blue-900' : 'text-gray-900'">{{ dept.name }}</h4>
                     <p v-if="department?.id === dept.id" class="text-[10px] text-blue-600 font-bold uppercase tracking-wider">Đang hoạt động</p>
                     <p v-else class="text-[10px] text-gray-400 font-medium">Bấm để chuyển sang</p>
                   </div>
@@ -300,6 +300,7 @@ const visibleNavItems = computed(() => {
       (f['members']||f['thanh-vien']) && { key: 'members', label: 'Thành Viên', shortLabel: 'T.Viên', icon: ICONS.members, href: route('portal.members.index'), active: route().current('portal.members.*'), disabled: !(p['members']||p['thanh-vien']) },
       f['reports']      && { key: 'reports',      label: 'Báo Cáo',     shortLabel: 'Báo Cáo',     icon: ICONS.reports,    href: route('portal.reports.index'),    active: route().current('portal.reports.*'),    disabled: !p['reports'] },
       f['finance']      && { key: 'finance',      label: 'Tài Chính',   shortLabel: 'Tài Chính',   icon: ICONS.finance,    href: route('portal.finance.index'),    active: route().current('portal.finance.*'),    disabled: !p['finance'] },
+      f['assignments']  && { key: 'assignments',  label: 'Phân Công',   shortLabel: 'P.Công',      icon: ICONS.assignment, href: route('portal.duty-rooster.index'), active: route().current('portal.duty-rooster.*'), disabled: !p['assignments'] },
     ].filter(Boolean);
   }
 
@@ -310,14 +311,15 @@ const visibleNavItems = computed(() => {
       f['visitation']   && { key: 'visitation',   label: 'Thăm Viếng',  shortLabel: 'Thăm Viếng',  icon: ICONS.visitation, href: route('ministry.visitation.index'), active: route().current('ministry.visitation.*'), disabled: !p['visitation'] },
       f['education-classes'] && { key: 'classes', label: 'Lớp Học',     shortLabel: 'Lớp Học',     icon: ICONS.education,  href: route('ministry.education.classes'), active: route().current('ministry.education.classes'), disabled: !p['education-classes'] },
       f['education-report']  && { key: 'edu-rep', label: 'BC Giáo Dục', shortLabel: 'BC-GD',       icon: ICONS.reports,    href: route('ministry.education.report'),  active: route().current('ministry.education.report'),  disabled: !p['education-report'] },
+      f['assignments']  && { key: 'assignments',  label: 'Phân Công',   shortLabel: 'P.Công',      icon: ICONS.assignment, href: route('ministry.duty-rooster.index'), active: route().current('ministry.duty-rooster.*'), disabled: !p['assignments'] },
     ].filter(Boolean);
   }
 
   // deacon
   return [
     ...always,
-    { key: 'assignment', label: 'Phân Công', shortLabel: 'P.Công', icon: ICONS.assignment, href: route('duty-rooster.index'), active: route().current('duty-rooster.*'), disabled: false },
-  ];
+    f['assignments']  && { key: 'assignments', label: 'Phân Công', shortLabel: 'P.Công', icon: ICONS.assignment, href: route('deacon.duty-rooster.index'), active: route().current('deacon.duty-rooster.*'), disabled: !p['assignments'] },
+  ].filter(Boolean);
 });
 
 // Mobile shows first 4 items only (space for switcher button)

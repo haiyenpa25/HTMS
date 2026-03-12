@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <PortalLayout
       :department="department"
       :available-departments="availableDepartments"
@@ -18,8 +18,8 @@
       <!-- ══ HEADER ══ -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 no-print">
         <div>
-          <h2 class="text-xl font-black text-gray-900">📑 BÁO CÁO HỘI THÁNH</h2>
-          <p class="text-xs text-gray-500 mt-0.5">Thư Ký Hội Thánh · Tháng {{ localMonth }}/{{ localYear }}</p>
+          <h2 class="text-xl font-bold text-gray-900">📑 BÁO CÁO HỘI THÁNH</h2>
+          <p class="text-xs text-gray-500 mt-0.5">{{ department?.name }} · Tháng {{ localMonth }}/{{ localYear }}</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <div class="flex items-center gap-1 bg-white border border-gray-200 rounded-xl px-3 py-2 shadow-sm">
@@ -440,6 +440,7 @@ import VueApexCharts from 'vue3-apexcharts';
 const apexchart = VueApexCharts;
 
 const props = defineProps({
+  activeRole:           { type: String,  default: 'secretary' },
   department:           { type: Object,  default: () => ({}) },
   availableDepartments: { type: Array,   default: () => [] },
   isGlobalAdmin:        { type: Boolean, default: false },
@@ -461,6 +462,12 @@ const ytSaving         = ref(false);
 const incidentSaving   = ref(false);
 const editingIncident  = ref(null);
 const localIncidents   = ref([...props.incidents]);
+
+// Vai trò và tên hiển thị (cho bộ switcher)
+const availableRoles = [
+    { id: 'secretary', name: 'Thư ký Hội Thánh',  desc: 'Điểm danh, báo cáo ban ngành' },
+    { id: 'treasurer', name: 'Thủ Quỹ Hội Thánh', desc: 'Quản lý tài chính, thu chi' },
+];
 
 const isLeader = computed(() => props.isGlobalAdmin);
 const isLocked = computed(() => props.report?.status === 'approved');

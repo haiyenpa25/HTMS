@@ -1,5 +1,5 @@
-﻿<template>
-    <PortalLayout :department="null" :available-departments="[]" :is-global-admin="false" :portalType="portalType">
+<template>
+    <PortalLayout :department="eduClass.department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" portal-type="ministry">
         <div class="min-h-screen bg-gray-50">
 
             <!-- Header -->
@@ -9,7 +9,7 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </Link>
                     <div class="flex-1 min-w-0">
-                        <h1 class="font-black text-lg leading-tight">{{ eduClass.name }}</h1>
+                        <h1 class="font-bold text-lg leading-tight">{{ eduClass.name }}</h1>
                         <p class="text-indigo-200 text-xs">
                             {{ eduClass.class_type === 'bible_quiz' ? 'Quản lý bài kiểm tra' : 'Quản lý buổi học' }}
                             · {{ sessions.length }} {{ eduClass.class_type === 'bible_quiz' ? 'bài đã ghi nhận' : 'buổi đã ghi nhận' }}
@@ -23,7 +23,7 @@
                         <!-- Step 1: request confirm -->
                         <div v-if="!bulkConfirming" class="flex items-center gap-2">
                             <button @click="bulkConfirming = true"
-                                class="flex items-center gap-1.5 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-black text-sm rounded-xl transition-colors shadow-sm">
+                                class="flex items-center gap-1.5 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold text-sm rounded-xl transition-colors shadow-sm">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 Xóa {{ selectedIds.size }} {{ eduClass.class_type === 'bible_quiz' ? 'bài' : 'buổi' }}
                             </button>
@@ -32,7 +32,7 @@
                         <div v-else class="flex items-center gap-2 bg-red-500 rounded-xl px-3 py-1.5">
                             <span class="text-white text-xs font-bold">Xác nhận xóa {{ selectedIds.size }} buổi?</span>
                             <button @click="bulkDelete"
-                                class="px-3 py-1 bg-white text-red-600 text-xs font-black rounded-lg hover:bg-red-50 transition-colors">
+                                class="px-3 py-1 bg-white text-red-600 text-xs font-bold rounded-lg hover:bg-red-50 transition-colors">
                                 Xóa!
                             </button>
                             <button @click="bulkConfirming = false"
@@ -44,7 +44,7 @@
                     </div>
                     <!-- Create button -->
                     <button v-if="canManage" @click="showCreateForm = true"
-                        class="flex items-center gap-2 px-4 py-2 bg-white text-indigo-700 font-black text-sm rounded-xl hover:bg-indigo-50 transition-colors shadow-sm shrink-0">
+                        class="flex items-center gap-2 px-4 py-2 bg-white text-indigo-700 font-bold text-sm rounded-xl hover:bg-indigo-50 transition-colors shadow-sm shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         {{ eduClass.class_type === 'bible_quiz' ? '+ Thêm bài KT' : 'Tạo buổi học' }}
                     </button>
@@ -74,7 +74,7 @@
                             <label for="select-all" class="text-xs font-bold text-gray-500 cursor-pointer select-none">Chọn tất cả</label>
                         </div>
                         <div class="flex-1 flex items-center justify-between">
-                            <h2 class="font-black text-gray-900 text-sm uppercase tracking-wider">
+                            <h2 class="font-bold text-gray-900 text-sm uppercase tracking-wider">
                                 {{ eduClass.class_type === 'bible_quiz' ? 'Danh sách bài học' : 'Danh sách buổi học' }}
                             </h2>
                             <span class="text-xs text-gray-400">{{ eduClass.class_type === 'bible_quiz' ? 'Nhấn để chấm điểm' : 'Nhấn vào buổi để điểm danh' }}</span>
@@ -86,7 +86,7 @@
                         <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <svg class="w-8 h-8 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         </div>
-                        <h3 class="font-black text-gray-700 text-base mb-1">Chưa có buổi học nào</h3>
+                        <h3 class="font-bold text-gray-700 text-base mb-1">Chưa có buổi học nào</h3>
                         <p class="text-gray-400 text-sm mb-4">Tạo buổi học đầu tiên để bắt đầu điểm danh</p>
                         <button v-if="canManage" @click="showCreateForm = true"
                             class="px-6 py-2 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-700 transition-colors">
@@ -110,7 +110,7 @@
 
                             <!-- Date badge — clickable to enter session -->
                             <div class="shrink-0 w-14 text-center cursor-pointer" @click="goToSession(s.id)">
-                                <div class="text-lg font-black text-indigo-700 leading-none">{{ dayNum(s.session_date) }}</div>
+                                <div class="text-lg font-bold text-indigo-700 leading-none">{{ dayNum(s.session_date) }}</div>
                                 <div class="text-[10px] font-bold text-gray-400 uppercase mt-0.5">{{ monthShort(s.session_date) }}</div>
                                 <div class="text-[10px] text-gray-300">{{ year(s.session_date) }}</div>
                             </div>
@@ -118,7 +118,7 @@
                             <!-- Info — clickable to enter session -->
                             <div class="flex-1 min-w-0 cursor-pointer" @click="goToSession(s.id)">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span v-if="s.lesson_number" class="bg-indigo-100 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-full">
+                                    <span v-if="s.lesson_number" class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
                                         Bài {{ s.lesson_number }}
                                     </span>
                                     <span v-if="s.lesson_series" class="text-gray-400 text-xs font-medium truncate max-w-[140px]">{{ s.lesson_series }}</span>
@@ -157,7 +157,7 @@
         <SlideOver v-model="showCreateForm" title="Tạo Buổi Học Mới" description="Chọn ngày Chủ Nhật cho buổi học">
             <div class="space-y-5">
                 <div>
-                    <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-3">Chọn nhanh (Chủ Nhật)</label>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Chọn nhanh (Chủ Nhật)</label>
                     <div class="grid grid-cols-2 gap-2">
                         <button v-for="sun in upcomingSundays" :key="sun.value"
                             @click="createForm.session_date = sun.value"
@@ -176,7 +176,7 @@
                     <p class="mt-1 text-xs text-gray-400">Lớp Giáo Lý có thể chọn ngày bất kỳ</p>
                 </div>
                 <div class="border-t border-gray-100 pt-4">
-                    <p class="text-xs font-black text-gray-500 uppercase tracking-wider mb-3">Thông tin bài học (tuỳ chọn)</p>
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Thông tin bài học (tuỳ chọn)</p>
                     <div class="space-y-3">
                         <div class="grid grid-cols-2 gap-3">
                             <div>
@@ -232,6 +232,8 @@ const props = defineProps({
     canManage: Boolean,
     portalType: String,
     routePrefix: { type: String, default: 'education' },
+    availableDepartments: Array,
+    isGlobalAdmin: Boolean,
 });
 
 

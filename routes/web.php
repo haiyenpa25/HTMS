@@ -181,7 +181,26 @@ Route::middleware('auth')->group(function () {
 
         // Phân công
         Route::middleware('portal.access:assignments,activities')->group(function () {
-            Route::get('/assignments', [\App\Http\Controllers\Portal\AssignmentsController::class, 'index'])->name('portal.assignments.index');
+            Route::prefix('duty-rooster')->name('portal.duty-rooster.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\DutyRosterController::class, 'index'])->name('index');
+                Route::post('/assignments', [\App\Http\Controllers\DutyRosterController::class, 'storeAssignment'])->name('assignments.store');
+                Route::post('/copy-week', [\App\Http\Controllers\DutyRosterController::class, 'copyWeek'])->name('copy-week');
+                Route::post('/departments/{department}/roles', [\App\Http\Controllers\DutyRosterController::class, 'storeRole'])->name('roles.store');
+                Route::delete('/roles/{role}', [\App\Http\Controllers\DutyRosterController::class, 'destroyRole'])->name('roles.destroy');
+
+                Route::get('/templates', [\App\Http\Controllers\DutyRosterController::class, 'templatesIndex'])->name('templates.index');
+                Route::get('/templates/create', [\App\Http\Controllers\DutyRosterController::class, 'templateCreate'])->name('templates.create');
+                Route::get('/templates/{template}', [\App\Http\Controllers\DutyRosterController::class, 'templateShow'])->name('templates.show');
+                Route::post('/templates', [\App\Http\Controllers\DutyRosterController::class, 'storeTemplate'])->name('templates.store');
+                Route::put('/templates/{template}', [\App\Http\Controllers\DutyRosterController::class, 'updateTemplate'])->name('templates.update');
+                Route::post('/templates/apply', [\App\Http\Controllers\DutyRosterController::class, 'applyTemplate'])->name('templates.apply');
+                Route::delete('/templates/{template}', [\App\Http\Controllers\DutyRosterController::class, 'deleteTemplate'])->name('templates.destroy');
+                Route::post('/templates/{template}/roles', [\App\Http\Controllers\DutyRosterController::class, 'addTemplateRole'])->name('templates.roles.add');
+                Route::delete('/templates/{template}/roles/{role}', [\App\Http\Controllers\DutyRosterController::class, 'removeTemplateRole'])->name('templates.roles.remove');
+
+                Route::get('/{meeting}/export', [\App\Http\Controllers\DutyRosterController::class, 'exportMeeting'])->name('export');
+                Route::get('/{meeting}', [\App\Http\Controllers\DutyRosterController::class, 'show'])->name('show');
+            });
         });
 
         // Báo cáo
@@ -232,6 +251,30 @@ Route::middleware('auth')->group(function () {
         Route::post('/members/{member}/generate-account', [\App\Http\Controllers\Portal\PortalMemberController::class, 'createUserAccount'])->name('ministry.members.generate-account');
         Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('ministry.members.remove');
         Route::delete('/members/bulk/remove', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkRemove'])->name('ministry.members.bulk-remove');
+
+        // Phân công
+        Route::middleware('portal.access:assignments,ministry')->group(function () {
+            Route::prefix('duty-rooster')->name('ministry.duty-rooster.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\DutyRosterController::class, 'index'])->name('index');
+                Route::post('/assignments', [\App\Http\Controllers\DutyRosterController::class, 'storeAssignment'])->name('assignments.store');
+                Route::post('/copy-week', [\App\Http\Controllers\DutyRosterController::class, 'copyWeek'])->name('copy-week');
+                Route::post('/departments/{department}/roles', [\App\Http\Controllers\DutyRosterController::class, 'storeRole'])->name('roles.store');
+                Route::delete('/roles/{role}', [\App\Http\Controllers\DutyRosterController::class, 'destroyRole'])->name('roles.destroy');
+
+                Route::get('/templates', [\App\Http\Controllers\DutyRosterController::class, 'templatesIndex'])->name('templates.index');
+                Route::get('/templates/create', [\App\Http\Controllers\DutyRosterController::class, 'templateCreate'])->name('templates.create');
+                Route::get('/templates/{template}', [\App\Http\Controllers\DutyRosterController::class, 'templateShow'])->name('templates.show');
+                Route::post('/templates', [\App\Http\Controllers\DutyRosterController::class, 'storeTemplate'])->name('templates.store');
+                Route::put('/templates/{template}', [\App\Http\Controllers\DutyRosterController::class, 'updateTemplate'])->name('templates.update');
+                Route::post('/templates/apply', [\App\Http\Controllers\DutyRosterController::class, 'applyTemplate'])->name('templates.apply');
+                Route::delete('/templates/{template}', [\App\Http\Controllers\DutyRosterController::class, 'deleteTemplate'])->name('templates.destroy');
+                Route::post('/templates/{template}/roles', [\App\Http\Controllers\DutyRosterController::class, 'addTemplateRole'])->name('templates.roles.add');
+                Route::delete('/templates/{template}/roles/{role}', [\App\Http\Controllers\DutyRosterController::class, 'removeTemplateRole'])->name('templates.roles.remove');
+
+                Route::get('/{meeting}/export', [\App\Http\Controllers\DutyRosterController::class, 'exportMeeting'])->name('export');
+                Route::get('/{meeting}', [\App\Http\Controllers\DutyRosterController::class, 'show'])->name('show');
+            });
+        });
 
         // ─── Ban Cơ Đốc Giáo Dục — Education sub-portal ──────────────────────
         Route::prefix('education')->group(function () {
@@ -338,10 +381,34 @@ Route::middleware('auth')->group(function () {
         Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('deacon.members.remove');
         Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('deacon.members.bulk-assign-team');
         Route::post('/members/bulk-remove', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkRemove'])->name('deacon.members.bulk-remove');
+
+        // Phân công
+        Route::middleware('portal.access:assignments,leadership')->group(function () {
+            Route::prefix('duty-rooster')->name('deacon.duty-rooster.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\DutyRosterController::class, 'index'])->name('index');
+                Route::post('/assignments', [\App\Http\Controllers\DutyRosterController::class, 'storeAssignment'])->name('assignments.store');
+                Route::post('/copy-week', [\App\Http\Controllers\DutyRosterController::class, 'copyWeek'])->name('copy-week');
+                Route::post('/departments/{department}/roles', [\App\Http\Controllers\DutyRosterController::class, 'storeRole'])->name('roles.store');
+                Route::delete('/roles/{role}', [\App\Http\Controllers\DutyRosterController::class, 'destroyRole'])->name('roles.destroy');
+
+                Route::get('/templates', [\App\Http\Controllers\DutyRosterController::class, 'templatesIndex'])->name('templates.index');
+                Route::get('/templates/create', [\App\Http\Controllers\DutyRosterController::class, 'templateCreate'])->name('templates.create');
+                Route::get('/templates/{template}', [\App\Http\Controllers\DutyRosterController::class, 'templateShow'])->name('templates.show');
+                Route::post('/templates', [\App\Http\Controllers\DutyRosterController::class, 'storeTemplate'])->name('templates.store');
+                Route::put('/templates/{template}', [\App\Http\Controllers\DutyRosterController::class, 'updateTemplate'])->name('templates.update');
+                Route::post('/templates/apply', [\App\Http\Controllers\DutyRosterController::class, 'applyTemplate'])->name('templates.apply');
+                Route::delete('/templates/{template}', [\App\Http\Controllers\DutyRosterController::class, 'deleteTemplate'])->name('templates.destroy');
+                Route::post('/templates/{template}/roles', [\App\Http\Controllers\DutyRosterController::class, 'addTemplateRole'])->name('templates.roles.add');
+                Route::delete('/templates/{template}/roles/{role}', [\App\Http\Controllers\DutyRosterController::class, 'removeTemplateRole'])->name('templates.roles.remove');
+
+                Route::get('/{meeting}/export', [\App\Http\Controllers\DutyRosterController::class, 'exportMeeting'])->name('export');
+                Route::get('/{meeting}', [\App\Http\Controllers\DutyRosterController::class, 'show'])->name('show');
+            });
+        });
     });
 
-    // Duty Roster (Phân công tổng thể)
-    Route::prefix('duty-rooster')->group(function () {
+    // Old Duty Roster (To be removed later if obsolete)
+    Route::prefix('duty-rooster')->middleware(\App\Http\Middleware\EnsureSuperAdmin::class)->group(function () {
         Route::get('/', [\App\Http\Controllers\DutyRosterController::class, 'index'])->name('duty-rooster.index');
         Route::post('/assignments', [\App\Http\Controllers\DutyRosterController::class, 'storeAssignment'])->name('duty-rooster.assignments.store');
         Route::post('/copy-week', [\App\Http\Controllers\DutyRosterController::class, 'copyWeek'])->name('duty-rooster.copy-week');

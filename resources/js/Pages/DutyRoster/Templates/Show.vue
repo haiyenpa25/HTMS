@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { ref, computed, reactive, onMounted } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import DutyRosterLayout from '@/Layouts/DutyRosterLayout.vue';
@@ -14,6 +14,8 @@ const props = defineProps({
 
 // ── Template state ─────────────────────────────────────────
 const templateName   = ref(props.template.name);
+const templateType   = ref(props.template.type || 'church');
+const templateDeptId = ref(props.template.department_id || null);
 const saving         = ref(false);
 const savingMsg      = ref(null);
 
@@ -145,6 +147,8 @@ const saveName = async () => {
   if (!templateName.value.trim()) return;
   await axios.put(route('duty-rooster.templates.update', props.template.id), {
     name: templateName.value,
+    type: templateType.value,
+    department_id: templateType.value === 'department' ? templateDeptId.value : null
   });
   savingMsg.value = '✓ Đã lưu'; setTimeout(() => savingMsg.value = null, 2000);
 };
@@ -175,29 +179,52 @@ const deleteTemplate = () => {
       </div>
 
       <!-- ── Title + Actions ────────────────────────── -->
-      <div class="flex items-start justify-between gap-4 mb-8">
+      <div class="flex items-start justify-between gap-4 mb-4">
         <div class="flex-1">
           <input v-model="templateName"
             class="text-3xl font-black text-gray-900 border-0 border-b-2 border-transparent focus:border-indigo-400 focus:ring-0 bg-transparent p-0 w-full leading-tight"
             @blur="saveName" @keyup.enter="saveName" placeholder="Tên mẫu phân công..." />
-          <div class="flex items-center gap-2 mt-1.5">
-            <p class="text-xs text-gray-400">Thiết lập các vị trí phục vụ cố định cho buổi lễ.</p>
+          
+          <div class="flex items-center gap-4 mt-3">
+              <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-gray-400">Loại:</span>
+                  <select v-model="templateType" @change="saveName" class="text-xs py-1 pl-2 pr-6 rounded-lg border-gray-200 focus:ring-indigo-400 focus:border-indigo-400">
+                      <option value="church">Hội Thánh</option>
+                      <option value="department">Ban Ngành</option>
+                  </select>
+              </div>
+              
+              <div v-if="templateType === 'department'" class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-gray-400">Ban:</span>
+                  <select v-model="templateDeptId" @change="saveName" class="text-xs py-1 pl-2 pr-6 rounded-lg border-gray-200 focus:ring-indigo-400 focus:border-indigo-400">
+                      <option :value="null">-- Chọn Ban --</option>
+                      <option v-for="dept in departments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
+                  </select>
+              </div>
+              
             <transition name="fade">
-              <span v-if="savingMsg" class="text-[10px] text-emerald-600 font-bold">{{ savingMsg }}</span>
+              <span v-if="savingMsg" class="text-[10px] text-emerald-600 font-bold ml-2">{{ savingMsg }}</span>
             </transition>
           </div>
         </div>
-        <div class="flex gap-2 shrink-0">
-          <button @click="confirmDelete=true"
-            class="flex items-center gap-1.5 px-3 py-2.5 text-sm font-bold text-red-500 bg-red-50 hover:bg-red-100 rounded-xl border border-red-100 transition-all">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
-            Xóa
-          </button>
-          <Link :href="route('duty-rooster.index')"
-            class="px-4 py-2.5 text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-all">
-            Áp dụng cho buổi nhóm →
-          </Link>
+        <div class="flex flex-col gap-2 shrink-0 items-end">
+          <div class="flex gap-2">
+            <button @click="confirmDelete=true"
+              class="flex items-center gap-1.5 px-3 py-2.5 text-sm font-bold text-red-500 bg-red-50 hover:bg-red-100 rounded-xl border border-red-100 transition-all">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+              Xóa
+            </button>
+            <Link :href="route('duty-rooster.index')"
+              class="px-4 py-2.5 text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-all">
+              Áp dụng cho buổi nhóm →
+            </Link>
+          </div>
         </div>
+      </div>
+      
+      <div v-if="templateType === 'department'" class="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-8 text-xs text-blue-700 flex items-start gap-2">
+        <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
+        <span>Đây là mẫu phân công dành riêng cho Ban Ngành. Mẫu này sẽ chỉ hiển thị khi phân công cho các buổi nhóm của ban, và chỉ có thể chọn các thành viên thuộc {{ departments.find(d => d.id === templateDeptId)?.name || 'ban này' }}.</span>
       </div>
 
       <!-- ══════════════════════════════════════════════

@@ -1,16 +1,22 @@
-﻿<script setup>
+<script setup>
 import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import DutyRosterLayout from '@/Layouts/DutyRosterLayout.vue';
 
-const props = defineProps({ departments: Array });
+const props = defineProps({ departments: Array, defaultType: String, defaultDeptId: Number });
 
 const name = ref('');
+const type = ref(props.defaultType || 'church');
+const department_id = ref(props.defaultDeptId || null);
 const saving = ref(false);
 
 const submit = () => {
   if (!name.value.trim()) return;
-  router.post(route('duty-rooster.templates.store'), { name: name.value });
+  router.post(route('duty-rooster.templates.store'), { 
+    name: name.value,
+    type: type.value,
+    department_id: department_id.value
+  });
 };
 </script>
 
@@ -30,7 +36,7 @@ const submit = () => {
         <h1 class="text-2xl font-black text-gray-900 mb-2">Tạo Mẫu Mới</h1>
         <p class="text-sm text-gray-400 mb-8">Sau khi tạo, bạn sẽ chọn các ban và thêm vai trò cho từng ban.</p>
 
-        <div class="mb-6">
+        <div class="mb-4">
           <label class="block text-xs font-black text-gray-600 uppercase tracking-wider mb-2">Tên mẫu phân công</label>
           <input v-model="name" type="text"
             placeholder="VD: Lễ Thờ Phượng Chúa Nhật, Nhóm Ban Ngành..."
@@ -38,7 +44,24 @@ const submit = () => {
             @keyup.enter="submit" />
         </div>
 
-        <button @click="submit" :disabled="!name.trim()"
+        <div class="mb-6 grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-black text-gray-600 uppercase tracking-wider mb-2">Loại mẫu</label>
+                <select v-model="type" class="w-full text-sm rounded-xl border-gray-200 focus:ring-orange-400 focus:border-orange-400" :disabled="props.defaultDeptId !== null">
+                    <option value="church">Hội Thánh</option>
+                    <option value="department">Ban Ngành</option>
+                </select>
+            </div>
+            <div v-if="type === 'department'">
+                <label class="block text-xs font-black text-gray-600 uppercase tracking-wider mb-2">Ban Ngành</label>
+                <select v-model="department_id" class="w-full text-sm rounded-xl border-gray-200 focus:ring-orange-400 focus:border-orange-400" :disabled="props.defaultDeptId !== null">
+                    <option :value="null">-- Chọn Ban --</option>
+                    <option v-for="dept in departments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
+                </select>
+            </div>
+        </div>
+
+        <button @click="submit" :disabled="!name.trim() || (type === 'department' && !department_id)"
           class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-black text-sm rounded-xl transition-all shadow-sm disabled:opacity-40">
           Tạo &amp; Thiết lập vị trí →
         </button>

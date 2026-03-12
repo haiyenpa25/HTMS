@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RosterTemplate extends Model
 {
-    protected $fillable = ['name', 'department_id'];
+    protected $fillable = ['name', 'department_id', 'type', 'description'];
 
     public function department()
     {
