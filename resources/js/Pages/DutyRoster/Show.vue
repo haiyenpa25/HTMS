@@ -2,22 +2,29 @@
 import { ref, computed, reactive } from 'vue';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import DutyRosterLayout from '@/Layouts/DutyRosterLayout.vue';
+import PortalLayout from '@/Layouts/PortalLayout.vue';
 import axios from 'axios';
 
 const props = defineProps({
-  meeting:      Object,
-  departments:  Array,
-  members:      Array,
-  speakers:     Array,
-  deptMembers:  Object,
-  templates:    Array,
-  authDeptIds:  Array,
+  meeting:              Object,
+  departments:          Array,
+  members:              Array,
+  speakers:             Array,
+  deptMembers:          Object,
+  templates:            Array,
+  authDeptIds:          Array,
+  // Portal layout props
+  isPortal:             { type: Boolean, default: false },
+  portalType:           { type: String, default: 'activities' },
+  department:           { type: Object, default: null },
+  availableDepartments: { type: Array, default: () => [] },
+  isGlobalAdmin:        { type: Boolean, default: false },
 });
 
-// ── State ──────────────────────────────────────────────────
-const openPicker  = ref(null);   // "roleId-slot" key
-const pickerMode  = reactive({});  // key → 'church' | 'dept'
-const searchText  = reactive({});  // key → search string
+// State
+const openPicker  = ref(null);
+const pickerMode  = reactive({});
+const searchText  = reactive({});
 const expanded    = ref({});
 const showModal   = ref(false);
 const modalDept   = ref(null);
@@ -27,7 +34,7 @@ const page  = usePage();
 const flash = computed(() => page.props.flash);
 const roleForm = useForm({ name: '', section: '', max_count: 1 });
 
-// ── Date helpers ───────────────────────────────────────────
+// Date helpers
 const fmtDate = computed(() => {
   if (!props.meeting?.date) return {};
   const d   = new Date(props.meeting.date);
@@ -39,19 +46,22 @@ const fmtDate = computed(() => {
   };
 });
 
-// ── Permission helpers ─────────────────────────────────────
-// Section I (Chương Trình Lễ): mở cho tất cả người dùng có quyền vào trang
+// Permission helpers
+const userRoles = computed(() => page.props.auth?.user?.roles ?? []);
+const isAdmin = computed(() => userRoles.value.some(r => ['Super_Admin', 'Pastor', 'BTS_Admin'].includes(r.name)));
+
+// Section I (Chuong Trinh Le)
 const canEditSectionI = computed(() => {
-  if (page.props.auth.user.roles.some(r => ['Super_Admin', 'Pastor', 'BTS_Admin'].includes(r.name))) return true;
+  if (isAdmin.value) return true;
   return props.meeting.type === 'church';
 });
 
 // Section II: each dept edits their own only
 const canEditSectionII = (deptId) => {
-  if (page.props.auth.user.roles.some(r => ['Super_Admin', 'Pastor', 'BTS_Admin'].includes(r.name))) return true;
+  if (isAdmin.value) return true;
   return !props.authDeptIds?.length || props.authDeptIds.includes(deptId);
 };
-const canEdit = canEditSectionII; // backward-compat for modal
+const canEdit = canEditSectionII;
 
 const getAsgn = (rid, slot=1) =>
   props.meeting.duty_assignments?.find(a => a.department_role_id === rid && (Number(a.slot) || 1) === Number(slot));
@@ -59,45 +69,41 @@ const getName = (rid, slot=1) => getAsgn(rid, slot)?.member?.full_name || null;
 const hasAnyAsgn = (rid) => props.meeting.duty_assignments?.some(a => a.department_role_id === rid && a.member_id);
 const slotArr = r => Array.from({ length: r.max_count || 1 }, (_,i) => i+1);
 
-// ── Progress ───────────────────────────────────────────────
+// Progress
 const totalSlots = computed(() =>
   props.departments.reduce((s,d) => s + (d.duty_roles||[]).reduce((a,r) => a+(r.max_count||1),0), 0)
 );
 const filled = computed(() => (props.meeting.duty_assignments||[]).filter(a => a.member_id).length);
 const pct    = computed(() => totalSlots.value > 0 ? Math.round(filled.value/totalSlots.value*100) : 0);
 
-// ── Section split ──────────────────────────────────────────
+// Section split
+const SECTION_I = 'Chương Trình Lễ';
 const mainItems = computed(() => {
   const list = [];
   props.departments.forEach(dept => {
     (dept.duty_roles||[]).forEach(role => {
-      if (role.section === 'Chương Trình Lễ')
+      if (role.section === SECTION_I)
         slotArr(role).forEach(slot => list.push({ role, slot, dept }));
     });
   });
   return list;
 });
 const supportDepts = computed(() =>
-  props.departments.filter(d => (d.duty_roles||[]).some(r => r.section !== 'Chương Trình Lễ'))
+  props.departments.filter(d => (d.duty_roles||[]).some(r => r.section !== SECTION_I))
 );
-const supportRoles = dept => (dept.duty_roles||[]).filter(r => r.section !== 'Chương Trình Lễ');
+const supportRoles = dept => (dept.duty_roles||[]).filter(r => r.section !== SECTION_I);
 const hasMain = computed(() => mainItems.value.length > 0);
 
-// ── Picker ─────────────────────────────────────────────────
+// Picker
 const pKey = (rid, s) => `${rid}-${s}`;
-
-// Is this a speaker-type role (Diễn Giả)?
 const isSpeakerRole = (roleName) => /di[eê]n/i.test(roleName || '');
 
 const togP = (rid, s, deptId, roleName) => {
   const k = pKey(rid,s);
   if (openPicker.value === k) { openPicker.value = null; return; }
   openPicker.value = k;
-  
-  // Define default picker mode
   if (!pickerMode[k]) {
-    const isDeptHead = page.props.auth.user.roles.some(r => !['Super_Admin', 'Pastor', 'BTS_Admin'].includes(r.name));
-    
+    const isDeptHead = !isAdmin.value;
     if (isSpeakerRole(roleName)) {
       pickerMode[k] = 'speaker';
     } else if (props.meeting.type === 'department' || (isDeptHead && hasDeptMbrs(deptId))) {
@@ -113,8 +119,7 @@ const setMode  = (k, m) => { pickerMode[k] = m; };
 const pickerList = (rid, s, deptId) => {
   const k    = pKey(rid,s);
   const mode = pickerMode[k] || 'church';
-  const isDeptHead = page.props.auth.user.roles.some(r => !['Super_Admin', 'Pastor', 'BTS_Admin'].includes(r.name));
-
+  const isDeptHead = !isAdmin.value;
   let pool;
   if (mode === 'speaker') {
     pool = (props.speakers || []).map(sp => ({
@@ -132,16 +137,18 @@ const pickerList = (rid, s, deptId) => {
 };
 
 const hasDeptMbrs = deptId => (props.deptMembers?.[deptId]||[]).length > 0;
-const isRestrictedDeptView = deptId => {
-  const isDeptHead = page.props.auth.user.roles.some(r => !['Super_Admin', 'Pastor', 'BTS_Admin'].includes(r.name));
-  return isDeptHead;
-};
+const isRestrictedDeptView = () => !isAdmin.value;
 
-// ── Actions ────────────────────────────────────────────────
+// Route helpers
+const assignRoute = computed(() => props.isPortal ? 'portal.duty-rooster.assignments.store' : 'duty-rooster.assignments.store');
+const indexRoute  = computed(() => props.isPortal ? route('portal.duty-rooster.index', {month: fmtDate.value.month}) : route('duty-rooster.index', {month: fmtDate.value.month}));
+const exportRoute = computed(() => props.isPortal ? route('portal.duty-rooster.export', props.meeting.id) : route('duty-rooster.export', props.meeting.id));
+
+// Actions
 const assign = async (rid, slot, mid) => {
   openPicker.value = null; warnMsg.value = null;
   try {
-    const r = await axios.post(route('duty-rooster.assignments.store'), {
+    const r = await axios.post(route(assignRoute.value), {
       meeting_id: props.meeting.id, department_role_id: rid, slot, member_id: mid||null,
     });
     if (r.data?.warning) { warnMsg.value = r.data.warning; setTimeout(()=>warnMsg.value=null,5e3); }
@@ -152,7 +159,8 @@ const assign = async (rid, slot, mid) => {
 };
 const clear   = (rid,s) => assign(rid,s,null);
 const addRole = () => {
-  roleForm.post(route('duty-rooster.roles.store', modalDept.value.id), {
+  const storeRoute = props.isPortal ? 'portal.duty-rooster.roles.store' : 'duty-rooster.roles.store';
+  roleForm.post(route(storeRoute, modalDept.value.id), {
     onSuccess: () => { roleForm.reset(); showModal.value=false; },
   });
 };
@@ -160,7 +168,12 @@ const print = () => window.print();
 </script>
 
 <template>
-  <DutyRosterLayout :title="`${meeting.topic||'Phân công'} – ${fmtDate.short}`">
+  <component
+    :is="isPortal ? PortalLayout : DutyRosterLayout"
+    v-bind="isPortal
+      ? { department, availableDepartments, isGlobalAdmin, portalType }
+      : { title: `${meeting.topic||'Phân công'} – ${fmtDate.short}` }"
+  >
     <Head :title="`${meeting.topic||'Phân Công'} – ${fmtDate.short}`" />
 
     <!-- Toast -->
@@ -181,7 +194,7 @@ const print = () => window.print();
       <div class="flex items-start justify-between gap-4 mb-6">
         <div>
           <p class="text-xs text-gray-400 flex items-center gap-1 mb-1">
-            <Link :href="route('duty-rooster.index',{month:fmtDate.month})" class="hover:text-indigo-600">Lịch phân công</Link>
+            <Link :href="indexRoute" class="hover:text-indigo-600">Lịch phân công</Link>
             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
             <span>Chi tiết</span>
           </p>
@@ -192,8 +205,7 @@ const print = () => window.print();
           </div>
         </div>
         <div class="flex gap-1.5 sm:gap-2 shrink-0 no-print">
-          <!-- Export Excel -->
-          <a :href="route('duty-rooster.export', meeting.id)"
+          <a :href="exportRoute"
             class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 rounded-xl shadow-sm">
             <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
             <span class="hidden sm:inline">Excel</span>
@@ -221,7 +233,7 @@ const print = () => window.print();
         <p class="text-xs text-gray-400">{{ filled }}/{{ totalSlots }} vị trí đã được phân bổ nhân sự</p>
       </div>
 
-      <!-- ═══════ SECTION I — CHƯƠNG TRÌNH LỄ ═══════ -->
+      <!-- SECTION I: CHUONG TRINH LE -->
       <div v-if="hasMain" class="mb-10">
         <div class="flex items-center gap-3 mb-4">
           <div class="w-9 h-9 rounded-2xl bg-orange-500 text-white flex items-center justify-center text-sm font-black shadow-sm">I</div>
@@ -233,7 +245,6 @@ const print = () => window.print();
             🔒 Chỉ xem
           </span>
         </div>
-
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="item in mainItems" :key="`m-${item.role.id}-${item.slot}`"
             class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-visible">
@@ -244,9 +255,7 @@ const print = () => window.print();
               </div>
               <h3 class="font-black text-gray-900 text-sm truncate flex-1">{{ item.role.name }}<span v-if="item.role.max_count>1" class="text-gray-400 font-normal text-xs"> – {{ item.slot }}</span></h3>
             </div>
-
             <div class="px-4 pb-4">
-              <!-- Assigned chip -->
               <div v-if="getName(item.role.id,item.slot)"
                 class="flex items-center justify-between bg-orange-50 border border-orange-200 rounded-xl px-3 py-2.5">
                 <div class="flex items-center gap-2">
@@ -259,38 +268,30 @@ const print = () => window.print();
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
-
-              <!-- Picker trigger: Section I only editable by admin/pastor -->
               <div v-else class="relative">
                 <button @click.stop="canEditSectionI && togP(item.role.id,item.slot,item.dept.id,item.role.name)"
                   class="w-full flex items-center justify-between px-3 py-2.5 border border-dashed rounded-xl text-sm group transition-all"
-                  :class="canEditSectionI
-                    ? 'border-gray-300 text-gray-400 hover:border-orange-400 hover:bg-orange-50/50 cursor-pointer'
-                    : 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50/50'">
+                  :class="canEditSectionI ? 'border-gray-300 text-gray-400 hover:border-orange-400 hover:bg-orange-50/50 cursor-pointer' : 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50/50'">
                   <span>{{ canEditSectionI ? 'Chọn từ danh sách' : 'Chỉ xem (không có quyền)' }}</span>
                   <div v-if="canEditSectionI" class="w-6 h-6 border-2 border-orange-300 group-hover:bg-orange-500 group-hover:border-orange-500 rounded-full flex items-center justify-center transition-all shrink-0">
                     <svg class="w-3 h-3 text-orange-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                   </div>
-                  <svg v-else class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
                 </button>
-
-                <!-- Inline dropdown: only open when canEditSectionI -->
                 <div v-if="canEditSectionI && openPicker===pKey(item.role.id,item.slot)"
                   class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-2xl shadow-2xl z-[50] overflow-hidden" @click.stop>
                   <div class="flex border-b border-gray-100">
-                    <!-- Speaker tab: only for Diễn Giả roles -->
                     <button v-if="isSpeakerRole(item.role.name)" @click="setMode(pKey(item.role.id,item.slot),'speaker')"
                       class="flex-1 py-2 text-[11px] font-black transition-colors"
                       :class="(pickerMode[pKey(item.role.id,item.slot)]||'church')==='speaker' ? 'bg-amber-50 text-amber-700 border-b-2 border-amber-500' : 'text-gray-400 hover:text-gray-600'">
                       🎤 Diễn Giả
                     </button>
-                    <button v-if="meeting.type === 'church' && !isRestrictedDeptView(item.dept.id)" @click="setMode(pKey(item.role.id,item.slot),'church')"
+                    <button v-if="meeting.type === 'church' && !isRestrictedDeptView()" @click="setMode(pKey(item.role.id,item.slot),'church')"
                       class="flex-1 py-2 text-[11px] font-black transition-colors"
                       :class="(pickerMode[pKey(item.role.id,item.slot)]||'church')==='church' ? 'bg-indigo-50 text-indigo-700 border-b-2 border-indigo-500' : 'text-gray-400 hover:text-gray-600'">
                       Hội Thánh
                     </button>
                     <button v-if="hasDeptMbrs(item.dept.id)" @click="setMode(pKey(item.role.id,item.slot),'dept')"
-                      class="flex-1 py-2 text-[11px] font-black transition-colors disabled:opacity-30"
+                      class="flex-1 py-2 text-[11px] font-black transition-colors"
                       :class="(pickerMode[pKey(item.role.id,item.slot)]||'church')==='dept' ? 'bg-emerald-50 text-emerald-700 border-b-2 border-emerald-500' : 'text-gray-400 hover:text-gray-600'">
                       {{ item.dept.name }}
                     </button>
@@ -315,7 +316,7 @@ const print = () => window.print();
         </div>
       </div>
 
-      <!-- ═══════ SECTION II — BAN HỖ TRỢ ═══════ -->
+      <!-- SECTION II: BAN HO TRO -->
       <div v-if="supportDepts.length">
         <div class="flex items-center gap-3 mb-4">
           <div class="w-9 h-9 rounded-2xl flex items-center justify-center text-sm font-black shadow-sm" :class="hasMain?'bg-indigo-600 text-white':'bg-orange-500 text-white'">
@@ -326,11 +327,9 @@ const print = () => window.print();
             <p class="text-[11px] text-gray-400">{{ supportDepts.length }} ban · Bấm để mở từng ban và phân công</p>
           </div>
         </div>
-
         <div class="space-y-2">
           <div v-for="dept in supportDepts" :key="dept.id"
             class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-visible" :class="expanded[dept.id]?'border-indigo-200 shadow-md':''">
-
             <button @click="expanded[dept.id]=!expanded[dept.id]"
               class="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-gray-50/60 transition-colors">
               <svg class="w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200" :class="expanded[dept.id]?'rotate-90 text-indigo-500':''"
@@ -351,14 +350,11 @@ const print = () => window.print();
                 <p class="text-[9px] text-gray-400">vị trí</p>
               </div>
             </button>
-
             <div v-if="expanded[dept.id]" class="border-t border-gray-100 px-5 py-5 bg-gray-50/30 rounded-b-2xl">
               <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 <template v-for="role in supportRoles(dept)" :key="role.id">
                   <div v-for="slot in slotArr(role)" :key="`s-${role.id}-${slot}`" class="relative">
                     <p class="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-1.5 truncate">{{ role.name }}<span v-if="role.max_count>1"> ({{ slot }})</span></p>
-
-                    <!-- Assigned -->
                     <div v-if="getName(role.id,slot)"
                       class="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-xl px-2.5 py-2">
                       <div class="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-[8px] font-black text-white shrink-0">{{ getName(role.id,slot).slice(0,2).toUpperCase() }}</div>
@@ -367,26 +363,22 @@ const print = () => window.print();
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                       </button>
                     </div>
-
-                    <!-- Picker -->
                     <div v-else class="relative">
                       <button @click.stop="togP(role.id,slot,dept.id,role.name)" :disabled="!canEdit(dept.id)"
                         class="w-full flex items-center justify-between px-2.5 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-400 hover:border-indigo-300 hover:bg-indigo-50/30 disabled:opacity-40 group transition-all">
                         <span>Chọn...</span>
                         <svg class="w-3.5 h-3.5 text-indigo-400 group-hover:text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                       </button>
-
-                      <!-- Inline dropdown -->
                       <div v-if="openPicker===pKey(role.id,slot)"
                         class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-2xl shadow-2xl z-[50] overflow-hidden" style="min-width:220px" @click.stop>
                         <div class="flex border-b border-gray-100">
-                          <button v-if="meeting.type === 'church' && !isRestrictedDeptView(dept.id)" @click="setMode(pKey(role.id,slot),'church')"
+                          <button v-if="meeting.type === 'church' && !isRestrictedDeptView()" @click="setMode(pKey(role.id,slot),'church')"
                             class="flex-1 py-2 text-[11px] font-black transition-colors"
                             :class="(pickerMode[pKey(role.id,slot)]||'church')==='church' ? 'bg-indigo-50 text-indigo-700 border-b-2 border-indigo-500' : 'text-gray-400'">
                             Hội Thánh
                           </button>
                           <button v-if="hasDeptMbrs(dept.id)" @click="setMode(pKey(role.id,slot),'dept')"
-                            class="flex-1 py-2 text-[11px] font-black transition-colors disabled:opacity-30"
+                            class="flex-1 py-2 text-[11px] font-black transition-colors"
                             :class="(pickerMode[pKey(role.id,slot)]||'church')==='dept' ? 'bg-emerald-50 text-emerald-700 border-b-2 border-emerald-500' : 'text-gray-400'">
                             {{ dept.name }}
                           </button>
@@ -408,7 +400,6 @@ const print = () => window.print();
                     </div>
                   </div>
                 </template>
-
                 <!-- Add role -->
                 <div v-if="canEdit(dept.id)" class="no-print">
                   <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1.5">Thêm</p>
@@ -430,7 +421,7 @@ const print = () => window.print();
       <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
         <p class="text-xs text-gray-400 truncate">Phân <strong class="text-gray-700">{{ filled }}/{{ totalSlots }}</strong> vị trí</p>
         <div class="flex gap-2 shrink-0">
-          <Link :href="route('duty-rooster.index',{month:fmtDate.month})" class="px-2 sm:px-3 py-2 text-xs font-bold text-gray-500 hover:text-gray-700">
+          <Link :href="indexRoute" class="px-2 sm:px-3 py-2 text-xs font-bold text-gray-500 hover:text-gray-700">
             <span class="hidden sm:inline">← Quay lại</span>
             <svg class="sm:hidden w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
           </Link>
@@ -459,7 +450,7 @@ const print = () => window.print();
       </div>
     </div>
 
-  </DutyRosterLayout>
+  </component>
 </template>
 
 <style>

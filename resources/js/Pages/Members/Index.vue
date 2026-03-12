@@ -32,11 +32,11 @@
         </div>
         <div class="bg-white rounded-2xl p-4 border border-blue-100 shadow-sm">
           <p class="text-xs font-bold text-blue-400 uppercase tracking-widest mb-1">Chính thức</p>
-          <p class="text-2xl font-black text-blue-700">{{ members.data.filter(m => m.membership_status === 'official').length }}</p>
+          <p class="text-2xl font-black text-blue-700">{{ officialCount }}</p>
         </div>
         <div class="bg-white rounded-2xl p-4 border border-emerald-100 shadow-sm">
-          <p class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Đang hiểu đạo</p>
-          <p class="text-2xl font-black text-emerald-700">{{ members.data.filter(m => m.membership_status === 'learning').length }}</p>
+          <p class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Chưa chính thức</p>
+          <p class="text-2xl font-black text-emerald-700">{{ unofficialCount }}</p>
         </div>
         <div class="bg-white rounded-2xl p-4 border border-amber-100 shadow-sm">
           <p class="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">Trên trang hiện tại</p>
@@ -394,6 +394,10 @@ const props = defineProps({
   members: Object,
   filters: Object,
 });
+
+// Stats computed from current page data (approximate — full count requires backend)
+const officialCount = computed(() => props.members.data.filter(m => m.status === 'Chính thức').length);
+const unofficialCount = computed(() => props.members.data.filter(m => m.status === 'Chưa chính thức').length);
 
 const search = ref(props.filters.search || '');
 const viewMode = ref('list');

@@ -33,22 +33,43 @@ class DutyRosterController extends Controller
         $startDate   = Carbon::parse($month)->startOfMonth();
         $endDate     = Carbon::parse($month)->endOfMonth();
 
-        // Determine context
-        $deptContext = $request->attributes->get('department');
-        $portalType  = $request->attributes->get('portalType', 'deacon');
-        $thisDeptId  = $deptContext->id ?? null;
+        // ── Determine context ───────────────────────────────────────────
+        // If accessed via portal/* routes, use portal session dept.
+        // Otherwise fall back to middleware-injected attribute.
+        $isPortalRoute  = str_starts_with($request->route()->getName() ?? '', 'portal.');
+        $isMinistryRoute = str_starts_with($request->route()->getName() ?? '', 'ministry.');
 
+        if ($isPortalRoute || $isMinistryRoute) {
+            $deptId     = session('active_portal_dept_id');
+            $department = $deptId ? Department::find($deptId) : null;
+            $portalType = $isMinistryRoute ? 'ministry' : 'activities';
+        } else {
+            $deptContext = $request->attributes->get('department');
+            $department  = $deptContext ?? null;
+            $portalType  = $request->attributes->get('portalType', 'deacon');
+        }
+
+        $thisDeptId = $department?->id;
+
+        // ── Meetings query ──────────────────────────────────────────────
         $meetingsQuery = Meeting::whereBetween('date', [$startDate, $endDate])
             ->with(['dutyAssignments.role.department', 'dutyAssignments.member'])
             ->orderBy('date')->orderBy('time');
 
-        // Apply context filtering
-        if ($thisDeptId) {
-            $meetingsQuery->where(function ($query) use ($thisDeptId) {
-                // Should see church meetings (where departments serve) AND specific department meetings
-                $query->where('type', 'church')
-                      ->orWhere('department_id', $thisDeptId);
-            });
+        if ($isPortalRoute || $isMinistryRoute) {
+            // Portal context: only show THIS department's meetings (not church meetings)
+            if ($thisDeptId) {
+                $meetingsQuery->where('department_id', $thisDeptId)
+                              ->where('type', 'department');
+            }
+        } else {
+            // Deacon/other context: church + dept
+            if ($thisDeptId) {
+                $meetingsQuery->where(function ($query) use ($thisDeptId) {
+                    $query->where('type', 'church')
+                          ->orWhere('department_id', $thisDeptId);
+                });
+            }
         }
 
         if ($meetingType) {
@@ -56,43 +77,68 @@ class DutyRosterController extends Controller
         }
 
         $meetings     = $meetingsQuery->get();
-        
+
         $deptsQuery = Department::with(['dutyRoles' => fn($q) => $q->orderBy('section')->orderBy('sort_order')]);
         $templatesQuery = RosterTemplate::with('roles.departmentRole');
 
         if ($thisDeptId) {
-            // Only load roles for the specific department
             $deptsQuery->where('id', $thisDeptId);
-            // Load templates: Church templates OR specific Department templates
             $templatesQuery->where(function($q) use ($thisDeptId) {
                 $q->where('type', 'church')
                   ->orWhere('department_id', $thisDeptId);
             });
         }
-        
+
         $departments  = $deptsQuery->get();
         $templates    = $templatesQuery->get();
         $meetingTypes = Meeting::distinct()->pluck('type')->filter()->values()->toArray();
 
-        return Inertia::render('DutyRoster/HolisticView', [
+        // ── Portal layout props ─────────────────────────────────────────
+        $portalProps = [];
+        if ($isPortalRoute || $isMinistryRoute) {
+            $availableDepartments = app(\App\Services\PortalService::class)
+                ->getAvailableDepartments(auth()->user(), $portalType);
+            $portalProps = [
+                'department'           => $department,
+                'availableDepartments' => $availableDepartments,
+                'isGlobalAdmin'        => auth()->user()?->hasAnyRole(['Super_Admin', 'Pastor', 'BTS_Admin']) ?? false,
+                'portalType'           => $portalType,
+            ];
+        }
+
+        return Inertia::render('DutyRoster/HolisticView', array_merge([
             'meetings'      => $meetings,
             'departments'   => $departments,
             'currentMonth'  => $month,
             'templates'     => $templates,
             'meetingTypes'  => $meetingTypes,
             'filters'       => ['meeting_type' => $meetingType],
-        ]);
+            'isPortal'      => $isPortalRoute || $isMinistryRoute,
+            'portalType'    => $portalType,
+        ], $portalProps));
     }
+
 
     // ── Show (Meeting detail with assignments) ─────────────
     public function show(Request $request, Meeting $meeting)
     {
         $meeting->load(['dutyAssignments.role.department', 'dutyAssignments.member', 'department']);
 
-        // Context
-        $deptContext = $request->attributes->get('department');
-        $portalType  = $request->attributes->get('portalType', 'deacon');
-        $thisDeptId  = $deptContext->id ?? null;
+        // ── Context ─────────────────────────────────────────────────────────────
+        $isPortalRoute   = str_starts_with($request->route()->getName() ?? '', 'portal.');
+        $isMinistryRoute = str_starts_with($request->route()->getName() ?? '', 'ministry.');
+
+        if ($isPortalRoute || $isMinistryRoute) {
+            $deptId     = session('active_portal_dept_id');
+            $department = $deptId ? Department::find($deptId) : null;
+            $portalType = $isMinistryRoute ? 'ministry' : 'activities';
+        } else {
+            $deptContext = $request->attributes->get('department');
+            $department  = $deptContext ?? null;
+            $portalType  = $request->attributes->get('portalType', 'deacon');
+        }
+
+        $thisDeptId = $department?->id;
 
         // Verify Access
         if ($thisDeptId && $meeting->type === 'department' && $meeting->department_id !== $thisDeptId) {
@@ -104,10 +150,7 @@ class DutyRosterController extends Controller
             'dutyRoles' => fn($q) => $q->orderBy('section')->orderBy('sort_order')
         ])->whereHas('dutyRoles');
         
-        // If within a department portal, limit the available departments that can be added to the meeting
         if ($thisDeptId) {
-             // Let them see other departments in Church view to understand the whole roster, but UI will restrict edits
-             // However, for department meetings, restrict entirely
              if ($meeting->type !== 'church') {
                  $deptsQuery->where('id', $thisDeptId);
              }
@@ -124,12 +167,12 @@ class DutyRosterController extends Controller
         }
         $templates = $templatesQuery->get();
 
-        // Speakers list (for Diễn Giả role)
+        // Speakers list
         $speakers  = DB::table('speakers')
             ->orderBy('full_name')
             ->get(['id', 'full_name', 'title', 'is_external']);
 
-        // Build dept→members map via org_memberships (polymorphic: model_type='App\Models\Department', model_id=dept_id)
+        // Build dept→members map
         $deptMembersRaw = DB::table('org_memberships')
             ->join('members', 'members.id', '=', 'org_memberships.member_id')
             ->whereNull('members.deleted_at')
@@ -156,7 +199,20 @@ class DutyRosterController extends Controller
             }
         }
 
-        return Inertia::render('DutyRoster/Show', [
+        // ── Portal layout props ─────────────────────────────────────────────────
+        $portalProps = [];
+        if ($isPortalRoute || $isMinistryRoute) {
+            $availableDepartments = app(\App\Services\PortalService::class)
+                ->getAvailableDepartments(auth()->user(), $portalType);
+            $portalProps = [
+                'department'           => $department,
+                'availableDepartments' => $availableDepartments,
+                'isGlobalAdmin'        => auth()->user()?->hasAnyRole(['Super_Admin', 'Pastor', 'BTS_Admin']) ?? false,
+                'portalType'           => $portalType,
+            ];
+        }
+
+        return Inertia::render('DutyRoster/Show', array_merge([
             'meeting'     => $meeting,
             'departments' => $departments,
             'members'     => $members,
@@ -164,8 +220,11 @@ class DutyRosterController extends Controller
             'deptMembers' => $deptMembers,
             'templates'   => $templates,
             'authDeptIds' => $authDeptIds,
-        ]);
+            'isPortal'    => $isPortalRoute || $isMinistryRoute,
+            'portalType'  => $portalType,
+        ], $portalProps));
     }
+
 
     // ── Templates Index ────────────────────────────────────
     public function templatesIndex(Request $request)

@@ -80,7 +80,7 @@
                     </div>
                     <span class="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full">{{ church_meetings.length }} buổi · TB {{ summary.avg_church }}</span>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
+                <div class="grid grid-cols-1 xl:grid-cols-2 divide-y xl:divide-y-0 xl:divide-x divide-gray-100">
                     <!-- Table -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full">
@@ -188,7 +188,7 @@
                     </div>
                     <span class="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full">{{ dept_meetings.length }} buổi · TB {{ summary.avg_dept }}</span>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
+                <div class="grid grid-cols-1 xl:grid-cols-2 divide-y xl:divide-y-0 xl:divide-x divide-gray-100">
                     <!-- Table -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full">

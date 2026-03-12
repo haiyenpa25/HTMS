@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <component :is="currentLayout">
     <template #header>
       Tổ chức Buổi Nhóm
@@ -111,9 +111,8 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
+              <template v-for="meeting in meetings" :key="meeting.id">
               <tr
-                v-for="meeting in meetings"
-                :key="meeting.id"
                 class="hover:bg-indigo-50/30 transition-colors cursor-pointer"
                 :class="{ 'bg-indigo-50/50': selectedIds.includes(meeting.id) }"
                 @click="goToMeeting(meeting.id)"
@@ -153,11 +152,22 @@
                   </span>
                 </td>
 
-                <!-- Topic -->
-                <td class="px-4 py-4 max-w-xs">
-                  <div class="text-sm font-bold text-gray-900 truncate">{{ meeting.topic || '—' }}</div>
-                  <div class="text-xs text-gray-400 font-medium truncate mt-0.5" v-if="meeting.scripture">📖 {{ meeting.scripture }}</div>
-                  <div class="text-xs text-indigo-400 font-medium truncate mt-0.5" v-if="meeting.memory_verse">✨ {{ meeting.memory_verse }}</div>
+                <!-- Topic — truncated with expand toggle -->
+                <td class="px-4 py-4 max-w-xs" @click.stop>
+                  <div class="flex items-start gap-2">
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-bold text-gray-900" :class="expandedRows.has(meeting.id) ? '' : 'truncate'">{{ meeting.topic || '—' }}</div>
+                      <div class="text-xs text-gray-400 font-medium mt-0.5" :class="expandedRows.has(meeting.id) ? '' : 'truncate'" v-if="meeting.scripture">📖 {{ meeting.scripture }}</div>
+                      <div class="text-xs text-indigo-400 font-medium mt-0.5" v-if="expandedRows.has(meeting.id) && meeting.memory_verse">✨ {{ meeting.memory_verse }}</div>
+                    </div>
+                    <button
+                      @click="toggleRowExpand(meeting.id)"
+                      class="shrink-0 w-5 h-5 rounded text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center"
+                      :title="expandedRows.has(meeting.id) ? 'Thu gọn' : 'Xem đầy đủ'"
+                    >
+                      <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="expandedRows.has(meeting.id) ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                  </div>
                 </td>
 
                 <!-- Preacher -->
@@ -194,6 +204,19 @@
                 </td>
               </tr>
 
+              <!-- Expanded detail row -->
+              <tr v-if="expandedRows.has(meeting.id)" class="bg-indigo-50/20">
+                <td colspan="7" class="px-8 py-3 border-b border-indigo-100">
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                    <div v-if="meeting.preacher"><span class="font-bold text-gray-500 block mb-0.5">Diễn Giả</span><span class="text-gray-800">{{ meeting.preacher }}</span></div>
+                    <div v-if="meeting.scripture"><span class="font-bold text-gray-500 block mb-0.5">Phân Đoạn KT</span><span class="text-gray-800">📖 {{ meeting.scripture }}</span></div>
+                    <div v-if="meeting.memory_verse"><span class="font-bold text-gray-500 block mb-0.5">Câu Gốc</span><span class="text-gray-800">✨ {{ meeting.memory_verse }}</span></div>
+                    <div v-if="meeting.topic"><span class="font-bold text-gray-500 block mb-0.5">Chủ Đề Đầy Đủ</span><span class="text-gray-800">{{ meeting.topic }}</span></div>
+                  </div>
+                </td>
+              </tr>
+              </template>
+
               <!-- Empty State -->
               <tr v-if="meetings.length === 0">
                 <td colspan="7" class="px-6 py-16 text-center">
@@ -208,6 +231,7 @@
                 </td>
               </tr>
             </tbody>
+
           </table>
 
           <!-- Mobile Card List -->
@@ -374,6 +398,14 @@ const formatMonthShort = (d) => {
 
 // ── Checkbox selection ────────────────────────────────────────────────────────
 const selectedIds = ref([]);
+
+// ── Row expand ────────────────────────────────────────────────────────────────
+const expandedRows = ref(new Set());
+const toggleRowExpand = (id) => {
+  const s = new Set(expandedRows.value);
+  if (s.has(id)) { s.delete(id); } else { s.add(id); }
+  expandedRows.value = s;
+};
 
 const isAllSelected = computed(() =>
   props.meetings.length > 0 && selectedIds.value.length === props.meetings.length

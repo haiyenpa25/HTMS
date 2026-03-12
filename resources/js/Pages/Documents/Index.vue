@@ -14,7 +14,7 @@
           <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Kho Tài Liệu Số</h1>
           <p class="mt-2 text-sm text-sky-200">Lưu trữ và chia sẻ quy định, thư tín, biểu mẫu, biên bản họp nội bộ.</p>
         </div>
-        <div class="absolute top-5 right-5 sm:top-6 sm:right-6 z-10" v-if="$page.props.auth.user.roles.includes('Super_Admin') || $page.props.auth.user.roles.includes('Pastor') || $page.props.auth.user.roles.includes('Department_Leader')">
+        <div class="absolute top-5 right-5 sm:top-6 sm:right-6 z-10" v-if="canUpload">
           <button @click="openUploadModal" class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl transition-all backdrop-blur-sm border border-white/20">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
             Tải Tài Liệu Lên
@@ -177,6 +177,12 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { useForm, router, usePage } from '@inertiajs/vue3';
+
+const page = usePage();
+const canUpload = computed(() => {
+    const roles = page.props.auth?.user?.roles ?? [];
+    return roles.includes('Super_Admin') || roles.includes('Pastor') || roles.includes('Department_Leader');
+});
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import MobileLayout from '@/Layouts/MobileLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
