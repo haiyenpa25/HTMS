@@ -175,13 +175,18 @@
   <!-- Global Context Switcher SlideOver -->
   <SlideOver v-model="isSwitcherOpen" title="Chuyển đổi Ban ngành" size="md">
     <template #default>
-      <div class="p-6 space-y-8">
-        <div v-for="(depts, block) in allDeptsGrouped" :key="block">
+      <div class="p-6 space-y-2">
+        <div v-for="(depts, block) in allDeptsGrouped" :key="block" class="mb-4">
           <template v-if="depts.length > 0">
-            <h3 class="flex items-center gap-2 text-xs font-black uppercase tracking-widest mb-4" :class="blockInfo[block]?.color">
-              <span>{{ blockInfo[block]?.icon }}</span> {{ blockInfo[block]?.name }}
-            </h3>
-            <div class="space-y-2">
+            <button @click="toggleBlock(block)" class="w-full flex items-center justify-between text-left focus:outline-none mb-3 group">
+              <h3 class="flex items-center gap-2 text-xs font-black uppercase tracking-widest" :class="blockInfo[block]?.color">
+                <span>{{ blockInfo[block]?.icon }}</span> {{ blockInfo[block]?.name }}
+              </h3>
+              <div class="w-6 h-6 rounded flex items-center justify-center transition-colors" :class="expandedBlocks[block] ? 'bg-gray-100 text-gray-500' : 'bg-gray-50 text-gray-400 group-hover:bg-gray-100'">
+                <svg :class="['w-4 h-4 transition-transform duration-200', expandedBlocks[block] ? 'rotate-180' : 'rotate-0']" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </div>
+            </button>
+            <div v-show="expandedBlocks[block]" class="space-y-2 mb-2">
               <button v-for="dept in depts" :key="dept.id"
                 @click="switchDept(dept.id)"
                 class="w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between group"
@@ -244,6 +249,17 @@ const blockInfo = {
   activities: { name: 'Ban Ngành Sinh Hoạt',        icon: '🎯', color: 'text-blue-600' },
   ministry:   { name: 'Ban Ngành Mục Vụ',            icon: '⛪', color: 'text-emerald-600' },
   leadership: { name: 'Ban Chấp Sự / Lãnh Đạo',     icon: '🛡', color: 'text-amber-600' },
+};
+
+const activeBlockForSwitcher = props.portalType === 'deacon' ? 'leadership' : props.portalType;
+const expandedBlocks = ref({
+  activities: activeBlockForSwitcher === 'activities',
+  ministry: activeBlockForSwitcher === 'ministry',
+  leadership: activeBlockForSwitcher === 'leadership'
+});
+
+const toggleBlock = (block) => {
+  expandedBlocks.value[block] = !expandedBlocks.value[block];
 };
 
 const switchDept = (deptId) => {

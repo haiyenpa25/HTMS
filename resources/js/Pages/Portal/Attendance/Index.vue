@@ -4,12 +4,25 @@
             
             <div class="flex items-start justify-between gap-3 mb-2">
                 <div class="min-w-0">
-                    <h2 class="text-2xl font-black text-gray-900 tracking-tight truncate">Điểm danh Buổi nhóm</h2>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-2xl font-black text-gray-900 tracking-tight truncate">Điểm danh Buổi nhóm</h2>
+                        <!-- Tooltip Helper -->
+                        <div class="relative group cursor-help mt-1 shrink-0">
+                            <svg class="w-5 h-5 text-gray-400 group-hover:text-emerald-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="absolute top-full left-0 mt-2 w-72 p-3 bg-gray-900 text-white text-[11px] font-medium rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-xl pointer-events-none">
+                                Chọn một buổi nhóm để ghi điểm danh thủ công. Hoặc bạn có thể xuất Template Excel của buổi nhóm đó, điền vào và dùng nút "Import Excel" để cập nhật nhanh chóng.
+                                <div class="absolute bottom-full left-4 border-4 border-transparent border-b-gray-900"></div>
+                            </div>
+                        </div>
+                    </div>
                     <p class="text-sm font-medium mt-1 text-gray-500">Chọn buổi nhóm để ghi nhận chuyên cần.</p>
                 </div>
                 <!-- Import Excel Button -->
                 <button
                     @click="showImportModal = true"
+                    title="Cập nhật điểm danh bằng file Excel"
                     class="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm whitespace-nowrap"
                 >
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>

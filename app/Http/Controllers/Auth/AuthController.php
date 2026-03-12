@@ -98,7 +98,8 @@ class AuthController extends Controller
                 return redirect()->intended(route('deacon.index'));
             }
             
-            return redirect()->route('dashboard');
+            // 4. Default fallback: Member Portal
+            return redirect()->route('member.portal.index');
         }
 
         return back()->withErrors([

@@ -424,7 +424,19 @@ const sidebarCollapsed = ref(false);
     <div v-if="activeTab === 'dashboard'" class="animate-fade space-y-8">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-black text-gray-900">Kho Tính Năng Hệ Thống</h1>
+          <div class="flex items-center gap-2">
+              <h1 class="text-2xl font-black text-gray-900">Kho Tính Năng Hệ Thống</h1>
+              <!-- Tooltip Helper -->
+              <div class="relative group cursor-help mt-1 shrink-0">
+                  <svg class="w-5 h-5 text-gray-400 group-hover:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div class="absolute top-full left-0 mt-2 w-72 p-3 bg-gray-900 text-white text-[11px] font-medium rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-xl pointer-events-none">
+                      Đây là Cổng Quản Trị dành riêng cho Super Admin. Tại đây bạn có thể cấu hình Hệ Sinh Thái tính năng (MAC Level 1), quản lý người dùng và cấp quyền sử dụng chi tiết cho từng người (MAC Level 2).
+                      <div class="absolute bottom-full left-4 border-4 border-transparent border-b-gray-900"></div>
+                  </div>
+              </div>
+          </div>
           <p class="text-sm text-gray-500 mt-1">Quản lý và giám sát các modules trong hệ thống CMS</p>
         </div>
         <button @click="activeTab = 'config'"
@@ -507,6 +519,7 @@ const sidebarCollapsed = ref(false);
           <button v-if="selectedBlock || search" @click="clearFilters"
             class="px-3 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-500 hover:bg-gray-50 whitespace-nowrap shrink-0">✕ Xóa lọc</button>
           <button @click="openCreateModal"
+            title="Tạo mới tài khoản đăng nhập cho Ban Viên hoặc Nhân sự"
             class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-sm transition-all shrink-0">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
             Tạo Tài Khoản

@@ -77,11 +77,9 @@ class CheckPortalAccess
         $validDeptIds = array_unique(array_merge($validDeptIds, $featureDeptIds));
 
         if (empty($validDeptIds)) {
-            // No portal access: log out and redirect to login with a message
-            // instead of abort(403) which causes a blank screen with Inertia
-            return redirect()->route('login')->withErrors([
-                'email' => 'Bạn chưa được cấp quyền truy cập tính năng nào trong cổng này. Vui lòng liên hệ quản trị viên.',
-            ]);
+            // No portal access: redirect to the Member Portal instead of login
+            // to prevent the ERR_TOO_MANY_REDIRECTS loop for standard users.
+            return redirect()->route('member.portal.index')->with('error', 'Bạn không có quyền truy cập tính năng nào trong cổng này.');
         }
 
         // Auto-set session nếu chưa có hoặc session dept không thuộc valid list

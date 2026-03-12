@@ -298,62 +298,190 @@ class DashboardController extends Controller
         $newThisMonth   = Member::whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
 
         // ── 10. ADVANCED ANALYTICS (PHASE 11) ────────────────────
+        // ── 10. ADVANCED ANALYTICS (DASHBOARD REVAMP) ────────────────────
         
-        // 10.1 Demographics (Biểu đồ tròn phân bố Tín hữu theo Ban ngành)
-        $demographics = DB::table('departments')
-            ->leftJoin('org_memberships', function($join) {
-                $join->on('departments.id', '=', 'org_memberships.model_id')
-                     ->where('org_memberships.model_type', '=', 'App\\Models\\Department');
-            })
-            ->where('departments.block', 'activities')
-            ->select('departments.name', DB::raw('count(org_memberships.id) as total'))
-            ->groupBy('departments.id', 'departments.name')
-            ->get();
+        // 10.1 Biểu đồ "Số tín hữu tham gia nhóm ban ngành trong tháng" (Thay thế Tăng Trưởng)
+        // Group by department (Activities), weeks 1-5. Data: type='department' meetings created by department
+        $deptMeetingLineOpts = $depts->map(function($dept) use ($monthStart, $monthEnd) {
+            $mtgs = Meeting::where('type', 'department')
+                ->where('department_id', $dept->id)
+                ->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()])
+                ->with('attendanceSummaries')
+                ->orderBy('date')
+                ->get();
+
+            $weekData = array_fill(1, 5, 0);
+            foreach ($mtgs as $m) {
+                $weekNo = (int) ceil(Carbon::parse($m->date)->day / 7);
+                $weekNo = min($weekNo, 5);
+                $weekData[$weekNo] += $m->attendanceSummaries->sum('manual_count');
+            }
+            return [
+                'name' => $dept->name,
+                'data' => array_values($weekData),
+                'total_this_month' => array_sum($weekData)
+            ];
+        });
+
+        // 10.2 Biểu đồ tròn "Phân số Tín hữu theo Ban"
+        // Dựa vào tổng lượt đi nhóm Hội Thánh của từng ban / (Tổng số tín hữu * số Chúa Nhật)
+        $churchMeetingLineOpts = $depts->map(function($dept) use ($monthStart, $monthEnd) {
+            $mtgs = Meeting::where('type', 'church')
+                ->where('department_id', null) // Check if meeting belongs to church
+                ->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()])
+                ->with(['attendanceSummaries' => function($q) use ($dept) {
+                    $q->where('department_id', $dept->id);
+                }])
+                ->get();
+                
+            // Fallback for old schema where church meeting might have department_id set
+            if ($mtgs->isEmpty()) {
+                $mtgs = Meeting::where('type', 'church')
+                    ->where('department_id', $dept->id)
+                    ->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()])
+                    ->with('attendanceSummaries')
+                    ->get();
+            }
+
+            $total = $mtgs->sum(function($m) use ($dept) {
+                // Sum manual count for this department
+                return $m->attendanceSummaries->where('department_id', $dept->id)->sum('manual_count') 
+                       + $m->attendanceSummaries->whereNull('department_id')->sum('manual_count'); // For old logic fallback
+            });
+
+            return [
+                'name' => $dept->name,
+                'total_this_month' => $total
+            ];
+        });
+
+        $sundayCount = 0;
+        for ($date = $monthStart->copy(); $date->lte($monthEnd); $date->addDay()) {
+            if ($date->isSunday()) $sundayCount++;
+        }
+        $totalPossibleAttendance = $activeMembers * max(1, $sundayCount);
+        $totalAttendedByDepts = $churchMeetingLineOpts->sum('total_this_month');
+        $remainingAttendance = max(0, $totalPossibleAttendance - $totalAttendedByDepts);
+
+        $demographics = $churchMeetingLineOpts->map(function($deptLine) {
+            return [
+                'name' => $deptLine['name'],
+                'total' => $deptLine['total_this_month']
+            ];
+        })->toArray();
+        $demographics[] = [
+            'name' => 'Chưa tham gia',
+            'total' => $remainingAttendance
+        ];
             
-        // 10.2 Finance over 6 Months (Biểu đồ cột Thu/Chi)
-        $financeChart = [];
-        for ($i = 5; $i >= 0; $i--) {
+        // 10.3 Tổng quan Tài chính (3 tháng gần nhất) - Biểu đồ cột Thu & Chi theo Ban Ngành Sinh Hoạt
+        $financeChartData = [];
+        // Khởi tạo khung 3 tháng
+        for ($i = 2; $i >= 0; $i--) {
             $mStart = $today->copy()->subMonths($i)->startOfMonth();
             $mEnd   = $mStart->copy()->endOfMonth();
-            
-            $income = DB::table('meeting_finances')
-                ->join('meetings', 'meeting_finances.meeting_id', '=', 'meetings.id')
-                ->whereBetween('meetings.date', [$mStart->toDateString(), $mEnd->toDateString()])
-                ->where('meeting_finances.type', 'thu')
-                ->sum('meeting_finances.amount');
-                
-            $expense = DB::table('meeting_finances')
-                ->join('meetings', 'meeting_finances.meeting_id', '=', 'meetings.id')
-                ->whereBetween('meetings.date', [$mStart->toDateString(), $mEnd->toDateString()])
-                ->where('meeting_finances.type', 'chi')
-                ->sum('meeting_finances.amount');
-                
-            $financeChart[] = [
-                'month' => $mStart->format('m/Y'),
-                'income' => $income,
-                'expense' => $expense
+            $financeChartData[$mStart->format('m/Y')] = [
+                'label' => $mStart->format('m/Y'),
+                'income' => array_fill_keys($depts->pluck('name')->toArray(), 0),
+                'expense' => array_fill_keys($depts->pluck('name')->toArray(), 0),
             ];
         }
 
-        // 10.3 Member Growth over 6 Months (Biểu đồ đường Tăng trưởng Tín hữu)
-        $growthChart = [];
-        $runningTotal = Member::where('faith_date', '<', $today->copy()->subMonths(5)->startOfMonth())->count();
+        // Truy vấn tất cả giao dịch trong 3 tháng
+        $threeMonthsAgo = $today->copy()->subMonths(2)->startOfMonth();
+        $transactions = DB::table('department_transactions')
+            ->join('department_funds', 'department_transactions.department_fund_id', '=', 'department_funds.id')
+            ->join('departments', 'department_funds.department_id', '=', 'departments.id')
+            ->where('departments.block', 'activities')
+            ->where('department_transactions.status', 'approved')
+            ->whereBetween('department_transactions.transaction_date', [$threeMonthsAgo->toDateString(), $monthEnd->toDateString()])
+            ->select('departments.name as dept_name', 'department_transactions.type', 'department_transactions.amount', 'department_transactions.transaction_date')
+            ->get();
+
+        foreach ($transactions as $tx) {
+            $txMonth = Carbon::parse($tx->transaction_date)->format('m/Y');
+            if (isset($financeChartData[$txMonth]) && isset($financeChartData[$txMonth][$tx->type][$tx->dept_name])) {
+                $financeChartData[$txMonth][$tx->type][$tx->dept_name] += $tx->amount;
+            }
+        }
+
+        // Format lại dữ liệu cho ApexCharts (Mỗi series = 1 Ban ngành)
+        $financeIncomeSeries = [];
+        $financeExpenseSeries = [];
+        $financeCategories = array_keys($financeChartData);
+
+        foreach ($depts as $dept) {
+            $incomeData = [];
+            $expenseData = [];
+            foreach ($financeCategories as $monthKey) {
+                $incomeData[] = $financeChartData[$monthKey]['income'][$dept->name];
+                $expenseData[] = $financeChartData[$monthKey]['expense'][$dept->name];
+            }
+            $financeIncomeSeries[] = ['name' => $dept->name, 'data' => $incomeData];
+            $financeExpenseSeries[] = ['name' => $dept->name, 'data' => $expenseData];
+        }
+
+
+        // ── 11. CƠ ĐỐC GIÁO DỤC TRANSACTIONS LŨY KẾ THEO BUỔI ──────────────────────
+        foreach ($cgdgData as $typeKey => &$group) {
+            if ($typeKey === 'sunday_school' || $typeKey === 'bible_quiz') {
+                foreach ($group['classes'] as &$cls) {
+                    $cls_id = $cls['class_id'];
+                    // Lấy tất cả thu quỹ của lớp này
+                    $offerings = DB::table('edu_class_transactions')
+                        ->join('edu_class_funds', 'edu_class_transactions.edu_class_fund_id', '=', 'edu_class_funds.id')
+                        ->where('edu_class_funds.edu_class_id', $cls_id)
+                        ->where('edu_class_transactions.type', 'income')
+                        ->where('edu_class_transactions.status', 'approved')
+                        ->select('edu_session_id', DB::raw('SUM(amount) as total_amount'))
+                        ->groupBy('edu_session_id')
+                        ->get()
+                        ->keyBy('edu_session_id');
+
+                    // Map vào sessions
+                    $offeringsData = [];
+                    foreach ($cls['sessions'] as $idx => $s) {
+                        // find the session model id (wait, session model id is not in the row by default)
+                        // It was not included in line 136. I will add it to the view mapping or fetch broadly by date.
+                        // Let's just do a date-based mapping to be safe for now, assuming 1 session / day
+                        $dateStr = Carbon::createFromFormat('d/m', $s['date'])->year($year)->toDateString();
+                        
+                        $amount = DB::table('edu_class_transactions')
+                            ->join('edu_class_funds', 'edu_class_transactions.edu_class_fund_id', '=', 'edu_class_funds.id')
+                            ->where('edu_class_funds.edu_class_id', $cls_id)
+                            ->where('edu_class_transactions.type', 'income')
+                            ->where('edu_class_transactions.status', 'approved')
+                            ->where('edu_class_transactions.transaction_date', $dateStr)
+                            ->sum('amount');
+                            
+                        $offeringsData[] = $amount;
+                    }
+                    $cls['offerings_data'] = $offeringsData;
+                }
+            }
+        }
+
+        // Thống kê Thăm viếng Lũy kế 6 tháng (Bar Chart nhỏ)
+        $visitationChart = [];
         for ($i = 5; $i >= 0; $i--) {
             $mStart = $today->copy()->subMonths($i)->startOfMonth();
             $mEnd   = $mStart->copy()->endOfMonth();
-            
-            $newMembers = Member::whereBetween('faith_date', [$mStart->toDateString(), $mEnd->toDateString()])->count();
-            $runningTotal += $newMembers;
-            
-            $growthChart[] = [
+            $count = Visitation::whereBetween('visit_date', [$mStart->toDateString(), $mEnd->toDateString()])->count();
+            $visitationChart[] = [
                 'month' => $mStart->format('m/Y'),
-                'total' => $runningTotal,
-                'new' => $newMembers
+                'count' => $count
             ];
         }
+
+        // ── 12. THÂN HỮU TRUYỀN GIẢNG NÀY ─────────────────────────
+        $evangelisticGuests = MeetingAttendanceSummary::where('department_id', 9) // Ban Truyền Giảng
+            ->whereHas('meeting', function($q) use ($monthStart, $monthEnd) {
+                $q->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()]);
+            })->sum('manual_count');
 
         return Inertia::render('Dashboard', [
             'filters' => ['month' => $month, 'year' => $year],
+            'activities_departments' => $depts->values(), // For filter dropdown
 
             // KPI
             'kpi' => [
@@ -383,10 +511,12 @@ class DashboardController extends Controller
             // Section 6: visitations
             'visitations'         => $visitations->values(),
             'visitation_stats'    => $visitationStats,
+            'visitation_chart'    => $visitationChart,
 
-            // Section 7: new members
+            // Section 7: new members & evangelistic
             'new_members_30'      => $newMembers30->values(),
             'new_members_90'      => $newMembers90->values(),
+            'evangelistic_guests' => $evangelisticGuests,
 
             // Section 8: special dates
             'special_dates'       => $specialDates,
@@ -394,8 +524,10 @@ class DashboardController extends Controller
             // Advanced Analytics
             'analytics' => [
                 'demographics'  => $demographics,
-                'finance_chart' => $financeChart,
-                'growth_chart'  => $growthChart,
+                'dept_meeting_lines' => $deptMeetingLineOpts->values(),
+                'finance_income' => $financeIncomeSeries,
+                'finance_expense' => $financeExpenseSeries,
+                'finance_categories' => $financeCategories,
             ]
         ]);
     }
