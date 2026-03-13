@@ -24,3 +24,14 @@ git commit -m "Auto-deploy: Built frontend and updated codes"
 ```bash
 git push origin main
 ```
+
+5. Pull về server (chạy thủ công trên server qua SSH)
+```bash
+cd /var/www/html/cms
+git pull origin main
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```

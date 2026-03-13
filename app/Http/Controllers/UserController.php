@@ -58,6 +58,11 @@ class UserController extends Controller
                     'role'        => $user->roles->first()?->name ?? 'Guest',
                     'departments' => implode(', ', $depts) ?: 'Chưa tham gia',
                     'created_at'  => $user->created_at->format('d/m/Y'),
+                    'linked_member' => $user->member ? [
+                        'id' => $user->member->id,
+                        'full_name' => $user->member->full_name,
+                        'member_code' => $user->member->member_code
+                    ] : null,
                 ];
             });
 
@@ -174,5 +179,25 @@ class UserController extends Controller
         }
         $user->delete();
         return redirect()->back()->with('message', 'Xóa tài khoản thành công.');
+    }
+
+    public function linkMember(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'member_id' => 'nullable|exists:members,id',
+        ]);
+
+        // Hủy liên kết member ID hiện tại của user này
+        \App\Models\Member::where('user_id', $user->id)->update(['user_id' => null]);
+
+        if (!empty($validated['member_id'])) {
+            $member = \App\Models\Member::find($validated['member_id']);
+            // Hủy liên kết member này nếu đang gắn với một user khác để tránh duplicate (1 user - 1 member)
+            // Cập nhật member bằng user id tương ứng
+            $member->update(['user_id' => $user->id]);
+            return redirect()->back()->with('message', 'Đã gắn Hồ sơ Tín hữu thành công.');
+        }
+
+        return redirect()->back()->with('message', 'Đã gỡ liên kết Hồ sơ Tín hữu.');
     }
 }

@@ -263,10 +263,17 @@ const toggleBlock = (block) => {
 };
 
 const switchDept = (deptId) => {
-  router.post(route('portal.switch-context'), { department_id: deptId }, {
-    preserveScroll: true,
-    onSuccess: () => { isSwitcherOpen.value = false; },
-  });
+  if (deptId === 'secretary' || deptId === 'treasurer') {
+    router.post(route('deacon.switch-role'), { role: deptId }, {
+      preserveScroll: true,
+      onSuccess: () => { isSwitcherOpen.value = false; },
+    });
+  } else {
+    router.post(route('portal.switch-context'), { department_id: deptId }, {
+      preserveScroll: true,
+      onSuccess: () => { isSwitcherOpen.value = false; },
+    });
+  }
 };
 
 // ── Nav item definitions per portal type ─────────────────────────────────────

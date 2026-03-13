@@ -13,8 +13,8 @@ class VisitationTest extends TestCase
      */
     public function test_example(): void
     {
-        $response = $this->get('/');
+        $response = $this->get('/ministry/visitation');
 
-        $response->assertStatus(200);
+        $response->assertRedirect('/login');
     }
 }

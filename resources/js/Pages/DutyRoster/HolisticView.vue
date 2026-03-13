@@ -43,11 +43,9 @@ const monthLabel = computed(() => {
   return new Date(y, m - 1).toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' });
 });
 
-const totalRoles = computed(() =>
-  props.departments.reduce((s, d) => s + (d.duty_roles?.length || 0), 0)
-);
+const requiredSlots = m => m.duty_assignments?.length || 0;
 const assignedCount = m => m.duty_assignments?.filter(a => a.member_id).length || 0;
-const pct = m => totalRoles.value > 0 ? Math.round(assignedCount(m) / totalRoles.value * 100) : 0;
+const pct = m => requiredSlots(m) > 0 ? Math.round(assignedCount(m) / requiredSlots(m) * 100) : 0;
 
 const filteredMeetings = computed(() => {
   let list = props.meetings || [];
@@ -241,7 +239,7 @@ const showHelp = ref(false);
                   <div class="h-full rounded-full transition-all" :class="pct(meeting)===100?'bg-emerald-400':pct(meeting)>0?'bg-indigo-400':'bg-gray-200'" :style="`width:${pct(meeting)}%`"></div>
                 </div>
                 <span class="text-[11px] font-bold" :class="pct(meeting)===100?'text-emerald-600':pct(meeting)>0?'text-indigo-600':'text-gray-400'">
-                  {{ assignedCount(meeting) }}/{{ totalRoles }} vị trí · {{ pct(meeting) }}%
+                  {{ assignedCount(meeting) }}/{{ requiredSlots(meeting) }} vị trí · {{ pct(meeting) }}%
                 </span>
               </div>
             </div>
@@ -448,7 +446,7 @@ const showHelp = ref(false);
                   ></div>
                 </div>
                 <span class="text-[11px] font-bold" :class="pct(meeting)===100?'text-emerald-600':pct(meeting)>0?'text-indigo-600':'text-gray-400'">
-                  {{ assignedCount(meeting) }}/{{ totalRoles }} vị trí · {{ pct(meeting) }}%
+                  {{ assignedCount(meeting) }}/{{ requiredSlots(meeting) }} vị trí · {{ pct(meeting) }}%
                 </span>
               </div>
             </div>

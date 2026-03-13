@@ -55,26 +55,39 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { usePage, router } from '@inertiajs/vue3';
+import { ref, onMounted } from 'vue';
+import { router } from '@inertiajs/vue3';
+import axios from 'axios';
 
-const page = usePage();
 const isOpen = ref(false);
+const notifications = ref([]);
+const unreadCount = ref(0);
 
-const notifications = computed(() => page.props.auth?.user?.unread_notifications || []);
-const unreadCount = computed(() => page.props.auth?.user?.unread_notifications_count || 0);
+const fetchNotifications = async () => {
+    try {
+        const response = await axios.get(route('api.notifications.list'));
+        notifications.value = response.data.notifications;
+        unreadCount.value = response.data.unreadCount;
+    } catch (error) {
+        console.error('Lỗi tải thông báo', error);
+    }
+};
+
+onMounted(() => {
+    fetchNotifications();
+    // Tự động load lại mỗi 3 phút
+    setInterval(fetchNotifications, 180000);
+});
 
 const handleNotificationClick = (notif) => {
-    // Mark as read API call
-    router.post(route('notifications.read', notif.id), {}, {
-        preserveScroll: true,
-        onSuccess: () => {
-            isOpen.value = false;
-            if (notif.data.action_url) {
-                router.visit(notif.data.action_url);
-            }
-        }
-    });
+    axios.post(route('notifications.read', { id: notif.id }), { type: notif.type })
+         .then(() => {
+             isOpen.value = false;
+             fetchNotifications(); 
+             if (notif.data.action_url) {
+                 router.visit(notif.data.action_url);
+             }
+         });
 };
 
 const markAllAsRead = () => {
@@ -82,6 +95,7 @@ const markAllAsRead = () => {
         preserveScroll: true,
         onSuccess: () => {
              isOpen.value = false;
+             fetchNotifications();
         }
     });
 };

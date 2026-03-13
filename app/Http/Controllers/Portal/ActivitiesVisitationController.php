@@ -166,8 +166,14 @@ class ActivitiesVisitationController extends Controller
                 }
                 $priority = 'normal';
                 $reasons = [];
+                
+                // If they were visited VERY recently (e.g., < 2 months ago), do not suggest them again
+                if ($monthsSinceLastVisit < 2) {
+                    continue;
+                }
+                
                 if ($absentCount >= 3) $reasons[] = 'Vắng nhóm 3 lần liên tiếp';
-                if ($monthsSinceLastVisit >= 6) $reasons[] = 'Chưa được thăm > 6 tháng';
+                if ($monthsSinceLastVisit >= 6 && $monthsSinceLastVisit < 999) $reasons[] = 'Chưa được thăm > 6 tháng';
                 if ($absentCount >= 3 && $monthsSinceLastVisit >= 6) $priority = 'high';
                 elseif (count($reasons) > 0) $priority = 'medium';
                 if ($priority !== 'normal') {

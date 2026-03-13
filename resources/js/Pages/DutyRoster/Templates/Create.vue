@@ -2,8 +2,19 @@
 import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import DutyRosterLayout from '@/Layouts/DutyRosterLayout.vue';
+import PortalLayout from '@/Layouts/PortalLayout.vue';
 
-const props = defineProps({ departments: Array, defaultType: String, defaultDeptId: Number });
+const props = defineProps({
+  departments:          Array,
+  defaultType:          String,
+  defaultDeptId:        Number,
+  isPortal:             Boolean,
+  portalType:           String,
+  routePrefix:          { type: String, default: 'duty-rooster.' },
+  department:           Object,
+  availableDepartments: Array,
+  isGlobalAdmin:        Boolean,
+});
 
 const name = ref('');
 const type = ref(props.defaultType || 'church');
@@ -12,7 +23,7 @@ const saving = ref(false);
 
 const submit = () => {
   if (!name.value.trim()) return;
-  router.post(route('duty-rooster.templates.store'), { 
+  router.post(route(props.routePrefix + 'templates.store'), { 
     name: name.value,
     type: type.value,
     department_id: department_id.value
@@ -21,10 +32,15 @@ const submit = () => {
 </script>
 
 <template>
-  <DutyRosterLayout title="Tạo Mẫu Mới">
+  <component
+    :is="isPortal ? PortalLayout : DutyRosterLayout"
+    v-bind="isPortal
+      ? { department, availableDepartments, isGlobalAdmin, portalType }
+      : { title: 'Tạo mẫu phân công' }"
+  >
     <Head title="Tạo Mẫu Mới" />
     <div class="max-w-lg mx-auto px-6 py-16">
-      <Link :href="route('duty-rooster.templates.index')" class="text-xs text-gray-400 hover:text-gray-700 flex items-center gap-1 mb-6">
+      <Link :href="route(routePrefix + 'templates.index')" class="text-xs text-gray-400 hover:text-gray-700 flex items-center gap-1 mb-6">
         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
         Quay lại
       </Link>
@@ -67,5 +83,5 @@ const submit = () => {
         </button>
       </div>
     </div>
-  </DutyRosterLayout>
+  </component>
 </template>

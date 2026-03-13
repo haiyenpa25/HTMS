@@ -1,6 +1,7 @@
-﻿<script setup>
+<script setup>
 import { Link } from '@inertiajs/vue3';
 import AdminPortalLayout from '@/Layouts/AdminPortalLayout.vue';
+import { getRoleLabel } from '@/utils/roleHelper';
 
 defineProps({ roles: Array });
 
@@ -38,7 +39,7 @@ const roleIconColor = (name) => {
         class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 hover:shadow-md hover:border-indigo-200 transition-all group flex flex-col">
         <div class="flex items-start justify-between mb-3">
           <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg" :class="roleIconColor(role.name)">
-            {{ role.name.charAt(0) }}
+            {{ getRoleLabel(role.name).charAt(0) }}
           </div>
           <div class="px-2 py-0.5 bg-gray-50 rounded-lg text-[10px] font-bold text-gray-600 border border-gray-100 flex items-center gap-1">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -47,7 +48,7 @@ const roleIconColor = (name) => {
             {{ role.users_count || 0 }}
           </div>
         </div>
-        <h3 class="text-sm font-black text-gray-900 mb-1">{{ role.name }}</h3>
+        <h3 class="text-sm font-black text-gray-900 mb-1">{{ getRoleLabel(role.name) }}</h3>
         <p class="text-xs text-gray-500 mb-4 flex-1 line-clamp-2 leading-relaxed">{{ getRoleDescription(role.name) }}</p>
         <div class="pt-3 border-t border-gray-50 flex items-center justify-between mt-auto">
           <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{{ role.permissions_count }} Quyền</span>

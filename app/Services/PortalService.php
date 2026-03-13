@@ -205,13 +205,25 @@ class PortalService
         $grouped = [];
 
         foreach ($blocks as $block) {
-            $grouped[$block] = $this->getAvailableDepartments($user, $block)
-                ->map(fn($d) => [
-                    'id'    => $d->id,
-                    'name'  => $d->name,
-                    'block' => $d->block,
-                    'code'  => $d->code,
-                ]);
+            if ($block === 'leadership') {
+                // Ban Chấp Sự / Lãnh Đạo sử dụng logic Role chứ không phải bảng departments
+                if ($user->hasRole(['Super_Admin', 'Pastor', 'Deacon', 'BTS_Admin'])) {
+                    $grouped[$block] = collect([
+                        ['id' => 'secretary', 'name' => 'Thư Ký Hội Thánh', 'block' => 'leadership', 'code' => 'SEC'],
+                        ['id' => 'treasurer', 'name' => 'Thủ Quỹ Hội Thánh', 'block' => 'leadership', 'code' => 'TRE']
+                    ]);
+                } else {
+                    $grouped[$block] = collect([]);
+                }
+            } else {
+                $grouped[$block] = $this->getAvailableDepartments($user, $block)
+                    ->map(fn($d) => [
+                        'id'    => $d->id,
+                        'name'  => $d->name,
+                        'block' => $d->block,
+                        'code'  => $d->code,
+                    ]);
+            }
         }
 
         return $grouped;

@@ -91,9 +91,10 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $user ? [
                     'id' => $user->id,
-                    'name' => $user->name,
+                    'name' => (isset($member) && $member) ? $member->full_name : $user->name,
                     'email' => $user->email,
                     'role' => $user->getRoleNames()->first() ?? 'Guest',
+                    'member_code' => (isset($member) && $member) ? $member->member_code : null,
                     'permissions' => $user->getAllPermissions()->pluck('name'),
                     'home_portal' => $homePortal,
                     'unread_notifications' => $user->unreadNotifications()->limit(10)->get(),

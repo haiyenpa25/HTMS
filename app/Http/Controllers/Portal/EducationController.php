@@ -353,7 +353,7 @@ class EducationController extends Controller
         ]));
 
         return redirect()
-            ->route('education.session.view', [$eduClass->id, $session->id])
+            ->route($this->getRoutePrefix() . '.session.view', [$eduClass->id, $session->id])
             ->with('success', 'Đã tạo buổi học. Bắt đầu điểm danh!');
     }
 
@@ -815,7 +815,7 @@ class EducationController extends Controller
         $name = $eduClass->name;
         $eduClass->delete();
 
-        return redirect()->route('education.classes')->with('success', "Đã xóa lớp \"{$name}\".");
+        return redirect()->route($this->getRoutePrefix() . '.classes')->with('success', "Đã xóa lớp \"{$name}\".");
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -1026,13 +1026,11 @@ class EducationController extends Controller
 
     /**
      * Detect route prefix based on current URL path.
-     * Returns 'ministry.education' when accessed via /ministry/education,
-     * otherwise returns 'education'.
+     * Always returns 'ministry.education' for the unified portal.
      */
     private function getRoutePrefix(): string
     {
-        $path = request()->path();
-        return str_starts_with($path, 'ministry/') ? 'ministry.education' : 'education';
+        return 'ministry.education';
     }
 }
 

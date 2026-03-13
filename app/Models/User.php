@@ -94,5 +94,18 @@ class User extends Authenticatable
         return $this->hasRole(['Super_Admin', 'Pastor'])
             || $this->email === 'superadmin@httlthanhmyloi.com';
     }
+
+    // ── Announcements Relationships ─────────────────────────────────
+
+    public function readAnnouncements()
+    {
+        return $this->belongsToMany(Announcement::class, 'announcement_reads')
+                    ->withPivot('read_at');
+    }
+
+    public function authoredAnnouncements()
+    {
+        return $this->hasMany(Announcement::class, 'author_id');
+    }
 }
 

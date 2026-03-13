@@ -47,7 +47,8 @@ class FinanceContextTest extends TestCase
         $ownDept = Department::create(['code' => 'TN1', 'name' => 'Thiếu Nhi']);
         $otherDept = Department::create(['code' => 'PN1', 'name' => 'Phụ Nữ']);
 
-        $ownDept->members()->attach($lead->id, ['role' => 'Truong_Ban']);
+        $deptLeadRole = \App\Models\OrgRole::where('code', 'dept_lead')->first() ?? \App\Models\OrgRole::create(['name' => 'Trưởng ban', 'code' => 'dept_lead', 'level' => 50]);
+        $ownDept->members()->attach($lead->id, ['org_role_id' => $deptLeadRole->id]);
 
         // Can switch to own
         $response1 = $this->actingAs($lead)

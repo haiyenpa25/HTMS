@@ -66,15 +66,16 @@ const canEdit = canEditSectionII;
 const getAsgn = (rid, slot=1) =>
   props.meeting.duty_assignments?.find(a => a.department_role_id === rid && (Number(a.slot) || 1) === Number(slot));
 const getName = (rid, slot=1) => getAsgn(rid, slot)?.member?.full_name || null;
-const hasAnyAsgn = (rid) => props.meeting.duty_assignments?.some(a => a.department_role_id === rid && a.member_id);
+const hasAnyAsgn = (rid) => props.meeting.duty_assignments?.some(a => a.department_role_id === rid);
 const slotArr = r => Array.from({ length: r.max_count || 1 }, (_,i) => i+1);
 
 // Progress
-const totalSlots = computed(() =>
-  props.departments.reduce((s,d) => s + (d.duty_roles||[]).reduce((a,r) => a+(r.max_count||1),0), 0)
-);
+const totalSlots = computed(() => {
+  return props.meeting.duty_assignments?.length || 0;
+});
 const filled = computed(() => (props.meeting.duty_assignments||[]).filter(a => a.member_id).length);
 const pct    = computed(() => totalSlots.value > 0 ? Math.round(filled.value/totalSlots.value*100) : 0);
+const isRequested = (rid, slot=1) => !!getAsgn(rid, slot);
 
 // Section split
 const SECTION_I = 'Chương Trình Lễ';
@@ -121,16 +122,28 @@ const pickerList = (rid, s, deptId) => {
   const mode = pickerMode[k] || 'church';
   const isDeptHead = !isAdmin.value;
   let pool;
-  if (mode === 'speaker') {
-    pool = (props.speakers || []).map(sp => ({
-      id: sp.id,
-      full_name: [sp.title, sp.full_name].filter(Boolean).join(' '),
-      _isSpeaker: true,
-    }));
-  } else if (mode === 'dept' || (isDeptHead && props.meeting.type === 'church')) {
-    pool = props.deptMembers?.[deptId] || props.members;
+  if (props.meeting.type === 'department') {
+    if (mode === 'speaker') {
+      pool = (props.speakers || []).map(sp => ({
+        id: sp.id,
+        full_name: [sp.title, sp.full_name].filter(Boolean).join(' '),
+        _isSpeaker: true,
+      }));
+    } else {
+      pool = props.deptMembers?.[props.meeting.department_id] || [];
+    }
   } else {
-    pool = props.members;
+    if (mode === 'speaker') {
+      pool = (props.speakers || []).map(sp => ({
+        id: sp.id,
+        full_name: [sp.title, sp.full_name].filter(Boolean).join(' '),
+        _isSpeaker: true,
+      }));
+    } else if (mode === 'dept' || (isDeptHead && props.meeting.type === 'church')) {
+      pool = props.deptMembers?.[deptId] || props.members;
+    } else {
+      pool = props.members;
+    }
   }
   const q = (searchText[k]||'').toLowerCase().trim();
   return q ? pool.filter(m => m.full_name.toLowerCase().includes(q)).slice(0,20) : pool.slice(0,15);
@@ -270,11 +283,16 @@ const print = () => window.print();
               </div>
               <div v-else class="relative">
                 <button @click.stop="canEditSectionI && togP(item.role.id,item.slot,item.dept.id,item.role.name)"
-                  class="w-full flex items-center justify-between px-3 py-2.5 border border-dashed rounded-xl text-sm group transition-all"
-                  :class="canEditSectionI ? 'border-gray-300 text-gray-400 hover:border-orange-400 hover:bg-orange-50/50 cursor-pointer' : 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50/50'">
-                  <span>{{ canEditSectionI ? 'Chọn từ danh sách' : 'Chỉ xem (không có quyền)' }}</span>
-                  <div v-if="canEditSectionI" class="w-6 h-6 border-2 border-orange-300 group-hover:bg-orange-500 group-hover:border-orange-500 rounded-full flex items-center justify-center transition-all shrink-0">
-                    <svg class="w-3 h-3 text-orange-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                  class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm group transition-all"
+                  :class="[
+                    !canEditSectionI ? 'border border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50/50' :
+                    isRequested(item.role.id, item.slot) ? 'border-2 border-orange-300 bg-orange-50/30 text-orange-700 hover:bg-orange-100 font-bold shadow-sm' :
+                    'border border-dashed border-gray-300 text-gray-400 hover:border-orange-400 hover:bg-orange-50/50 cursor-pointer'
+                  ]">
+                  <span>{{ !canEditSectionI ? 'Chỉ xem (không có quyền)' : (isRequested(item.role.id, item.slot) ? 'Vị trí cần phân (Chọn)' : 'Chọn từ danh sách') }}</span>
+                  <div v-if="canEditSectionI" class="w-6 h-6 border-2 group-hover:bg-orange-500 group-hover:border-orange-500 rounded-full flex items-center justify-center transition-all shrink-0"
+                       :class="isRequested(item.role.id, item.slot) ? 'border-orange-400 bg-orange-100 text-orange-600' : 'border-orange-300 text-orange-400'">
+                    <svg class="w-3 h-3 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                   </div>
                 </button>
                 <div v-if="canEditSectionI && openPicker===pKey(item.role.id,item.slot)"
@@ -307,7 +325,9 @@ const print = () => window.print();
                       <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[9px] font-black text-gray-600 shrink-0">{{ m.full_name.slice(0,2).toUpperCase() }}</div>
                       <span class="text-xs font-medium text-gray-700 truncate">{{ m.full_name }}</span>
                     </button>
-                    <p v-if="!pickerList(item.role.id,item.slot,item.dept.id).length" class="text-xs text-gray-400 text-center py-3">Không tìm thấy nhân sự</p>
+                    <p v-if="!pickerList(item.role.id,item.slot,item.dept.id).length" class="text-xs text-gray-400 text-center py-3">
+                      {{ meeting.type === 'department' && !deptMembers[meeting.department_id]?.length ? 'Chưa có thành viên nào trong ban' : 'Không tìm thấy nhân sự' }}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -365,9 +385,14 @@ const print = () => window.print();
                     </div>
                     <div v-else class="relative">
                       <button @click.stop="togP(role.id,slot,dept.id,role.name)" :disabled="!canEdit(dept.id)"
-                        class="w-full flex items-center justify-between px-2.5 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-400 hover:border-indigo-300 hover:bg-indigo-50/30 disabled:opacity-40 group transition-all">
-                        <span>Chọn...</span>
-                        <svg class="w-3.5 h-3.5 text-indigo-400 group-hover:text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs group transition-all"
+                        :class="[
+                          !canEdit(dept.id) ? 'bg-white border border-gray-200 text-gray-300 disabled:opacity-40 cursor-not-allowed' :
+                          isRequested(role.id, slot) ? 'border-2 border-indigo-300 bg-indigo-50/30 text-indigo-700 hover:bg-indigo-100 font-bold shadow-sm' :
+                          'bg-white border border-gray-200 text-gray-400 hover:border-indigo-300 hover:bg-indigo-50/30'
+                        ]">
+                        <span>{{ isRequested(role.id, slot) ? 'Cần người (Chọn)' : 'Chọn...' }}</span>
+                        <svg class="w-3.5 h-3.5 group-hover:text-indigo-600" :class="isRequested(role.id, slot) ? 'text-indigo-600' : 'text-indigo-400'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                       </button>
                       <div v-if="openPicker===pKey(role.id,slot)"
                         class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-2xl shadow-2xl z-[50] overflow-hidden" style="min-width:220px" @click.stop>
@@ -394,7 +419,9 @@ const print = () => window.print();
                             <div class="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center text-[8px] font-black text-gray-600 shrink-0">{{ m.full_name.slice(0,2).toUpperCase() }}</div>
                             <span class="text-xs font-medium text-gray-700 truncate">{{ m.full_name }}</span>
                           </button>
-                          <p v-if="!pickerList(role.id,slot,dept.id).length" class="text-xs text-gray-400 text-center py-2">Không tìm thấy</p>
+                          <p v-if="!pickerList(role.id,slot,dept.id).length" class="text-xs text-gray-400 text-center py-2">
+                            {{ meeting.type === 'department' && !deptMembers[meeting.department_id]?.length ? 'Chưa có TV ban' : 'Không tìm thấy' }}
+                          </p>
                         </div>
                       </div>
                     </div>

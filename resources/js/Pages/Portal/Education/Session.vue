@@ -5,7 +5,7 @@
             <div class="bg-gradient-to-r from-indigo-700 to-indigo-600 text-white">
                 <!-- Row 1: back + class name + CN navigation -->
                 <div class="max-w-5xl mx-auto px-4 pt-3 pb-2 flex items-center gap-3">
-                    <Link :href="route('education.sessions', eduClass.id)" class="p-1.5 rounded-lg hover:bg-white/10 transition-colors shrink-0" title="Danh sách buổi học">
+                    <Link :href="route('ministry.education.sessions', eduClass.id)" class="p-1.5 rounded-lg hover:bg-white/10 transition-colors shrink-0" title="Danh sách buổi học">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </Link>
                     <div class="flex-1 min-w-0">
@@ -667,7 +667,7 @@ const saveAttendanceAndClose = () => {
         }
     });
     attendanceLoading.value = true;
-    router.post(route('education.attendance.save', [props.eduClass.id, props.session.id]), {
+    router.post(route('ministry.education.attendance.save', [props.eduClass.id, props.session.id]), {
         mode: 'checkin',
         records: localRecords.value.map(r => ({
             member_id: r.member_id,
@@ -709,7 +709,7 @@ const saveQuizInfo = () => {
     if (quizTotalQ.value)   formData.append('total_questions', quizTotalQ.value);
     if (quizGraderId.value) formData.append('grader_id', quizGraderId.value);
     if (photoFile.value)    formData.append('photo', photoFile.value);
-    router.post(route('education.session.update', [props.eduClass.id, props.session.id]), formData, {
+    router.post(route('ministry.education.session.update', [props.eduClass.id, props.session.id]), formData, {
         preserveScroll: true,
         forceFormData: true,
         onSuccess: () => { isQuizInfoOpen.value = false; photoFile.value = null; photoPreview.value = null; },
@@ -757,7 +757,7 @@ const totalSessionIncome = computed(() =>
 // ── Session navigation ───────────────────────────────────────────
 // ── Session navigation (Sunday-based) ────────────────────────────────
 const goToSunday = (dateStr) => {
-    router.get(route('education.session', props.eduClass.id), { date: dateStr }, { preserveScroll: false });
+    router.get(route('ministry.education.session', props.eduClass.id), { date: dateStr }, { preserveScroll: false });
 };
 
 // ── Attendance mode ──────────────────────────────────────────────────
@@ -770,7 +770,7 @@ const quickAbsent  = ref(props.session?.total_absent ?? '');
 
 const saveQuick = () => {
     attendanceLoading.value = true;
-    router.post(route('education.attendance.save', [props.eduClass.id, props.session.id]), {
+    router.post(route('ministry.education.attendance.save', [props.eduClass.id, props.session.id]), {
         mode: 'quick',
         total_present: quickPresent.value || 0,
         total_absent:  quickAbsent.value || 0,
@@ -784,7 +784,7 @@ const markAll = (status) => localRecords.value.forEach(r => r.attendance = statu
 
 const saveAttendance = () => {
     attendanceLoading.value = true;
-    router.post(route('education.attendance.save', [props.eduClass.id, props.session.id]), {
+    router.post(route('ministry.education.attendance.save', [props.eduClass.id, props.session.id]), {
         mode: 'checkin',
         records: localRecords.value.map(r => ({
             member_id: r.member_id,
@@ -809,7 +809,7 @@ const sessionForm = useForm({
 });
 
 const saveSessionInfo = () => {
-    sessionForm.put(route('education.session.update', [props.eduClass.id, props.session.id]), {
+    sessionForm.put(route('ministry.education.session.update', [props.eduClass.id, props.session.id]), {
         preserveScroll: true,
         onSuccess: () => isSessionInfoOpen.value = false,
     });
@@ -832,7 +832,7 @@ const openOfferingForm = (fund) => {
 };
 
 const saveOffering = () => {
-    offeringForm.post(route('education.offering.store', [props.eduClass.id, props.session.id]), {
+    offeringForm.post(route('ministry.education.offering.store', [props.eduClass.id, props.session.id]), {
         preserveScroll: true,
         onSuccess: () => { isOfferingOpen.value = false; offeringForm.reset(); },
     });
@@ -840,7 +840,7 @@ const saveOffering = () => {
 
 const deleteOffering = (txId) => {
     if (!confirm('Xóa giao dịch này?')) return;
-    router.delete(route('education.offering.destroy', [props.eduClass.id, props.session.id, txId]), {
+    router.delete(route('ministry.education.offering.destroy', [props.eduClass.id, props.session.id, txId]), {
         preserveScroll: true,
     });
 };

@@ -6,6 +6,7 @@ import SystemFeaturesTab from '@/Pages/Admin/SystemFeaturesTab.vue';
 import UserFormModal from './FormModal.vue';
 import DeleteConfirmModal from '@/Components/DeleteConfirmModal.vue';
 import axios from 'axios';
+import { getRoleLabel } from '@/utils/roleHelper';
 
 const props = defineProps({
   users:        Object,
@@ -553,7 +554,7 @@ const sidebarCollapsed = ref(false);
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-500">{{ user.phone || '—' }}</td>
                 <td class="px-6 py-4">
-                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold" :class="roleColor(user.role)">{{ user.role || 'Chưa phân' }}</span>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold" :class="roleColor(user.role)">{{ getRoleLabel(user.role) || 'Chưa phân' }}</span>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-500">
                   <span v-if="user.departments !== 'Chưa tham gia'" class="text-gray-700">{{ user.departments }}</span>
@@ -582,7 +583,7 @@ const sidebarCollapsed = ref(false);
                   <p class="text-xs text-gray-400">{{ user.email }}</p>
                 </div>
               </div>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold" :class="roleColor(user.role)">{{ user.role || '—' }}</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold" :class="roleColor(user.role)">{{ getRoleLabel(user.role) || '—' }}</span>
             </div>
             <p class="text-xs text-gray-400 mb-3">{{ user.departments !== 'Chưa tham gia' ? user.departments : '—' }}</p>
             <div class="flex gap-2 pt-3 border-t border-gray-50">

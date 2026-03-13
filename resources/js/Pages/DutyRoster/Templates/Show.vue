@@ -2,6 +2,7 @@
 import { ref, computed, reactive, onMounted } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import DutyRosterLayout from '@/Layouts/DutyRosterLayout.vue';
+import PortalLayout from '@/Layouts/PortalLayout.vue';
 import axios from 'axios';
 
 const SECTION_I = 'Chương Trình Lễ';
@@ -10,6 +11,12 @@ const props = defineProps({
   template:             Object,
   departments:          Array,
   participatingDeptIds: Array,
+  isPortal:             Boolean,
+  portalType:           String,
+  routePrefix:          { type: String, default: 'duty-rooster.' },
+  department:           Object,
+  availableDepartments: Array,
+  isGlobalAdmin:        Boolean,
 });
 
 // ── Template state ─────────────────────────────────────────
@@ -84,12 +91,12 @@ const toggleRole = async (roleId) => {
   saving.value = true;
   try {
     if (inTemplate(roleId)) {
-      await axios.delete(route('duty-rooster.templates.roles.remove', {
+      await axios.delete(route(props.routePrefix + 'templates.roles.remove', {
         template: props.template.id, role: roleId,
       }));
       templateRoleIds.value.delete(roleId);
     } else {
-      await axios.post(route('duty-rooster.templates.roles.add', props.template.id), {
+      await axios.post(route(props.routePrefix + 'templates.roles.add', props.template.id), {
         role_id: roleId,
       });
       templateRoleIds.value.add(roleId);
@@ -109,13 +116,13 @@ const addSectionIRole = async () => {
   if (!newSectionIRole.name.trim() || !chapSuDept.value) return;
   saving.value = true;
   try {
-    const res = await axios.post(route('duty-rooster.roles.store', chapSuDept.value.id), {
+    const res = await axios.post(route(props.routePrefix + 'roles.store', chapSuDept.value.id), {
       name: newSectionIRole.name.trim(),
       section: 'Chương Trình Lễ',
       max_count: newSectionIRole.max_count,
     });
     // Also add to template
-    await axios.post(route('duty-rooster.templates.roles.add', props.template.id), {
+    await axios.post(route(props.routePrefix + 'templates.roles.add', props.template.id), {
       role_id: res.data.id,
     });
     newSectionIRole.name = ''; newSectionIRole.max_count = 1; newSectionIRole.show = false;
@@ -130,12 +137,12 @@ const addSupportRole = async (dept) => {
   if (!d?.name?.trim()) return;
   saving.value = true;
   try {
-    const res = await axios.post(route('duty-rooster.roles.store', dept.id), {
+    const res = await axios.post(route(props.routePrefix + 'roles.store', dept.id), {
       name: d.name.trim(),
       section: dept.name,
       max_count: d.max_count || 1,
     });
-    await axios.post(route('duty-rooster.templates.roles.add', props.template.id), { role_id: res.data.id });
+    await axios.post(route(props.routePrefix + 'templates.roles.add', props.template.id), { role_id: res.data.id });
     d.name = ''; d.max_count = 1; d.show = false;
     router.reload({ only: ['template', 'departments'] });
   } catch (e) { /* noop */ }
@@ -145,7 +152,7 @@ const addSupportRole = async (dept) => {
 // ── Save template name ───────────────────────────────────────────────────
 const saveName = async () => {
   if (!templateName.value.trim()) return;
-  await axios.put(route('duty-rooster.templates.update', props.template.id), {
+  await axios.put(route(props.routePrefix + 'templates.update', props.template.id), {
     name: templateName.value,
     type: templateType.value,
     department_id: templateType.value === 'department' ? templateDeptId.value : null
@@ -158,22 +165,27 @@ const confirmDelete = ref(false);
 const deleting = ref(false);
 const deleteTemplate = () => {
   deleting.value = true;
-  router.delete(route('duty-rooster.templates.destroy', props.template.id), {
-    onSuccess: () => router.visit(route('duty-rooster.templates.index')),
+  router.delete(route(props.routePrefix + 'templates.destroy', props.template.id), {
+    onSuccess: () => router.visit(route(props.routePrefix + 'templates.index')),
     onFinish: () => { deleting.value = false; confirmDelete.value = false; },
   });
 };
 </script>
 
 <template>
-  <DutyRosterLayout title="Mẫu Phân Công">
+  <component
+    :is="isPortal ? PortalLayout : DutyRosterLayout"
+    v-bind="isPortal
+      ? { department, availableDepartments, isGlobalAdmin, portalType }
+      : { title: 'Mẫu phân công' }"
+  >
     <Head :title="`Mẫu: ${template.name}`" />
 
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6 pb-16">
 
       <!-- ── Breadcrumb ─────────────────────────────── -->
       <div class="flex items-center gap-1.5 text-xs text-gray-400 mb-4">
-        <Link :href="route('duty-rooster.templates.index')" class="hover:text-indigo-600">Templates</Link>
+        <Link :href="route(routePrefix + 'templates.index')" class="hover:text-indigo-600">Templates</Link>
         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
         <span class="text-gray-600">Chi tiết</span>
       </div>
@@ -214,7 +226,7 @@ const deleteTemplate = () => {
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
               Xóa
             </button>
-            <Link :href="route('duty-rooster.index')"
+            <Link :href="route(routePrefix + 'index')"
               class="px-4 py-2.5 text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-all">
               Áp dụng cho buổi nhóm →
             </Link>
@@ -492,7 +504,7 @@ const deleteTemplate = () => {
       </div>
     </div>
 
-  </DutyRosterLayout>
+  </component>
 </template>
 
 <style scoped>

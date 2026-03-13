@@ -231,7 +231,7 @@ const props = defineProps({
     sessions: Array,
     canManage: Boolean,
     portalType: String,
-    routePrefix: { type: String, default: 'education' },
+    routePrefix: { type: String, default: 'ministry.education' },
     availableDepartments: Array,
     isGlobalAdmin: Boolean,
 });

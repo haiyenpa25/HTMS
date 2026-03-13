@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <component :is="currentLayout">
     <template #header>
       Chi tiết Nhóm Vai trò
@@ -24,10 +24,10 @@
                    'bg-purple-100 text-purple-600 shadow-purple-100': role.name === 'Pastor',
                    'bg-blue-100 text-blue-600 shadow-blue-100': !['Super_Admin', 'Pastor'].includes(role.name)
                  }">
-               {{ role.name.charAt(0) }}
+               {{ getRoleLabel(role.name).charAt(0) }}
             </div>
             <div>
-               <h1 class="text-3xl font-black text-gray-900 mb-1">{{ role.name }}</h1>
+               <h1 class="text-3xl font-black text-gray-900 mb-1">{{ getRoleLabel(role.name) }}</h1>
                <div class="flex items-center space-x-4 text-sm text-gray-500 font-bold">
                   <span>{{ role.users_count }} Tài khoản</span>
                   <span class="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
@@ -118,6 +118,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import MobileLayout from '@/Layouts/MobileLayout.vue';
+import { getRoleLabel } from '@/utils/roleHelper';
 
 const props = defineProps({
   role: Object,

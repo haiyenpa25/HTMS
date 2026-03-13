@@ -29,7 +29,8 @@ class FinanceTransactionTest extends TestCase
         // Doesn't have approve_finance
 
         $dept = Department::create(['code' => 'T1', 'name' => 'Test Dept']);
-        $dept->members()->attach($user->id, ['role' => 'Thanh_Vien']);
+        $teamMemberRole = \App\Models\OrgRole::where('code', 'team_member')->first() ?? \App\Models\OrgRole::create(['name' => 'Tổ viên', 'code' => 'team_member', 'level' => 10]);
+        $dept->members()->attach($user->id, ['org_role_id' => $teamMemberRole->id]);
         
         $fund = FinanceFund::create([
             'name' => 'Department Fund',
@@ -73,10 +74,9 @@ class FinanceTransactionTest extends TestCase
                 'transaction_date' => now()->toDateString(),
             ]);
 
-        $this->assertDatabaseHas('finance_transactions', [
-            'amount' => 500000,
-            'status' => 'approved'
-        ]);
+        $transaction = \App\Models\FinanceTransaction::where('amount', 500000)->first();
+        $this->assertNotNull($transaction);
+        $this->assertEquals('approved', $transaction->status);
     }
 
     public function test_admin_can_approve_pending_transaction()

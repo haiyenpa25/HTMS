@@ -73,11 +73,23 @@
           </div>
         </div>
 
-        <!-- 5. QUẢN TRỊ TÀI KHOẢN -->
-        <Link :href="route('users.index')" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group" :class="(route().current('users.*') || route().current('roles.*') || route().current('admin.users.permissions*')) ? 'bg-slate-100 text-slate-800 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
-          <svg class="w-5 h-5 shrink-0" :class="(route().current('users.*') || route().current('roles.*') || route().current('admin.users.permissions*')) ? 'text-slate-800' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Quản trị Tài khoản</span>
-        </Link>
+        <!-- 5. QUẢN TRỊ HỆ THỐNG (Hierarchical) -->
+        <div class="space-y-1">
+          <button @click="toggleSystemMenu" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-bold transition-all group" :class="isSystemMenuOpen ? 'text-slate-800 bg-slate-100' : 'text-gray-600 hover:bg-gray-50'">
+            <div class="flex items-center space-x-3">
+              <svg class="w-5 h-5 shrink-0" :class="isSystemMenuOpen ? 'text-slate-800' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Quản trị Hệ thống</span>
+            </div>
+            <svg v-if="!isSidebarCollapsed" class="w-4 h-4 transition-transform duration-200" :class="isSystemMenuOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          
+          <div v-if="isSystemMenuOpen && !isSidebarCollapsed" class="pl-11 space-y-1 pb-1">
+            <Link :href="route('users.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('users.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Tài khoản</Link>
+            <Link :href="route('roles.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('roles.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Chức vụ</Link>
+            <Link :href="route('admin.features.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.features.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Tính năng</Link>
+            <Link :href="route('admin.users.permissions')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.users.permissions*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Phân quyền</Link>
+          </div>
+        </div>
 
         <!-- 6. CÀI ĐẶT HỆ THỐNG (Hierarchical) -->
         <div class="space-y-1">
@@ -97,10 +109,22 @@
         </div>
 
         <!-- FLAT ITEMS CONTINUED -->
-        <Link :href="route('admin.broadcasts.index')" class="flex items-center space-x-3 px-3 py-2.5 mt-2 rounded-xl font-bold transition-all group" :class="route().current('admin.broadcasts.*') ? 'bg-purple-50 text-purple-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
-          <svg class="w-5 h-5 shrink-0" :class="route().current('admin.broadcasts.*') ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
-          <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Truyền Thông</span>
-        </Link>
+        <!-- 4. TRUYỀN THÔNG (Gộp nhóm thông báo) -->
+        <div class="space-y-1">
+          <button @click="toggleCommunicationsMenu" class="w-full flex items-center justify-between px-3 py-2.5 mt-2 rounded-xl font-bold transition-all group" :class="isCommunicationsMenuOpen ? 'text-amber-700 bg-amber-50/30' : 'text-gray-600 hover:bg-gray-50'">
+            <div class="flex items-center space-x-3">
+              <svg class="w-5 h-5 shrink-0" :class="isCommunicationsMenuOpen ? 'text-amber-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+              <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Truyền Thông</span>
+            </div>
+            <svg v-if="!isSidebarCollapsed" class="w-4 h-4 transition-transform duration-200" :class="isCommunicationsMenuOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          
+          <div v-if="isCommunicationsMenuOpen && !isSidebarCollapsed" class="pl-11 space-y-1 pb-1">
+            <Link :href="route('notifications.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('notifications.*') ? 'text-amber-700' : 'text-gray-500 hover:text-gray-700'">Hộp thư cá nhân</Link>
+            <Link :href="route('admin.announcements.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.announcements.*') ? 'text-amber-700' : 'text-gray-500 hover:text-gray-700'">Đăng Bản tin nội bộ</Link>
+            <Link :href="route('admin.broadcasts.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.broadcasts.*') ? 'text-amber-700' : 'text-gray-500 hover:text-gray-700'">Tin nhắn tự động (SMS)</Link>
+          </div>
+        </div>
         <Link :href="route('finance.index')" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group" :class="route().current('finance.*') ? 'bg-emerald-50 text-emerald-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
           <svg class="w-5 h-5 shrink-0" :class="route().current('finance.*') ? 'text-emerald-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Tài chính</span>
@@ -245,11 +269,23 @@
                  Hướng dẫn / Tài liệu
                </Link>
 
-               <!-- 6. TÀI KHOẢN -->
-               <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-widest mt-4 mb-2">Tài Khoản</p>
+               <!-- 6. HỆ THỐNG -->
+               <p class="px-3 text-[10px] font-black text-gray-400 uppercase tracking-widest mt-4 mb-2">Hệ Thống</p>
                <Link :href="route('users.index')" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">
                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                 Quản trị Tài khoản
+                 Tài khoản
+               </Link>
+               <Link :href="route('roles.index')" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">
+                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                 Chức vụ
+               </Link>
+               <Link :href="route('admin.features.index')" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">
+                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                 Tính năng
+               </Link>
+               <Link :href="route('admin.users.permissions')" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">
+                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                 Phân quyền
                </Link>
                <Link :href="route('member.portal.index')" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">
                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -295,7 +331,7 @@
             <!-- User Profile info -->
             <div class="text-sm font-medium text-gray-700 hidden sm:block text-right">
               <span class="block">Xin chào, {{ page.props.auth.user?.name || 'Guest' }}</span>
-              <span class="block text-xs text-gray-500">{{ page.props.auth.user?.role || '' }}</span>
+              <span class="block text-xs text-gray-500">{{ getRoleLabel(page.props.auth.user?.role) || '' }}</span>
             </div>
             <div class="relative group">
               <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 hover:bg-gray-200 transition-colors focus:outline-none overflow-hidden">
@@ -334,6 +370,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import NotificationDropdown from '@/Components/NotificationDropdown.vue';
 import CommandPalette from '@/Components/CommandPalette.vue';
+import { getRoleLabel } from '@/utils/roleHelper';
 
 const page = usePage();
 
@@ -357,7 +394,9 @@ const isSidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'tru
 const isDeptsMenuOpen = ref(route().current('portal.*') || route().current('ministry.*') || route().current('deacon.*') || route().current('departments.*'));
 const isBelieversMenuOpen = ref(route().current('members.*') || route().current('admin.visitors.*') || route().current('care.*'));
 const isEventsMenuOpen = ref(route().current('calendar.*') || route().current('meetings.*') || route().current('duty-rooster.*'));
+const isSystemMenuOpen = ref(route().current('users.*') || route().current('roles.*') || route().current('admin.features.*') || route().current('admin.users.permissions*'));
 const isSettingsMenuOpen = ref(route().current('speakers.*') || route().current('member.portal.*') || route().current('admin.activity.logs*'));
+const isCommunicationsMenuOpen = ref(route().current('admin.announcements.*') || route().current('notifications.*') || route().current('admin.broadcasts.*'));
 
 const toggleSidebar = () => {
     isSidebarCollapsed.value = !isSidebarCollapsed.value;
@@ -367,6 +406,8 @@ const toggleSidebar = () => {
         isBelieversMenuOpen.value = false;
         isEventsMenuOpen.value = false;
         isSettingsMenuOpen.value = false;
+        isSystemMenuOpen.value = false;
+        isCommunicationsMenuOpen.value = false; // Added this line
     }
 };
 
@@ -376,6 +417,28 @@ const toggleDeptsMenu = () => {
         localStorage.setItem('sidebarCollapsed', false);
     }
     isDeptsMenuOpen.value = !isDeptsMenuOpen.value;
+    if (isDeptsMenuOpen.value) {
+        isBelieversMenuOpen.value = false;
+        isEventsMenuOpen.value = false;
+        isSettingsMenuOpen.value = false;
+        isSystemMenuOpen.value = false;
+        isCommunicationsMenuOpen.value = false; // Added this line
+    }
+};
+
+const toggleCommunicationsMenu = () => {
+    if (isSidebarCollapsed.value) {
+        isSidebarCollapsed.value = false;
+        localStorage.setItem('sidebarCollapsed', false);
+    }
+    isCommunicationsMenuOpen.value = !isCommunicationsMenuOpen.value;
+    if (isCommunicationsMenuOpen.value) {
+        isBelieversMenuOpen.value = false;
+        isDeptsMenuOpen.value = false;
+        isEventsMenuOpen.value = false;
+        isSystemMenuOpen.value = false;
+        isSettingsMenuOpen.value = false;
+    }
 };
 
 const toggleBelieversMenu = () => {
@@ -384,6 +447,13 @@ const toggleBelieversMenu = () => {
         localStorage.setItem('sidebarCollapsed', false);
     }
     isBelieversMenuOpen.value = !isBelieversMenuOpen.value;
+    if (isBelieversMenuOpen.value) {
+        isDeptsMenuOpen.value = false;
+        isEventsMenuOpen.value = false;
+        isSettingsMenuOpen.value = false;
+        isSystemMenuOpen.value = false;
+        isCommunicationsMenuOpen.value = false;
+    }
 };
 
 const toggleEventsMenu = () => {
@@ -392,6 +462,28 @@ const toggleEventsMenu = () => {
         localStorage.setItem('sidebarCollapsed', false);
     }
     isEventsMenuOpen.value = !isEventsMenuOpen.value;
+    if (isEventsMenuOpen.value) {
+        isBelieversMenuOpen.value = false;
+        isDeptsMenuOpen.value = false;
+        isSettingsMenuOpen.value = false;
+        isSystemMenuOpen.value = false;
+        isCommunicationsMenuOpen.value = false;
+    }
+};
+
+const toggleSystemMenu = () => {
+    if (isSidebarCollapsed.value) {
+        isSidebarCollapsed.value = false;
+        localStorage.setItem('sidebarCollapsed', false);
+    }
+    isSystemMenuOpen.value = !isSystemMenuOpen.value;
+    if (isSystemMenuOpen.value) {
+        isBelieversMenuOpen.value = false;
+        isDeptsMenuOpen.value = false;
+        isEventsMenuOpen.value = false;
+        isSettingsMenuOpen.value = false;
+        isCommunicationsMenuOpen.value = false;
+    }
 };
 
 const toggleSettingsMenu = () => {
@@ -400,6 +492,13 @@ const toggleSettingsMenu = () => {
         localStorage.setItem('sidebarCollapsed', false);
     }
     isSettingsMenuOpen.value = !isSettingsMenuOpen.value;
+    if (isSettingsMenuOpen.value) {
+        isBelieversMenuOpen.value = false;
+        isDeptsMenuOpen.value = false;
+        isEventsMenuOpen.value = false;
+        isSystemMenuOpen.value = false;
+        isCommunicationsMenuOpen.value = false;
+    }
 };
 
 </script>

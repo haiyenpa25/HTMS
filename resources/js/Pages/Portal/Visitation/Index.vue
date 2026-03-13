@@ -479,15 +479,22 @@
                 </div>
 
                 <!-- Summary badge -->
-                <div v-if="localSuggestions.length > 0" class="flex items-center justify-between">
-                    <span class="text-[15px] font-bold text-gray-700">{{ localSuggestions.length }} tín hữu cần thăm</span>
+                <div v-if="localSuggestions.length > 0" class="flex items-center justify-between mb-2">
+                    <span class="text-[15px] font-bold text-gray-700">{{ filteredSuggestions.length }} tín hữu cần thăm</span>
                     <div class="flex gap-2.5">
-                        <span class="text-xs font-bold px-2.5 py-1 bg-red-100 text-red-700 rounded-lg">{{ localSuggestions.filter(s => s.priority === 'high').length }} Khẩn</span>
-                        <span class="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-700 rounded-lg">{{ localSuggestions.filter(s => s.priority === 'medium').length }} Trung bình</span>
+                        <span class="text-xs font-bold px-2.5 py-1 bg-red-100 text-red-700 rounded-lg">{{ filteredSuggestions.filter(s => s.priority === 'high').length }} Khẩn</span>
+                        <span class="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-700 rounded-lg">{{ filteredSuggestions.filter(s => s.priority === 'medium').length }} Trung bình</span>
                     </div>
                 </div>
 
-                <div v-if="localSuggestions.length === 0" class="py-14 flex flex-col items-center text-center">
+                <div v-if="localSuggestions.length > 0" class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none transition-colors group-focus-within:text-amber-500">
+                        <svg class="h-4 w-4 text-gray-400 group-focus-within:text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" v-model="suggSearch" placeholder="Lọc nhanh bằng Tên hoặc SĐT..." class="block w-full pl-10 pr-4 py-2.5 text-[15px] border-amber-200 rounded-xl focus:ring-amber-500 focus:border-amber-500 transition-all shadow-sm bg-white hover:bg-amber-50/30 mb-5">
+                </div>
+
+                <div v-if="filteredSuggestions.length === 0" class="py-14 flex flex-col items-center text-center">
                     <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4 text-green-500 shadow-inner">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
@@ -496,7 +503,7 @@
                 </div>
 
                 <div class="space-y-3">
-                    <div v-for="s in localSuggestions" :key="'sugg-'+s.id"
+                    <div v-for="s in filteredSuggestions" :key="'sugg-'+s.id"
                         class="p-5 rounded-2xl border transition-colors shadow-sm hover:shadow"
                         :class="s.priority === 'high' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'">
                         <div class="flex items-start justify-between gap-3">
@@ -566,7 +573,17 @@ const filtersForm = ref({
 // Suggestions slide-over state
 const isSuggOpen = ref(false);
 const suggDept = ref(props.filters.sugg_dept || '');
+const suggSearch = ref('');
 const localSuggestions = ref(Array.isArray(props.suggestions) ? props.suggestions : Object.values(props.suggestions || {}));
+
+const filteredSuggestions = computed(() => {
+    let list = localSuggestions.value;
+    if (suggSearch.value) {
+        let q = suggSearch.value.toLowerCase();
+        list = list.filter(s => (s.full_name && s.full_name.toLowerCase().includes(q)) || (s.phone && s.phone.includes(q)));
+    }
+    return list;
+});
 
 const suggCount = computed(() => localSuggestions.value.length);
 
@@ -715,7 +732,14 @@ const openForm = () => {
     form.reset();
     form.member_ids = [];
     form.visitation_type = props.portalType === 'ministry' ? 'department' : 'department'; // Keep as is initially
-    form.visit_date = new Date().toISOString().split('T')[0];
+    
+    // Fix: Get local date properly
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    form.visit_date = `${yyyy}-${mm}-${dd}`;
+    
     isFormOpen.value = true;
 };
 
@@ -738,7 +762,10 @@ const editForm = (visitation) => {
     editingId.value = visitation.id;
     form.visitation_type = visitation.visitation_type;
     form.member_id = visitation.member_id;
-    form.visit_date = visitation.visit_date;
+    
+    // Fix: Properly parse Laravel's datetime output safely
+    form.visit_date = visitation.visit_date ? String(visitation.visit_date).split('T')[0].split(' ')[0] : '';
+    
     form.reason = visitation.reason;
     form.status = visitation.status || 'planned';
     form.priority = visitation.priority || 'normal';

@@ -183,6 +183,11 @@ class VisitationController extends Controller
             $lastVisitDate = $lastVisit ? \Carbon\Carbon::parse($lastVisit->visit_date) : null;
             $monthsSinceLastVisit = $lastVisitDate ? $lastVisitDate->diffInMonths(now()) : 999;
 
+            // If they were visited VERY recently (e.g., < 2 months ago), do not suggest them again
+            if ($monthsSinceLastVisit < 2) {
+                continue;
+            }
+
             // Check if missed 3 consecutive meetings in any activity dept
             $missed3InAnyDept = false;
             foreach ($m->memberships as $membership) {
@@ -201,7 +206,7 @@ class VisitationController extends Controller
             $priority = 'normal';
             $reasons = [];
             if ($missed3InAnyDept) $reasons[] = 'Vắng nhóm 3 lần liên tiếp';
-            if ($monthsSinceLastVisit >= 6) $reasons[] = 'Chưa được thăm > 6 tháng';
+            if ($monthsSinceLastVisit >= 6 && $monthsSinceLastVisit < 999) $reasons[] = 'Chưa được thăm > 6 tháng';
 
             if ($missed3InAnyDept && $monthsSinceLastVisit >= 6) $priority = 'high';
             elseif (count($reasons) > 0) $priority = 'medium';

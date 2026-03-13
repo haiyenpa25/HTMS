@@ -1,6 +1,8 @@
-﻿<script setup>
+<script setup>
 import { ref, computed, watch, nextTick } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, router } from '@inertiajs/vue3';
+import { getRoleLabel } from '@/utils/roleHelper';
+import axios from 'axios';
 
 const props = defineProps({
   show:        { type: Boolean, default: false },
@@ -60,6 +62,77 @@ const roleColors = {
   Super_Admin: 'bg-red-50 text-red-700 border-red-200',
   Pastor:      'bg-purple-50 text-purple-700 border-purple-200',
 };
+
+// ── MEMBER LINKING LOGIC ──
+const searchQuery = ref('');
+const searchResults = ref([]);
+const isSearching = ref(false);
+const selectedMemberId = ref(null);
+
+watch(() => props.editingUser, (user) => {
+    if (user && user.linked_member) {
+        selectedMemberId.value = user.linked_member.id;
+        searchQuery.value = user.linked_member.full_name + ' (' + user.linked_member.member_code + ')';
+    } else {
+        selectedMemberId.value = null;
+        searchQuery.value = '';
+    }
+}, { immediate: true });
+
+let searchTimeout;
+const searchMembers = () => {
+    clearTimeout(searchTimeout);
+    if (searchQuery.value.length < 2) {
+        searchResults.value = [];
+        return;
+    }
+    isSearching.value = true;
+    searchTimeout = setTimeout(async () => {
+        try {
+            const response = await axios.get(route('api.members.index'), { params: { search: searchQuery.value } });
+            searchResults.value = response.data;
+        } catch (e) {
+            console.error(e);
+        } finally {
+            isSearching.value = false;
+        }
+    }, 300);
+};
+
+const selectMember = (member) => {
+    selectedMemberId.value = member.id;
+    searchQuery.value = member.full_name + ' (' + (member.phone || 'Không có SĐT') + ')';
+    searchResults.value = [];
+};
+
+const submitLinkMember = () => {
+    router.post(route('users.link-member', props.editingUser.id), {
+        member_id: selectedMemberId.value
+    }, {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+            searchResults.value = [];
+        }
+    });
+};
+
+const unlinkMember = () => {
+    if(confirm('Bạn có chắc muốn gỡ liên kết với hồ sơ Tín Hữu hiện tại?')) {
+        router.post(route('users.link-member', props.editingUser.id), {
+            member_id: null
+        }, {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                selectedMemberId.value = null;
+                searchQuery.value = '';
+                searchResults.value = [];
+            }
+        });
+    }
+};
+
 </script>
 
 <template>
@@ -123,7 +196,12 @@ const roleColors = {
               <button @click="activeSection = 'password'"
                 class="flex-1 py-3 text-sm font-bold transition-colors flex items-center justify-center gap-2"
                 :class="activeSection === 'password' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-white' : 'text-gray-500 hover:text-gray-700'">
-                🔑 Đổi mật khẩu
+                🔑 Mật khẩu
+              </button>
+              <button @click="activeSection = 'member'"
+                class="flex-1 py-3 text-sm font-bold transition-colors flex items-center justify-center gap-2"
+                :class="activeSection === 'member' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-white' : 'text-gray-500 hover:text-gray-700'">
+                🔗 Tín hữu
               </button>
             </div>
 
@@ -174,7 +252,7 @@ const roleColors = {
                   <select v-model="form.role"
                     class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all">
                     <option value="">— Chưa phân chức vụ (Guest) —</option>
-                    <option v-for="role in roles" :key="role" :value="role">{{ role }}</option>
+                    <option v-for="role in roles" :key="role" :value="role">{{ getRoleLabel(role) }}</option>
                   </select>
                   <p class="mt-1.5 text-[11px] text-gray-400">
                     💡 Phân quyền chi tiết được cấu hình riêng trong tab Phân Quyền.
@@ -249,23 +327,85 @@ const roleColors = {
                 </div>
               </div>
 
-              <!-- ── Actions ── -->
-              <div class="flex justify-end gap-3 pt-2 border-t border-gray-100">
-                <button type="button" @click="close"
-                  class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-bold text-sm hover:bg-gray-50 transition-colors">
-                  Hủy
-                </button>
-                <button type="submit" :disabled="form.processing"
-                  class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md shadow-indigo-200 transition-all disabled:opacity-60 flex items-center gap-2">
-                  <svg v-if="form.processing" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                  </svg>
-                  <span>{{ form.processing ? 'Đang lưu...' : (isEditing ? 'Lưu thay đổi' : 'Tạo tài khoản') }}</span>
-                </button>
-              </div>
-
             </form>
+
+            <!-- SECTION: Link Member (Edit only, separate form logic) -->
+            <div v-if="isEditing && activeSection === 'member'" class="p-6 space-y-4">
+               <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-4 text-sm text-indigo-800 flex gap-3">
+                  <span class="text-xl">ℹ️</span>
+                  <div>
+                      <p class="font-bold mb-1">Liên kết Hồ sơ Tín Hữu</p>
+                      <p class="text-xs">Gắn tài khoản này với một Hồ sơ Tín hữu để hiển thị chính xác thẻ thông tin cá nhân trên Portal.</p>
+                  </div>
+               </div>
+
+               <div v-if="editingUser.linked_member" class="bg-white border rounded-xl p-4 flex items-center justify-between shadow-sm">
+                  <div>
+                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Đang liên kết với</p>
+                    <p class="font-black text-gray-900">{{ editingUser.linked_member.full_name }}</p>
+                    <p class="text-xs text-gray-500 font-mono mt-0.5">{{ editingUser.linked_member.member_code }}</p>
+                  </div>
+                  <button type="button" @click="unlinkMember" class="text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                     Gỡ liên kết
+                  </button>
+               </div>
+
+               <div>
+                 <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
+                    {{ editingUser.linked_member ? 'Đổi qua Hồ sơ khác' : 'Tìm Hồ sơ Tín Hữu' }}
+                 </label>
+                 <div class="relative">
+                   <input type="text"
+                      v-model="searchQuery"
+                      @input="searchMembers"
+                      placeholder="Nhập tên, số điện thoại hoặc mã tín hữu..."
+                      class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                   />
+                   <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                   
+                   <!-- Loading spinner -->
+                   <div v-if="isSearching" class="absolute right-3 top-1/2 -translate-y-1/2">
+                      <div class="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                   </div>
+
+                   <!-- Dropdown Results -->
+                   <div v-if="searchResults.length > 0" class="absolute z-50 w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                      <div v-for="member in searchResults" :key="member.id" 
+                           @click="selectMember(member)"
+                           class="px-4 py-2 hover:bg-indigo-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors">
+                          <p class="text-sm font-bold text-gray-900">{{ member.full_name }}</p>
+                          <div class="flex items-center gap-2 mt-0.5 text-[11px] text-gray-500">
+                             <span>{{ member.phone || 'Thêm SĐT' }}</span>
+                             <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                             <span>SN: {{ member.date_of_birth ? member.date_of_birth : 'N/A' }}</span>
+                          </div>
+                      </div>
+                   </div>
+                 </div>
+               </div>
+
+               <div class="flex justify-end pt-4" v-if="selectedMemberId && (!editingUser.linked_member || selectedMemberId !== editingUser.linked_member.id)">
+                   <button type="button" @click="submitLinkMember" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-sm">
+                      Gắn Hồ Sơ Này / Lưu
+                   </button>
+               </div>
+            </div>
+
+            <!-- ── Footer ── (Only for Info and Password sections that use the main form) -->
+            <div v-if="activeSection !== 'member'" class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
+              <button type="button" @click="close"
+                class="px-5 py-2.5 text-sm font-bold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-all focus:ring-2 focus:ring-gray-200 outline-none">
+                Hủy
+              </button>
+              <button @click="submit" :disabled="form.processing"
+                class="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-600/20 active:bg-indigo-800 transition-all focus:ring-2 focus:ring-indigo-500 outline-none disabled:opacity-50 flex items-center gap-2">
+                <svg v-if="form.processing" class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ isEditing ? 'Cập nhật' : 'Tạo Tài khoản' }}
+              </button>
+            </div>
           </div>
         </transition>
       </div>

@@ -605,7 +605,7 @@ const openReportForm = () => {
 
 const submitReport = () => {
     reportFormLoading.value = true;
-    router.post(route('education.report.save'), reportForm.value, {
+    router.post(route('ministry.education.report.save'), reportForm.value, {
         preserveScroll: true,
         onSuccess: () => { showReportForm.value = false; },
         onFinish: () => { reportFormLoading.value = false; },
@@ -614,7 +614,7 @@ const submitReport = () => {
 
 const doApprove = () => {
     if (!props.eduReport) return;
-    router.post(route('education.report.approve', props.eduReport.id), {}, { preserveScroll: true });
+    router.post(route('ministry.education.report.approve', props.eduReport.id), {}, { preserveScroll: true });
 };
 
 let attendanceChart = null;
@@ -670,7 +670,7 @@ const nextMonth = () => {
     selectedMonth.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     loadReport();
 };
-const loadReport = () => router.get(route('education.report'), { month: selectedMonth.value }, { preserveScroll: true });
+const loadReport = () => router.get(route('ministry.education.report'), { month: selectedMonth.value }, { preserveScroll: true });
 
 // ── Charts ────────────────────────────────────────────────────────
 const buildAttendanceChart = () => {

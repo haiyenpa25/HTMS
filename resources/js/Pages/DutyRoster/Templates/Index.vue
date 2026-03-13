@@ -1,11 +1,18 @@
-﻿<script setup>
+<script setup>
 import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import DutyRosterLayout from '@/Layouts/DutyRosterLayout.vue';
+import PortalLayout from '@/Layouts/PortalLayout.vue';
 
 const props = defineProps({
-  templates:   Array,
-  departments: Array,
+  templates:            Array,
+  departments:          Array,
+  isPortal:             Boolean,
+  portalType:           String,
+  routePrefix:          { type: String, default: 'duty-rooster.' },
+  department:           Object,
+  availableDepartments: Array,
+  isGlobalAdmin:        Boolean,
 });
 
 const deleteId   = ref(null);
@@ -15,7 +22,7 @@ const confirmDel = (id) => { deleteId.value = id; };
 const cancelDel  = () => { deleteId.value = null; };
 const doDelete   = () => {
   deleting.value = true;
-  router.delete(route('duty-rooster.templates.destroy', deleteId.value), {
+  router.delete(route(props.routePrefix + 'templates.destroy', deleteId.value), {
     onSuccess: () => { deleteId.value = null; },
     onFinish:  () => { deleting.value = false; },
   });
@@ -25,7 +32,12 @@ const tplToDelete = () => props.templates.find(t => t.id === deleteId.value);
 </script>
 
 <template>
-  <DutyRosterLayout title="Mẫu Phân Công">
+  <component
+    :is="isPortal ? PortalLayout : DutyRosterLayout"
+    v-bind="isPortal
+      ? { department, availableDepartments, isGlobalAdmin, portalType }
+      : { title: 'Mẫu Phân Công' }"
+  >
     <Head title="Mẫu Phân Công" />
 
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
@@ -35,7 +47,7 @@ const tplToDelete = () => props.templates.find(t => t.id === deleteId.value);
           <h1 class="text-xl sm:text-2xl font-black text-gray-900 truncate">Quản lý Template Phân công</h1>
           <p class="hidden sm:block text-sm text-gray-500 mt-1">Tạo và quản lý các mẫu vị trí phục vụ tái sử dụng</p>
         </div>
-        <Link :href="route('duty-rooster.templates.create')"
+        <Link :href="route(routePrefix + 'templates.create')"
           class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-orange-500 text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-orange-600 transition-all shadow-sm shrink-0">
           <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
           <span class="hidden sm:inline">Tạo mẫu mới</span>
@@ -49,7 +61,7 @@ const tplToDelete = () => props.templates.find(t => t.id === deleteId.value);
         </div>
         <h3 class="text-lg font-black text-gray-900 mb-2">Chưa có mẫu nào</h3>
         <p class="text-sm text-gray-400 mb-6">Tạo mẫu đầu tiên để tái sử dụng cho các buổi lễ</p>
-        <Link :href="route('duty-rooster.templates.create')"
+        <Link :href="route(routePrefix + 'templates.create')"
           class="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 text-white font-bold text-sm rounded-xl hover:bg-orange-600 transition-all">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
           Tạo mẫu đầu tiên
@@ -60,7 +72,7 @@ const tplToDelete = () => props.templates.find(t => t.id === deleteId.value);
       <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div v-for="tpl in templates" :key="tpl.id"
           class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-orange-100 transition-all group overflow-hidden">
-          <Link :href="route('duty-rooster.templates.show', tpl.id)" class="block p-5">
+          <Link :href="route(routePrefix + 'templates.show', tpl.id)" class="block p-5">
             <div class="flex items-start justify-between mb-4">
               <div class="w-10 h-10 bg-orange-50 rounded-2xl flex items-center justify-center">
                 <svg class="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/></svg>
@@ -82,7 +94,7 @@ const tplToDelete = () => props.templates.find(t => t.id === deleteId.value);
           </Link>
           <!-- Action bar -->
           <div class="px-5 pb-4 flex gap-2">
-            <Link :href="route('duty-rooster.templates.show', tpl.id)"
+            <Link :href="route(routePrefix + 'templates.show', tpl.id)"
               class="flex-1 py-2 text-xs font-bold text-center text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl">
               Chỉnh sửa
             </Link>
@@ -122,5 +134,5 @@ const tplToDelete = () => props.templates.find(t => t.id === deleteId.value);
       </div>
     </div>
 
-  </DutyRosterLayout>
+  </component>
 </template>

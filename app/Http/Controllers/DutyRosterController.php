@@ -18,26 +18,11 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class DutyRosterController extends Controller
 {
-    // ── Export Meeting Assignments to Excel ────────────────
-    public function exportMeeting(Meeting $meeting)
+    private function resolvePortalContext(Request $request): array
     {
-        $filename = 'phan-cong-' . $meeting->date . '-' . str($meeting->topic ?? 'hop')->slug() . '.xlsx';
-        return Excel::download(new MeetingExport($meeting), $filename);
-    }
-
-    // ── Index (Monthly calendar) ──────────────────────────
-    public function index(Request $request)
-    {
-        $month       = $request->input('month', now()->format('Y-m'));
-        $meetingType = $request->input('meeting_type', '');
-        $startDate   = Carbon::parse($month)->startOfMonth();
-        $endDate     = Carbon::parse($month)->endOfMonth();
-
-        // ── Determine context ───────────────────────────────────────────
-        // If accessed via portal/* routes, use portal session dept.
-        // Otherwise fall back to middleware-injected attribute.
-        $isPortalRoute  = str_starts_with($request->route()->getName() ?? '', 'portal.');
-        $isMinistryRoute = str_starts_with($request->route()->getName() ?? '', 'ministry.');
+        $routeName = $request->route()->getName() ?? '';
+        $isPortalRoute   = str_starts_with($routeName, 'portal.');
+        $isMinistryRoute = str_starts_with($routeName, 'ministry.');
 
         if ($isPortalRoute || $isMinistryRoute) {
             $deptId     = session('active_portal_dept_id');
@@ -49,7 +34,50 @@ class DutyRosterController extends Controller
             $portalType  = $request->attributes->get('portalType', 'deacon');
         }
 
-        $thisDeptId = $department?->id;
+        $routePrefix = 'duty-rooster.';
+        if (str_starts_with($routeName, 'portal.')) $routePrefix = 'portal.duty-rooster.';
+        elseif (str_starts_with($routeName, 'ministry.')) $routePrefix = 'ministry.duty-rooster.';
+        elseif (str_starts_with($routeName, 'deacon.')) $routePrefix = 'deacon.duty-rooster.';
+
+        $portalProps = [];
+        if ($isPortalRoute || $isMinistryRoute) {
+            $availableDepartments = app(\App\Services\PortalService::class)
+                ->getAvailableDepartments(auth()->user(), $portalType);
+            $portalProps = [
+                'department'           => $department,
+                'availableDepartments' => $availableDepartments,
+                'isGlobalAdmin'        => auth()->user()?->hasAnyRole(['Super_Admin', 'Pastor', 'BTS_Admin']) ?? false,
+                'portalType'           => $portalType,
+            ];
+        }
+
+        return [
+            'isPortal'    => $isPortalRoute || $isMinistryRoute,
+            'department'  => $department,
+            'thisDeptId'  => $department?->id,
+            'portalType'  => $portalType,
+            'routePrefix' => $routePrefix,
+            'portalProps' => $portalProps,
+        ];
+    }
+
+    // ── Export Meeting Assignments to Excel ────────────────
+    public function exportMeeting(Meeting $meeting)
+    {
+        $filename = 'phan-cong-' . $meeting->date . '-' . str($meeting->topic ?? 'hop')->slug() . '.xlsx';
+        return Excel::download(new MeetingExport($meeting), $filename);
+    }
+
+    public function index(Request $request)
+    {
+        $month       = $request->input('month', now()->format('Y-m'));
+        $meetingType = $request->input('meeting_type', '');
+        $startDate   = Carbon::parse($month)->startOfMonth();
+        $endDate     = Carbon::parse($month)->endOfMonth();
+
+        $ctx = $this->resolvePortalContext($request);
+        $thisDeptId = $ctx['thisDeptId'];
+        $isPortalRoute = $ctx['isPortal'];
 
         // ── Meetings query ──────────────────────────────────────────────
         $meetingsQuery = Meeting::whereBetween('date', [$startDate, $endDate])
@@ -83,28 +111,14 @@ class DutyRosterController extends Controller
 
         if ($thisDeptId) {
             $deptsQuery->where('id', $thisDeptId);
-            $templatesQuery->where(function($q) use ($thisDeptId) {
-                $q->where('type', 'church')
-                  ->orWhere('department_id', $thisDeptId);
-            });
+            $templatesQuery->where('type', 'department')->where('department_id', $thisDeptId);
+        } else {
+            $templatesQuery->where('type', 'church');
         }
 
         $departments  = $deptsQuery->get();
         $templates    = $templatesQuery->get();
         $meetingTypes = Meeting::distinct()->pluck('type')->filter()->values()->toArray();
-
-        // ── Portal layout props ─────────────────────────────────────────
-        $portalProps = [];
-        if ($isPortalRoute || $isMinistryRoute) {
-            $availableDepartments = app(\App\Services\PortalService::class)
-                ->getAvailableDepartments(auth()->user(), $portalType);
-            $portalProps = [
-                'department'           => $department,
-                'availableDepartments' => $availableDepartments,
-                'isGlobalAdmin'        => auth()->user()?->hasAnyRole(['Super_Admin', 'Pastor', 'BTS_Admin']) ?? false,
-                'portalType'           => $portalType,
-            ];
-        }
 
         return Inertia::render('DutyRoster/HolisticView', array_merge([
             'meetings'      => $meetings,
@@ -113,32 +127,19 @@ class DutyRosterController extends Controller
             'templates'     => $templates,
             'meetingTypes'  => $meetingTypes,
             'filters'       => ['meeting_type' => $meetingType],
-            'isPortal'      => $isPortalRoute || $isMinistryRoute,
-            'portalType'    => $portalType,
-        ], $portalProps));
+            'isPortal'      => $ctx['isPortal'],
+            'portalType'    => $ctx['portalType'],
+            'routePrefix'   => $ctx['routePrefix'],
+        ], $ctx['portalProps']));
     }
 
 
-    // ── Show (Meeting detail with assignments) ─────────────
     public function show(Request $request, Meeting $meeting)
     {
         $meeting->load(['dutyAssignments.role.department', 'dutyAssignments.member', 'department']);
 
-        // ── Context ─────────────────────────────────────────────────────────────
-        $isPortalRoute   = str_starts_with($request->route()->getName() ?? '', 'portal.');
-        $isMinistryRoute = str_starts_with($request->route()->getName() ?? '', 'ministry.');
-
-        if ($isPortalRoute || $isMinistryRoute) {
-            $deptId     = session('active_portal_dept_id');
-            $department = $deptId ? Department::find($deptId) : null;
-            $portalType = $isMinistryRoute ? 'ministry' : 'activities';
-        } else {
-            $deptContext = $request->attributes->get('department');
-            $department  = $deptContext ?? null;
-            $portalType  = $request->attributes->get('portalType', 'deacon');
-        }
-
-        $thisDeptId = $department?->id;
+        $ctx = $this->resolvePortalContext($request);
+        $thisDeptId = $ctx['thisDeptId'];
 
         // Verify Access
         if ($thisDeptId && $meeting->type === 'department' && $meeting->department_id !== $thisDeptId) {
@@ -148,8 +149,7 @@ class DutyRosterController extends Controller
         // Only departments that have roles
         $deptsQuery = Department::with([
             'dutyRoles' => fn($q) => $q->orderBy('section')->orderBy('sort_order')
-        ])->whereHas('dutyRoles');
-        
+        ]);
         if ($thisDeptId) {
              if ($meeting->type !== 'church') {
                  $deptsQuery->where('id', $thisDeptId);
@@ -161,9 +161,9 @@ class DutyRosterController extends Controller
         
         $templatesQuery = RosterTemplate::with('roles.departmentRole');
         if ($thisDeptId) {
-            $templatesQuery->where(function($q) use ($thisDeptId) {
-                $q->where('type', 'church')->orWhere('department_id', $thisDeptId);
-            });
+            $templatesQuery->where('type', 'department')->where('department_id', $thisDeptId);
+        } else {
+            $templatesQuery->where('type', 'church');
         }
         $templates = $templatesQuery->get();
 
@@ -199,19 +199,6 @@ class DutyRosterController extends Controller
             }
         }
 
-        // ── Portal layout props ─────────────────────────────────────────────────
-        $portalProps = [];
-        if ($isPortalRoute || $isMinistryRoute) {
-            $availableDepartments = app(\App\Services\PortalService::class)
-                ->getAvailableDepartments(auth()->user(), $portalType);
-            $portalProps = [
-                'department'           => $department,
-                'availableDepartments' => $availableDepartments,
-                'isGlobalAdmin'        => auth()->user()?->hasAnyRole(['Super_Admin', 'Pastor', 'BTS_Admin']) ?? false,
-                'portalType'           => $portalType,
-            ];
-        }
-
         return Inertia::render('DutyRoster/Show', array_merge([
             'meeting'     => $meeting,
             'departments' => $departments,
@@ -220,63 +207,66 @@ class DutyRosterController extends Controller
             'deptMembers' => $deptMembers,
             'templates'   => $templates,
             'authDeptIds' => $authDeptIds,
-            'isPortal'    => $isPortalRoute || $isMinistryRoute,
-            'portalType'  => $portalType,
-        ], $portalProps));
+            'isPortal'    => $ctx['isPortal'],
+            'portalType'  => $ctx['portalType'],
+            'routePrefix' => $ctx['routePrefix'],
+        ], $ctx['portalProps']));
     }
 
 
-    // ── Templates Index ────────────────────────────────────
     public function templatesIndex(Request $request)
     {
-        $deptContext = $request->attributes->get('department');
-        $thisDeptId  = $deptContext->id ?? null;
+        $ctx = $this->resolvePortalContext($request);
+        $thisDeptId = $ctx['thisDeptId'];
 
         $templatesQuery = RosterTemplate::with(['roles.departmentRole.department']);
         $deptsQuery = Department::with(['dutyRoles' => fn($q) => $q->orderBy('section')->orderBy('sort_order')]);
 
         if ($thisDeptId) {
-            $templatesQuery->where(function($q) use ($thisDeptId) {
-                $q->where('type', 'church')->orWhere('department_id', $thisDeptId);
-            });
+            $templatesQuery->where('type', 'department')->where('department_id', $thisDeptId);
             $deptsQuery->where('id', $thisDeptId);
+        } else {
+            $templatesQuery->where('type', 'church');
         }
 
         $templates = $templatesQuery->get();
         $departments = $deptsQuery->get();
 
-        return Inertia::render('DutyRoster/Templates/Index', [
+        return Inertia::render('DutyRoster/Templates/Index', array_merge([
             'templates'   => $templates,
             'departments' => $departments,
-        ]);
+            'isPortal'    => $ctx['isPortal'],
+            'portalType'  => $ctx['portalType'],
+            'routePrefix' => $ctx['routePrefix'],
+        ], $ctx['portalProps']));
     }
 
-    // ── Template Create (GET) ──────────────────────────────
     public function templateCreate(Request $request)
     {
-        $deptContext = $request->attributes->get('department');
-        $thisDeptId  = $deptContext->id ?? null;
+        $ctx = $this->resolvePortalContext($request);
+        $thisDeptId = $ctx['thisDeptId'];
 
         $deptsQuery = Department::with(['dutyRoles' => fn($q) => $q->orderBy('section')->orderBy('sort_order')]);
-        
         if ($thisDeptId) {
             $deptsQuery->where('id', $thisDeptId);
         }
-        
         $departments = $deptsQuery->get();
         
-        return Inertia::render('DutyRoster/Templates/Create', [
-            'departments' => $departments,
-            'defaultType' => $thisDeptId ? 'department' : 'church',
+        return Inertia::render('DutyRoster/Templates/Create', array_merge([
+            'departments'   => $departments,
+            'defaultType'   => $thisDeptId ? 'department' : 'church',
             'defaultDeptId' => $thisDeptId,
-        ]);
+            'isPortal'      => $ctx['isPortal'],
+            'portalType'    => $ctx['portalType'],
+            'routePrefix'   => $ctx['routePrefix'],
+        ], $ctx['portalProps']));
     }
 
     // ── Template Show/Edit ─────────────────────────────────
     public function templateShow(Request $request, RosterTemplate $template)
     {
-        $deptContext = $request->attributes->get('department');
-        $thisDeptId  = $deptContext->id ?? null;
+        $ctx = $this->resolvePortalContext($request);
+        $thisDeptId = $ctx['thisDeptId'];
 
         // Verify Access
         if ($thisDeptId) {
@@ -298,11 +288,14 @@ class DutyRosterController extends Controller
             ->map(fn($r) => $r->departmentRole?->department_id)
             ->filter()->unique()->values()->toArray();
 
-        return Inertia::render('DutyRoster/Templates/Show', [
+        return Inertia::render('DutyRoster/Templates/Show', array_merge([
             'template'             => $template,
             'departments'          => $departments,
             'participatingDeptIds' => $participatingDeptIds,
-        ]);
+            'isPortal'             => $ctx['isPortal'],
+            'portalType'           => $ctx['portalType'],
+            'routePrefix'          => $ctx['routePrefix'],
+        ], $ctx['portalProps']));
     }
 
     // ── Store Template (POST) ──────────────────────────────
@@ -317,11 +310,12 @@ class DutyRosterController extends Controller
 
         $template = RosterTemplate::create($validated);
 
+        $ctx = $this->resolvePortalContext($request);
         if ($request->expectsJson()) {
             return response()->json(['id' => $template->id, 'message' => 'Đã tạo mẫu.']);
         }
 
-        return redirect()->route('duty-rooster.templates.show', $template)
+        return redirect()->route($ctx['routePrefix'] . 'templates.show', $template)
             ->with('success', 'Đã tạo mẫu phân công mới.');
     }
 
@@ -352,6 +346,11 @@ class DutyRosterController extends Controller
 
         $template = RosterTemplate::with('roles.departmentRole')->find($validated['template_id']);
         if (!$template) return back()->with('error', 'Không tìm thấy mẫu.');
+
+        // Clear existing empty positions to avoid slot accumulation from prior template misapplications
+        DutyAssignment::where('meeting_id', $validated['meeting_id'])
+            ->whereNull('member_id')
+            ->delete();
 
         foreach ($template->roles as $templateRole) {
             $maxCount = $templateRole->departmentRole->max_count ?? 1;
