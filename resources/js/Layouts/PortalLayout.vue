@@ -323,8 +323,12 @@ const visibleNavItems = computed(() => {
   }
 
   // deacon
+  const deaconRole = usePage().props.activeDeaconRole;
   return [
     ...always,
+    deaconRole === 'secretary' && f['attendance'] && { key: 'attendance', label: 'Điểm Danh', shortLabel: 'Điểm Danh', icon: ICONS.attendance, href: route('deacon.attendance'), active: route().current('deacon.attendance.*'), disabled: !p['attendance'] },
+    deaconRole === 'secretary' && f['reports'] && { key: 'reports', label: 'Báo Cáo', shortLabel: 'Báo Cáo', icon: ICONS.reports, href: route('deacon.report'), active: route().current('deacon.report.*'), disabled: !p['reports'] },
+    deaconRole === 'treasurer' && f['finance'] && { key: 'finance', label: 'Quản Lý Quỹ', shortLabel: 'QL Quỹ', icon: ICONS.finance, href: route('finance.index'), active: route().current('finance.*'), disabled: !p['finance'] },
     f['assignments']  && { key: 'assignments', label: 'Phân Công', shortLabel: 'P.Công', icon: ICONS.assignment, href: route('deacon.duty-rooster.index'), active: route().current('deacon.duty-rooster.*'), disabled: !p['assignments'] },
   ].filter(Boolean);
 });

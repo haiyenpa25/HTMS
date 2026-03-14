@@ -965,6 +965,8 @@ class EducationController extends Controller
             'department'          => $department,
             'availableDepartments' => $this->getAvailableDepts($user),
             'isGlobalAdmin'       => $user->isSuperAdmin(),
+            'portalType'          => 'ministry',
+            'routePrefix'         => $this->getRoutePrefix(),
             'canManageReport'     => $canManageReport,
             'canApproveReport'    => $user->isSuperAdmin(),
             'month'               => $month,

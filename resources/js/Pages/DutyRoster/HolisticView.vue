@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import DutyRosterLayout from '@/Layouts/DutyRosterLayout.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
 import axios from 'axios';
 
@@ -307,7 +307,8 @@ const showHelp = ref(false);
     </div>
   </PortalLayout>
 
-  <DutyRosterLayout v-else title="Lịch Phân Công">
+  <AuthenticatedLayout v-else>
+    <template #header>Lịch Phân Công</template>
 
     <Head title="Lịch Phân Công" />
 
@@ -317,165 +318,185 @@ const showHelp = ref(false);
       </div>
     </transition>
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-
-      <!-- Header -->
-      <div class="flex items-center justify-between mb-5 gap-2">
-        <div class="min-w-0">
-          <h1 class="text-xl sm:text-2xl font-black text-gray-900 truncate">Lịch Phân Công</h1>
-          <p class="hidden sm:block text-xs text-gray-400 mt-0.5">Quản lý phân công nhân sự theo từng buổi lễ</p>
-        </div>
-        <div class="flex items-center gap-2 shrink-0">
-          <button @click="showHelp=true" class="w-9 h-9 rounded-xl border border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 flex items-center justify-center font-black text-sm transition-all shadow-sm">?</button>
-          <Link :href="route('duty-rooster.templates.index')" class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm transition-all">
-            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/></svg>
-            <span class="hidden sm:inline">Quản lý Template</span>
-          </Link>
-        </div>
-      </div>
-
-      <!-- Month nav -->
-      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-3 mb-3 flex items-center justify-between">
-        <button @click="changeMonth(-1)" class="w-9 h-9 rounded-xl border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 flex items-center justify-center transition-all">
-          <svg class="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
-        </button>
-        <div class="text-center">
-          <p class="text-base font-black text-gray-900 capitalize">{{ monthLabel }}</p>
-          <p class="text-xs text-gray-400">{{ filteredMeetings.length }}/{{ meetings?.length || 0 }} buổi nhóm</p>
-        </div>
-        <button @click="changeMonth(1)" class="w-9 h-9 rounded-xl border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 flex items-center justify-center transition-all">
-          <svg class="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
-        </button>
-      </div>
-
-      <!-- Filters bar -->
-      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-3 mb-5 space-y-2.5">
-        <div class="flex items-center gap-3 flex-wrap">
-          <!-- Search -->
-          <div class="flex-1 min-w-[160px] relative">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
-            <input v-model="filterTopic" type="text" placeholder="Tìm theo chủ đề..."
-              class="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-indigo-400 focus:border-indigo-400" />
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col lg:flex-row gap-6 xl:gap-8">
+      
+      <!-- MAIN COLUMN -->
+      <div class="flex-1 min-w-0 space-y-5">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <h1 class="text-xl sm:text-2xl font-black text-gray-900 truncate">Lịch Phân Công</h1>
+            <p class="hidden sm:block text-xs text-gray-400 mt-0.5">Quản lý phân công nhân sự theo từng buổi lễ</p>
           </div>
+        </div>
 
-          <!-- Meeting type dropdown -->
-          <select v-model="filterType" @change="applyTypeFilter"
-            class="py-2 pl-3 pr-8 text-sm border border-gray-200 rounded-xl focus:ring-indigo-400 focus:border-indigo-400 font-bold text-gray-700 shrink-0">
-            <option value="">-- Loại buổi nhóm --</option>
-            <option v-for="t in meetingTypes" :key="t" :value="t">
-              {{ meetingTypeLabels[t] || t }}
-            </option>
-          </select>
+        <!-- Month nav -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-3 flex items-center justify-between">
+          <button @click="changeMonth(-1)" class="w-9 h-9 rounded-xl border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 flex items-center justify-center transition-all">
+            <svg class="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+          </button>
+          <div class="text-center">
+            <p class="text-base font-black text-gray-900 capitalize">{{ monthLabel }}</p>
+            <p class="text-xs text-gray-400">{{ filteredMeetings.length }}/{{ meetings?.length || 0 }} buổi nhóm</p>
+          </div>
+          <button @click="changeMonth(1)" class="w-9 h-9 rounded-xl border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 flex items-center justify-center transition-all">
+            <svg class="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+          </button>
+        </div>
 
-          <!-- Completion status pills -->
-          <div class="flex gap-1 shrink-0">
-            <button
-              v-for="opt in [{val:'all',label:'Tất cả'},{val:'empty',label:'Chưa phân'},{val:'pending',label:'Đang phân'},{val:'complete',label:'Xong'}]"
-              :key="opt.val"
-              @click="filterStatus=opt.val"
-              class="px-2.5 py-1.5 text-xs font-bold rounded-lg transition-all"
-              :class="filterStatus===opt.val ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-100'">
-              {{ opt.label }}
+        <!-- Empty -->
+        <div v-if="!filteredMeetings.length" class="bg-white rounded-3xl border-2 border-dashed border-gray-200 py-14 text-center">
+          <p class="text-gray-400 text-sm font-medium">Không có buổi nhóm nào phù hợp</p>
+          <button v-if="activeFilterCount" @click="resetFilters" class="mt-2 text-xs text-indigo-500 font-bold hover:underline">Xóa bộ lọc</button>
+        </div>
+
+        <!-- Meeting list — Attendance-style cards -->
+        <div v-else class="space-y-3">
+          <div
+            v-for="meeting in filteredMeetings"
+            :key="meeting.id"
+            class="block bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all duration-200 group cursor-pointer relative overflow-hidden"
+          >
+            <!-- Progress top bar -->
+            <div class="h-1 w-full" :class="pct(meeting)===100?'bg-emerald-400':pct(meeting)>0?'bg-indigo-400':'bg-gray-100'"></div>
+
+            <div class="p-4 sm:p-5 flex items-center gap-4 sm:gap-5">
+              <!-- Date Badge (Attendance style) -->
+              <div
+                class="w-14 h-14 rounded-2xl flex flex-col items-center justify-center shrink-0 border transition-colors duration-300"
+                :class="pct(meeting)===100
+                  ? 'bg-emerald-500 border-emerald-500 text-white'
+                  : 'bg-indigo-50 border-indigo-100 text-indigo-600 group-hover:bg-indigo-500 group-hover:border-indigo-500 group-hover:text-white'"
+              >
+                <span class="text-[10px] font-black uppercase tracking-wide leading-none mb-1 opacity-80">
+                  {{ new Date(meeting.date).toLocaleDateString('vi-VN', { month: 'short' }).replace('.', '') }}
+                </span>
+                <span class="text-xl font-black leading-none">{{ new Date(meeting.date).getDate() }}</span>
+              </div>
+
+              <!-- Main content -->
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                  <span
+                    class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md"
+                    :class="meeting.type==='church' ? 'bg-indigo-100 text-indigo-700' : 'bg-violet-100 text-violet-700'"
+                  >{{ meetingTypeLabels[meeting.type] || meeting.type }}</span>
+                  <span class="text-[10px] font-bold text-gray-400">
+                    {{ new Date(meeting.date).toLocaleDateString('vi-VN', { weekday: 'short' }) }}
+                    {{ meeting.time?.substring(0,5) }}
+                  </span>
+                </div>
+                <h3 class="font-bold text-gray-900 text-sm sm:text-base group-hover:text-indigo-700 transition-colors truncate">
+                  {{ meeting.topic || `Buổi nhóm ${new Date(meeting.date).getDate()}/${new Date(meeting.date).getMonth()+1}` }}
+                </h3>
+                <!-- Progress bar inline -->
+                <div class="flex items-center gap-2 mt-2">
+                  <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden max-w-[160px]">
+                    <div
+                      class="h-full rounded-full transition-all"
+                      :class="pct(meeting)===100?'bg-emerald-400':pct(meeting)>0?'bg-indigo-400':'bg-gray-200'"
+                      :style="`width:${pct(meeting)}%`"
+                    ></div>
+                  </div>
+                  <span class="text-[11px] font-bold" :class="pct(meeting)===100?'text-emerald-600':pct(meeting)>0?'text-indigo-600':'text-gray-400'">
+                    {{ assignedCount(meeting) }}/{{ requiredSlots(meeting) }} vị trí · {{ pct(meeting) }}%
+                  </span>
+                </div>
+              </div>
+
+              <!-- Actions — hover-visible -->
+              <div class="shrink-0 flex items-center gap-2">
+                <!-- Apply Template -->
+                <button
+                  v-if="templates?.length"
+                  @click.stop="openApply(meeting)"
+                  class="w-8 h-8 rounded-full bg-white text-gray-400 hover:bg-orange-50 hover:text-orange-600 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 shadow-sm border border-gray-100"
+                  title="Áp dụng mẫu"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5"/></svg>
+                </button>
+                <!-- Go to assign -->
+                <Link
+                  :href="route('duty-rooster.show', meeting.id)"
+                  @click.stop
+                  class="w-8 h-8 rounded-full bg-gray-50 text-gray-400 group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors flex items-center justify-center"
+                  title="Phân công nhân sự"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDEBAR -->
+      <div class="w-full lg:w-80 shrink-0 space-y-4">
+        <!-- Thao tác nhanh -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div class="px-4 py-3 border-b border-gray-100 flex items-center gap-2">
+            <span class="text-indigo-500 text-sm">⚡</span>
+            <h3 class="font-black text-sm text-gray-900">Thao tác nhanh</h3>
+          </div>
+          <div class="p-3 space-y-2">
+            <Link :href="route('duty-rooster.templates.index')"
+              class="w-full flex items-center gap-3 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm transition-all active:scale-95 shadow-md shadow-indigo-200">
+              <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
+              Quản lý Mẫu Phân Công
+            </Link>
+            <button @click="showHelp=true"
+              class="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 rounded-xl font-bold text-sm transition-all border border-gray-100 hover:border-indigo-200">
+              <svg class="w-5 h-5 shrink-0 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Xem hướng dẫn sử dụng
             </button>
           </div>
-
-          <button v-if="activeFilterCount" @click="resetFilters" class="text-xs font-bold text-red-400 hover:text-red-600 px-2 shrink-0">x Xóa</button>
         </div>
 
-        <!-- Active filter tags -->
-        <div v-if="activeFilterCount" class="flex items-center gap-2 pt-1 border-t border-gray-100">
-          <span class="text-[10px] text-gray-400 font-bold uppercase">Đang lọc:</span>
-          <span v-if="filterType" class="text-[10px] bg-violet-100 text-violet-700 font-bold px-2 py-0.5 rounded-full">{{ meetingTypeLabels[filterType]||filterType }}</span>
-          <span v-if="filterStatus !== 'all'" class="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded-full">{{ {empty:'Chưa phân',pending:'Đang phân',complete:'Hoàn thành'}[filterStatus] }}</span>
-          <span v-if="filterTopic" class="text-[10px] bg-gray-100 text-gray-700 font-bold px-2 py-0.5 rounded-full truncate max-w-[150px]">"{{ filterTopic }}"</span>
-        </div>
-      </div>
-
-      <!-- Empty -->
-      <div v-if="!filteredMeetings.length" class="bg-white rounded-3xl border-2 border-dashed border-gray-200 py-14 text-center">
-        <p class="text-gray-400 text-sm font-medium">Không có buổi nhóm nào phù hợp</p>
-        <button v-if="activeFilterCount" @click="resetFilters" class="mt-2 text-xs text-indigo-500 font-bold hover:underline">Xóa bộ lọc</button>
-      </div>
-
-      <!-- Meeting list — Attendance-style cards -->
-      <div v-else class="space-y-3">
-        <div
-          v-for="meeting in filteredMeetings"
-          :key="meeting.id"
-          class="block bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all duration-200 group cursor-pointer relative overflow-hidden"
-        >
-          <!-- Progress top bar -->
-          <div class="h-1 w-full" :class="pct(meeting)===100?'bg-emerald-400':pct(meeting)>0?'bg-indigo-400':'bg-gray-100'"></div>
-
-          <div class="p-4 sm:p-5 flex items-center gap-4 sm:gap-5">
-            <!-- Date Badge (Attendance style) -->
-            <div
-              class="w-14 h-14 rounded-2xl flex flex-col items-center justify-center shrink-0 border transition-colors duration-300"
-              :class="pct(meeting)===100
-                ? 'bg-emerald-500 border-emerald-500 text-white'
-                : 'bg-indigo-50 border-indigo-100 text-indigo-600 group-hover:bg-indigo-500 group-hover:border-indigo-500 group-hover:text-white'"
-            >
-              <span class="text-[10px] font-black uppercase tracking-wide leading-none mb-1 opacity-80">
-                {{ new Date(meeting.date).toLocaleDateString('vi-VN', { month: 'short' }).replace('.', '') }}
-              </span>
-              <span class="text-xl font-black leading-none">{{ new Date(meeting.date).getDate() }}</span>
+        <!-- Bộ lọc -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div class="px-4 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="font-black text-sm text-gray-900 flex items-center gap-2">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+              Bộ Lọc
+            </h3>
+            <button v-if="activeFilterCount" @click="resetFilters" class="text-xs font-bold text-red-500 hover:underline">Xóa lọc</button>
+          </div>
+          <div class="p-4 space-y-4">
+            <!-- Search -->
+            <div class="relative">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+              <input v-model="filterTopic" type="text" placeholder="Tên buổi nhóm..."
+                class="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-indigo-400 focus:border-indigo-400" />
             </div>
 
-            <!-- Main content -->
-            <div class="flex-1 min-w-0">
-              <div class="flex flex-wrap items-center gap-1.5 mb-1">
-                <span
-                  class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md"
-                  :class="meeting.type==='church' ? 'bg-indigo-100 text-indigo-700' : 'bg-violet-100 text-violet-700'"
-                >{{ meetingTypeLabels[meeting.type] || meeting.type }}</span>
-                <span class="text-[10px] font-bold text-gray-400">
-                  {{ new Date(meeting.date).toLocaleDateString('vi-VN', { weekday: 'short' }) }}
-                  {{ meeting.time?.substring(0,5) }}
-                </span>
-              </div>
-              <h3 class="font-bold text-gray-900 text-sm sm:text-base group-hover:text-indigo-700 transition-colors truncate">
-                {{ meeting.topic || `Buổi nhóm ${new Date(meeting.date).getDate()}/${new Date(meeting.date).getMonth()+1}` }}
-              </h3>
-              <!-- Progress bar inline -->
-              <div class="flex items-center gap-2 mt-2">
-                <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden max-w-[160px]">
-                  <div
-                    class="h-full rounded-full transition-all"
-                    :class="pct(meeting)===100?'bg-emerald-400':pct(meeting)>0?'bg-indigo-400':'bg-gray-200'"
-                    :style="`width:${pct(meeting)}%`"
-                  ></div>
-                </div>
-                <span class="text-[11px] font-bold" :class="pct(meeting)===100?'text-emerald-600':pct(meeting)>0?'text-indigo-600':'text-gray-400'">
-                  {{ assignedCount(meeting) }}/{{ requiredSlots(meeting) }} vị trí · {{ pct(meeting) }}%
-                </span>
+            <!-- Focus Status -->
+            <div>
+              <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Trạng Thái</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button v-for="opt in [{val:'all',label:'Tất cả'},{val:'empty',label:'Chưa phân'},{val:'pending',label:'Đang phân'},{val:'complete',label:'Xong'}]"
+                  :key="opt.val" @click="filterStatus=opt.val"
+                  class="px-3 py-2 text-xs font-bold rounded-xl transition-all border"
+                  :class="filterStatus===opt.val ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-gray-50 border-gray-100 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200'">
+                  {{ opt.label }}
+                </button>
               </div>
             </div>
 
-            <!-- Actions — hover-visible -->
-            <div class="shrink-0 flex items-center gap-2">
-              <!-- Apply Template -->
-              <button
-                v-if="templates?.length"
-                @click.stop="openApply(meeting)"
-                class="w-8 h-8 rounded-full bg-white text-gray-400 hover:bg-orange-50 hover:text-orange-600 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 shadow-sm border border-gray-100"
-                title="Áp dụng mẫu"
-              >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5"/></svg>
-              </button>
-              <!-- Go to assign -->
-              <Link
-                :href="route('duty-rooster.show', meeting.id)"
-                @click.stop
-                class="w-8 h-8 rounded-full bg-gray-50 text-gray-400 group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors flex items-center justify-center"
-                title="Phân công nhân sự"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-              </Link>
+            <!-- Type -->
+            <div>
+              <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Phân loại</label>
+              <select v-model="filterType" @change="applyTypeFilter"
+                class="w-full py-2.5 pl-3 pr-8 text-sm border border-gray-200 rounded-xl focus:ring-indigo-400 focus:border-indigo-400 font-bold text-gray-700">
+                <option value="">Tất cả phân loại</option>
+                <option v-for="t in meetingTypes" :key="t" :value="t">
+                  {{ meetingTypeLabels[t] || t }}
+                </option>
+              </select>
             </div>
           </div>
         </div>
       </div>
-
     </div>
 
     <!-- Apply template modal -->
@@ -547,7 +568,7 @@ const showHelp = ref(false);
       </div>
     </div>
 
-  </DutyRosterLayout>
+  </AuthenticatedLayout>
 </template>
 
 <style scoped>

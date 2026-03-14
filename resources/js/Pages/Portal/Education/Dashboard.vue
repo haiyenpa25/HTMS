@@ -1,5 +1,5 @@
-﻿<template>
-    <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" portal-type="education">
+<template>
+    <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" :portal-type="portalType">
         <div class="w-full p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
 
             <!-- Hero banner -->
@@ -109,5 +109,6 @@ defineProps({
     availableDepartments: { type: Array, default: () => [] },
     isGlobalAdmin: Boolean,
     isAdmin: Boolean,
+    portalType: { type: String, default: 'ministry' },
 });
 </script>

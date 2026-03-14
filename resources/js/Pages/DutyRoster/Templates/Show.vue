@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, reactive, onMounted } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import DutyRosterLayout from '@/Layouts/DutyRosterLayout.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
 import axios from 'axios';
 
@@ -174,11 +174,12 @@ const deleteTemplate = () => {
 
 <template>
   <component
-    :is="isPortal ? PortalLayout : DutyRosterLayout"
+    :is="isPortal ? PortalLayout : AuthenticatedLayout"
     v-bind="isPortal
       ? { department, availableDepartments, isGlobalAdmin, portalType }
-      : { title: 'Mẫu phân công' }"
+      : {}"
   >
+    <template #header v-if="!isPortal">Sửa Mẫu Phân Công</template>
     <Head :title="`Mẫu: ${template.name}`" />
 
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6 pb-16">

@@ -84,19 +84,27 @@ class CheckPortalAccess
             $service = app(FeatureAssignmentService::class);
             $departmentFeatures = $service->getAvailableFeaturesForDepartment($activeDept);
             
-            // Level 2: bắt đầu từ departmentFeatures, UserDepartmentFeature chỉ là override
+            // Level 2: Strict Whitelist: Mặc định user không có quyền gì cả (false). Phải cấp tường minh.
             $userPermissions = collect(\App\Models\Feature::pluck('slug'))
-                ->mapWithKeys(fn($s) => [$s => $departmentFeatures[$s] ?? false])
+                ->mapWithKeys(fn($s) => [$s => false])
                 ->toArray();
 
-            $overrideRecords = UserDepartmentFeature::where('user_id', $user->id)
-                ->where('department_id', $activeDeptId)
-                ->with('feature')
-                ->get();
-                
-            foreach ($overrideRecords as $uf) {
-                if (!$uf->feature) continue;
-                $userPermissions[$uf->feature->slug] = (bool) $uf->is_enabled;
+            $isGlobalAdmin = $user->isSuperAdmin();
+
+            if ($isGlobalAdmin) {
+                $userPermissions = collect(\App\Models\Feature::pluck('slug'))
+                    ->mapWithKeys(fn($s) => [$s => $departmentFeatures[$s] ?? false])
+                    ->toArray();
+            } else {
+                $overrideRecords = UserDepartmentFeature::where('user_id', $user->id)
+                    ->where('department_id', $activeDeptId)
+                    ->with('feature')
+                    ->get();
+                    
+                foreach ($overrideRecords as $uf) {
+                    if (!$uf->feature) continue;
+                    $userPermissions[$uf->feature->slug] = (bool) $uf->is_enabled;
+                }
             }
         }
 

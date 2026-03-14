@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, reactive } from 'vue';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
-import DutyRosterLayout from '@/Layouts/DutyRosterLayout.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
 import axios from 'axios';
 
@@ -182,11 +182,12 @@ const print = () => window.print();
 
 <template>
   <component
-    :is="isPortal ? PortalLayout : DutyRosterLayout"
+    :is="isPortal ? PortalLayout : AuthenticatedLayout"
     v-bind="isPortal
       ? { department, availableDepartments, isGlobalAdmin, portalType }
-      : { title: `${meeting.topic||'Phân công'} – ${fmtDate.short}` }"
+      : {}"
   >
+    <template #header v-if="!isPortal">{{ meeting.topic || 'Phân công' }} – {{ fmtDate.short }}</template>
     <Head :title="`${meeting.topic||'Phân Công'} – ${fmtDate.short}`" />
 
     <!-- Toast -->

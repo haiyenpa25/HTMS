@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import DutyRosterLayout from '@/Layouts/DutyRosterLayout.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
 
 const props = defineProps({
@@ -33,11 +33,12 @@ const submit = () => {
 
 <template>
   <component
-    :is="isPortal ? PortalLayout : DutyRosterLayout"
+    :is="isPortal ? PortalLayout : AuthenticatedLayout"
     v-bind="isPortal
       ? { department, availableDepartments, isGlobalAdmin, portalType }
-      : { title: 'Tạo mẫu phân công' }"
+      : {}"
   >
+    <template #header v-if="!isPortal">Tạo Mẫu Phân Công</template>
     <Head title="Tạo Mẫu Mới" />
     <div class="max-w-lg mx-auto px-6 py-16">
       <Link :href="route(routePrefix + 'templates.index')" class="text-xs text-gray-400 hover:text-gray-700 flex items-center gap-1 mb-6">

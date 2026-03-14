@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import DutyRosterLayout from '@/Layouts/DutyRosterLayout.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
 
 const props = defineProps({
@@ -33,11 +33,12 @@ const tplToDelete = () => props.templates.find(t => t.id === deleteId.value);
 
 <template>
   <component
-    :is="isPortal ? PortalLayout : DutyRosterLayout"
+    :is="isPortal ? PortalLayout : AuthenticatedLayout"
     v-bind="isPortal
       ? { department, availableDepartments, isGlobalAdmin, portalType }
-      : { title: 'Mẫu Phân Công' }"
+      : {}"
   >
+    <template #header v-if="!isPortal">Mẫu Phân Công</template>
     <Head title="Mẫu Phân Công" />
 
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">

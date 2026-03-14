@@ -71,10 +71,17 @@ class MemberPortalController extends Controller
         $upcomingEvents = [];
         $userDepartments = $member ? $member->departments->pluck('id')->toArray() : [];
         try {
-            $meetings = \App\Models\Meeting::where('meeting_date', '>=', now())
-                ->orderBy('meeting_date')
+            $meetings = \App\Models\Meeting::where('date', '>=', now()->toDateString())
+                ->orderBy('date')
                 ->take(3)
-                ->get(['id', 'title', 'meeting_date', 'location', 'type'])
+                ->get()
+                ->map(fn($m) => [
+                    'id' => 'mtg_'.$m->id,
+                    'title' => $m->topic ?: 'Buổi nhóm',
+                    'meeting_date' => $m->date . ' ' . $m->time,
+                    'location' => null,
+                    'type' => $m->type,
+                ])
                 ->toArray();
                 
             $eventsQuery = \App\Models\Event::where('start_time', '>=', now());

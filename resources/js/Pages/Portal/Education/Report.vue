@@ -1,5 +1,5 @@
 <template>
-    <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" portal-type="education">
+    <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" :portal-type="portalType">
         <!-- Full-width indigo header -->
         <div class="bg-gradient-to-r from-indigo-800 via-indigo-700 to-indigo-600 text-white">
             <div class="w-full py-5">
@@ -561,7 +561,8 @@ const props = defineProps({
     month: String,
     sundays: { type: Array, default: () => [] },
     classData: { type: Array, default: () => [] },
-    eduReport: { type: Object, default: null },
+    eduReport: Object,
+    portalType: { type: String, default: 'ministry' },
 });
 
 // ── State ──────────────────────────────────────────────────────────

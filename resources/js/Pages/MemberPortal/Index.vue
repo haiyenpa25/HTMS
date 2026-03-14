@@ -87,10 +87,6 @@
             </div>
             <!-- CTA Buttons -->
             <div class="flex sm:flex-col gap-2 sm:justify-end shrink-0">
-              <Link :href="route('calendar.index')"
-                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-black rounded-xl transition-all hover:shadow-lg hover:shadow-orange-500/30 active:scale-95">
-                📅 Xem lịch tuần
-              </Link>
               <button @click="activeTab = 'care'"
                 class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white/15 hover:bg-white/25 text-white text-xs font-bold rounded-xl transition-all border border-white/20 active:scale-95">
                 💌 Gửi cầu nguyện
@@ -276,6 +272,91 @@
           </div>
         </div>
 
+        <!-- MỚI NHẤT TỪ HỘI THÁNH (BẢN TIN) -->
+        <div class="space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="bg-white border text-gray-500 font-bold border-gray-200 rounded-xl flex items-center gap-2 p-1 overflow-hidden shadow-sm">
+              <button class="bg-green-50 text-green-700 px-4 py-2 rounded-lg text-sm font-black transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H14"/></svg>
+                Bản Tin
+              </button>
+              <button class="px-4 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                Dưỡng Linh
+              </button>
+            </div>
+            <div class="flex-1 border-b border-gray-200"></div>
+          </div>
+
+          <div v-if="announcements.length > 0" class="space-y-4">
+            <!-- Featured News: First Item -->
+            <div class="relative rounded-2xl overflow-hidden bg-gray-900 text-white shadow-md group cursor-pointer aspect-[21/9] sm:aspect-[21/8]">
+              <!-- Mock Image Background -->
+              <img src="https://images.unsplash.com/photo-1507434965515-61970f2714be?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Cover" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-700" />
+              <!-- Gradient Overlay -->
+              <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
+              
+              <div class="absolute inset-0 p-5 sm:p-8 flex flex-col justify-end">
+                <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black tracking-widest uppercase self-start mb-3">
+                  THÔNG BÁO
+                </span>
+                <h3 class="text-xl sm:text-2xl font-black mb-2 leading-tight drop-shadow-md group-hover:-translate-y-1 transition-transform">
+                  {{ announcements[0].title }}
+                </h3>
+                <div class="text-gray-200 text-xs sm:text-sm line-clamp-2 md:w-3/4 opacity-90 mb-4" v-html="announcements[0].content"></div>
+                
+                <div class="flex items-center gap-4 text-xs font-bold opacity-80 uppercase tracking-wider">
+                  <span class="flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ announcements[0].time }}</span>
+                  <span class="flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg> {{ announcements[0].author }}</span>
+                  <div class="flex-1"></div>
+                  <span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> 0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Other News: Grid -->
+            <div v-if="announcements.length > 1" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div v-for="news in announcements.slice(1)" :key="news.id" 
+                class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md hover:border-red-100 transition-all cursor-pointer group flex flex-col h-full">
+                
+                <span class="inline-block px-3 py-1 bg-red-50 text-red-500 rounded-full text-[10px] font-black tracking-widest uppercase self-start mb-3">
+                  THÔNG BÁO
+                </span>
+                
+                <h4 class="font-black text-gray-900 text-lg mb-2 leading-snug group-hover:text-red-500 transition-colors">
+                  {{ news.title }}
+                </h4>
+                
+                <div class="text-sm text-gray-500 mb-6 line-clamp-2" v-html="news.content"></div>
+                
+                <div class="mt-auto flex items-center justify-between text-[11px] font-bold text-gray-400">
+                  <span class="flex items-center gap-1.5 uppercase tracking-wide">
+                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                     {{ news.time }}
+                  </span>
+                  <div class="flex items-center gap-1.5 text-green-600 group-hover:underline">
+                    Xem chi tiết <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="text-center pt-2">
+               <button class="text-xs font-black uppercase text-gray-400 hover:text-green-600 transition-colors bg-white px-5 py-2.5 rounded-xl border border-gray-200 shadow-sm">
+                 Tất cả thông báo cá nhân
+               </button>
+            </div>
+          </div>
+          
+          <div v-else class="py-12 bg-white rounded-2xl border border-gray-100 text-center shadow-sm">
+             <div class="w-16 h-16 bg-gray-50 rounded-full mx-auto mb-4 flex items-center justify-center">
+               <span class="text-2xl opacity-50">📰</span>
+             </div>
+             <p class="font-bold text-gray-900 mb-1">Chưa có bản tin</p>
+             <p class="text-sm text-gray-500">Giữ liên lạc, cập nhật sẽ xuất hiện tại đây.</p>
+          </div>
+        </div>
+
       </div>
 
       <!-- ─── RIGHT SIDEBAR ─── -->
@@ -297,13 +378,7 @@
               Gửi yêu cầu cầu nguyện
             </button>
             <!-- Secondary CTAs -->
-            <Link :href="route('calendar.index')"
-              class="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 hover:bg-orange-50 text-gray-700 hover:text-orange-600 rounded-xl font-bold text-sm transition-all border border-gray-100 hover:border-orange-200">
-              <svg class="w-5 h-5 shrink-0 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              Lịch sinh hoạt Hội Thánh
-            </Link>
+
             <Link :href="route('documents.index')"
               class="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 hover:bg-orange-50 text-gray-700 hover:text-orange-600 rounded-xl font-bold text-sm transition-all border border-gray-100 hover:border-orange-200">
               <svg class="w-5 h-5 shrink-0 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -314,34 +389,7 @@
           </div>
         </div>
 
-        <!-- TIN TỨC & THÔNG BÁO -->
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="text-orange-500 text-sm">📰</span>
-              <h3 class="font-black text-sm text-gray-900">Mới nhất từ Hội Thánh</h3>
-            </div>
-            <span class="text-[10px] font-bold text-gray-400">TIN TỨC</span>
-          </div>
-          <div v-if="announcements.length > 0" class="divide-y divide-gray-50">
-            <div v-for="news in announcements" :key="news.id"
-              class="px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer">
-              <div class="flex items-center gap-2 mb-1 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                <span>{{ news.author }}</span>
-                <span>•</span>
-                <span>{{ news.time }}</span>
-              </div>
-              <p class="font-bold text-gray-900 text-sm leading-snug">{{ news.title }}</p>
-              <div class="mt-1 text-xs text-gray-500 line-clamp-2" v-html="news.content"></div>
-            </div>
-          </div>
-          <div v-else class="px-4 py-8 text-center">
-            <p class="text-sm text-gray-400">Chưa có tin tức mới</p>
-          </div>
-          <div class="px-4 py-3 border-t border-gray-50 text-center bg-gray-50/50">
-            <button class="text-[10px] font-black uppercase text-orange-500 hover:text-orange-600 transition-colors">Tất cả thông báo cá nhân</button>
-          </div>
-        </div>
+
 
         <!-- HỒ SƠ TÍN HỮU (compact) -->
         <div v-if="member" class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">

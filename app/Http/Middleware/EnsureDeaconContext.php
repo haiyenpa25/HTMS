@@ -47,15 +47,16 @@ class EnsureDeaconContext
         $service = app(\App\Services\FeatureAssignmentService::class);
         $departmentFeatures = $deaconDept ? $service->getAvailableFeaturesForDepartment($deaconDept) : [];
         
-        // Level 2: bắt đầu từ departmentFeatures, UserDepartmentFeature chỉ là override
+        // Level 2: Strict Whitelist: Mặc định user không có quyền gì cả (false). Phải cấp tường minh.
         $userPermissions = collect(\App\Models\Feature::pluck('slug'))
-            ->mapWithKeys(fn($s) => [$s => $departmentFeatures[$s] ?? false])
+            ->mapWithKeys(fn($s) => [$s => false])
             ->toArray();
 
         if ($isGlobalAdmin) {
             // Admin only gets what the department has
-            // (already set by the mapWithKeys above)
-            // No action needed: $userPermissions is already perfectly scoped to $departmentFeatures
+            $userPermissions = collect(\App\Models\Feature::pluck('slug'))
+                ->mapWithKeys(fn($s) => [$s => $departmentFeatures[$s] ?? false])
+                ->toArray();
         } else {
             $overrideRecords = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
                 ->where('department_id', 1)
@@ -67,6 +68,20 @@ class EnsureDeaconContext
                 $userPermissions[$uf->feature->slug] = (bool) $uf->is_enabled;
             }
         }
+
+        // Structural Deacon Role overrides
+        // Thư ký and Thủ quỹ need these rendered on the sidebar irrespective of the "Ban Lãnh đạo" matrix configurations.
+        $userPermissions['attendance'] = true;       // for Secretary Điểm danh
+        $userPermissions['reports'] = true;          // for Secretary Báo cáo
+        $userPermissions['finance'] = true;          // for Treasurer Quản lý quỹ
+        $userPermissions['finance-reports'] = true;  // for Treasurer Báo cáo tài chính
+        $userPermissions['assignments'] = true;      // for All Deacons Phân công
+
+        $departmentFeatures['attendance'] = true;
+        $departmentFeatures['reports'] = true;
+        $departmentFeatures['finance'] = true;
+        $departmentFeatures['finance-reports'] = true;
+        $departmentFeatures['assignments'] = true;
 
         \Inertia\Inertia::share('departmentFeatures', $departmentFeatures);
         \Inertia\Inertia::share('userPermissions', $userPermissions);

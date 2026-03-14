@@ -70,17 +70,18 @@ class EnsureMinistryContext
         
         // ── Level 2: User-level permissions ───────────────────────────────
         // Logic: 
-        //   1. Bắt đầu từ departmentFeatures (Level 1) — feature nào dept có = user có theo mặc định
-        //   2. UserDepartmentFeature chỉ dùng để OVERRIDE (tắt riêng cho user cụ thể, hoặc bật thêm)
-        //   3. Super Admin → Tôn trọng giới hạn của department, không cấp True rác
+        //   1. Strict Whitelist: Mặc định user không có quyền gì cả (false)
+        //   2. UserDepartmentFeature dùng để CẤP QUYỀN (is_enabled = true)
+        //   3. Super Admin → Tôn trọng giới hạn của department
         $userPermissions = collect(\App\Models\Feature::pluck('slug'))
-            ->mapWithKeys(fn($s) => [$s => $departmentFeatures[$s] ?? false])
+            ->mapWithKeys(fn($s) => [$s => false])
             ->toArray();
 
         if ($isGlobalAdmin) {
             // Admin only gets what the department has
-            // (already set by the mapWithKeys above)
-            // No action needed: $userPermissions is already perfectly scoped to $departmentFeatures
+            $userPermissions = collect(\App\Models\Feature::pluck('slug'))
+                ->mapWithKeys(fn($s) => [$s => $departmentFeatures[$s] ?? false])
+                ->toArray();
         } else {
             // Áp dụng explicit overrides từ UserDepartmentFeature (nếu có)
             $overrideRecords = UserDepartmentFeature::where('user_id', $user->id)

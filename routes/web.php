@@ -18,6 +18,8 @@ Route::middleware('guest')->group(function () {
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
     Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 });
+// Hướng dẫn cài đặt và Dữ liệu mẫu ban đầu
+Route::get('huong-dan/cai-dat', [\App\Http\Controllers\DocsController::class, 'setup'])->name('docs.setup');
 
 Route::middleware('auth')->group(function () {
     Route::get('/', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
