@@ -29,7 +29,7 @@
                </div>
                <div>
                    <p class="text-xs text-gray-500 font-medium uppercase tracking-widest">Đang xem với chức vụ</p>
-                   <h2 class="text-lg font-bold text-gray-900">{{ roleLabel }}</h2>
+                   <h2 class="text-2xl font-black text-gray-900">{{ roleLabel }}</h2>
                </div>
            </div>
            
@@ -45,7 +45,7 @@
                   <div class="w-16 h-16 mb-3 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
                       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75"></path></svg>
                   </div>
-                  <h3 class="font-bold text-gray-900 leading-tight">Điểm danh<br><span class="text-xs font-medium text-amber-600">Buổi nhóm HT</span></h3>
+                  <h3 class="text-sm font-black uppercase text-gray-900 leading-tight">Điểm danh<br><span class="text-[10px] font-black uppercase tracking-widest text-amber-600 mt-1 block">Buổi nhóm HT</span></h3>
               </Link>
 
               <!-- Card: Báo cáo ban ngành (Secretary) -->
@@ -57,7 +57,7 @@
                   <div class="w-16 h-16 mb-3 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
                       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                   </div>
-                  <h3 class="font-bold text-gray-900 leading-tight">Báo cáo<br><span class="text-xs font-medium text-amber-600">Các ban trực thuộc</span></h3>
+                  <h3 class="text-sm font-black uppercase text-gray-900 leading-tight">Báo cáo<br><span class="text-[10px] font-black uppercase tracking-widest text-amber-600 mt-1 block">Các ban trực thuộc</span></h3>
               </Link>
 
               <!-- Card: Quản lý Quỹ (Treasurer) -->
@@ -66,7 +66,7 @@
                   <div class="w-16 h-16 mb-3 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
                       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path></svg>
                   </div>
-                  <h3 class="font-bold text-gray-900 leading-tight">Quản lý Quỹ<br><span class="text-xs font-medium text-amber-600">{{ funds.length }} quỹ</span></h3>
+                  <h3 class="text-sm font-black uppercase text-gray-900 leading-tight">Quản lý Quỹ<br><span class="text-[10px] font-black uppercase tracking-widest text-amber-600 mt-1 block">{{ funds.length }} quỹ</span></h3>
               </Link>
 
               <!-- Card: Tài chính HT (Treasurer) -->
@@ -76,7 +76,7 @@
                   <div class="w-16 h-16 mb-3 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center group-hover:bg-rose-600 group-hover:text-white transition-colors duration-300">
                       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   </div>
-                  <h3 class="font-bold text-gray-900 leading-tight">Tài chính<br><span class="text-xs font-medium text-rose-600">Thu chi Hội Thánh</span></h3>
+                  <h3 class="text-sm font-black uppercase text-gray-900 leading-tight">Tài chính<br><span class="text-[10px] font-black uppercase tracking-widest text-rose-600 mt-1 block">Thu chi Hội Thánh</span></h3>
               </Link>
 
               <!-- Card: Báo cáo TC (Treasurer) -->
@@ -85,7 +85,7 @@
                   <div class="w-16 h-16 mb-3 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-colors duration-300">
                       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                   </div>
-                  <h3 class="font-bold text-gray-900 leading-tight">Báo cáo<br><span class="text-xs font-medium text-amber-600">Báo cáo tài chính</span></h3>
+                  <h3 class="text-sm font-black uppercase text-gray-900 leading-tight">Báo cáo<br><span class="text-[10px] font-black uppercase tracking-widest text-amber-600 mt-1 block">Báo cáo tài chính</span></h3>
               </Link>
 
               <!-- Extra dynamic cards từ deptFeatures (tính năng được gán riêng cho Ban Chấp Sự) -->
@@ -99,16 +99,16 @@
                       <g v-html="card.icon"></g>
                     </svg>
                   </div>
-                  <h3 class="font-bold leading-tight" :class="can(card.key) ? 'text-gray-900' : 'text-gray-400'">
+                  <h3 class="text-sm font-black uppercase leading-tight" :class="can(card.key) ? 'text-gray-900' : 'text-gray-400'">
                     {{ card.label }}<br>
-                    <span class="text-xs font-medium" :class="can(card.key) ? card.sub : 'text-gray-400'">{{ card.subtitle }}</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest mt-1 block" :class="can(card.key) ? card.sub : 'text-gray-400'">{{ card.subtitle }}</span>
                   </h3>
                 </Link>
               </template>
            </div>
             
            <div class="mt-8 bg-amber-50 rounded-3xl p-6 border border-amber-100 shadow-sm">
-              <h3 class="text-sm font-bold text-amber-900 tracking-wider mb-2 px-1 flex items-center">
+              <h3 class="text-sm font-black uppercase text-amber-900 tracking-widest mb-2 px-1 flex items-center">
                   <svg class="w-5 h-5 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   Cổng Nội Bộ – Lãnh Đạo Hội Thánh
               </h3>

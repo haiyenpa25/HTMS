@@ -16,6 +16,8 @@ class Event extends Model
         'color',
         'location',
         'visibility',
+        'scope_type',
+        'scope_id',
         'created_by'
     ];
 
@@ -28,5 +30,10 @@ class Event extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'scope_id');
     }
 }

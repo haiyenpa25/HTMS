@@ -160,11 +160,12 @@ class MemberController extends Controller
 
         $member->load([
             'user',
-            'household',
+            'household.members',
             'courses',
             'talents',
             'relatedTo',
             'relatedFrom',
+            'faithJourneys',
             // Visitations as Care Log — load with visitors
             'visitations' => function($query) {
                 $query->with(['visitors'])->orderBy('visit_date', 'desc');
@@ -268,5 +269,45 @@ class MemberController extends Controller
             ->update(['status' => $validated['status']]);
 
         return redirect()->back()->with('message', 'Đã cập nhật loại tín hữu thành công!');
+    }
+
+    public function setHouseholdHead(Request $request, \App\Models\Household $household)
+    {
+        $request->validate(['head_member_id' => 'required|exists:members,id']);
+        $household->update(['head_member_id' => $request->head_member_id]);
+        return back()->with('message', 'Đã lưu thiết lập Chủ hộ thành công.');
+    }
+
+    public function storeRelationship(Request $request, Member $member)
+    {
+        $request->validate([
+            'related_member_id' => 'required|exists:members,id',
+            'type' => 'required|string',
+            'inverse_type' => 'nullable|string'
+        ]);
+
+        if ($member->id == $request->related_member_id) {
+            return back()->with('error', 'Không thể tạo quan hệ với chính mình.');
+        }
+
+        \App\Models\Relationship::updateOrCreate(
+            ['member_id' => $member->id, 'related_member_id' => $request->related_member_id],
+            ['type' => $request->type]
+        );
+
+        if ($request->inverse_type) {
+            \App\Models\Relationship::updateOrCreate(
+                ['member_id' => $request->related_member_id, 'related_member_id' => $member->id],
+                ['type' => $request->inverse_type]
+            );
+        }
+        return back()->with('message', 'Thêm quan hệ gia đình thành công.');
+    }
+
+    public function destroyRelationship(Member $member, $relatedMemberId)
+    {
+        \App\Models\Relationship::where('member_id', $member->id)->where('related_member_id', $relatedMemberId)->delete();
+        \App\Models\Relationship::where('member_id', $relatedMemberId)->where('related_member_id', $member->id)->delete();
+        return back()->with('message', 'Xóa quan hệ thành công.');
     }
 }

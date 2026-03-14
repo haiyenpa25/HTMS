@@ -40,8 +40,8 @@
                      <g v-html="card.icon"></g>
                    </svg>
                  </div>
-                 <h3 class="font-bold text-gray-900 leading-tight">{{ card.label }}<br>
-                   <span class="text-xs font-medium" :class="card.sub">{{ card.subtitle }}</span>
+                 <h3 class="text-sm font-black uppercase text-gray-900 leading-tight">{{ card.label }}<br>
+                   <span class="text-[10px] font-black uppercase tracking-widest mt-1 block" :class="card.sub">{{ card.subtitle }}</span>
                  </h3>
                </Link>
 
@@ -58,8 +58,8 @@
                      <g v-html="card.icon"></g>
                    </svg>
                  </div>
-                 <h3 class="font-bold text-gray-400 leading-tight">{{ card.label }}<br>
-                   <span class="text-xs font-medium text-gray-400">Chưa được cấp quyền</span>
+                 <h3 class="text-sm font-black uppercase text-gray-400 leading-tight">{{ card.label }}<br>
+                   <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-1 block">Chưa được cấp quyền</span>
                  </h3>
                </div>
 
@@ -76,7 +76,7 @@
            </div>
            
            <div class="mt-4 bg-blue-50/50 rounded-3xl p-5 border border-blue-50 shadow-sm">
-              <h3 class="text-sm font-black text-blue-900 tracking-wider mb-1 flex items-center">
+              <h3 class="text-sm font-black uppercase tracking-widest text-blue-900 mb-2 flex items-center">
                   <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   Thông tin Ban Mục Vụ
               </h3>

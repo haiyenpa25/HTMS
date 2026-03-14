@@ -275,12 +275,19 @@ const grantFull = async () => {
   }
 };
 
-const featureIcon = (slug) => ({
-  'attendance':           '📋', 'visitation':           '🏠',
-  'members':              '👥', 'assignments':           '🔧',
-  'reports':              '📊', 'finance':               '💰',
-  'education-classes':    '🏫', 'education-report':      '📈',
-})[slug] ?? '⚙️';
+const featureIconMap = {
+    'attendance':       { path: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', color: 'text-blue-600 bg-blue-50' },
+    'visitation':       { path: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z', color: 'text-rose-600 bg-rose-50' },
+    'members':          { path: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', color: 'text-violet-600 bg-violet-50' },
+    'thanh-vien':       { path: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', color: 'text-violet-600 bg-violet-50' },
+    'reports':          { path: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', color: 'text-indigo-600 bg-indigo-50' },
+    'finance':          { path: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', color: 'text-emerald-600 bg-emerald-50' },
+    'assignments':      { path: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', color: 'text-amber-600 bg-amber-50' },
+    'education-classes':{ path: 'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z', color: 'text-cyan-600 bg-cyan-50' },
+    'education-report': { path: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', color: 'text-cyan-600 bg-cyan-50' },
+    'default':          { path: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z', color: 'text-gray-600 bg-gray-100' },
+};
+const getFeatureIcon = (slug) => featureIconMap[slug] || featureIconMap['default'];
 
 const addDept = (dept) => { activeDeptId.value = dept.id; };
 
@@ -421,32 +428,70 @@ const sidebarCollapsed = ref(false);
       <main class="flex-1 overflow-y-auto pb-16 lg:pb-0">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
+          <!-- ══ UNIFIED TABS HERO BANNER ═════════════════════════════════════════════ -->
+          <div class="mb-8 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 p-6 sm:p-7 text-white relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+            <!-- Background decoration -->
+            <div class="absolute inset-0 opacity-10 pointer-events-none select-none overflow-hidden">
+                <svg class="absolute -right-8 -top-8 w-64 h-64 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" opacity="0.2"/>
+                </svg>
+                <svg class="absolute bottom-0 left-12 w-40 h-40 text-indigo-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" opacity="0.3"/>
+                </svg>
+            </div>
+            <div class="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-2">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-200 mb-2">
+                      <template v-if="activeTab === 'dashboard'">HỆ THỐNG × TỔNG QUAN</template>
+                      <template v-else-if="activeTab === 'users'">HỆ THỐNG × TÀI KHOẢN</template>
+                      <template v-else-if="activeTab === 'config'">HỆ THỐNG × CẤU HÌNH PHÂN QUYỀN</template>
+                      <template v-else-if="activeTab === 'permissions'">HỆ THỐNG × PHÂN QUYỀN TÀI KHOẢN</template>
+                    </p>
+                    <h1 class="text-3xl sm:text-4xl font-black tracking-tight" style="text-shadow: 0 2px 10px rgba(0,0,0,0.1)">
+                      <template v-if="activeTab === 'dashboard'">Kho Tính Năng Hệ Thống</template>
+                      <template v-else-if="activeTab === 'users'">Quản Lý Người Dùng</template>
+                      <template v-else-if="activeTab === 'config'">Quản Lý Tính Năng</template>
+                      <template v-else-if="activeTab === 'permissions'">Phân Quyền Truy Cập</template>
+                    </h1>
+                    <p class="mt-2 text-sm text-indigo-100 max-w-lg font-medium">
+                      <template v-if="activeTab === 'dashboard'">Quản lý và giám sát các module chức năng trong hệ thống CMS.</template>
+                      <template v-else-if="activeTab === 'users'">Quản lý thông tin, phân loại theo ban ngành và trạng thái của tất cả tài khoản.</template>
+                      <template v-else-if="activeTab === 'config'">Phân quyền linh hoạt theo ma trận: Global → Theo Block → Ban ngành cụ thể.</template>
+                      <template v-else-if="activeTab === 'permissions'">Thiết lập đặc quyền truy cập chi tiết (MAC Level 2) cho từng người dùng riêng biệt.</template>
+                    </p>
+                </div>
+                
+                <!-- KPI / Actions -->
+                <div class="flex gap-3 flex-shrink-0 mt-2 sm:mt-0">
+                    <template v-if="activeTab === 'dashboard'">
+                        <button @click="activeTab = 'config'" class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-[0_4px_12px_rgba(0,0,0,0.1)] flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 7a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg> Cấu Hình Ngay
+                        </button>
+                    </template>
+                    
+                    <template v-else-if="activeTab === 'users'">
+                        <div class="bg-white/10 backdrop-blur-md rounded-2xl px-5 py-3 text-center border border-white/20 min-w-[80px] shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+                            <p class="text-2xl font-black">{{ users?.total || users?.data?.length || 0 }}</p>
+                            <p class="text-[10px] text-indigo-100 font-black uppercase mt-0.5 tracking-wider">Tài Khoản</p>
+                        </div>
+                    </template>
+
+                    <template v-else-if="activeTab === 'config'">
+                        <div class="bg-white/10 backdrop-blur-md rounded-2xl px-5 py-3 text-center border border-white/20 min-w-[80px] shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+                            <p class="text-2xl font-black">{{ features?.length || 0 }}</p>
+                            <p class="text-[10px] text-indigo-100 font-black uppercase mt-0.5 tracking-wider">Module</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-md rounded-2xl px-5 py-3 text-center border border-white/20 min-w-[80px] shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+                            <p class="text-2xl font-black">{{ systemConfig ? new Set(systemConfig.map(c => c.feature_id)).size : 0 }}</p>
+                            <p class="text-[10px] text-indigo-100 font-black uppercase mt-0.5 tracking-wider">Đã Cấu Hình</p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+          </div>
+
     <!-- ══ TAB 1: TỔNG QUAN ════════════════════════════════════════════════ -->
     <div v-if="activeTab === 'dashboard'" class="animate-fade space-y-8">
-      <div class="flex items-center justify-between">
-        <div>
-          <div class="flex items-center gap-2">
-              <h1 class="text-2xl font-black text-gray-900">Kho Tính Năng Hệ Thống</h1>
-              <!-- Tooltip Helper -->
-              <div class="relative group cursor-help mt-1 shrink-0">
-                  <svg class="w-5 h-5 text-gray-400 group-hover:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <div class="absolute top-full left-0 mt-2 w-72 p-3 bg-gray-900 text-white text-[11px] font-medium rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-xl pointer-events-none">
-                      Đây là Cổng Quản Trị dành riêng cho Super Admin. Tại đây bạn có thể cấu hình Hệ Sinh Thái tính năng (MAC Level 1), quản lý người dùng và cấp quyền sử dụng chi tiết cho từng người (MAC Level 2).
-                      <div class="absolute bottom-full left-4 border-4 border-transparent border-b-gray-900"></div>
-                  </div>
-              </div>
-          </div>
-          <p class="text-sm text-gray-500 mt-1">Quản lý và giám sát các modules trong hệ thống CMS</p>
-        </div>
-        <button @click="activeTab = 'config'"
-          class="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-sm transition-all">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 7a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-          Cấu Hình
-        </button>
-      </div>
-
       <!-- Stats -->
       <div class="grid grid-cols-3 gap-4">
         <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
@@ -482,7 +527,11 @@ const sidebarCollapsed = ref(false);
           <div v-for="feat in feats" :key="feat.id"
             class="bg-white rounded-2xl p-4 border-2 shadow-sm hover:shadow-md transition-all cursor-default"
             :class="cardBorder(portalMeta(portalType).color)">
-            <div class="text-2xl mb-3">{{ featureIcon(feat.slug) }}</div>
+            <div :class="['w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mb-3 transition-colors', getFeatureIcon(feat.slug).color]">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" :d="getFeatureIcon(feat.slug).path"/>
+              </svg>
+            </div>
             <h3 class="font-black text-gray-900 text-sm leading-snug">{{ feat.name }}</h3>
             <p :class="['text-[10px] mt-1 font-mono', textAccent(portalMeta(portalType).color)]">{{ feat.slug }}</p>
             <p class="text-[11px] text-gray-400 mt-2 line-clamp-2">{{ feat.description || 'Chưa có mô tả' }}</p>
@@ -554,7 +603,10 @@ const sidebarCollapsed = ref(false);
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-500">{{ user.phone || '—' }}</td>
                 <td class="px-6 py-4">
-                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold" :class="roleColor(user.role)">{{ getRoleLabel(user.role) || 'Chưa phân' }}</span>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-black tracking-wide uppercase" :class="roleColor(user.role)">
+                    {{ user.role === 'Guest' || !user.role ? 'Guest' : user.role }}
+                  </span>
+                  <p class="text-[11px] text-gray-400 mt-1 font-medium">{{ getRoleLabel(user.role) || 'Chưa phân chức vụ' }}</p>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-500">
                   <span v-if="user.departments !== 'Chưa tham gia'" class="text-gray-700">{{ user.departments }}</span>
@@ -562,9 +614,15 @@ const sidebarCollapsed = ref(false);
                 </td>
                 <td class="px-6 py-4 text-right">
                   <div class="flex items-center justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
-                    <button @click="selectPermUser(user); activeTab = 'permissions'" class="text-xs font-bold text-teal-600 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg transition-colors">🔐 Quyền</button>
-                    <button @click="openEditModal(user)" class="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors">Sửa</button>
-                    <button @click="confirmDelete(user)" class="text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors">Xóa</button>
+                    <button @click="selectPermUser(user); activeTab = 'permissions'" title="Phân Quyền" class="w-8 h-8 rounded-full flex items-center justify-center text-amber-500 bg-amber-50 hover:bg-amber-100 hover:text-amber-600 transition-colors">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                    </button>
+                    <button @click="openEditModal(user)" title="Chỉnh Sửa" class="w-8 h-8 rounded-full flex items-center justify-center text-indigo-500 bg-indigo-50 hover:bg-indigo-100 hover:text-indigo-600 transition-colors">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </button>
+                    <button @click="confirmDelete(user)" title="Xóa" class="w-8 h-8 rounded-full flex items-center justify-center text-rose-500 bg-rose-50 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -583,13 +641,16 @@ const sidebarCollapsed = ref(false);
                   <p class="text-xs text-gray-400">{{ user.email }}</p>
                 </div>
               </div>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold" :class="roleColor(user.role)">{{ getRoleLabel(user.role) || '—' }}</span>
+              <div class="text-right">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black tracking-wide uppercase" :class="roleColor(user.role)">{{ user.role === 'Guest' || !user.role ? 'Guest' : user.role }}</span>
+                <p class="text-[10px] text-gray-400 mt-0.5 font-medium">{{ getRoleLabel(user.role) || 'Chưa phân chức vụ' }}</p>
+              </div>
             </div>
             <p class="text-xs text-gray-400 mb-3">{{ user.departments !== 'Chưa tham gia' ? user.departments : '—' }}</p>
             <div class="flex gap-2 pt-3 border-t border-gray-50">
-              <button @click="selectPermUser(user); activeTab = 'permissions'" class="flex-1 text-center text-teal-700 bg-teal-50 py-2 rounded-xl font-bold text-xs">🔐 Quyền</button>
-              <button @click="openEditModal(user)" class="flex-1 text-center text-indigo-700 bg-indigo-50 py-2 rounded-xl font-bold text-xs">Sửa</button>
-              <button @click="confirmDelete(user)" class="flex-1 text-center text-red-600 bg-red-50 py-2 rounded-xl font-bold text-xs">Xóa</button>
+              <button @click="selectPermUser(user); activeTab = 'permissions'" class="flex-1 flex items-center justify-center gap-1.5 text-amber-700 bg-amber-50 hover:bg-amber-100 py-2 rounded-xl font-bold text-xs transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg> Quyền</button>
+              <button @click="openEditModal(user)" class="flex-1 flex items-center justify-center gap-1.5 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-2 rounded-xl font-bold text-xs transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Sửa</button>
+              <button @click="confirmDelete(user)" class="flex-1 flex items-center justify-center gap-1.5 text-rose-600 bg-rose-50 hover:bg-rose-100 py-2 rounded-xl font-bold text-xs transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg> Xóa</button>
             </div>
           </div>
           <div v-if="!users.data.length" class="p-10 text-center text-gray-400 italic text-sm">Không tìm thấy người dùng.</div>
@@ -735,7 +796,11 @@ const sidebarCollapsed = ref(false);
                 <label v-for="feature in permDeptFeatures" :key="feature.id"
                   class="flex items-center justify-between gap-3 px-4 py-3.5 hover:bg-gray-50 cursor-pointer transition-colors">
                   <div class="flex items-center gap-3">
-                    <span class="text-xl w-7 text-center">{{ featureIcon(feature.slug) }}</span>
+                    <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border border-gray-100/50 transition-colors', getFeatureIcon(feature.slug).color]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" :d="getFeatureIcon(feature.slug).path"/>
+                        </svg>
+                    </div>
                     <div>
                       <span class="text-sm font-bold text-gray-800">{{ feature.name }}</span>
                       <p class="text-xs text-gray-400 font-mono">{{ feature.slug }}</p>

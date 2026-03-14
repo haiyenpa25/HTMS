@@ -30,16 +30,10 @@ class AnnouncementController extends Controller
                 ];
             });
 
+        $departments = Department::orderBy('name')->get(['id', 'name']);
+
         return Inertia::render('Admin/Announcements/Index', [
             'announcements' => $announcements,
-        ]);
-    }
-
-    public function create()
-    {
-        $departments = Department::orderBy('name')->get(['id', 'name']);
-        
-        return Inertia::render('Admin/Announcements/Create', [
             'departments' => $departments
         ]);
     }

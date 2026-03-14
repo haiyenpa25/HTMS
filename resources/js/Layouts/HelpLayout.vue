@@ -38,12 +38,41 @@
                 </Link>
                 
                 <div class="pt-4 pb-2 px-4">
-                    <h4 class="text-[10px] font-black text-slate-400 text-left uppercase tracking-widest">Tính năng</h4>
+                    <h4 class="text-[10px] font-black text-slate-400 text-left uppercase tracking-widest">Truyền Thông</h4>
                 </div>
                 
                 <Link :href="route('help.notifications')" class="flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-colors" :class="route().current('help.notifications') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'">
                     <span class="w-2 h-2 rounded-full mr-3" :class="route().current('help.notifications') ? 'bg-indigo-600' : 'bg-slate-300'"></span>
-                    Thông Báo & Bản Tin
+                    Hộp Thư - Thông Báo
+                </Link>
+
+                <Link :href="route('help.announcements')" class="flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-colors" :class="route().current('help.announcements') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'">
+                    <span class="w-2 h-2 rounded-full mr-3" :class="route().current('help.announcements') ? 'bg-indigo-600' : 'bg-slate-300'"></span>
+                    Đăng Bản Tin Mới (Announcements)
+                </Link>
+
+                <Link :href="route('help.broadcasts')" class="flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-colors" :class="route().current('help.broadcasts') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'">
+                    <span class="w-2 h-2 rounded-full mr-3" :class="route().current('help.broadcasts') ? 'bg-indigo-600' : 'bg-slate-300'"></span>
+                    Gửi Tự Động Hàng Loạt (Broadcasts)
+                </Link>
+
+                <div class="pt-4 pb-2 px-4 border-t border-slate-100 mt-2">
+                    <h4 class="text-[10px] font-black text-slate-400 text-left uppercase tracking-widest">Cầu Nguyện & Ban Ngành</h4>
+                </div>
+
+                <Link :href="route('help.portal.members')" class="flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-colors" :class="route().current('help.portal.members') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'">
+                    <span class="w-2 h-2 rounded-full mr-3" :class="route().current('help.portal.members') ? 'bg-indigo-600' : 'bg-slate-300'"></span>
+                    Thành Viên & Phân Công
+                </Link>
+
+                <Link :href="route('help.portal.attendance')" class="flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-colors" :class="route().current('help.portal.attendance') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'">
+                    <span class="w-2 h-2 rounded-full mr-3" :class="route().current('help.portal.attendance') ? 'bg-indigo-600' : 'bg-slate-300'"></span>
+                    Điểm Danh & Thăm Viếng
+                </Link>
+
+                <Link :href="route('help.portal.finance')" class="flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-colors" :class="route().current('help.portal.finance') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'">
+                    <span class="w-2 h-2 rounded-full mr-3" :class="route().current('help.portal.finance') ? 'bg-indigo-600' : 'bg-slate-300'"></span>
+                    Tài Chính & Báo Cáo
                 </Link>
             </nav>
         </div>

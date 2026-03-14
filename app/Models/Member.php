@@ -141,4 +141,9 @@ class Member extends Model
             ->whereIn('org_role_id', $roleIds)
             ->exists();
     }
+
+    public function faithJourneys()
+    {
+        return $this->hasMany(FaithJourney::class)->orderBy('event_date', 'asc');
+    }
 }

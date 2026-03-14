@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <component :is="currentLayout">
     <template #header>Hồ sơ Tín hữu</template>
 
@@ -31,6 +31,7 @@
           <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%221%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
           <div class="absolute bottom-4 right-5 flex gap-2">
             <span class="px-3 py-1 bg-white/20 backdrop-blur text-white text-[10px] uppercase font-black rounded-full border border-white/30">{{ member.member_code }}</span>
+            <span v-if="member.household?.head_member_id === member.id" class="px-3 py-1 bg-amber-500/80 backdrop-blur text-white text-[10px] uppercase font-black rounded-full border border-white/30 shadow-md shadow-amber-500/20">🥇 Chủ Hộ</span>
             <span class="px-3 py-1 rounded-full text-xs font-bold border border-white/30 backdrop-blur"
               :class="member.status === 'Chính thức' ? 'bg-green-500/80 text-white' : 'bg-white/20 text-white'">
               {{ member.status }}
@@ -232,6 +233,16 @@
             </div>
           </div>
 
+          <!-- TAB 4: GIA ĐÌNH & NGƯỜI THÂN -->
+          <div v-if="activeTab === 'family'" class="space-y-4">
+             <FamilyTreeCard :member="member" :isPastor="isPastor" />
+          </div>
+
+          <!-- TAB 5: HÀNH TRÌNH ĐỨC TIN -->
+          <div v-if="activeTab === 'faith'" class="space-y-4">
+             <FaithJourneyTimeline :member="member" :isPastor="isPastor" />
+          </div>
+
           <!-- TAB 3: MỤC VỤ -->
           <div v-if="activeTab === 'ministry'" class="space-y-5">
 
@@ -403,7 +414,9 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import MobileLayout from '@/Layouts/MobileLayout.vue';
-import { User as IdentificationIcon, History as HistoryIcon, BookOpen as MinistryIcon } from 'lucide-vue-next';
+import { User as IdentificationIcon, History as HistoryIcon, BookOpen as MinistryIcon, Users as FamilyIcon, Star as FaithIcon } from 'lucide-vue-next';
+import FamilyTreeCard from '@/Components/Member/FamilyTreeCard.vue';
+import FaithJourneyTimeline from '@/Components/Member/FaithJourneyTimeline.vue';
 
 const props = defineProps({
   member: Object,
@@ -446,7 +459,9 @@ const activeTab = ref('general');
 const tabs = computed(() => {
   const base = [
     { id: 'general', name: 'Thông tin', icon: IdentificationIcon },
-    { id: 'history', name: 'Nhật ký Thăm Viếng', icon: HistoryIcon },
+    { id: 'family', name: 'Gia phả', icon: FamilyIcon },
+    { id: 'faith', name: 'Hành trình', icon: FaithIcon },
+    { id: 'history', name: 'Thăm Viếng', icon: HistoryIcon },
     { id: 'ministry', name: 'Mục vụ', icon: MinistryIcon },
   ];
   return base;

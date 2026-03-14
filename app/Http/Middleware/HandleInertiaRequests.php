@@ -48,9 +48,10 @@ class HandleInertiaRequests extends Middleware
                 $hasMinistry = false;
                 $member = \App\Models\Member::where('user_id', $user->id)->first();
                 if ($member) {
+                    $ministryDeptIds = \App\Models\Department::where('block', 'ministry')->pluck('id');
                     $hasMinistry = \App\Models\OrgMembership::where('member_id', $member->id)
                         ->where('model_type', \App\Models\Department::class)
-                        ->whereHas('model', fn($q) => $q->where('block', 'ministry'))
+                        ->whereIn('model_id', $ministryDeptIds)
                         ->exists();
                 }
                 if (!$hasMinistry) {
@@ -66,8 +67,10 @@ class HandleInertiaRequests extends Middleware
                     // Check Activities
                     $hasActivities = false;
                     if ($member) {
-                        $hasActivities = $member->departments()
-                            ->where('block', 'activities')
+                        $activitiesDeptIds = \App\Models\Department::where('block', 'activities')->pluck('id');
+                        $hasActivities = \App\Models\OrgMembership::where('member_id', $member->id)
+                            ->where('model_type', \App\Models\Department::class)
+                            ->whereIn('model_id', $activitiesDeptIds)
                             ->exists();
                     }
                     if (!$hasActivities) {

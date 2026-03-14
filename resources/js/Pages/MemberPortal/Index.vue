@@ -107,7 +107,7 @@
         <!-- LỊCH TRÌNH & NHIỆM VỤ -->
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="font-black text-gray-900 flex items-center gap-2">
+            <h3 class="text-sm font-black uppercase text-gray-900 tracking-widest flex items-center gap-2">
               <span class="text-orange-500">📅</span> Lịch trình & Nhiệm vụ
             </h3>
             <div class="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
@@ -120,8 +120,8 @@
             </div>
           </div>
 
-          <!-- Day Strip -->
-          <div class="px-4 py-3 border-b border-gray-50">
+          <!-- Week View Strip -->
+          <div v-show="calView === 'week'" class="px-4 py-3 border-b border-gray-50">
             <div class="flex items-stretch gap-1.5 overflow-x-auto pb-1">
               <button v-for="day in weekDays" :key="day.date"
                 @click="selectedDay = day.date"
@@ -134,12 +134,39 @@
                 ]">
                 <span class="text-[9px] font-bold uppercase tracking-widest opacity-70">{{ day.label }}</span>
                 <span class="text-base font-black leading-none mt-0.5">{{ day.num }}</span>
-                <span v-if="day.hasEvent"
+                <span v-if="hasEventOnDate(day.date)"
                   class="w-1 h-1 rounded-full mt-1"
                   :class="selectedDay === day.date ? 'bg-white' : 'bg-orange-500'"></span>
                 <span v-else class="w-1 h-1 mt-1"></span>
               </button>
             </div>
+          </div>
+
+          <!-- Month View Grid -->
+          <div v-show="calView === 'month'" class="px-4 py-3 border-b border-gray-50">
+             <div class="flex items-center justify-between mb-3 px-2">
+                 <button @click="prevMonth" class="p-1 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                 </button>
+                 <span class="font-bold text-sm text-gray-800">Tháng {{ currentMonth.getMonth() + 1 }}, {{ currentMonth.getFullYear() }}</span>
+                 <button @click="nextMonth" class="p-1 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                 </button>
+             </div>
+             <div class="grid grid-cols-7 gap-1 sm:gap-2 text-center">
+                 <span v-for="d in ['CN','T2','T3','T4','T5','T6','T7']" :key="d" class="text-[9px] sm:text-[11px] font-black text-gray-400 py-1">{{d}}</span>
+                 
+                 <div v-for="(day, idx) in monthDays" :key="idx" 
+                      class="aspect-square flex flex-col items-center justify-center rounded-lg sm:rounded-xl cursor-pointer transition-all border border-transparent"
+                      :class="[
+                         day.empty ? 'invisible' : (selectedDay === day.date ? 'bg-orange-500 text-white shadow-md border-orange-600' : 'bg-gray-50/50 hover:bg-orange-50 text-gray-700 border-gray-100'),
+                         day.isToday && selectedDay !== day.date ? 'ring-2 ring-orange-200 bg-orange-50/30' : ''
+                      ]"
+                      @click="!day.empty && (selectedDay = day.date)">
+                      <span v-if="!day.empty" class="text-[10px] sm:text-xs font-bold">{{ day.num }}</span>
+                      <span v-if="!day.empty && hasEventOnDate(day.date)" class="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full mt-0.5 sm:mt-1" :class="selectedDay === day.date ? 'bg-white' : 'bg-orange-500'"></span>
+                 </div>
+             </div>
           </div>
 
           <!-- Schedule of selected day -->
@@ -287,28 +314,32 @@
           </div>
         </div>
 
-        <!-- THÔNG BÁO MỚI -->
+        <!-- TIN TỨC & THÔNG BÁO -->
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div class="px-4 py-3 border-b border-gray-100 flex items-center gap-2">
-            <span class="text-orange-500 text-sm">📣</span>
-            <h3 class="font-black text-sm text-gray-900">Thông báo mới</h3>
+          <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-orange-500 text-sm">📰</span>
+              <h3 class="font-black text-sm text-gray-900">Mới nhất từ Hội Thánh</h3>
+            </div>
+            <span class="text-[10px] font-bold text-gray-400">TIN TỨC</span>
           </div>
-          <div v-if="notifications.length > 0" class="divide-y divide-gray-50">
-            <div v-for="notif in notifications" :key="notif.id"
+          <div v-if="announcements.length > 0" class="divide-y divide-gray-50">
+            <div v-for="news in announcements" :key="news.id"
               class="px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer">
-              <div class="flex items-start gap-2 mb-1">
-                <span v-if="notif.urgent" class="shrink-0 text-[9px] font-black bg-red-500 text-white px-1.5 py-0.5 rounded-full uppercase">KHẨN</span>
+              <div class="flex items-center gap-2 mb-1 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                <span>{{ news.author }}</span>
+                <span>•</span>
+                <span>{{ news.time }}</span>
               </div>
-              <p class="font-bold text-gray-900 text-sm leading-snug">{{ notif.title }}</p>
-              <p v-if="notif.message" class="text-xs text-gray-500 mt-0.5 leading-relaxed line-clamp-2">{{ notif.message }}</p>
-              <p class="text-[10px] text-gray-400 mt-1.5 font-medium uppercase tracking-wide">{{ notif.time }}</p>
+              <p class="font-bold text-gray-900 text-sm leading-snug">{{ news.title }}</p>
+              <div class="mt-1 text-xs text-gray-500 line-clamp-2" v-html="news.content"></div>
             </div>
           </div>
           <div v-else class="px-4 py-8 text-center">
-            <p class="text-sm text-gray-400">Không có thông báo mới</p>
+            <p class="text-sm text-gray-400">Chưa có tin tức mới</p>
           </div>
-          <div class="px-4 py-3 border-t border-gray-50 text-center">
-            <button class="text-xs font-bold text-orange-500 hover:underline">Tất cả thông báo</button>
+          <div class="px-4 py-3 border-t border-gray-50 text-center bg-gray-50/50">
+            <button class="text-[10px] font-black uppercase text-orange-500 hover:text-orange-600 transition-colors">Tất cả thông báo cá nhân</button>
           </div>
         </div>
 
@@ -342,6 +373,22 @@
                   {{ dept.name }}
                 </span>
               </div>
+            </div>
+            <!-- Leaflet Map Integration -->
+            <div class="px-4 py-3 bg-gray-50" v-if="member.latitude && member.longitude">
+               <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Vị trí địa lý (Nhà riêng)</p>
+               <div class="h-[160px] rounded-xl overflow-hidden border border-gray-200 z-0">
+                  <l-map :zoom="14" :center="[member.latitude, member.longitude]" :useGlobalLeaflet="false" class="z-0 relative">
+                      <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap"></l-tile-layer>
+                      <l-marker :lat-lng="[member.latitude, member.longitude]"></l-marker>
+                  </l-map>
+               </div>
+            </div>
+            <div class="px-4 py-3 bg-gray-50" v-else>
+               <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Vị trí địa lý (Nhà riêng)</p>
+               <div class="h-[100px] rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center bg-white">
+                  <p class="text-[10px] text-gray-400 font-medium">Chưa cập nhật tọa độ GPS</p>
+               </div>
             </div>
           </div>
         </div>
@@ -425,12 +472,17 @@
 import { ref, computed, onMounted } from 'vue';
 import { Link, usePage, router } from '@inertiajs/vue3';
 
+import 'leaflet/dist/leaflet.css';
+import { LMap, LTileLayer, LMarker } from '@vue-leaflet/vue-leaflet';
+import axios from 'axios';
+
 const page = usePage();
 
 const props = defineProps({
   member:         Object,
   careRequests:   { type: Array, default: () => [] },
   notifications:  { type: Array, default: () => [] },
+  announcements:  { type: Array, default: () => [] },
   upcomingEvents: { type: Array, default: () => [] },
   careCategories: { type: Object, default: () => ({}) },
 });
@@ -452,6 +504,20 @@ const careForm    = ref({
   is_urgent:  false,
   is_private: false,
 });
+
+const monthEvents = ref([]);
+
+onMounted(() => {
+    // Tải tất cả sự kiện trong hệ thống để điểm lên lịch (dots)
+    axios.get(route('calendar.api.events')).then(res => {
+        monthEvents.value = res.data || [];
+    }).catch(() => {});
+});
+
+// Helper check event by date
+const hasEventOnDate = (dateString) => {
+    return monthEvents.value.some(e => new Date(e.start || e.meeting_date).toDateString() === dateString);
+};
 
 // ── Computed ──
 const displayName = computed(() =>
@@ -478,25 +544,67 @@ const weekDays = computed(() => {
   for (let i = 0; i < 7; i++) {
     const d = new Date(start);
     d.setDate(start.getDate() + i);
-    const hasEvent = props.upcomingEvents.some(e => {
-      const ed = new Date(e.meeting_date);
-      return ed.toDateString() === d.toDateString();
-    });
     days.push({
       label:   labels[i],
       num:     d.getDate(),
       date:    d.toDateString(),
-      isToday: d.toDateString() === today.toDateString(),
-      hasEvent,
+      isToday: d.toDateString() === today.toDateString()
     });
   }
   return days;
 });
 
+// Month Grid UI state
+const currentMonth = ref(new Date(today.getFullYear(), today.getMonth(), 1));
+
+const monthDays = computed(() => {
+  const year = currentMonth.value.getFullYear();
+  const month = currentMonth.value.getMonth();
+  
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  
+  const days = [];
+  
+  const startDayOfWeek = firstDay.getDay(); 
+  for (let i = 0; i < startDayOfWeek; i++) {
+    days.push({ empty: true });
+  }
+  
+  for (let i = 1; i <= lastDay.getDate(); i++) {
+    const d = new Date(year, month, i);
+    days.push({
+      num: i,
+      date: d.toDateString(),
+      isToday: d.toDateString() === today.toDateString()
+    });
+  }
+  return days;
+});
+
+const nextMonth = () => {
+    currentMonth.value = new Date(currentMonth.value.getFullYear(), currentMonth.value.getMonth() + 1, 1);
+};
+const prevMonth = () => {
+    currentMonth.value = new Date(currentMonth.value.getFullYear(), currentMonth.value.getMonth() - 1, 1);
+};
+
 // Events on selected day
-const todayEvents = computed(() =>
-  props.upcomingEvents.filter(e => new Date(e.meeting_date).toDateString() === selectedDay.value)
-);
+const todayEvents = computed(() => {
+   // Ưu tiên hiển thị event từ API calendar nếu đã load, nếu chưa thì fallback xài props.upcomingEvents
+   const eventsPool = monthEvents.value.length > 0 ? monthEvents.value : props.upcomingEvents;
+   
+   return eventsPool.filter(e => {
+       const evDate = e.start || e.meeting_date;
+       return new Date(evDate).toDateString() === selectedDay.value;
+   }).map(e => ({
+       id: e.id,
+       title: e.title,
+       meeting_date: e.start || e.meeting_date,
+       location: e.location || e.extendedProps?.location,
+       type: e.type || e.extendedProps?.type || 'other'
+   }));
+});
 
 // Bible verses rotation
 const verses = [
@@ -577,5 +685,6 @@ const submitCareRequest = () => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  line-clamp: 2; /* fix linting */
 }
 </style>

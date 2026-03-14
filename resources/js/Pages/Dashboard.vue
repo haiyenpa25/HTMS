@@ -51,7 +51,7 @@
       <!-- ══ SECTION 1: BÁO CÁO CHỜ DUYỆT ══ -->
       <div v-if="pending_reports.length > 0" class="bg-amber-50 rounded-2xl border border-amber-200 overflow-hidden">
         <div class="px-5 py-3 bg-amber-500 flex items-center justify-between">
-          <h3 class="text-sm font-black text-white">🔔 BÁO CÁO CHỜ DUYỆT</h3>
+          <h3 class="text-xs font-black uppercase tracking-widest text-white">🔔 BÁO CÁO CHỜ DUYỆT</h3>
           <span class="bg-white/30 text-white text-xs font-bold px-3 py-1 rounded-full">{{ pending_reports.length }} báo cáo</span>
         </div>
         <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -69,7 +69,7 @@
       <!-- ══ SECTION 2: BẢNG BUỔI NHÓM ══ -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="px-5 py-3 bg-blue-900 flex items-center justify-between">
-          <h3 class="text-sm font-black text-white">📅 TRUNG TÂM DỮ LIỆU: CÁC BUỔI NHÓM THÁNG {{ localMonth }}/{{ localYear }}</h3>
+          <h3 class="text-xs font-black uppercase tracking-widest text-white">📅 TRUNG TÂM DỮ LIỆU: CÁC BUỔI NHÓM THÁNG {{ localMonth }}/{{ localYear }}</h3>
           <div class="flex gap-2">
             <button @click="meetingFilter = 'all'" class="text-xs font-bold px-3 py-1 rounded-full transition-colors"
               :class="meetingFilter === 'all' ? 'bg-white text-blue-900' : 'text-blue-200 hover:bg-white/10'">Tất cả</button>
@@ -134,21 +134,21 @@
       <div v-if="analytics" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <!-- Tham dự Nhóm HT (Line) -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 lg:col-span-2">
-          <h3 class="text-sm font-bold text-gray-900 mb-1">📈 SMART TRACK: TÍN HỮU DỰ NHÓM BAN NGÀNH</h3>
+          <h3 class="text-xs font-black uppercase tracking-widest text-gray-900 mb-1">📈 SMART TRACK: TÍN HỮU DỰ NHÓM BAN NGÀNH</h3>
           <p class="text-[10px] text-gray-400 mb-4">AI phân tích lượng tín hữu điểm danh theo Ban (mỗi loại ban 1 đường phân tích)</p>
           <apexchart type="line" height="240" :options="deptMeetingLineOptsConfig" :series="deptMeetingSeries" />
         </div>
         
         <!-- Phân bố Ban ngành (Pie) -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col items-center justify-center">
-          <h3 class="text-sm font-bold text-gray-900 mb-1 w-full text-center">🎯 AI DEMOGRAPHICS: PHÂN BỔ TÍN HỮU</h3>
+          <h3 class="text-xs font-black uppercase tracking-widest text-gray-900 mb-1 w-full text-center">🎯 AI DEMOGRAPHICS: PHÂN BỔ TÍN HỮU</h3>
           <p class="text-[10px] text-gray-400 mb-4 w-full text-center">Tỷ lệ tham gia nhóm Hội Thánh / Tháng</p>
           <apexchart type="donut" width="100%" height="240" :options="demoChartOpts" :series="demoSeries" />
         </div>
         
         <!-- Tài chính (Bar) -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 lg:col-span-3">
-          <h3 class="text-sm font-bold text-gray-900 mb-1">💰 CASH FLOW: DÒNG TIỀN TÀI CHÍNH (3 THÁNG)</h3>
+          <h3 class="text-xs font-black uppercase tracking-widest text-gray-900 mb-1">💰 CASH FLOW: DÒNG TIỀN TÀI CHÍNH (3 THÁNG)</h3>
           <p class="text-[10px] text-gray-400 mb-4">Theo dõi biến động dòng tiền ngầm theo từng block Ban ngành sinh hoạt</p>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -167,7 +167,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <!-- Biểu đồ ban ngành -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-          <h3 class="text-sm font-bold text-gray-900 mb-1">📊 INSIGHTS: TIẾN ĐỘ BAN NGÀNH</h3>
+          <h3 class="text-xs font-black uppercase tracking-widest text-gray-900 mb-1">📊 INSIGHTS: TIẾN ĐỘ BAN NGÀNH</h3>
           <p class="text-[10px] text-gray-400 mb-4">Máy phân tích biến thiên hiện diện tuần 1-5</p>
           <apexchart v-if="dept_att_series.length > 0" type="line" height="240"
             :options="deptLineOpts" :series="dept_att_series" />
@@ -177,7 +177,7 @@
         </div>
         <!-- Biểu đồ hội thánh -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-          <h3 class="text-sm font-bold text-gray-900 mb-1">⛪ INSIGHTS: XU HƯỚNG HIỆN DIỆN</h3>
+          <h3 class="text-xs font-black uppercase tracking-widest text-gray-900 mb-1">⛪ INSIGHTS: XU HƯỚNG HIỆN DIỆN</h3>
           <p class="text-[10px] text-gray-400 mb-4">Phân tích số lượng tham dự buổi nhóm Hội Thánh qua 5 tuần</p>
           <apexchart type="area" height="240"
             :options="churchLineOpts" :series="[church_att_line]" />
@@ -195,7 +195,7 @@
           
           <!-- Box Biểu đồ Tiền dâng -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 lg:col-span-1">
-            <h3 class="text-sm font-bold text-gray-900 mb-1">💸 PREDICTIVE FLOW: DÂNG HIẾN HỌC VIÊN</h3>
+            <h3 class="text-xs font-black uppercase tracking-widest text-gray-900 mb-1">💸 PREDICTIVE FLOW: DÂNG HIẾN HỌC VIÊN</h3>
             <p class="text-[10px] text-gray-400 mb-4">Theo dõi mạch tiền dâng lũy kế TCN & KTTN</p>
             <apexchart type="area" height="250" :options="cgdgOfferingsOpts" :series="cgdgOfferingsSeries" />
           </div>
@@ -203,7 +203,7 @@
           <!-- Box Bảng TCN và KTTN -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden lg:col-span-2 flex flex-col">
             <div class="px-5 py-3 bg-indigo-900 flex items-center justify-between">
-              <h4 class="text-sm font-black text-white">DATA COMPONENT: TRƯỜNG CHỦ NHẬT & KTTN</h4>
+              <h4 class="text-xs font-black uppercase tracking-widest text-white">DATA COMPONENT: TRƯỜNG CHỦ NHẬT & KTTN</h4>
             </div>
             <div class="overflow-x-auto flex-1">
               <table class="min-w-full divide-y divide-gray-100">
@@ -288,7 +288,7 @@
       <!-- ══ SECTION 5: SINH NHẬT ══ -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="px-5 py-3 bg-pink-600 flex items-center justify-between">
-          <h3 class="text-sm font-black text-white">🎂 EVENT TRIGGER: SINH NHẬT THÁNG {{ localMonth }}</h3>
+          <h3 class="text-xs font-black uppercase tracking-widest text-white">🎂 EVENT TRIGGER: SINH NHẬT THÁNG {{ localMonth }}</h3>
           <span class="bg-white/30 text-white text-xs font-bold px-3 py-1 rounded-full">{{ birthdays.length }} sự kiện</span>
         </div>
         <div v-if="birthdays.length > 0">
@@ -340,7 +340,7 @@
         <!-- Bảng danh sách thăm viếng -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden lg:col-span-2 flex flex-col">
           <div class="px-5 py-3 bg-purple-800 flex items-center justify-between">
-            <h3 class="text-sm font-black text-white">🤝 DATA COMPONENT: LỊCH TRÌNH THĂM VIẾNG THÁNG {{ localMonth }}</h3>
+            <h3 class="text-xs font-black uppercase tracking-widest text-white">🤝 DATA COMPONENT: LỊCH TRÌNH THĂM VIẾNG THÁNG {{ localMonth }}</h3>
             <div class="flex gap-2 text-xs font-bold">
               <span class="bg-white/20 text-white px-3 py-1 rounded-full">{{ visitations.length }} sự kiện</span>
             </div>
@@ -378,7 +378,7 @@
         <!-- AI Analytics & Chart -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
           <div class="px-5 py-3 bg-indigo-900 flex items-center justify-between">
-            <h3 class="text-sm font-black text-white">🤖 AI: PHÂN TÍCH TIẾN ĐỘ</h3>
+            <h3 class="text-xs font-black uppercase tracking-widest text-white">🤖 AI: PHÂN TÍCH TIẾN ĐỘ</h3>
           </div>
           <div class="p-5 flex-1 flex flex-col justify-between">
              <div class="mb-4">
@@ -409,7 +409,7 @@
         <!-- Tín hữu mới -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
           <div class="px-5 py-3 bg-emerald-700 flex items-center justify-between">
-            <h3 class="text-sm font-black text-white">✝️ TÍN HỮU MỚI TIN CHÚA</h3>
+            <h3 class="text-xs font-black uppercase tracking-widest text-white">✝️ TÍN HỮU MỚI TIN CHÚA</h3>
             <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full">{{ new_members_30.length + new_members_90.length }}</span>
           </div>
 
@@ -453,7 +453,7 @@
         <!-- Thân hữu truyền giảng -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
           <div class="px-5 py-3 bg-blue-700 flex items-center justify-between">
-            <h3 class="text-sm font-black text-white">📣 THÂN HỮU TRUYỀN GIẢNG</h3>
+            <h3 class="text-xs font-black uppercase tracking-widest text-white">📣 THÂN HỮU TRUYỀN GIẢNG</h3>
             <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full">{{ evangelistic_guests }}</span>
           </div>
           <div class="flex-1 flex flex-col items-center justify-center p-6 text-center">
@@ -468,7 +468,7 @@
         <!-- Ngày đặc biệt -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
           <div class="px-5 py-3 bg-amber-600 flex items-center justify-between">
-            <h3 class="text-sm font-black text-white">🌟 NGÀY ĐẶC BIỆT THÁNG {{ localMonth }}</h3>
+            <h3 class="text-xs font-black uppercase tracking-widest text-white">🌟 NGÀY ĐẶC BIỆT THÁNG {{ localMonth }}</h3>
             <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full">{{ special_dates.length }}</span>
           </div>
           <div v-if="special_dates.length > 0">

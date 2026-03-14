@@ -153,9 +153,9 @@ const colorMap = {
                     <g v-html="card.icon"></g>
                   </svg>
                 </div>
-                <h3 class="text-base font-bold text-gray-900 leading-tight">
+                <h3 class="text-sm font-black uppercase text-gray-900 leading-tight">
                   {{ card.label }}<br>
-                  <span class="text-sm font-medium mt-0.5 block" :class="colorMap[card.color].sub">{{ card.sub }}</span>
+                  <span class="text-[10px] font-black uppercase tracking-widest mt-1 block" :class="colorMap[card.color].sub">{{ card.sub }}</span>
                 </h3>
               </Link>
 
@@ -172,9 +172,9 @@ const colorMap = {
                     <g v-html="card.icon"></g>
                   </svg>
                 </div>
-                <h3 class="text-base font-bold text-gray-400 leading-tight">
+                <h3 class="text-sm font-black uppercase text-gray-400 leading-tight">
                   {{ card.label }}<br>
-                  <span class="text-sm font-medium text-gray-400 mt-0.5 block">Chưa cấp quyền</span>
+                  <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-1 block">Chưa cấp quyền</span>
                 </h3>
               </div>
               
@@ -189,8 +189,8 @@ const colorMap = {
                 </svg>
             </div>
             <div>
-              <p class="text-base font-black text-blue-900">Thông tin Ban Sinh Hoạt</p>
-              <p class="text-blue-800 text-[15px] mt-1 leading-relaxed">
+              <p class="text-sm font-black uppercase tracking-widest text-blue-900">Thông tin Ban Sinh Hoạt</p>
+              <p class="text-blue-800 text-sm mt-1.5 leading-relaxed">
                 Bạn đang xem các chức năng dành riêng cho <strong>{{ activeDepartment.name }}</strong>.
                 Mọi thao tác điểm danh, thống kê, và phân bổ nhân sự sẽ chỉ áp dụng trong phạm vi ban sinh hoạt này.
               </p>

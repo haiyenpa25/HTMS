@@ -25,6 +25,14 @@ Route::middleware('auth')->group(function () {
     Route::get('api/members', [\App\Http\Controllers\MemberController::class, 'apiIndex'])->name('api.members.index');
     Route::resource('members', \App\Http\Controllers\MemberController::class)->except(['create', 'edit']);
 
+    // Household Head & Member Relationships
+    Route::put('households/{household}/head', [\App\Http\Controllers\MemberController::class, 'setHouseholdHead'])->name('households.set-head');
+    Route::post('members/{member}/relationships', [\App\Http\Controllers\MemberController::class, 'storeRelationship'])->name('members.relationships.store');
+    Route::delete('members/{member}/relationships/{relatedMember}', [\App\Http\Controllers\MemberController::class, 'destroyRelationship'])->name('members.relationships.destroy');
+
+    // Faith Journeys
+    Route::resource('faith-journeys', \App\Http\Controllers\FaithJourneyController::class)->only(['store', 'update', 'destroy']);
+
     // Visitation Reasons
     Route::post('/visitation-reasons', [\App\Http\Controllers\Portal\VisitationController::class, 'storeReason'])->name('visitation-reasons.store');
     Route::delete('/visitation-reasons/{reason}', [\App\Http\Controllers\Portal\VisitationController::class, 'destroyReason'])->name('visitation-reasons.destroy');
@@ -441,5 +449,25 @@ Route::group(['prefix' => 'huong-dan', 'as' => 'help.'], function () {
     Route::get('/thong-bao', function () {
         return \Inertia\Inertia::render('Help/Notifications');
     })->name('notifications');
-});
 
+    Route::get('/ban-tin', function () {
+        return \Inertia\Inertia::render('Help/Announcements');
+    })->name('announcements');
+
+    Route::get('/tin-tu-dong', function () {
+        return \Inertia\Inertia::render('Help/Broadcasts');
+    })->name('broadcasts');
+
+    // Cổng Ban Ngành
+    Route::get('/thanh-vien-phan-cong', function () {
+        return \Inertia\Inertia::render('Help/PortalMembersDuty');
+    })->name('portal.members');
+
+    Route::get('/diem-danh-tham-vieng', function () {
+        return \Inertia\Inertia::render('Help/PortalAttendance');
+    })->name('portal.attendance');
+
+    Route::get('/tai-chinh-bao-cao', function () {
+        return \Inertia\Inertia::render('Help/PortalFinance');
+    })->name('portal.finance');
+});

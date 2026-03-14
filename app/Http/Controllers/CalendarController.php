@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Meeting;
-use App\Models\DutyRoster;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +13,10 @@ class CalendarController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Calendar/Index');
+        $departments = Department::select('id', 'name')->get();
+        return Inertia::render('Calendar/Index', [
+            'departments' => $departments
+        ]);
     }
 
     public function fetchEvents(Request $request)
@@ -25,18 +28,25 @@ class CalendarController extends Controller
         $eventsResponse = [];
 
         // 1. Fetch Global Church Events
-        $query = Event::query();
+        $query = Event::with('department');
         if ($start) $query->where('start_time', '>=', $start);
         if ($end) $query->where('start_time', '<=', $end);
 
-        if ($user->hasRole(['Super_Admin', 'Pastor'])) {
+        if ($user && $user->hasRole(['Super_Admin', 'Pastor'])) {
             // See all
-        } elseif ($user->hasRole(['Head_Of_Deacons', 'Deacon'])) {
-            $query->whereIn('visibility', ['public', 'internal', 'leadership']);
+        } elseif ($user && $user->hasRole(['Head_Of_Deacons', 'Deacon'])) {
+            $query->whereIn('scope_type', ['global', 'internal', 'leadership', 'department']);
         } elseif (Auth::check()) {
-            $query->whereIn('visibility', ['public', 'internal']);
+            $userDepartments = $user->member ? $user->member->departments->pluck('id')->toArray() : [];
+            $query->where(function ($q) use ($userDepartments) {
+                $q->whereIn('scope_type', ['global', 'internal'])
+                  ->orWhere(function ($subQ) use ($userDepartments) {
+                      $subQ->where('scope_type', 'department')
+                           ->whereIn('scope_id', $userDepartments);
+                  });
+            });
         } else {
-            $query->where('visibility', 'public');
+            $query->where('scope_type', 'global');
         }
 
         $events = $query->get();
@@ -54,7 +64,9 @@ class CalendarController extends Controller
                     'description' => $event->description,
                     'location' => $event->location,
                     'db_id' => $event->id,
-                    'visibility' => $event->visibility,
+                    'scope_type' => $event->scope_type,
+                    'scope_id' => $event->scope_id,
+                    'department_name' => $event->department ? $event->department->name : null,
                 ]
             ];
         }
@@ -94,30 +106,43 @@ class CalendarController extends Controller
             }
         }
 
-        // 3. Fetch Duty Rosters (Phân công trực)
+        // 3. Fetch Duty Assignments (Phân công trực)
         if (Auth::check()) {
-            $dutyQuery = DutyRoster::with(['meeting.department', 'user', 'role']);
+            $dutyQuery = \App\Models\DutyAssignment::with(['meeting.department', 'member', 'role']);
             // Only fetch duties assigned to $user or if user is admin
             if (!$user->hasRole(['Super_Admin', 'Pastor', 'Head_Of_Deacons', 'Deacon'])) {
-                $dutyQuery->where('user_id', $user->id);
+                $memberId = $user->member ? $user->member->id : -1;
+                $dutyQuery->where('member_id', $memberId);
+            }
+            
+            // Limit by date
+            if ($start) {
+                $dutyQuery->whereHas('meeting', function($q) use ($start) {
+                    $q->where('date', '>=', date('Y-m-d', strtotime($start)));
+                });
+            }
+            if ($end) {
+                $dutyQuery->whereHas('meeting', function($q) use ($end) {
+                    $q->where('date', '<=', date('Y-m-d', strtotime($end)));
+                });
             }
             
             $duties = $dutyQuery->get();
             
             foreach ($duties as $duty) {
                 if (!$duty->meeting) continue;
-                $startDateTime = $duty->meeting->date . 'T' . ($duty->meeting->start_time ?? '00:00:00');
+                $startDateTime = $duty->meeting->date . 'T' . ($duty->meeting->time ?? '00:00:00');
                 
                 $eventsResponse[] = [
                     'id' => 'duty_' . $duty->id,
                     'title' => 'Trực: ' . ($duty->role->name ?? 'Nhiệm vụ'),
                     'start' => $startDateTime,
                     'allDay' => false,
-                    'backgroundColor' => '#f59e0b', // Amber/Orange
-                    'borderColor' => '#d97706',
+                    'backgroundColor' => '#10b981', // emerald-500
+                    'borderColor' => '#059669', // emerald-600
                     'extendedProps' => [
                         'type' => 'duty',
-                        'description' => "Nhân sự: {$duty->user->name}\nBuổi: " . ($duty->meeting->name ?? 'N/A') . "\nBan: " . ($duty->meeting->department->name ?? 'N/A'),
+                        'description' => "Nhân sự phụ trách: " . ($duty->member->full_name ?? 'N/A') . "\nBuổi: " . ($duty->meeting->topic ?? 'N/A') . "\nPhạm vi: " . ($duty->meeting->department->name ?? 'Chung HT'),
                         'db_id' => $duty->id,
                     ]
                 ];
@@ -134,7 +159,8 @@ class CalendarController extends Controller
             'end_time' => 'nullable|date|after_or_equal:start_time',
             'color' => 'nullable|string',
             'type' => 'required|string',
-            'visibility' => 'required|string',
+            'scope_type' => 'required|string|in:global,internal,leadership,department',
+            'scope_id' => 'required_if:scope_type,department|nullable|exists:departments,id',
         ]);
 
         Event::create([
@@ -144,9 +170,10 @@ class CalendarController extends Controller
             'end_time' => $request->end_time,
             'is_all_day' => $request->is_all_day ?? false,
             'type' => $request->type,
-            'color' => $request->color ?? '#3788d8',
+            'color' => $request->color ?? '#8b5cf6',
             'location' => $request->location,
-            'visibility' => $request->visibility,
+            'scope_type' => $request->scope_type,
+            'scope_id' => $request->scope_type === 'department' ? $request->scope_id : null,
             'created_by' => Auth::id(),
         ]);
 
@@ -161,9 +188,17 @@ class CalendarController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'start_time' => 'required|date',
+            'end_time' => 'nullable|date|after_or_equal:start_time',
+            'scope_type' => 'required|string|in:global,internal,leadership,department',
+            'scope_id' => 'required_if:scope_type,department|nullable|exists:departments,id',
         ]);
 
-        $event->update($request->all());
+        $data = $request->all();
+        if ($data['scope_type'] !== 'department') {
+            $data['scope_id'] = null;
+        }
+
+        $event->update($data);
 
         return redirect()->back()->with('success', 'Đã cập nhật Sự kiện.');
     }

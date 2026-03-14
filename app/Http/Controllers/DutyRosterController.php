@@ -84,7 +84,7 @@ class DutyRosterController extends Controller
             ->with(['dutyAssignments.role.department', 'dutyAssignments.member'])
             ->orderBy('date')->orderBy('time');
 
-        if ($isPortalRoute || $isMinistryRoute) {
+        if ($isPortalRoute) {
             // Portal context: only show THIS department's meetings (not church meetings)
             if ($thisDeptId) {
                 $meetingsQuery->where('department_id', $thisDeptId)

@@ -230,41 +230,6 @@ const globalCount = computed(() => (props.systemConfig || []).filter(c => c.scop
         </div>
     </transition>
 
-    <!-- ── Hero Banner ───────────────────────────────── -->
-    <div class="rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 p-6 sm:p-7 text-white relative overflow-hidden shadow-xl">
-        <!-- Background decoration -->
-        <div class="absolute inset-0 opacity-10 pointer-events-none select-none overflow-hidden">
-            <svg class="absolute -right-8 -top-8 w-64 h-64 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" opacity="0.2"/>
-            </svg>
-            <svg class="absolute bottom-0 left-12 w-40 h-40 text-indigo-300" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" opacity="0.3"/>
-            </svg>
-        </div>
-        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-200 mb-1.5">HỆ THỐNG × CẤU HÌNH PHÂN QUYỀN</p>
-                <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Quản Lý Tính Năng</h1>
-                <p class="mt-1.5 text-sm text-indigo-200 max-w-lg">Phân quyền tính năng linh hoạt theo ma trận: Global → Theo Block → Ban ngành cụ thể.</p>
-            </div>
-            <!-- KPI mini -->
-            <div class="flex gap-3 flex-shrink-0">
-                <div class="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 text-center border border-white/10 min-w-[72px]">
-                    <p class="text-2xl font-black">{{ features.length }}</p>
-                    <p class="text-[10px] text-indigo-200 font-bold uppercase mt-0.5">Module</p>
-                </div>
-                <div class="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 text-center border border-white/10 min-w-[72px]">
-                    <p class="text-2xl font-black">{{ configuredCount }}</p>
-                    <p class="text-[10px] text-indigo-200 font-bold uppercase mt-0.5">Đã Cấu Hình</p>
-                </div>
-                <div class="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 text-center border border-white/10 min-w-[72px]">
-                    <p class="text-2xl font-black">{{ departments.length }}</p>
-                    <p class="text-[10px] text-indigo-200 font-bold uppercase mt-0.5">Ban Ngành</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- ── View Switcher ──────────────────────────────── -->
     <div class="flex items-center justify-between">
         <!-- Pill Tabs -->
@@ -661,8 +626,10 @@ const globalCount = computed(() => (props.systemConfig || []).filter(c => c.scop
                         <!-- Feature name -->
                         <td class="p-3 sticky left-0 bg-white group-hover:bg-indigo-50/20 z-10 shadow-[2px_0_8px_rgba(0,0,0,0.04)] border-r border-gray-100 transition-colors">
                             <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center text-base flex-shrink-0">
-                                    <span v-html="f.icon || '📦'"></span>
+                                <div :class="['w-8 h-8 rounded-xl flex items-center justify-center text-base flex-shrink-0 transition-colors', getFeatureIcon(f.slug).color]">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" :d="getFeatureIcon(f.slug).path"/>
+                                    </svg>
                                 </div>
                                 <div class="min-w-0">
                                     <p class="font-bold text-xs text-gray-800 leading-tight">{{ f.name }}</p>
