@@ -1,17 +1,13 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
-    <div class="sm:mx-auto sm:w-full sm:max-w-3xl">
-      <div class="flex items-center justify-center gap-3 mb-6">
-        <div class="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg">✝</div>
-        <h2 class="text-center text-3xl font-black text-gray-900 tracking-tight">Hệ Thống CMS Hội Thánh</h2>
-      </div>
-      <h2 class="text-center text-xl font-bold text-gray-500">Hướng Dẫn Khởi Tạo Dữ Liệu Ban Đầu</h2>
-    </div>
+  <DocsLayout>
+    <div>
+      <h1 class="text-2xl font-black text-gray-900 mb-6">Khởi tạo Dữ liệu ban đầu</h1>
+      <p class="text-sm text-gray-600 mb-8 max-w-2xl">
+        Hệ thống được thiết kế với tính năng tự động khởi tạo dữ liệu mẫu 
+        (Seed Data) giúp bạn nhanh chóng thiết lập hệ thống từ rỗng sang đầy đủ cấu trúc ban ngành, quyền hạn và danh sách tài khoản cơ bản.
+      </p>
 
-    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-3xl">
-      <div class="bg-white py-8 px-4 shadow-xl shadow-gray-200/50 sm:rounded-3xl sm:px-10 border border-gray-100">
-        
-        <div class="space-y-8">
+      <div class="space-y-10">
           <!-- Step 1 -->
           <div>
             <h3 class="text-lg font-black text-gray-900 flex items-center gap-2 border-b border-gray-100 pb-2">
@@ -112,15 +108,14 @@
               Đến Trang Đăng Nhập
             </a>
           </div>
-        </div>
-
       </div>
     </div>
-  </div>
+  </DocsLayout>
 </template>
 
 <script setup>
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
+import DocsLayout from '@/Layouts/DocsLayout.vue';
 
 const copyCommand = () => {
     navigator.clipboard.writeText('php artisan migrate:fresh --seed');

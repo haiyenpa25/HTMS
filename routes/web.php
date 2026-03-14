@@ -18,8 +18,7 @@ Route::middleware('guest')->group(function () {
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
     Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 });
-// Hướng dẫn cài đặt và Dữ liệu mẫu ban đầu
-Route::get('huong-dan/cai-dat', [\App\Http\Controllers\DocsController::class, 'setup'])->name('docs.setup');
+// Hướng dẫn cài đặt và Dữ liệu mẫu ban đầu (Moved to 'help.' group)
 
 Route::middleware('auth')->group(function () {
     Route::get('/', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
@@ -450,32 +449,34 @@ Route::group(['prefix' => 'huong-dan', 'as' => 'help.'], function () {
         return redirect()->route('help.install');
     });
     
-    Route::get('/cai-dat', function () {
-        return \Inertia\Inertia::render('Help/Installation');
-    })->name('install');
+    Route::get('/cai-dat', [\App\Http\Controllers\DocsController::class, 'setup'])->name('install');
+    Route::get('/tong-quan', [\App\Http\Controllers\DocsController::class, 'overview'])->name('overview');
+    Route::get('/lich-phan-cong', [\App\Http\Controllers\DocsController::class, 'dutyRoster'])->name('duty_rooster');
+    Route::group(['prefix' => 'ban-nganh', 'as' => 'departments.'], function () {
+        Route::get('/', function () { return redirect()->route('help.departments.members'); })->name('index');
+        Route::get('/thanh-vien', [\App\Http\Controllers\DocsController::class, 'deptMembers'])->name('members');
+        Route::get('/diem-danh', [\App\Http\Controllers\DocsController::class, 'deptAttendance'])->name('attendance');
+        Route::get('/tham-vieng', [\App\Http\Controllers\DocsController::class, 'deptVisitation'])->name('visitation');
+        Route::get('/phan-cong', [\App\Http\Controllers\DocsController::class, 'deptAssignments'])->name('assignments');
+        Route::get('/tai-chinh', [\App\Http\Controllers\DocsController::class, 'deptFinance'])->name('finance');
+        Route::get('/bao-cao', [\App\Http\Controllers\DocsController::class, 'deptReports'])->name('reports');
+    });
 
-    Route::get('/thong-bao', function () {
-        return \Inertia\Inertia::render('Help/Notifications');
-    })->name('notifications');
+    Route::get('/su-kien', [\App\Http\Controllers\DocsController::class, 'meetings'])->name('meetings');
+    Route::get('/nhan-su', [\App\Http\Controllers\DocsController::class, 'members'])->name('members');
+    Route::get('/tai-chinh', [\App\Http\Controllers\DocsController::class, 'finance'])->name('finance');
 
-    Route::get('/ban-tin', function () {
-        return \Inertia\Inertia::render('Help/Announcements');
-    })->name('announcements');
+    Route::get('/quan-tri-he-thong', [\App\Http\Controllers\DocsController::class, 'sysadmin'])->name('sysadmin');
+    Route::get('/lanh-dao', [\App\Http\Controllers\DocsController::class, 'leadership'])->name('leadership');
+    Route::get('/giao-duc', [\App\Http\Controllers\DocsController::class, 'education'])->name('education');
+    Route::get('/cong-truc-tuyen', [\App\Http\Controllers\DocsController::class, 'portals'])->name('portals');
 
-    Route::get('/tin-tu-dong', function () {
-        return \Inertia\Inertia::render('Help/Broadcasts');
-    })->name('broadcasts');
-
-    // Cổng Ban Ngành
-    Route::get('/thanh-vien-phan-cong', function () {
-        return \Inertia\Inertia::render('Help/PortalMembersDuty');
-    })->name('portal.members');
-
-    Route::get('/diem-danh-tham-vieng', function () {
-        return \Inertia\Inertia::render('Help/PortalAttendance');
-    })->name('portal.attendance');
-
-    Route::get('/tai-chinh-bao-cao', function () {
-        return \Inertia\Inertia::render('Help/PortalFinance');
-    })->name('portal.finance');
+    // Keep leftover routes as redirects to Docs logic or keep them if needed,
+    // but we will mainly use the new Docs pages.
+    Route::get('/thong-bao', function () { return redirect()->route('help.install'); })->name('notifications');
+    Route::get('/ban-tin', function () { return redirect()->route('help.install'); })->name('announcements');
+    Route::get('/tin-tu-dong', function () { return redirect()->route('help.install'); })->name('broadcasts');
+    Route::get('/thanh-vien-phan-cong', function () { return redirect()->route('help.install'); })->name('portal.members');
+    Route::get('/diem-danh-tham-vieng', function () { return redirect()->route('help.install'); })->name('portal.attendance');
+    Route::get('/tai-chinh-bao-cao', function () { return redirect()->route('help.install'); })->name('portal.finance');
 });
