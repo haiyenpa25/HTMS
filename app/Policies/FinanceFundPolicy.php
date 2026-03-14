@@ -13,7 +13,7 @@ class FinanceFundPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('view_finance');
+        return $user->isSuperAdmin();
     }
 
     /**
@@ -21,7 +21,7 @@ class FinanceFundPolicy
      */
     public function view(User $user, ?FinanceFund $financeFund = null): bool
     {
-        if (!$user->hasPermissionTo('view_finance')) {
+        if (!$user->isSuperAdmin()) {
             return false;
         }
 
@@ -29,7 +29,7 @@ class FinanceFundPolicy
             return true;
         }
 
-        if ($user->hasRole(['Super_Admin', 'Pastor'])) {
+        if ($user->isSuperAdmin()) {
             return true;
         }
 
@@ -45,7 +45,7 @@ class FinanceFundPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('create_finance') || $user->hasPermissionTo('manage_finance');
+        return $user->isSuperAdmin() || $user->isSuperAdmin();
     }
 
     /**
@@ -53,7 +53,7 @@ class FinanceFundPolicy
      */
     public function update(User $user, ?FinanceFund $financeFund = null): bool
     {
-        if (!$user->hasPermissionTo('manage_finance') && (!$user->hasPermissionTo('create_finance'))) {
+        if (!$user->isSuperAdmin() && (!$user->isSuperAdmin())) {
             return false;
         }
 
@@ -61,7 +61,7 @@ class FinanceFundPolicy
             return true;
         }
 
-        if ($user->hasRole(['Super_Admin', 'Pastor'])) {
+        if ($user->isSuperAdmin()) {
             return true;
         }
 
@@ -77,7 +77,7 @@ class FinanceFundPolicy
      */
     public function delete(User $user, ?FinanceFund $financeFund = null): bool
     {
-        return $user->hasPermissionTo('manage_finance');
+        return $user->isSuperAdmin();
     }
 
     /**

@@ -33,7 +33,7 @@ class DeptFinanceController extends Controller
     private function authorizeForDept(Department $department, Request $request): void
     {
         $user = $request->user();
-        if ($user->hasRole(['Super_Admin', 'Pastor', 'BTS_Admin'])) {
+        if ($user->isSuperAdmin()) {
             return; // Full access
         }
 
@@ -132,8 +132,8 @@ class DeptFinanceController extends Controller
         return Inertia::render('Portal/Finance/Index', [
             'department'           => $department,
             'availableDepartments' => $availableDepts,
-            'isGlobalAdmin'        => $request->user()->hasRole(['Super_Admin', 'Pastor']),
-            'canManage'            => $request->user()->hasPermissionTo('manage_dept_finance'),
+            'isGlobalAdmin'        => $request->user()->isSuperAdmin(),
+            'canManage'            => $request->user()->isSuperAdmin(),
             'meetings'             => $meetings,
             'funds'                => $funds,
             'filters'              => ['month' => $month, 'year' => $year],

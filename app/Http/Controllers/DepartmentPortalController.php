@@ -109,32 +109,35 @@ class DepartmentPortalController extends Controller
         $dept   = Department::findOrFail($deptId);
 
         if (!$user->isSuperAdmin()) {
-            if ($dept->block !== 'activities') {
-                abort(403, 'Ban ngành này không thuộc Cổng Sinh Hoạt.');
-            }
+            // Check if user has membership OR feature access in this target department
+            $isMember = \App\Models\Member::where('user_id', $user->id)
+                ->whereHas('departments', fn($q) => $q->where('departments.id', $deptId))
+                ->exists();
 
-            $service = app(FeatureAssignmentService::class);
-            $level1Map = $service->getAvailableFeaturesForDepartment($dept);
-            
-            $userFeatures = UserDepartmentFeature::where('user_id', $user->id)
-                ->where('department_id', $deptId)
-                ->where('is_enabled', true)
-                ->with('feature')
-                ->get();
+            $hasFeatures = false;
+            if (!$isMember) {
+                $service = app(FeatureAssignmentService::class);
+                $level1Map = $service->getAvailableFeaturesForDepartment($dept);
                 
-            $hasValidFeature = false;
-            foreach ($userFeatures as $uf) {
-                if (!$uf->feature) continue;
-                $slug = $uf->feature->slug;
-                // Default allow if no Level 1 config exists for this feature
-                if ($level1Map[$slug] ?? true) {
-                    $hasValidFeature = true;
-                    break;
+                $userFeatures = UserDepartmentFeature::where('user_id', $user->id)
+                    ->where('department_id', $deptId)
+                    ->where('is_enabled', true)
+                    ->with('feature')
+                    ->get();
+                    
+                foreach ($userFeatures as $uf) {
+                    if (!$uf->feature) continue;
+                    $slug = $uf->feature->slug;
+                    // Default allow if no Level 1 config exists
+                    if ($level1Map[$slug] ?? true) {
+                        $hasFeatures = true;
+                        break;
+                    }
                 }
             }
             
-            if (!$hasValidFeature) {
-                abort(403, 'Ban ngành này hiện không có tính năng nào được phép truy cập cho bạn.');
+            if (!$isMember && !$hasFeatures) {
+                abort(403, 'Bạn không có quyền truy cập ban ngành này.');
             }
         }
 

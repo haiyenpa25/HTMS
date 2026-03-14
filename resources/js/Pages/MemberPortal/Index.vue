@@ -122,7 +122,7 @@
 
           <!-- Week View Strip -->
           <div v-show="calView === 'week'" class="px-4 py-3 border-b border-gray-50">
-            <div class="flex items-stretch gap-1.5 overflow-x-auto pb-1">
+            <div class="flex items-stretch justify-center gap-1.5 overflow-x-auto pb-1">
               <button v-for="day in weekDays" :key="day.date"
                 @click="selectedDay = day.date"
                 :class="[

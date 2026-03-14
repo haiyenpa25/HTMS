@@ -23,7 +23,7 @@ class DashboardController extends Controller
         $user = $request->user();
 
         // Only accessible by Pastor / Super Admin
-        if (!$user->hasRole(['Pastor', 'Super_Admin'])) {
+        if (!$user->isSuperAdmin()) {
             return redirect()->route('portal.index');
         }
 

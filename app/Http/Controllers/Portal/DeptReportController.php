@@ -222,9 +222,9 @@ class DeptReportController extends Controller
         return Inertia::render('Portal/Reports/Index', [
             'department'           => $department,
             'availableDepartments' => $this->getAvailableDepartments($request->user()),
-            'isGlobalAdmin'        => $request->user()->hasRole(['Super_Admin', 'Pastor']),
-            'canCreate'            => $request->user()->hasPermissionTo('create_reports'),
-            'canApprove'           => $request->user()->hasPermissionTo('approve_reports'),
+            'isGlobalAdmin'        => $request->user()->isSuperAdmin(),
+            'canCreate'            => $request->user()->isSuperAdmin(),
+            'canApprove'           => $request->user()->isSuperAdmin(),
             'filters'              => ['month' => $month, 'year' => $year],
 
             // Meeting tables

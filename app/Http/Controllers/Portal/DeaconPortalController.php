@@ -34,7 +34,7 @@ class DeaconPortalController extends Controller
                 ['id' => 'secretary', 'name' => 'Thư Ký Hội Thánh'],
                 ['id' => 'treasurer', 'name' => 'Thủ Quỹ Hội Thánh'],
             ],
-            'isGlobalAdmin' => $request->user()->hasRole(['Pastor', 'Super_Admin']),
+            'isGlobalAdmin' => $request->user()->isSuperAdmin(),
         ];
     }
 
@@ -536,7 +536,7 @@ class DeaconPortalController extends Controller
         $action = $request->input('action'); 
         $user = $request->user();
         $role = session('deacon_role', 'secretary');
-        $isLeader = in_array($role, ['head', 'pastor']) || $user->hasRole('super_admin');
+        $isLeader = in_array($role, ['head', 'pastor']) || $user->isSuperAdmin();
 
         switch ($action) {
             case 'submit':

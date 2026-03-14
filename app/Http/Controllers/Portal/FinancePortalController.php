@@ -20,7 +20,7 @@ class FinancePortalController extends Controller
         Gate::authorize('viewAny', FinanceTransaction::class);
 
         $user = $request->user();
-        $isGlobalAdmin = $user->hasRole(['Super_Admin', 'Pastor']);
+        $isGlobalAdmin = $user->isSuperAdmin();
 
         // Get list of departments user can access
         $availableDepartments = collect();
@@ -140,7 +140,7 @@ class FinancePortalController extends Controller
         $user   = $request->user();
         $deptId = $request->department_id;
 
-        if (!$user->hasRole(['Super_Admin', 'Pastor'])) {
+        if (!$user->isSuperAdmin()) {
             $hasAccess = $user->memberships()
                 ->where('model_type', Department::class)
                 ->where('model_id', $deptId)

@@ -50,17 +50,7 @@ class FeatureSeeder extends Seeder
         $deleted = UserDepartmentFeature::truncate();
         $this->command->info('🗑  user_department_features table cleared.');
 
-        // 3. Grant superadmin FULL ACCESS
-        $domain = env('SYSTEM_DOMAIN', 'httlthanhmyloi.com');
-        $superAdmin = User::where('email', "superadmin@$domain")->first();
-        if (!$superAdmin) {
-            $this->command->warn("⚠  Superadmin user (superadmin@$domain) not found! Skipping full access grant.");
-            return;
-        }
-
-        $service = app(PortalService::class);
-        $count   = $service->grantSuperadminFullAccess($superAdmin);
-        $this->command->info("🔑 Granted {$count} feature-department permissions to superadmin.");
+        // 3. (Removed) Superadmin logic was here, now handled by User::isSuperAdmin() directly
         $this->command->info('✅ FeatureSeeder completed.');
     }
 }

@@ -21,7 +21,7 @@ class MeetingPolicy
      */
     public function view(User $user, $arg1, $arg2 = null): bool
     {
-        if ($user->hasRole(['BTS_Admin', 'Pastor', 'Super_Admin'])) {
+        if ($user->isSuperAdmin()) {
             return true;
         }
 
@@ -53,7 +53,7 @@ class MeetingPolicy
 
     public function create(User $user): bool
     {
-        if ($user->hasRole(['BTS_Admin', 'Pastor', 'Super_Admin'])) return true;
+        if ($user->isSuperAdmin()) return true;
         return UserDepartmentFeature::where('user_id', $user->id)
             ->where('is_enabled', true)
             ->exists();
@@ -81,6 +81,6 @@ class MeetingPolicy
 
     public function approveFinances(User $user, $arg1, $arg2 = null): bool
     {
-        return $user->hasRole(['BTS_Admin', 'Pastor', 'Super_Admin']);
+        return $user->isSuperAdmin();
     }
 }

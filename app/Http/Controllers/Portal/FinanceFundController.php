@@ -14,7 +14,7 @@ class FinanceFundController extends Controller
         Gate::authorize('viewAny', FinanceFund::class);
 
         $user = $request->user();
-        $isGlobalAdmin = $user->hasRole(['Super_Admin', 'Pastor']);
+        $isGlobalAdmin = $user->isSuperAdmin();
         $activeDeptId  = session('active_finance_dept_id');
 
         $fundsQuery = FinanceFund::query();
@@ -46,7 +46,7 @@ class FinanceFundController extends Controller
         ]);
 
         $activeDeptId = session('active_finance_dept_id');
-        $isGlobalAdmin = $request->user()->hasRole(['Super_Admin', 'Pastor']);
+        $isGlobalAdmin = $request->user()->isSuperAdmin();
 
         // Default to department fund if not a global admin, otherwise create church fund or assign to dept
         $ownerType = 'department';

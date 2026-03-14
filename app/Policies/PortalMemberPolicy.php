@@ -15,7 +15,7 @@ class PortalMemberPolicy
      */
     public function portal_view_all_members(User $user, $arg1 = null, $arg2 = null): bool
     {
-        if ($user->hasRole(['Super_Admin', 'BTS_Admin', 'Super_Admin', 'Pastor'])) {
+        if ($user->isSuperAdmin()) {
             return true;
         }
 
@@ -26,31 +26,31 @@ class PortalMemberPolicy
             return true;
         }
 
-        return $user->hasPermissionTo('portal_view_all_members');
+        return $user->isSuperAdmin();
     }
 
     public function portal_manage_board(User $user, $arg1 = null, $arg2 = null): bool
     {
-        if ($user->hasRole(['Super_Admin', 'BTS_Admin', 'Super_Admin', 'Pastor'])) return true;
+        if ($user->isSuperAdmin()) return true;
 
         $department = ($arg1 instanceof Department) ? $arg1 : $arg2;
         $deptId = $department?->id ?? session('active_portal_dept_id') ?? session('active_ministry_dept_id');
 
         if ($deptId && $this->hasMacAccess($user, (int)$deptId, 'members')) return true;
 
-        return $user->hasPermissionTo('portal_manage_board');
+        return $user->isSuperAdmin();
     }
 
     public function portal_export_members(User $user, $arg1 = null, $arg2 = null): bool
     {
-        if ($user->hasRole(['Super_Admin', 'BTS_Admin', 'Super_Admin', 'Pastor'])) return true;
+        if ($user->isSuperAdmin()) return true;
 
         $department = ($arg1 instanceof Department) ? $arg1 : $arg2;
         $deptId = $department?->id ?? session('active_portal_dept_id') ?? session('active_ministry_dept_id');
 
         if ($deptId && $this->hasMacAccess($user, (int)$deptId, 'members')) return true;
 
-        return $user->hasPermissionTo('portal_export_members');
+        return $user->isSuperAdmin();
     }
 
     private function hasMacAccess(User $user, int $deptId, string $slug): bool

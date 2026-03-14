@@ -20,7 +20,7 @@ class FinanceTransactionController extends Controller
         Gate::authorize('viewAny', FinanceTransaction::class);
 
         $user = $request->user();
-        $isGlobalAdmin = $user->hasRole(['Super_Admin', 'Pastor']);
+        $isGlobalAdmin = $user->isSuperAdmin();
         
         $activeDeptId = session('active_finance_dept_id');
         $department = Department::find($activeDeptId);
@@ -122,8 +122,8 @@ class FinanceTransactionController extends Controller
                 'periodExpense' => $periodExpense,
                 'currentBalance' => $currentBalance,
             ],
-            'canManage' => $user->hasPermissionTo('manage_finance'),
-            'canApprove' => $user->hasPermissionTo('approve_finance'),
+            'canManage' => $user->isSuperAdmin(),
+            'canApprove' => $user->isSuperAdmin(),
             'department' => $department,
             'isGlobalAdmin' => $isGlobalAdmin,
         ]);
@@ -154,7 +154,7 @@ class FinanceTransactionController extends Controller
         
         // Security: ensure user can transact in this fund
         $activeDeptId = session('active_finance_dept_id');
-        $isGlobalAdmin = $request->user()->hasRole(['Super_Admin', 'Pastor']);
+        $isGlobalAdmin = $request->user()->isSuperAdmin();
         
         if (!$isGlobalAdmin) {
             if ($fund->owner_type !== 'department' || $fund->owner_id != $activeDeptId) {
@@ -189,7 +189,7 @@ class FinanceTransactionController extends Controller
             ]);
             
             // Auto-approve for authorized users
-            if ($request->user()->hasPermissionTo('approve_finance')) {
+            if ($request->user()->isSuperAdmin()) {
                 $transaction->update(['status' => 'approved']);
             }
 

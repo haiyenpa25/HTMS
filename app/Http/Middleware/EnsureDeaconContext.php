@@ -16,18 +16,18 @@ class EnsureDeaconContext
             return redirect()->route('login');
         }
 
-        $isGlobalAdmin = $user->hasRole(['Super_Admin', 'Pastor', 'BTS_Admin'])
+        $isGlobalAdmin = $user->isSuperAdmin()
             || $user->email === 'superadmin@httlthanhmyloi.com';
 
         $hasDeaconPerm = false;
         try {
-            $hasDeaconPerm = $user->hasPermissionTo('view_deacon');
+            $hasDeaconPerm = $user->isSuperAdmin();
         } catch (\Spatie\Permission\Exceptions\PermissionDoesNotExist $e) {
             // Permission 'view_deacon' chưa được seed — bỏ qua, dùng role check
         }
 
         $allowed = $isGlobalAdmin
-            || $user->hasRole('Deacon')
+            || $user->isSuperAdmin()
             || $hasDeaconPerm;
 
         if (!$allowed) {

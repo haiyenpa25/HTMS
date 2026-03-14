@@ -32,33 +32,10 @@ class CheckPortalAccess
         $user = $request->user();
         if (!$user) return redirect()->route('login');
 
-        // ── God Mode bypass ──────────────────────────────────────────────
-        if ($user->isSuperAdmin()) {
-            $activeDeptId = $this->ensureSessionContext($user, $portalType);
-            $activeDept = $activeDeptId ? Department::find($activeDeptId) : null;
-            
-            $service = app(FeatureAssignmentService::class);
-            $departmentFeatures = $activeDept ? $service->getAvailableFeaturesForDepartment($activeDept) : [];
-            
-            // Fix: Admin should only see features that are enabled for this specific department
-            // Instead of returning ALL features blindly.
-            $allFeatures = \App\Models\Feature::pluck('slug');
-            $userPermissions = collect($allFeatures)->mapWithKeys(function($slug) use ($departmentFeatures) {
-                // If the department feature mapping explicitly denies this feature (or doesn't have it configed for this dept)
-                // then Admin should not see it in this portal/department context.
-                return [$slug => $departmentFeatures[$slug] ?? false];
-            })->toArray();
-            
-            \Inertia\Inertia::share('departmentFeatures', $departmentFeatures);
-            \Inertia\Inertia::share('userPermissions', $userPermissions);
-            \Inertia\Inertia::share('activeDepartment', $activeDept);
-            
-            return $next($request);
-        }
-
         $block      = self::BLOCK_MAP[$portalType] ?? 'activities';
         $sessionKey = self::SESSION_DEPT_KEY[$portalType] ?? 'active_portal_dept_id';
 
+        $isGlobalAdmin = $user->isSuperAdmin();
         $validDeptIds = [];
 
         // 1. Các ban mà user là thành viên
@@ -76,17 +53,27 @@ class CheckPortalAccess
             
         $validDeptIds = array_unique(array_merge($validDeptIds, $featureDeptIds));
 
-        if (empty($validDeptIds)) {
+        if (!$isGlobalAdmin && empty($validDeptIds)) {
             // No portal access: redirect to the Member Portal instead of login
             // to prevent the ERR_TOO_MANY_REDIRECTS loop for standard users.
             return redirect()->route('member.portal.index')->with('error', 'Bạn không có quyền truy cập tính năng nào trong cổng này.');
         }
 
-        // Auto-set session nếu chưa có hoặc session dept không thuộc valid list
         $activeDeptId = session($sessionKey);
-        if (!$activeDeptId || !in_array($activeDeptId, $validDeptIds)) {
-            $activeDeptId = $validDeptIds[0];
-            session([$sessionKey => $activeDeptId]);
+
+        if (!$activeDeptId || (!$isGlobalAdmin && !in_array($activeDeptId, $validDeptIds))) {
+            if ($isGlobalAdmin) {
+                $firstDept = Department::where('block', $block)->orderBy('name')->first();
+                if ($firstDept) {
+                    $activeDeptId = $firstDept->id;
+                    session([$sessionKey => $activeDeptId]);
+                }
+            } else {
+                if (!empty($validDeptIds)) {
+                     $activeDeptId = $validDeptIds[0];
+                     session([$sessionKey => $activeDeptId]);
+                }
+            }
         }
         $activeDept = Department::find($activeDeptId);
         

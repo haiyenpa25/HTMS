@@ -21,7 +21,7 @@ class ReportsController extends Controller
         Gate::authorize('access_portal', [Department::class, $department]);
 
         $availableDepartments = [];
-        if (auth()->user()->hasRole(['Pastor', 'Super_Admin'])) {
+        if (auth()->user()->isSuperAdmin()) {
             $availableDepartments = Department::where('block', 'activities')->get();
         } else {
             $memberId = auth()->user()->member_id;
@@ -38,7 +38,7 @@ class ReportsController extends Controller
         return Inertia::render('Portal/Reports/Index', [
             'department' => $department,
             'availableDepartments' => $availableDepartments,
-            'isGlobalAdmin' => auth()->user()->hasRole(['Pastor', 'Super_Admin']),
+            'isGlobalAdmin' => auth()->user()->isSuperAdmin(),
         ]);
     }
 }

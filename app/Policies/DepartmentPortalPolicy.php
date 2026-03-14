@@ -19,7 +19,7 @@ class DepartmentPortalPolicy
         $department = ($arg1 instanceof Department) ? $arg1 : $arg2;
 
         // 1. Global Admins bypass all checks
-        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) {
+        if ($user->isSuperAdmin()) {
             return true;
         }
 
@@ -49,7 +49,7 @@ class DepartmentPortalPolicy
      */
     public function manage_finance(User $user, $arg1 = null, $arg2 = null): bool
     {
-        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+        if ($user->isSuperAdmin()) return true;
 
         $department = ($arg1 instanceof Department) ? $arg1 : $arg2;
         if (!$department) return false;
@@ -71,7 +71,7 @@ class DepartmentPortalPolicy
      */
     public function view_reports(User $user, $arg1 = null, $arg2 = null): bool
     {
-        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+        if ($user->isSuperAdmin()) return true;
 
         $department = ($arg1 instanceof Department) ? $arg1 : $arg2;
         if (!$department) return false;

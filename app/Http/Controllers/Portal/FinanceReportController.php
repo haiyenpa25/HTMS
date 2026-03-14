@@ -19,7 +19,7 @@ class FinanceReportController extends Controller
         Gate::authorize('viewAny', \App\Models\FinanceTransaction::class);
 
         $user = $request->user();
-        $isGlobalAdmin = $user->hasRole(['Super_Admin', 'Pastor']);
+        $isGlobalAdmin = $user->isSuperAdmin();
 
         
         $activeDeptId = session('active_finance_dept_id');

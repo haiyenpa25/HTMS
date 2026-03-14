@@ -26,8 +26,8 @@ class EducationController extends Controller
      */
     private function isEducationAdmin(\App\Models\User $user, ?int $deptId = null): bool
     {
-        if ($user->hasRole(['Super_Admin', 'Pastor', 'BTS_Admin'])) return true;
-        if ($user->hasPermissionTo('manage_edu_classes')) return true;
+        if ($user->isSuperAdmin()) return true;
+        if ($user->isSuperAdmin()) return true;
 
         // MAC: has education-classes in the active department or ANY department (if no deptId)
         $q = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
@@ -92,7 +92,7 @@ class EducationController extends Controller
             'stats'              => $stats,
             'department'         => $department,
             'availableDepartments' => $this->getAvailableDepts($user),
-            'isGlobalAdmin'      => $user->hasRole(['Super_Admin', 'Pastor']),
+            'isGlobalAdmin'      => $user->isSuperAdmin(),
             'isAdmin'            => $isAdmin,
             'routePrefix'        => $this->getRoutePrefix(),
         ]);
@@ -191,7 +191,7 @@ class EducationController extends Controller
             'portalType'  => 'ministry',
             'routePrefix' => $this->getRoutePrefix(),
             'availableDepartments' => $this->getAvailableDepts($user),
-            'isGlobalAdmin' => $user->hasRole(['Super_Admin', 'Pastor']),
+            'isGlobalAdmin' => $user->isSuperAdmin(),
             'allMembers'  => $allMembers,
             'departments' => $departments,
         ]);
@@ -958,15 +958,15 @@ class EducationController extends Controller
         $eduReport = \App\Models\EduReport::where('report_month', (int)$m)
             ->where('report_year', (int)$y)->first();
 
-        $canManageReport = $user->hasRole(['Super_Admin', 'Pastor', 'Department_Lead', 'Team_Lead'])
-            || $user->hasPermissionTo('create_reports') || $user->can('markAttendance', new EduClass);
+        $canManageReport = $user->isSuperAdmin()
+            || $user->isSuperAdmin() || $user->can('markAttendance', new EduClass);
 
         return Inertia::render('Portal/Education/Report', [
             'department'          => $department,
             'availableDepartments' => $this->getAvailableDepts($user),
-            'isGlobalAdmin'       => $user->hasRole(['Super_Admin', 'Pastor']),
+            'isGlobalAdmin'       => $user->isSuperAdmin(),
             'canManageReport'     => $canManageReport,
-            'canApproveReport'    => $user->hasRole(['Super_Admin', 'Pastor']),
+            'canApproveReport'    => $user->isSuperAdmin(),
             'month'               => $month,
             'sundays'             => $sundays,
             'classData'           => $classData,
@@ -1009,7 +1009,7 @@ class EducationController extends Controller
     {
         Gate::authorize('viewAny', EduClass::class);
         $user = $request->user();
-        if (!$user->hasRole(['Super_Admin', 'Pastor'])) {
+        if (!$user->isSuperAdmin()) {
             abort(403, 'Chỉ Quản lý / Mục sư mới được duyệt báo cáo.');
         }
         $eduReport->update(['status' => 'approved']);

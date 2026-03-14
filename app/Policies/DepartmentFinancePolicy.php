@@ -14,7 +14,7 @@ class DepartmentFinancePolicy
 
     public function viewAny(User $user): bool
     {
-        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+        if ($user->isSuperAdmin()) return true;
         
         return UserDepartmentFeature::where('user_id', $user->id)
             ->where('is_enabled', true)
@@ -24,22 +24,22 @@ class DepartmentFinancePolicy
 
     public function view(User $user, $arg1 = null, $arg2 = null): bool
     {
-        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+        if ($user->isSuperAdmin()) return true;
 
         $deptId = session('active_portal_dept_id');
         if ($deptId && $this->hasMacAccess($user, $deptId, 'finance')) return true;
 
-        return $user->hasPermissionTo('view_dept_finance');
+        return $user->isSuperAdmin();
     }
 
     public function create(User $user): bool
     {
-        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+        if ($user->isSuperAdmin()) return true;
 
         $deptId = session('active_portal_dept_id');
         if ($deptId && $this->hasMacAccess($user, $deptId, 'finance')) return true;
 
-        return $user->hasPermissionTo('manage_dept_finance');
+        return $user->isSuperAdmin();
     }
 
     public function update(User $user, $arg1 = null, $arg2 = null): bool

@@ -32,13 +32,13 @@ class SystemSkeletonSeeder extends Seeder
         );
         $this->command->info('✅ Church info initialized.');
 
-        // 2. Organization Structure (Permissions, Roles, Departments)
-        $this->call(OrgStructureSeeder::class);
-        $this->command->info('✅ Org structure and permissions initialized.');
-
-        // 3. Register Product Features (Attendance, Finance, etc.)
+        // 2. Register Product Features (Attendance, Finance, etc.)
         $this->call(FeatureSeeder::class);
         $this->command->info('✅ Product features registered.');
+
+        // 3. Organization Structure (Permissions, Roles, Departments)
+        $this->call(OrgStructureSeeder::class);
+        $this->command->info('✅ Org structure and permissions initialized.');
 
         // 4. Configure Matrix Access Control (Tier 1: Block-level visibility)
         $this->seedFeatureAssignments();

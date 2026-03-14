@@ -36,7 +36,7 @@ trait HasDataScope
     public function canViewMember(Member $targetMember): bool
     {
         // 1. Quyền "church" thì thấy hết (Tất cả data Church)
-        if ($this->hasRole(['Pastor', 'BTS_Admin'])) {
+        if ($this->isSuperAdmin()) {
             return true;
         }
 
@@ -46,7 +46,7 @@ trait HasDataScope
         }
 
         // 3. Quyền "department" (Trưởng ban, Thư ký ban): Thấy các thành viên cùng phòng ban
-        if ($this->hasRole(['Department_Lead', 'Secretary'])) {
+        if ($this->isSuperAdmin()) {
             $userDeptIds = $this->getViewableDepartmentIds();
             $targetDeptIds = $targetMember->departments()->pluck('departments.id')->toArray();
             $targetTeamDeptIds = $targetMember->teams()->pluck('department_id')->toArray();
@@ -59,7 +59,7 @@ trait HasDataScope
         }
 
         // 4. Quyền "team" (Tổ trưởng): Thấy nhân sự trong tổ
-        if ($this->hasRole(['Team_Lead'])) {
+        if ($this->isSuperAdmin()) {
             $userTeamIds = $this->getViewableTeamIds();
             $targetTeamIds = $targetMember->teams()->pluck('teams.id')->toArray();
 

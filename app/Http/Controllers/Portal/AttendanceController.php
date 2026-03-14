@@ -57,7 +57,7 @@ class AttendanceController extends Controller
             'department'           => $department,
             'departments'          => Department::select('id', 'name')->get(),
             'availableDepartments' => $availableDepartments,
-            'isGlobalAdmin'        => auth()->user()->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin']),
+            'isGlobalAdmin'        => auth()->user()->isSuperAdmin(),
             'meetings'             => $meetings,
             'filters'              => [
                 'month'  => $month,
@@ -124,7 +124,7 @@ class AttendanceController extends Controller
             'department' => $department,
             'teams' => $teams,
             'availableDepartments' => $availableDepartments,
-            'isGlobalAdmin' => auth()->user()->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin']),
+            'isGlobalAdmin' => auth()->user()->isSuperAdmin(),
             'meeting' => $meeting,
             'summary' => $summary,
             'members' => $memberList,

@@ -26,7 +26,7 @@ class AssignmentsController extends Controller
         return Inertia::render('Portal/Assignments/Index', [
             'department' => $department,
             'availableDepartments' => $availableDepartments,
-            'isGlobalAdmin' => auth()->user()->hasRole(['Pastor', 'Super_Admin']),
+            'isGlobalAdmin' => auth()->user()->isSuperAdmin(),
         ]);
     }
 }

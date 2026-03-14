@@ -55,6 +55,35 @@ class PortalService
             ->pluck('feature');
     }
 
+    /**
+     * Get an array of allowed feature slugs for the user in a department.
+     */
+    public function getAllowedFeaturesForDept(User $user, int $deptId): array
+    {
+        if ($user->isSuperAdmin()) {
+            $department = Department::find($deptId);
+            if (!$department) return [];
+
+            // Level 1 Map defines what features are actually valid to show on UI for this dept
+            $service = app(\App\Services\FeatureAssignmentService::class);
+            $level1Map = $service->getAvailableFeaturesForDepartment($department);
+            
+            // Return only the slugs that are truly available for this department according to Level 1
+            $allSlugs = \App\Models\Feature::pluck('slug')->toArray();
+            return array_values(array_filter($allSlugs, function($slug) use ($level1Map) {
+                return $level1Map[$slug] ?? false; 
+            }));
+        }
+
+        return UserDepartmentFeature::where('user_id', $user->id)
+            ->where('department_id', $deptId)
+            ->where('is_enabled', true)
+            ->with('feature')
+            ->get()
+            ->pluck('feature.slug')
+            ->toArray();
+    }
+
     // ══════════════════════════════════════════════════════════════
     // ACCESS CHECK — Middleware dùng method này
     // ══════════════════════════════════════════════════════════════
@@ -168,7 +197,7 @@ class PortalService
      */
     public function getAvailableDepartments(User $user, string $block = 'activities'): Collection
     {
-        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) {
+        if ($user->isSuperAdmin()) {
             return Department::where('block', $block)->orderBy('name')->get();
         }
 
@@ -207,7 +236,7 @@ class PortalService
         foreach ($blocks as $block) {
             if ($block === 'leadership') {
                 // Ban Chấp Sự / Lãnh Đạo sử dụng logic Role chứ không phải bảng departments
-                if ($user->hasRole(['Super_Admin', 'Pastor', 'Deacon', 'BTS_Admin'])) {
+                if ($user->isSuperAdmin() || $user->isSuperAdmin()) {
                     $grouped[$block] = collect([
                         ['id' => 'secretary', 'name' => 'Thư Ký Hội Thánh', 'block' => 'leadership', 'code' => 'SEC'],
                         ['id' => 'treasurer', 'name' => 'Thủ Quỹ Hội Thánh', 'block' => 'leadership', 'code' => 'TRE']

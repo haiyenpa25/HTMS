@@ -32,7 +32,7 @@ class VisitationController extends Controller
         $query = Visitation::with(['member', 'visitors', 'department']);
 
         // Data Isolation
-        if (!$user->hasRole(['Pastor', 'Super_Admin', 'Visitation_Staff'])) {
+        if (!$user->isSuperAdmin()) {
             if ($departmentId) {
                 $query->where('department_id', $departmentId);
             } else {
@@ -95,7 +95,7 @@ class VisitationController extends Controller
             return $visitation;
         });
         
-        $canManage = Gate::allows('manage_visitations') || $user->hasPermissionTo('create_visitation_requests');
+        $canManage = Gate::allows('manage_visitations') || $user->isSuperAdmin();
 
         // Members for visitor selection (all members)
         $members = Member::orderBy('full_name')
@@ -130,7 +130,7 @@ class VisitationController extends Controller
             'reasons' => $reasons,
             'dbReasons' => $dbReasons,
             'department' => $departmentId ? Department::find($departmentId) : null,
-            'isGlobalAdmin' => $user->hasRole(['Pastor', 'Super_Admin', 'Visitation_Staff']),
+            'isGlobalAdmin' => $user->isSuperAdmin(),
             'routePrefix' => 'ministry.visitation',
             'portalType' => 'ministry',
             'activityDepartments' => $activityDepartments,
@@ -333,7 +333,7 @@ class VisitationController extends Controller
         $request->validate(['name' => 'required|string|max:255']);
         $deptId = session('active_ministry_dept_id') ?? session('active_portal_dept_id');
         
-        if (auth()->user()->hasRole(['Pastor', 'Super_Admin'])) {
+        if (auth()->user()->isSuperAdmin()) {
             $deptId = null;
         }
 
@@ -349,7 +349,7 @@ class VisitationController extends Controller
     {
         $deptId = session('active_ministry_dept_id') ?? session('active_portal_dept_id');
         
-        if ($reason->department_id === $deptId || auth()->user()->hasRole(['Pastor', 'Super_Admin'])) {
+        if ($reason->department_id === $deptId || auth()->user()->isSuperAdmin()) {
             $reason->delete();
             return back()->with('success', 'Đã xoá lý do thăm viếng.');
         }

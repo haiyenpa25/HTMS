@@ -40,7 +40,7 @@ class CheckFeatureAccess
         if (!$user) return redirect()->route('login');
 
         // Super Admin bypass
-        if ($user->email === self::SUPER_ADMIN_EMAIL || $user->hasRole('Super_Admin')) {
+        if ($user->email === self::SUPER_ADMIN_EMAIL || $user->isSuperAdmin()) {
             return $next($request);
         }
 

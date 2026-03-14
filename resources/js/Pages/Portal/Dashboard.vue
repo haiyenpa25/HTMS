@@ -2,29 +2,20 @@
 import { ref, computed } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
+import { usePermissions } from '@/Composables/usePermissions';
 
 const page = usePage();
-const deptFeatures = computed(() => page.props.departmentFeatures || {});
+const { can, isSuperAdmin } = usePermissions();
 
 const props = defineProps({
     activeDepartment: Object,
     availableDepartments: Array,
     isGlobalAdmin: Boolean,
-    userPermissions: Object,
     nextMeeting: Object,
     recentAttendance: Object,
 });
 
 // Redundant switcher state removed (handled in PortalLayout)
-
-
-// Kiểm tra quyền tính năng (SuperAdmin luôn có quyền)
-const can = (key) => {
-    if (props.isGlobalAdmin) return true;
-    const pageProps = page.props;
-    if (key === 'members' && pageProps.userPermissions?.['thanh-vien'] === true) return true;
-    return pageProps.userPermissions?.[key] === true;
-};
 
 // Danh sách tất cả Feature Cards có thể có trong hệ thống Dashboard
 // Ma trận Level 1 (deptFeatures) sẽ quyết định card nào hiện ra.
@@ -88,16 +79,9 @@ const allFeatureCards = [
     },
 ];
 
-// Lọc các cards hiển thị dựa trên ma trận phân quyền của Ban
+// Lọc các cards hiển thị
 const visibleFeatureCards = computed(() => {
-    const features = deptFeatures.value;
-    if (!features) return [];
-    return allFeatureCards.filter(card => {
-        if (features[card.key] === true) return true;
-        // Alias cho 'members'
-        if (card.key === 'members' && features['thanh-vien'] === true) return true;
-        return false;
-    });
+    return allFeatureCards.filter(card => can(card.key));
 });
 
 // Color map

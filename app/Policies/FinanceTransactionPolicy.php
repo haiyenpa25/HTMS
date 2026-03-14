@@ -13,7 +13,7 @@ class FinanceTransactionPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('view_finance');
+        return $user->isSuperAdmin();
     }
 
     /**
@@ -21,7 +21,7 @@ class FinanceTransactionPolicy
      */
     public function view(User $user, ?FinanceTransaction $financeTransaction = null): bool
     {
-        if (!$user->hasPermissionTo('view_finance')) {
+        if (!$user->isSuperAdmin()) {
             return false;
         }
 
@@ -29,7 +29,7 @@ class FinanceTransactionPolicy
             return true;
         }
 
-        if ($user->hasRole(['Super_Admin', 'Pastor'])) {
+        if ($user->isSuperAdmin()) {
             return true;
         }
 
@@ -47,7 +47,7 @@ class FinanceTransactionPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('create_finance');
+        return $user->isSuperAdmin();
     }
 
     /**
@@ -55,7 +55,7 @@ class FinanceTransactionPolicy
      */
     public function update(User $user, ?FinanceTransaction $financeTransaction = null): bool
     {
-        if (!$user->hasPermissionTo('create_finance') && !$user->hasPermissionTo('manage_finance')) {
+        if (!$user->isSuperAdmin() && !$user->isSuperAdmin()) {
             return false;
         }
 
@@ -64,11 +64,11 @@ class FinanceTransactionPolicy
         }
         
         // Cannot edit approved transactions unless you are an admin
-        if ($financeTransaction->status === 'approved' && !$user->hasPermissionTo('approve_finance')) {
+        if ($financeTransaction->status === 'approved' && !$user->isSuperAdmin()) {
             return false;
         }
 
-        if ($user->hasRole(['Super_Admin', 'Pastor'])) {
+        if ($user->isSuperAdmin()) {
             return true;
         }
 
@@ -91,7 +91,7 @@ class FinanceTransactionPolicy
     
     public function approve(User $user, ?FinanceTransaction $financeTransaction = null): bool
     {
-        if (!$user->hasPermissionTo('approve_finance')) {
+        if (!$user->isSuperAdmin()) {
             return false;
         }
 
@@ -99,7 +99,7 @@ class FinanceTransactionPolicy
             return true;
         }
 
-        if ($user->hasRole(['Super_Admin', 'Pastor'])) {
+        if ($user->isSuperAdmin()) {
             return true;
         }
 

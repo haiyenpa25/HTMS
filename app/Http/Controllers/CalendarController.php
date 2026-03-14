@@ -32,9 +32,9 @@ class CalendarController extends Controller
         if ($start) $query->where('start_time', '>=', $start);
         if ($end) $query->where('start_time', '<=', $end);
 
-        if ($user && $user->hasRole(['Super_Admin', 'Pastor'])) {
+        if ($user && $user->isSuperAdmin()) {
             // See all
-        } elseif ($user && $user->hasRole(['Head_Of_Deacons', 'Deacon'])) {
+        } elseif ($user && $user->isSuperAdmin()) {
             $query->whereIn('scope_type', ['global', 'internal', 'leadership', 'department']);
         } elseif (Auth::check()) {
             $userDepartments = $user->member ? $user->member->departments->pluck('id')->toArray() : [];
@@ -78,7 +78,7 @@ class CalendarController extends Controller
             if ($end) $meetingQuery->where('date', '<=', substr($end, 0, 10));
             
             // Lọc meeting theo quyền hạn
-            if (!$user->hasRole(['Super_Admin', 'Pastor'])) {
+            if (!$user->isSuperAdmin()) {
                 // Tạm thời đơn giản: get all branch meetings if logged in (or filter by specific role if needed)
                 // Implement advanced MAC here if required. Right now let everyone see the church's global branch schedule
             }
@@ -110,7 +110,7 @@ class CalendarController extends Controller
         if (Auth::check()) {
             $dutyQuery = \App\Models\DutyAssignment::with(['meeting.department', 'member', 'role']);
             // Only fetch duties assigned to $user or if user is admin
-            if (!$user->hasRole(['Super_Admin', 'Pastor', 'Head_Of_Deacons', 'Deacon'])) {
+            if (!$user->isSuperAdmin()) {
                 $memberId = $user->member ? $user->member->id : -1;
                 $dutyQuery->where('member_id', $memberId);
             }
@@ -153,6 +153,10 @@ class CalendarController extends Controller
     }
 
     public function store(Request $request) {
+        if (!Auth::user()->isSuperAdmin()) {
+            abort(403, 'Chỉ có SuperAdmin mới có thể tạo sự kiện.');
+        }
+
         $request->validate([
             'title' => 'required|string|max:255',
             'start_time' => 'required|date',
@@ -181,8 +185,8 @@ class CalendarController extends Controller
     }
     
     public function update(Request $request, Event $event) {
-        if (!Auth::user()->hasRole(['Super_Admin', 'Pastor']) && $event->created_by !== Auth::id()) {
-            abort(403);
+        if (!Auth::user()->isSuperAdmin()) {
+            abort(403, 'Chỉ có SuperAdmin mới có thể chỉnh sửa sự kiện.');
         }
         
         $request->validate([
@@ -204,8 +208,8 @@ class CalendarController extends Controller
     }
 
     public function destroy(Event $event) {
-        if (!Auth::user()->hasRole(['Super_Admin', 'Pastor']) && $event->created_by !== Auth::id()) {
-            abort(403);
+        if (!Auth::user()->isSuperAdmin()) {
+            abort(403, 'Chỉ có SuperAdmin mới có thể xóa sự kiện.');
         }
         
         $event->delete();

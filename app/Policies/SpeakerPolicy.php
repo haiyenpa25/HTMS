@@ -13,7 +13,7 @@ class SpeakerPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('view_speakers'); // Assumes spatie permission or basic true if authenticated
+        return $user->isSuperAdmin(); // Assumes spatie permission or basic true if authenticated
     }
 
     /**
@@ -29,7 +29,7 @@ class SpeakerPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('manage_speakers');
+        return $user->isSuperAdmin();
     }
 
     /**
@@ -37,7 +37,7 @@ class SpeakerPolicy
      */
     public function update(User $user, Speaker $speaker): bool
     {
-        return $user->hasPermissionTo('manage_speakers');
+        return $user->isSuperAdmin();
     }
 
     /**
@@ -45,7 +45,7 @@ class SpeakerPolicy
      */
     public function delete(User $user, Speaker $speaker): bool
     {
-        return $user->hasPermissionTo('manage_speakers');
+        return $user->isSuperAdmin();
     }
 
     /**
@@ -53,7 +53,7 @@ class SpeakerPolicy
      */
     public function viewPhone(User $user, ?Speaker $speaker = null): bool
     {
-        return $user->hasRole(['Pastor', 'Thư ký', 'Super_Admin']);
+        return $user->isSuperAdmin();
     }
 }
 

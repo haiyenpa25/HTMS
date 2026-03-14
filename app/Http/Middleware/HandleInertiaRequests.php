@@ -39,9 +39,9 @@ class HandleInertiaRequests extends Middleware
         
         $homePortal = '/dashboard'; // default
         if ($user) {
-            if ($user->hasRole(['Super_Admin', 'Pastor'])) {
+            if ($user->isSuperAdmin()) {
                 $homePortal = '/dashboard';
-            } elseif ($user->hasRole(['Deacon', 'BTS_Admin'])) {
+            } elseif ($user->isSuperAdmin()) {
                 $homePortal = '/deacon';
             } else {
                 // Check Ministry
@@ -89,6 +89,27 @@ class HandleInertiaRequests extends Middleware
             }
         }
         
+        // Dynamically figure out which department session to check based on the URL path
+        $activeDeptId = null;
+        if ($request->is('ministry*')) {
+            $activeDeptId = $request->session()->get('active_ministry_dept_id');
+        } elseif ($request->is('portal*')) {
+            $activeDeptId = $request->session()->get('active_portal_dept_id');
+        } elseif ($request->is('deacon*')) {
+            $activeDeptId = $request->session()->get('active_deacon_dept_id');
+        } else {
+            // Fallback for generic calls
+            $activeDeptId = $request->session()->get('active_portal_dept_id') 
+                         ?? $request->session()->get('active_ministry_dept_id') 
+                         ?? $request->session()->get('active_deacon_dept_id');
+        }
+
+        $allowedFeatures = [];
+        if ($user && $activeDeptId) {
+            $portalService = app(\App\Services\PortalService::class);
+            $allowedFeatures = $portalService->getAllowedFeaturesForDept($user, $activeDeptId);
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -97,12 +118,14 @@ class HandleInertiaRequests extends Middleware
                     'name' => (isset($member) && $member) ? $member->full_name : $user->name,
                     'email' => $user->email,
                     'role' => $user->getRoleNames()->first() ?? 'Guest',
+                    'is_superadmin' => $user->isSuperAdmin(),
                     'member_code' => (isset($member) && $member) ? $member->member_code : null,
                     'permissions' => $user->getAllPermissions()->pluck('name'),
                     'home_portal' => $homePortal,
                     'unread_notifications' => $user->unreadNotifications()->limit(10)->get(),
                     'unread_notifications_count' => $user->unreadNotifications()->count(),
                 ] : null,
+                'allowed_features' => $allowedFeatures,
             ],
             'pending_approvals_count' => $user ? \App\Models\ApprovalRequest::where('status', 'pending')->count() : 0,
             'pending_reports_count'   => $user ? (

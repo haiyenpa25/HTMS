@@ -13,41 +13,41 @@ class FinancePolicy
 
     public function viewAny(?User $user = null): bool
     {
-        return $user?->hasPermissionTo('view_finance') ?? false;
+        return $user?->isSuperAdmin() ?? false;
     }
 
     public function view(User $user, ?FinanceTransaction $transaction = null): bool
     {
-        return $user->hasPermissionTo('view_finance');
+        return $user->isSuperAdmin();
     }
 
     public function create(?User $user = null): bool
     {
-        return $user?->hasPermissionTo('create_finance') ?? false;
+        return $user?->isSuperAdmin() ?? false;
     }
 
     public function update(User $user, ?FinanceTransaction $transaction = null): bool
     {
-        return $user->hasPermissionTo('manage_finance');
+        return $user->isSuperAdmin();
     }
 
     public function delete(User $user, ?FinanceTransaction $transaction = null): bool
     {
-        return $user->hasPermissionTo('manage_finance');
+        return $user->isSuperAdmin();
     }
 
     public function approve(User $user, ?FinanceTransaction $transaction = null): bool
     {
-        return $user->hasPermissionTo('approve_finance');
+        return $user->isSuperAdmin();
     }
 
     public function transfer(User $user, ?FundTransfer $transfer = null): bool
     {
-        return $user->hasPermissionTo('manage_finance');
+        return $user->isSuperAdmin();
     }
 
     public function report(?User $user = null): bool
     {
-        return $user?->hasPermissionTo('report_finance') ?? false;
+        return $user?->isSuperAdmin() ?? false;
     }
 }

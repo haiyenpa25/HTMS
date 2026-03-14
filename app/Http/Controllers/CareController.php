@@ -12,7 +12,7 @@ class CareController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $isPastor = $user->hasRole(['Super_Admin', 'Pastor']);
+        $isPastor = $user->isSuperAdmin();
         
         $query = CareRequest::with(['user', 'assignee'])->latest();
 
@@ -20,7 +20,7 @@ class CareController extends Controller
             // Tín hữu chỉ thấy yêu cầu của chính mỉnh
             $query->where('user_id', $user->id);
             // Kể cả Ban Chăm sóc/Deacon nếu không phải Pastor thì không xem được yêu cầu Tư vấn (Is_private)
-            if ($user->hasRole(['Head_Of_Deacons', 'Deacon'])) {
+            if ($user->isSuperAdmin()) {
                 // Hoặc được assign, hoặc do chính mình tạo
                 $query->orWhere(function($q) use ($user) {
                     $q->where('assigned_to', $user->id)->where('is_private', false);
@@ -79,7 +79,7 @@ class CareController extends Controller
     public function updateStatus(Request $request, CareRequest $careRequest)
     {
         $user = Auth::user();
-        if (!$user->hasRole(['Super_Admin', 'Pastor']) && $careRequest->assigned_to !== $user->id) {
+        if (!$user->isSuperAdmin() && $careRequest->assigned_to !== $user->id) {
             abort(403, 'Bạn không có quyền chuyển trạng thái yêu cầu này.');
         }
 
@@ -95,7 +95,7 @@ class CareController extends Controller
     
     public function assign(Request $request, CareRequest $careRequest)
     {
-        if (!Auth::user()->hasRole(['Super_Admin', 'Pastor'])) {
+        if (!Auth::user()->isSuperAdmin()) {
             abort(403);
         }
         
@@ -111,7 +111,7 @@ class CareController extends Controller
     public function destroy(CareRequest $careRequest)
     {
         $user = Auth::user();
-        if ($user->id !== $careRequest->user_id && !$user->hasRole(['Super_Admin'])) {
+        if ($user->id !== $careRequest->user_id && !$user->isSuperAdmin()) {
             abort(403);
         }
         

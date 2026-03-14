@@ -51,7 +51,7 @@ class AuthController extends Controller
             $member = Member::where('user_id', $user->id)->first();
             
             // 1. Super Admin / Pastor → admin dashboard
-            if ($user->hasRole(['Pastor', 'Super_Admin'])) {
+            if ($user->isSuperAdmin()) {
                 return redirect()->intended(route('dashboard'));
             }
             
@@ -94,7 +94,7 @@ class AuthController extends Controller
             }
             
             // 3. Fallback: deacon portal for BTS_Admin roles even without dept
-            if ($user->hasRole(['Deacon', 'BTS_Admin'])) {
+            if ($user->isSuperAdmin()) {
                 return redirect()->intended(route('deacon.index'));
             }
             

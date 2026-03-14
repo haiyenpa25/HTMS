@@ -241,15 +241,19 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 
+import { usePermissions } from '@/Composables/usePermissions';
+
 const page = usePage();
+const { isSuperAdmin } = usePermissions();
+
 const currentLayout = computed(() => {
     if (typeof window === 'undefined') return AuthenticatedLayout;
     return window.innerWidth < 768 ? MobileLayout : AuthenticatedLayout;
 });
 
 const canManageEvents = computed(() => {
-    const role = page.props.auth?.user?.role || '';
-    return role === 'Super_Admin' || role === 'Pastor' || role === 'Admin';
+    // In the new MAC system, SuperAdmins are definitively allowed to manage global/internal events
+    return isSuperAdmin.value;
 });
 
 // FullCalendar Setup

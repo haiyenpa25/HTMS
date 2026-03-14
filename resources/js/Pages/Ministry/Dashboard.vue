@@ -92,24 +92,16 @@
 import { ref, computed } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
+import { usePermissions } from '@/Composables/usePermissions';
 
 const page = usePage();
-const deptFeatures = computed(() => page.props.departmentFeatures || {});
-const authPermissions = computed(() => page.props.userPermissions || {});
+const { can, isSuperAdmin } = usePermissions();
 
 const props = defineProps({
     activeDepartment: Object,
     availableDepartments: Array,
     isGlobalAdmin: Boolean,
-    userPermissions: { type: Object, default: () => ({}) },
 });
-
-// Check quyền user Level 2
-const can = (key) => {
-    if (props.isGlobalAdmin) return true;
-    return authPermissions.value?.[key] === true
-        || (key === 'members' && authPermissions.value?.['thanh-vien'] === true);
-};
 
 // Redundant switcher state removed (handled in PortalLayout)
 
@@ -193,16 +185,8 @@ const allFeatureCards = [
     },
 ];
 
-// Chỉ hiện cards mà ban này có trong deptFeatures (Level 1)
+// Chỉ hiện cards mà user có quyền Level 2
 const visibleFeatureCards = computed(() => {
-    const features = deptFeatures.value;
-    if (!features) return [];
-    return allFeatureCards.filter(card => {
-        // Kiểm tra deptFeatures[slug] = true
-        if (features[card.key] === true) return true;
-        // Alias: 'members' có thể được lưu là 'thanh-vien'
-        if (card.key === 'members' && features['thanh-vien'] === true) return true;
-        return false;
-    });
+    return allFeatureCards.filter(card => can(card.key));
 });
 </script>

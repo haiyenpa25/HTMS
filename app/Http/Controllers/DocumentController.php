@@ -20,19 +20,13 @@ class DocumentController extends Controller
         $query = Document::with(['uploader', 'department']);
 
         // Phân quyền hiển thị:
-        if ($user->hasRole('Super_Admin')) {
-            // Thấy hết
-        } elseif ($user->hasRole('Pastor') || $user->hasRole(['Head_Of_Deacons', 'Deacon'])) {
-            // Thấy public, internal, leadership
-            $query->whereIn('visibility', ['public', 'internal', 'leadership'])
-                  ->orWhere('uploaded_by', $user->id);
-        } elseif ($user->hasRole(['Department_Leader', 'Department_Treasurer', 'Department_Secretary', 'Cell_Group_Leader', 'Cell_Group_Member'])) {
-            // Thấy public, internal
-            $query->whereIn('visibility', ['public', 'internal'])
-                  ->orWhere('uploaded_by', $user->id);
+        if ($user->isSuperAdmin()) {
+            // SuperAdmin thấy hết tất cả
         } else {
-            // Thấy public thôi (dành cho Tín hữu thường nếu có login)
-            $query->where('visibility', 'public')
+            // Tạm thời, người dùng bình thường thấy public và internal,
+            // cùng với những tài liệu do chính mình upload.
+            // Nếu muốn cấp quyền thấy 'leadership', có thể bổ sung MAC logic sau.
+            $query->whereIn('visibility', ['public', 'internal'])
                   ->orWhere('uploaded_by', $user->id);
         }
 
@@ -62,7 +56,7 @@ class DocumentController extends Controller
             'department' => $doc->department->name ?? null,
             'download_url' => route('documents.download', $doc->id),
             'created_at' => $doc->created_at->format('d/m/Y H:i'),
-            'can_delete' => $user->hasRole('Super_Admin') || $doc->uploaded_by === $user->id,
+            'can_delete' => $user->isSuperAdmin() || $doc->uploaded_by === $user->id,
         ]);
 
         return Inertia::render('Documents/Index', [
@@ -119,14 +113,12 @@ class DocumentController extends Controller
         
         // Kiểm tra quyền (Tương tự view)
         $canDownload = false;
-        if ($user->hasRole('Super_Admin') || $document->uploaded_by === $user->id) {
+        if ($user->isSuperAdmin() || $document->uploaded_by === $user->id) {
             $canDownload = true;
         } elseif ($document->visibility === 'public') {
             $canDownload = true;
-        } elseif ($document->visibility === 'internal' && $user) {
-            $canDownload = true;
-        } elseif ($document->visibility === 'leadership' && $user->hasRole(['Pastor', 'Super_Admin', 'Head_Of_Deacons', 'Deacon'])) {
-            $canDownload = true;
+        } elseif ($document->visibility === 'internal') {
+            $canDownload = true; // Any logged-in user can download internal
         }
         
         if (!$canDownload) {
@@ -145,7 +137,7 @@ class DocumentController extends Controller
      */
     public function destroy(Document $document)
     {
-        if (Auth::id() !== $document->uploaded_by && !Auth::user()->hasRole('Super_Admin')) {
+        if (Auth::id() !== $document->uploaded_by && !Auth::user()->isSuperAdmin()) {
             abort(403, 'Bạn không có quyền xóa tài liệu này.');
         }
 

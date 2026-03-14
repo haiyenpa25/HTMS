@@ -10,7 +10,7 @@ class VisitationPolicy
 {
     public function viewAny(User $user): bool
     {
-        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+        if ($user->isSuperAdmin()) return true;
         
         // MAC: has any visitation permission
         return UserDepartmentFeature::where('user_id', $user->id)
@@ -21,7 +21,7 @@ class VisitationPolicy
 
     public function view(User $user, $arg1 = null, $arg2 = null): bool
     {
-        if ($user->hasRole(['Pastor', 'Super_Admin'])) return true;
+        if ($user->isSuperAdmin()) return true;
 
         $visitation = ($arg1 instanceof Visitation) ? $arg1 : $arg2;
         
@@ -32,9 +32,9 @@ class VisitationPolicy
         }
 
         // Legacy Spatie fallback
-        if ($user->hasPermissionTo('view_visitations')) {
+        if ($user->isSuperAdmin()) {
             if (!$visitation) return true;
-            if ($user->hasRole('Visitation_Staff')) return true;
+            if ($user->isSuperAdmin()) return true;
             if ($visitation->department_id === (int)session('active_portal_dept_id')) return true;
         }
 
@@ -43,8 +43,8 @@ class VisitationPolicy
 
     public function viewSensitiveContent(User $user, Visitation $visitation): bool
     {
-        if ($user->hasPermissionTo('view_sensitive_visitation_content')) return true;
-        if ($user->hasRole(['Super_Admin', 'Pastor'])) return true;
+        if ($user->isSuperAdmin()) return true;
+        if ($user->isSuperAdmin()) return true;
 
         // Visitors can see their own reports
         if ($user->member_id && $visitation->visitors->contains('id', $user->member_id)) {
@@ -56,7 +56,7 @@ class VisitationPolicy
 
     public function create(User $user): bool
     {
-        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+        if ($user->isSuperAdmin()) return true;
         
         $deptId = session('active_portal_dept_id');
         return $deptId && $this->hasMacAccess($user, $deptId, 'visitation');

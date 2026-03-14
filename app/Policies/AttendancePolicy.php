@@ -15,7 +15,7 @@ class AttendancePolicy
      */
     public function view_attendance(User $user, $arg1 = null, $arg2 = null): bool
     {
-        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+        if ($user->isSuperAdmin()) return true;
         
         $meeting = ($arg1 instanceof Meeting) ? $arg1 : $arg2;
         if (!$meeting) return false;
@@ -25,7 +25,7 @@ class AttendancePolicy
 
         // Legacy OrgMembership path
         $memberId = $user->member?->id ?? $user->member_id;
-        if ($memberId && $user->hasRole(['Department_Lead', 'Team_Lead'])) {
+        if ($memberId && $user->isSuperAdmin()) {
             return OrgMembership::where('member_id', $memberId)
                 ->where('model_type', Department::class)
                 ->where('model_id', $meeting->department_id)
@@ -37,13 +37,13 @@ class AttendancePolicy
 
     public function mark_attendance(User $user, $arg1 = null, $arg2 = null): bool
     {
-        if ($user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])) return true;
+        if ($user->isSuperAdmin()) return true;
         
         $meeting = ($arg1 instanceof Meeting) ? $arg1 : $arg2;
         if (!$meeting) return false;
 
         // Church-wide meeting
-        if (is_null($meeting->department_id) && $user->hasRole(['Department_Lead', 'Team_Lead'])) {
+        if (is_null($meeting->department_id) && $user->isSuperAdmin()) {
             return true;
         }
 
@@ -52,7 +52,7 @@ class AttendancePolicy
 
         // Legacy
         $memberId = $user->member?->id ?? $user->member_id;
-        if ($memberId && $user->hasRole(['Department_Lead', 'Team_Lead'])) {
+        if ($memberId && $user->isSuperAdmin()) {
             return OrgMembership::where('member_id', $memberId)
                 ->where('model_type', Department::class)
                 ->where('model_id', $meeting->department_id)
@@ -64,7 +64,7 @@ class AttendancePolicy
 
     public function bypass_attendance_lock(User $user): bool
     {
-        return $user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin']);
+        return $user->isSuperAdmin();
     }
 
     private function hasMacAccess(User $user, ?int $deptId, string $slug): bool

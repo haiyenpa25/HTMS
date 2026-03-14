@@ -13,7 +13,7 @@ class EduClassPolicy
      */
     public function before(User $user, string $ability): ?bool
     {
-        if ($user->hasRole(['Super_Admin', 'Pastor', 'BTS_Admin'])) {
+        if ($user->isSuperAdmin()) {
             return true;
         }
         return null;
@@ -24,7 +24,7 @@ class EduClassPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->hasPermissionTo('view_edu_classes')) return true;
+        if ($user->isSuperAdmin()) return true;
 
         // MAC: has any education-related permission in any department
         $hasMac = UserDepartmentFeature::where('user_id', $user->id)
@@ -45,7 +45,7 @@ class EduClassPolicy
         $class = ($arg1 instanceof EduClass) ? $arg1 : $arg2;
         if (!$class) return false;
 
-        if ($user->hasPermissionTo('view_edu_classes')) return true;
+        if ($user->isSuperAdmin()) return true;
 
         // MAC
         if ($this->hasMacAccess($user, $class->department_id, 'education-classes')) return true;
@@ -55,7 +55,7 @@ class EduClassPolicy
 
     public function create(User $user): bool
     {
-        if ($user->hasPermissionTo('manage_edu_classes')) return true;
+        if ($user->isSuperAdmin()) return true;
         
         // MAC: allow creation if they have education-classes in ANY department
         return UserDepartmentFeature::where('user_id', $user->id)
@@ -69,7 +69,7 @@ class EduClassPolicy
         $class = ($arg1 instanceof EduClass) ? $arg1 : $arg2;
         if (!$class) return false;
 
-        if ($user->hasPermissionTo('manage_edu_classes')) return true;
+        if ($user->isSuperAdmin()) return true;
         
         return $this->hasMacAccess($user, $class->department_id, 'education-classes');
     }

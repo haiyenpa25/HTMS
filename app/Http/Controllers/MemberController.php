@@ -112,6 +112,8 @@ class MemberController extends Controller
      */
     public function store(Request $request)
     {
+        abort_if(!$request->user()->isSuperAdmin(), 403, 'Chỉ có SuperAdmin mới có thể thêm tín hữu mới.');
+        
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255|unique:members,email',
@@ -156,7 +158,7 @@ class MemberController extends Controller
     public function show(Request $request, Member $member): Response
     {
         $user = $request->user();
-        $isPastor = $user->hasRole(['Pastor', 'Super_Admin']);
+        $isPastor = $user->isSuperAdmin();
 
         $member->load([
             'user',
@@ -186,7 +188,7 @@ class MemberController extends Controller
         
         return Inertia::render('Members/Show', [
             'member' => $member,
-            'auth_roles' => $user->getRoleNames(),
+            'auth_roles' => [], // Roles removed, managed by MAC
             'isPastor' => $isPastor,
         ]);
     }
@@ -196,6 +198,8 @@ class MemberController extends Controller
      */
     public function update(Request $request, Member $member)
     {
+        abort_if(!$request->user()->isSuperAdmin(), 403, 'Chỉ có SuperAdmin mới có thể chỉnh sửa hồ sơ.');
+        
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255|unique:members,email,' . $member->id,
@@ -230,7 +234,7 @@ class MemberController extends Controller
             'general_notes' => $validated['general_notes'] ?? null,
         ]);
 
-        if ($request->user()->hasRole('Pastor')) {
+        if ($request->user()->isSuperAdmin()) {
             $member->sensitiveInfo()->updateOrCreate(
                 ['member_id' => $member->id],
                 [
@@ -248,8 +252,10 @@ class MemberController extends Controller
     /**
      * Remove the specified member from storage (soft delete).
      */
-    public function destroy(Member $member)
+    public function destroy(Request $request, Member $member)
     {
+        abort_if(!$request->user()->isSuperAdmin(), 403, 'Chỉ có SuperAdmin mới có thể xóa tín hữu.');
+        
         $member->delete();
         return redirect()->route('members.index')->with('message', 'Đã xoá tín hữu thành công!');
     }
@@ -259,6 +265,8 @@ class MemberController extends Controller
      */
     public function updateStatus(Request $request)
     {
+        abort_if(!$request->user()->isSuperAdmin(), 403, 'Chỉ SuperAdmin mới được cập nhật trạng thái.');
+        
         $validated = $request->validate([
             'member_ids' => 'required|array',
             'member_ids.*' => 'exists:members,id',
@@ -273,6 +281,7 @@ class MemberController extends Controller
 
     public function setHouseholdHead(Request $request, \App\Models\Household $household)
     {
+        abort_if(!$request->user()->isSuperAdmin(), 403);
         $request->validate(['head_member_id' => 'required|exists:members,id']);
         $household->update(['head_member_id' => $request->head_member_id]);
         return back()->with('message', 'Đã lưu thiết lập Chủ hộ thành công.');
@@ -280,6 +289,7 @@ class MemberController extends Controller
 
     public function storeRelationship(Request $request, Member $member)
     {
+        abort_if(!$request->user()->isSuperAdmin(), 403);
         $request->validate([
             'related_member_id' => 'required|exists:members,id',
             'type' => 'required|string',
@@ -304,8 +314,9 @@ class MemberController extends Controller
         return back()->with('message', 'Thêm quan hệ gia đình thành công.');
     }
 
-    public function destroyRelationship(Member $member, $relatedMemberId)
+    public function destroyRelationship(Request $request, Member $member, $relatedMemberId)
     {
+        abort_if(!$request->user()->isSuperAdmin(), 403);
         \App\Models\Relationship::where('member_id', $member->id)->where('related_member_id', $relatedMemberId)->delete();
         \App\Models\Relationship::where('member_id', $relatedMemberId)->where('related_member_id', $member->id)->delete();
         return back()->with('message', 'Xóa quan hệ thành công.');

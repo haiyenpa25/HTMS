@@ -43,7 +43,7 @@ class FinanceFundTransferController extends Controller
         ]);
 
         // If user can approve, auto-approve
-        if ($request->user()->hasPermissionTo('approve_finance')) {
+        if ($request->user()->isSuperAdmin()) {
             $transfer->update(['status' => 'approved']);
         } else {
             $notifiers = \App\Models\User::permission('approve_finance')->get();

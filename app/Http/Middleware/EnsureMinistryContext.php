@@ -21,11 +21,27 @@ class EnsureMinistryContext
         if (!$user) return $next($request);
 
         $activeDeptId  = session('active_ministry_dept_id');
-        $isGlobalAdmin = $user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin'])
-            || $user->email === 'superadmin@httlthanhmyloi.com';
+        $isGlobalAdmin = $user->isSuperAdmin();
+
+        $validDeptIds = [];
+
+        // 1. Các ban mà user là thành viên
+        $member = \App\Models\Member::where('user_id', $user->id)->first();
+        if ($member) {
+            $validDeptIds = $member->departments()->where('block', 'ministry')->pluck('departments.id')->toArray();
+        }
+
+        // 2. Các ban mà user được cấp quyền tính năng (nhưng có thể chưa gán membership)
+        $featureDeptIds = UserDepartmentFeature::where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->whereHas('department', fn ($q) => $q->where('block', 'ministry'))
+            ->pluck('department_id')
+            ->toArray();
+            
+        $validDeptIds = array_unique(array_merge($validDeptIds, $featureDeptIds));
 
         // 1. Determine active department
-        if (!$activeDeptId) {
+        if (!$activeDeptId || (!$isGlobalAdmin && !in_array($activeDeptId, $validDeptIds))) {
             if ($isGlobalAdmin) {
                 $firstDept = Department::where('block', 'ministry')->orderBy('name')->first();
                 if ($firstDept) {
@@ -33,30 +49,9 @@ class EnsureMinistryContext
                     session(['active_ministry_dept_id' => $activeDeptId]);
                 }
             } else {
-                // OrgMembership path
-                $memberId = $user->member?->id ?? null;
-                if ($memberId) {
-                    $membership = OrgMembership::where('member_id', $memberId)
-                        ->where('model_type', Department::class)
-                        ->whereHasMorph('model', [Department::class], fn($q) => $q->where('block', 'ministry'))
-                        ->first();
-                    if ($membership) {
-                        $activeDeptId = $membership->model_id;
-                        session(['active_ministry_dept_id' => $activeDeptId]);
-                    }
-                }
-
-                if (!$activeDeptId) {
-                    // MAC path
-                    $macDeptId = UserDepartmentFeature::where('user_id', $user->id)
-                        ->where('is_enabled', true)
-                        ->whereHas('department', fn($q) => $q->where('block', 'ministry'))
-                        ->value('department_id');
-
-                    if ($macDeptId) {
-                        $activeDeptId = $macDeptId;
-                        session(['active_ministry_dept_id' => $activeDeptId]);
-                    }
+                if (!empty($validDeptIds)) {
+                     $activeDeptId = $validDeptIds[0];
+                     session(['active_ministry_dept_id' => $activeDeptId]);
                 }
             }
         }

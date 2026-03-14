@@ -62,7 +62,7 @@ class Meeting extends Model
      */
     public function scopeAccessibleBy($query, $user)
     {
-        if ($user->hasRole(['BTS_Admin', 'Pastor', 'Super_Admin'])) {
+        if ($user->isSuperAdmin()) {
             return $query; // can see all
         }
 

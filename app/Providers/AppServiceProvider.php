@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
         // Implicitly grant "Super_Admin" role all permissions
         // This works in the app by using gate-related functions like auth()->user->can() and @can()
         \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
-            return $user->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin', 'Super_Admin']) ? true : null;
+            return $user->isSuperAdmin() ? true : null;
         });
 
         \Illuminate\Support\Facades\Gate::policy(\App\Models\Meeting::class, \App\Policies\AttendancePolicy::class);

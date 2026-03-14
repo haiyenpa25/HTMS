@@ -68,35 +68,41 @@ Route::middleware('auth')->group(function () {
     Route::delete('care/{careRequest}', [\App\Http\Controllers\CareController::class, 'destroy'])->name('care.destroy');
 
     Route::patch('members/update-status', [\App\Http\Controllers\MemberController::class, 'updateStatus'])->name('members.update-status');
-    Route::resource('departments', \App\Http\Controllers\DepartmentController::class)->except(['create', 'edit', 'destroy']);
-    Route::delete('departments/{department}', [\App\Http\Controllers\DepartmentController::class, 'destroy'])->name('departments.destroy');
     
-    // Departments Sub-features
-    Route::post('departments/{department}/teams', [\App\Http\Controllers\DepartmentController::class, 'storeTeam'])->name('departments.teams.store');
-    Route::put('departments/{department}/teams/{team}', [\App\Http\Controllers\DepartmentController::class, 'updateTeam'])->name('departments.teams.update');
-    Route::delete('departments/{department}/teams/{team}', [\App\Http\Controllers\DepartmentController::class, 'destroyTeam'])->name('departments.teams.destroy');
-    
-    Route::post('departments/{department}/members', [\App\Http\Controllers\DepartmentController::class, 'assignMember'])->name('departments.members.assign');
-    Route::delete('departments/{department}/members/{member}', [\App\Http\Controllers\DepartmentController::class, 'removeMember'])->name('departments.members.remove');
-    
-    Route::put('departments/{department}/features', [\App\Http\Controllers\DepartmentController::class, 'updateFeatures'])->name('departments.features.update');
+    // ==========================================
+    // Restricted Administrative Routes
+    // ==========================================
+    Route::middleware(\App\Http\Middleware\EnsureSuperAdmin::class)->group(function () {
+        Route::resource('departments', \App\Http\Controllers\DepartmentController::class)->except(['create', 'edit', 'destroy']);
+        Route::delete('departments/{department}', [\App\Http\Controllers\DepartmentController::class, 'destroy'])->name('departments.destroy');
+        
+        // Departments Sub-features
+        Route::post('departments/{department}/teams', [\App\Http\Controllers\DepartmentController::class, 'storeTeam'])->name('departments.teams.store');
+        Route::put('departments/{department}/teams/{team}', [\App\Http\Controllers\DepartmentController::class, 'updateTeam'])->name('departments.teams.update');
+        Route::delete('departments/{department}/teams/{team}', [\App\Http\Controllers\DepartmentController::class, 'destroyTeam'])->name('departments.teams.destroy');
+        
+        Route::post('departments/{department}/members', [\App\Http\Controllers\DepartmentController::class, 'assignMember'])->name('departments.members.assign');
+        Route::delete('departments/{department}/members/{member}', [\App\Http\Controllers\DepartmentController::class, 'removeMember'])->name('departments.members.remove');
+        Route::put('departments/{department}/features', [\App\Http\Controllers\DepartmentController::class, 'updateFeatures'])->name('departments.features.update');
+
+        // Speakers
+        Route::get('api/speakers', [\App\Http\Controllers\SpeakerController::class, 'apiIndex'])->name('api.speakers.index');
+        Route::resource('speakers', \App\Http\Controllers\SpeakerController::class)->except(['create', 'edit']);
+
+        // Trimmers & Account Management
+        Route::resource('users', \App\Http\Controllers\UserController::class);
+        Route::post('users/{user}/link-member', [\App\Http\Controllers\UserController::class, 'linkMember'])->name('users.link-member');
+        Route::resource('roles', \App\Http\Controllers\RoleController::class);
+    });
+    // ==========================================
 
     // Meetings — export/import MUST be before resource() to avoid {meeting} route conflict
     Route::get('meetings/export', [\App\Http\Controllers\MeetingController::class, 'export'])->name('meetings.export');
     Route::post('meetings/import', [\App\Http\Controllers\MeetingController::class, 'import'])->name('meetings.import');
     Route::resource('meetings', \App\Http\Controllers\MeetingController::class);
 
-    // Speakers
-    Route::get('api/speakers', [\App\Http\Controllers\SpeakerController::class, 'apiIndex'])->name('api.speakers.index');
-    Route::resource('speakers', \App\Http\Controllers\SpeakerController::class)->except(['create', 'edit']);
-
     // Lịch sử Dâng Hiến Cá Nhân (Tithe & Offering)
     Route::get('my-giving', [\App\Http\Controllers\User\DonationController::class, 'myGiving'])->name('user.donations.index');
-
-    // System Settings        // Quản lý Account
-    Route::resource('users', \App\Http\Controllers\UserController::class);
-    Route::post('users/{user}/link-member', [\App\Http\Controllers\UserController::class, 'linkMember'])->name('users.link-member');
-    Route::resource('roles', \App\Http\Controllers\RoleController::class);
     
     Route::prefix('admin')->middleware(\App\Http\Middleware\EnsureSuperAdmin::class)->group(function () {
         Route::get('/users/permissions', [\App\Http\Controllers\Admin\UserPermissionController::class, 'index'])->name('admin.users.permissions');

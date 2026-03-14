@@ -221,7 +221,7 @@ class PortalMemberController extends Controller
             'department' => $department,
             'teams' => $teams,
             'availableDepartments' => $availableDepartments,
-            'isGlobalAdmin' => auth()->user()->hasRole(['Pastor', 'BTS_Admin', 'Super_Admin']),
+            'isGlobalAdmin' => auth()->user()->isSuperAdmin(),
             'boardMembers' => $boardMembers,
             'members' => $allMembers,
             'filters' => [

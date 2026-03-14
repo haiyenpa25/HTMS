@@ -141,7 +141,7 @@ class OrgStructureSeeder extends Seeder
         $ministries = [
             ['code' => 'BCDGD', 'name' => 'Ban Cơ Đốc Giáo Dục'],
             ['code' => 'BTG', 'name' => 'Ban Truyền Giảng'],
-            ['code' => 'BCĐCS', 'name' => 'Ban Chứng Đạo – Chăm Sóc TTH'],
+            ['code' => 'BCDCS', 'name' => 'Ban Chứng Đạo – Chăm Sóc TTH'],
             ['code' => 'BKT', 'name' => 'Ban Kỹ Thuật'],
             ['code' => 'BNC', 'name' => 'Ban Nhạc Cụ'],
             ['code' => 'BKN', 'name' => 'Ban Kết Nối'],
@@ -161,13 +161,13 @@ class OrgStructureSeeder extends Seeder
             ]);
         }
 
-        // 4. Functional Accounts Helper
-        $createFunctionalAccount = function ($email, $name, $roleCode, $dept, $spatieRole) use ($orgRoles) {
+        // 4. Functional Accounts Helper (No Spatie Roles)
+        $createFunctionalAccount = function ($email, $name, $roleCode, $dept) use ($orgRoles) {
             $user = User::updateOrCreate(['email' => $email], [
                 'name' => $name,
-                'password' => Hash::make('Abc.1234')
+                'password' => Hash::make('Abc.1234'),
+                'is_superadmin' => false,
             ]);
-            $user->assignRole($spatieRole);
 
             $member = Member::updateOrCreate(['user_id' => $user->id], [
                 'member_code' => 'GEN-' . str_pad($user->id, 5, '0', STR_PAD_LEFT),
@@ -188,22 +188,48 @@ class OrgStructureSeeder extends Seeder
 
         // 5. Create Representative Accounts
 
-        // Super Admin (Pastor)
+        // Super Admin (God Mode)
         $pastor = User::updateOrCreate(['email' => "superadmin@$domain"], [
-            'name' => 'Mục sư Quản nhiệm',
-            'password' => Hash::make('Abc.1234')
+            'name' => 'Mục sư Quản nhiệm (SuperAdmin)',
+            'password' => Hash::make('Abc.1234'),
+            'is_superadmin' => true,
         ]);
-        $pastor->assignRole('Pastor');
-        $pastor->assignRole('Super_Admin');
 
         // Activities (Ban Thanh Tráng)
         $deptTT = $activityDepts['BTTR'];
-        $createFunctionalAccount("tb.thanhtrang@$domain", 'Trưởng ban Thanh Tráng', 'tb', $deptTT, 'Department_Lead');
-        $createFunctionalAccount("pb.thanhtrang@$domain", 'Phó ban Thanh Tráng', 'pb', $deptTT, 'Department_Lead');
-        $createFunctionalAccount("tk.thanhtrang@$domain", 'Thư ký Thanh Tráng', 'tk', $deptTT, 'Secretary');
-        $createFunctionalAccount("tq.thanhtrang@$domain", 'Thủ quỹ Thanh Tráng', 'tq', $deptTT, 'Secretary');
-        $createFunctionalAccount("tt.thanhtrang@$domain", 'Tổ trưởng Thanh Tráng', 'tt', $deptTT, 'Team_Lead');
+        
+        // Trưởng Ban Thanh Tráng
+        $tb = $createFunctionalAccount("tb.thanhtrang@$domain", 'Trưởng ban Thanh Tráng', 'tb', $deptTT);
+        
+        // Thư Ký Thanh Tráng
+        $tk = $createFunctionalAccount("tk.thanhtrang@$domain", 'Thư ký Thanh Tráng', 'tk', $deptTT);
 
-        $this->command->info('Organization structure and functional accounts initialized!');
+        // Grant Level 2 Features for TB/TK
+        // TB and TK will get specifically enabled features so they can see them on the dashboard
+        $featuresToGrant = \App\Models\Feature::whereIn('slug', ['attendance', 'members', 'reports', 'assignments'])->get();
+        
+        foreach ($featuresToGrant as $feature) {
+            \App\Models\UserDepartmentFeature::updateOrCreate([
+                'user_id' => $tb->id,
+                'department_id' => $deptTT->id,
+                'feature_id' => $feature->id,
+            ], [
+                'dept_type' => 'activities',
+                'is_enabled' => true,
+                'access_level' => 'manage'
+            ]);
+
+            \App\Models\UserDepartmentFeature::updateOrCreate([
+                'user_id' => $tk->id,
+                'department_id' => $deptTT->id,
+                'feature_id' => $feature->id,
+            ], [
+                'dept_type' => 'activities',
+                'is_enabled' => true,
+                'access_level' => 'manage'
+            ]);
+        }
+
+        $this->command->info('Organization structure and functional accounts initialized without Legacy Roles!');
     }
 }

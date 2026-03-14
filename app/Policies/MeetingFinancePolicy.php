@@ -37,6 +37,6 @@ class MeetingFinancePolicy
      */
     public function approve(User $user, MeetingFinance $meetingFinance): bool
     {
-        return $user->hasRole('Pastor');
+        return $user->isSuperAdmin();
     }
 }

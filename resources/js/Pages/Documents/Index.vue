@@ -180,8 +180,7 @@ import { useForm, router, usePage } from '@inertiajs/vue3';
 
 const page = usePage();
 const canUpload = computed(() => {
-    const roles = page.props.auth?.user?.roles ?? [];
-    return roles.includes('Super_Admin') || roles.includes('Pastor') || roles.includes('Department_Leader');
+    return page.props.auth?.user?.is_superadmin || false;
 });
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import MobileLayout from '@/Layouts/MobileLayout.vue';

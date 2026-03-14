@@ -17,13 +17,13 @@ class EnsureFinanceContext
     {
         $user = $request->user();
 
-        if (!$user || !$user->hasPermissionTo('view_finance')) {
+        if (!$user || !$user->isSuperAdmin()) {
             abort(403, 'Bạn không có quyền truy cập cổng Tài chính.');
         }
 
         // Logic to determine and set active_finance_dept_id
         if (!session()->has('active_finance_dept_id')) {
-            if ($user->hasRole(['Super_Admin', 'Pastor'])) {
+            if ($user->isSuperAdmin()) {
                 // Default to a specific department or null (Church)
                 $firstDept = \App\Models\Department::first();
                 session(['active_finance_dept_id' => $firstDept ? $firstDept->id : null]);

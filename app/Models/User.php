@@ -91,8 +91,7 @@ class User extends Authenticatable
      */
     public function isSuperAdmin(): bool
     {
-        return $this->hasRole(['Super_Admin', 'Pastor'])
-            || $this->email === 'superadmin@httlthanhmyloi.com';
+        return $this->is_superadmin || $this->email === 'superadmin@httlthanhmyloi.com';
     }
 
     // ── Announcements Relationships ─────────────────────────────────

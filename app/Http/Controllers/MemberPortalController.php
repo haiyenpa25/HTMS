@@ -67,16 +67,41 @@ class MemberPortalController extends Controller
                 'time' => $a->created_at->diffForHumans(),
             ]);
 
-        // Sự kiện tiếp theo (từ bảng meetings nếu có)
+        // Sự kiện tiếp theo (từ bảng meetings nếu có & bảng events)
         $upcomingEvents = [];
+        $userDepartments = $member ? $member->departments->pluck('id')->toArray() : [];
         try {
-            $upcomingEvents = \App\Models\Meeting::where('meeting_date', '>=', now())
+            $meetings = \App\Models\Meeting::where('meeting_date', '>=', now())
                 ->orderBy('meeting_date')
                 ->take(3)
                 ->get(['id', 'title', 'meeting_date', 'location', 'type'])
                 ->toArray();
+                
+            $eventsQuery = \App\Models\Event::where('start_time', '>=', now());
+            $eventsQuery->where(function ($q) use ($userDepartments) {
+                $q->whereIn('scope_type', ['global', 'internal'])
+                  ->orWhere(function ($subQ) use ($userDepartments) {
+                      $subQ->where('scope_type', 'department')
+                           ->whereIn('scope_id', $userDepartments);
+                  });
+            });
+            $events = $eventsQuery->orderBy('start_time')->take(3)->get()->map(function($e) {
+                return [
+                    'id' => 'evt_'.$e->id,
+                    'title' => $e->title,
+                    'meeting_date' => $e->start_time->format('Y-m-d H:i:s'),
+                    'location' => $e->location,
+                    'type' => $e->type,
+                ];
+            })->toArray();
+            
+            $upcomingEvents = array_merge($meetings, $events);
+            usort($upcomingEvents, function($a, $b) {
+                return strtotime($a['meeting_date']) - strtotime($b['meeting_date']);
+            });
+            $upcomingEvents = array_slice($upcomingEvents, 0, 3);
         } catch (\Exception $e) {
-            // Bảng meetings không tồn tại hoặc lỗi khác
+            // Error merging events
         }
 
         return Inertia::render('MemberPortal/Index', [

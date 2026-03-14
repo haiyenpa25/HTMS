@@ -35,7 +35,7 @@ class MeetingController extends Controller
 
         // Get departments user has access to, for the Create/Edit Form
         $departments = \App\Models\Department::query()
-            ->when(!$request->user()->hasRole(['BTS_Admin', 'Pastor']), function ($q) use ($request) {
+            ->when(!$request->user()->isSuperAdmin(), function ($q) use ($request) {
                 $q->whereIn('id', function ($sq) use ($request) {
                     $sq->select('department_id')
                        ->from('department_supervisors')
