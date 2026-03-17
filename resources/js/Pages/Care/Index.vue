@@ -220,7 +220,7 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
-import { useForm, router } from '@inertiajs/vue3';
+import { useForm, router, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import MobileLayout from '@/Layouts/MobileLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -237,10 +237,13 @@ const currentLayout = computed(() => {
     return window.innerWidth < 768 ? MobileLayout : AuthenticatedLayout;
 });
 
+const page = usePage();
+
 const props = defineProps({
     requests: Object,
     filters: Object,
-    isPastor: Boolean
+    isPastor: Boolean,
+    isPortal: Boolean
 });
 
 const categories = [
@@ -280,7 +283,12 @@ const closeModal = () => isModalOpen.value = false;
 
 const submitForm = () => {
     form.priority = form.is_urgent ? 'urgent' : 'normal';
-    form.post(route('care.store'), {
+    
+    let targetRoute = route('care.store');
+    if (page.url.startsWith('/portal')) targetRoute = route('portal.care.store');
+    if (page.url.startsWith('/ministry')) targetRoute = route('ministry.care.store');
+
+    form.post(targetRoute, {
         preserveScroll: true,
         onSuccess: () => closeModal(),
     });
@@ -288,7 +296,11 @@ const submitForm = () => {
 
 const deleteRequest = (id) => {
     if (confirm('Huỷ bỏ yêu cầu này?')) {
-        router.delete(route('care.destroy', id), { preserveScroll: true });
+        let targetRoute = route('care.destroy', id);
+        if (page.url.startsWith('/portal')) targetRoute = route('portal.care.destroy', id);
+        if (page.url.startsWith('/ministry')) targetRoute = route('ministry.care.destroy', id);
+        
+        router.delete(targetRoute, { preserveScroll: true });
     }
 };
 
@@ -305,7 +317,11 @@ const openStatusModal = (req) => {
 const closeStatusModal = () => isStatusModalOpen.value = false;
 
 const submitStatus = () => {
-    statusForm.patch(route('care.status.update', selectedReqId.value), {
+    let targetRoute = route('care.status.update', selectedReqId.value);
+    if (page.url.startsWith('/portal')) targetRoute = route('portal.care.updateStatus', selectedReqId.value);
+    if (page.url.startsWith('/ministry')) targetRoute = route('ministry.care.updateStatus', selectedReqId.value);
+
+    statusForm.patch(targetRoute, {
         preserveScroll: true,
         onSuccess: () => closeStatusModal()
     });

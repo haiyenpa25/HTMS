@@ -16,18 +16,26 @@ class DocumentController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $isPortal = $request->routeIs('portal.*') || $request->routeIs('ministry.*');
+        $departmentId = $request->session()->get('active_department_id');
         
         $query = Document::with(['uploader', 'department']);
 
-        // Phân quyền hiển thị:
-        if ($user->isSuperAdmin()) {
-            // SuperAdmin thấy hết tất cả
+        if ($isPortal && $departmentId) {
+            // Portal Context: Chỉ xem tài liệu của Ban ngành này
+            $query->where('department_id', $departmentId);
+            if (!$user->isSuperAdmin()) {
+                $query->where(function($q) use ($user) {
+                    $q->whereIn('visibility', ['public', 'internal', 'leadership'])
+                      ->orWhere('uploaded_by', $user->id);
+                });
+            }
         } else {
-            // Tạm thời, người dùng bình thường thấy public và internal,
-            // cùng với những tài liệu do chính mình upload.
-            // Nếu muốn cấp quyền thấy 'leadership', có thể bổ sung MAC logic sau.
-            $query->whereIn('visibility', ['public', 'internal'])
-                  ->orWhere('uploaded_by', $user->id);
+            // Admin / Global Context
+            if (!$user->isSuperAdmin()) {
+                $query->whereIn('visibility', ['public', 'internal'])
+                      ->orWhere('uploaded_by', $user->id);
+            }
         }
 
         // Lọc category nếu có
@@ -62,6 +70,7 @@ class DocumentController extends Controller
         return Inertia::render('Documents/Index', [
             'documents' => $documents,
             'filters' => $request->only(['search', 'category']),
+            'isPortal' => $isPortal,
         ]);
     }
 
@@ -89,6 +98,9 @@ class DocumentController extends Controller
         $fileName = time() . '_' . $file->getClientOriginalName();
         $filePath = $file->storeAs('documents', $fileName, 'local'); // Storage/app/documents (Not public)
 
+        $isPortal = $request->routeIs('portal.*') || $request->routeIs('ministry.*');
+        $deptId = $isPortal ? $request->session()->get('active_department_id') : $request->department_id;
+
         Document::create([
             'title' => $request->title,
             'description' => $request->description,
@@ -98,7 +110,7 @@ class DocumentController extends Controller
             'category' => $request->category,
             'visibility' => $request->visibility,
             'uploaded_by' => Auth::id(),
-            'department_id' => $request->department_id,
+            'department_id' => $deptId,
         ]);
 
         return redirect()->back()->with('success', 'Tài liệu đã được đăng tải thành công.');

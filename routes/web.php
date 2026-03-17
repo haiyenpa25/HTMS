@@ -174,6 +174,10 @@ Route::middleware('auth')->group(function () {
         // Quản lý Bản Tin (Announcements)
         Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class)->except(['show', 'edit', 'update'])->names('admin.announcements');
 
+        // Quản lý Biểu mẫu (Forms Manager)
+        Route::resource('forms-manager', \App\Http\Controllers\Admin\FormTemplateController::class)->except(['create', 'edit', 'show'])->parameters(['forms-manager' => 'form'])->names('admin.forms-manager');
+        Route::get('forms-manager/{form}/download', [\App\Http\Controllers\Admin\FormTemplateController::class, 'download'])->name('admin.forms-manager.download');
+
         // Activity Logs
         Route::get('/activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity.logs');
     });
@@ -275,6 +279,21 @@ Route::middleware('auth')->group(function () {
                 Route::delete('/{chronicle}', [\App\Http\Controllers\Portal\ChronicleController::class, 'destroy'])->name('destroy');
             });
         });
+        // Tài liệu nội bộ Ban Ngành
+        Route::middleware('portal.access:documents,activities')->group(function () {
+            Route::get('/documents', [\App\Http\Controllers\DocumentController::class, 'index'])->name('portal.documents.index');
+            Route::post('/documents', [\App\Http\Controllers\DocumentController::class, 'store'])->name('portal.documents.store');
+            Route::delete('/documents/{document}', [\App\Http\Controllers\DocumentController::class, 'destroy'])->name('portal.documents.destroy');
+        });
+
+        // Chăm Sóc Tín Hữu
+        Route::middleware('portal.access:care,activities')->group(function () {
+            Route::get('/care', [\App\Http\Controllers\CareController::class, 'index'])->name('portal.care.index');
+            Route::post('/care', [\App\Http\Controllers\CareController::class, 'store'])->name('portal.care.store');
+            Route::patch('/care/{careRequest}/status', [\App\Http\Controllers\CareController::class, 'updateStatus'])->name('portal.care.updateStatus');
+            Route::patch('/care/{careRequest}/assign', [\App\Http\Controllers\CareController::class, 'assign'])->name('portal.care.assign');
+            Route::delete('/care/{careRequest}', [\App\Http\Controllers\CareController::class, 'destroy'])->name('portal.care.destroy');
+        });
     });
 
 
@@ -336,6 +355,22 @@ Route::middleware('auth')->group(function () {
                 Route::put('/{chronicle}', [\App\Http\Controllers\Portal\ChronicleController::class, 'update'])->name('update');
                 Route::delete('/{chronicle}', [\App\Http\Controllers\Portal\ChronicleController::class, 'destroy'])->name('destroy');
             });
+        });
+
+        // Tài liệu nội bộ Ban Ngành (Mục vụ)
+        Route::middleware('portal.access:documents,ministry')->group(function () {
+            Route::get('/documents', [\App\Http\Controllers\DocumentController::class, 'index'])->name('ministry.documents.index');
+            Route::post('/documents', [\App\Http\Controllers\DocumentController::class, 'store'])->name('ministry.documents.store');
+            Route::delete('/documents/{document}', [\App\Http\Controllers\DocumentController::class, 'destroy'])->name('ministry.documents.destroy');
+        });
+
+        // Chăm Sóc Tín Hữu (Mục vụ)
+        Route::middleware('portal.access:care,ministry')->group(function () {
+            Route::get('/care', [\App\Http\Controllers\CareController::class, 'index'])->name('ministry.care.index');
+            Route::post('/care', [\App\Http\Controllers\CareController::class, 'store'])->name('ministry.care.store');
+            Route::patch('/care/{careRequest}/status', [\App\Http\Controllers\CareController::class, 'updateStatus'])->name('ministry.care.updateStatus');
+            Route::patch('/care/{careRequest}/assign', [\App\Http\Controllers\CareController::class, 'assign'])->name('ministry.care.assign');
+            Route::delete('/care/{careRequest}', [\App\Http\Controllers\CareController::class, 'destroy'])->name('ministry.care.destroy');
         });
 
         // ─── Ban Cơ Đốc Giáo Dục — Education sub-portal ──────────────────────

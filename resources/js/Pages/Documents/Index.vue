@@ -203,6 +203,7 @@ const currentLayout = computed(() => {
 const props = defineProps({
     documents: Object,
     filters: Object,
+    isPortal: Boolean,
 });
 
 const categories = [
@@ -241,7 +242,11 @@ const openUploadModal = () => {
 const closeUploadModal = () => { isUploadModalOpen.value = false; };
 
 const submitUpload = () => {
-    form.post(route('documents.store'), {
+    let targetRoute = route('documents.store');
+    if (page.url.startsWith('/portal')) targetRoute = route('portal.documents.store');
+    if (page.url.startsWith('/ministry')) targetRoute = route('ministry.documents.store');
+    
+    form.post(targetRoute, {
         preserveScroll: true,
         onSuccess: () => closeUploadModal(),
     });
@@ -250,7 +255,11 @@ const submitUpload = () => {
 // DELETE LOGIC
 const confirmDelete = (id) => {
     if (confirm('Bạn có chắc chắn muốn xóa vĩnh viễn tài liệu này khỏi Thư viện không?')) {
-        router.delete(route('documents.destroy', id), {
+        let targetRoute = route('documents.destroy', id);
+        if (page.url.startsWith('/portal')) targetRoute = route('portal.documents.destroy', id);
+        if (page.url.startsWith('/ministry')) targetRoute = route('ministry.documents.destroy', id);
+
+        router.delete(targetRoute, {
             preserveScroll: true,
         });
     }

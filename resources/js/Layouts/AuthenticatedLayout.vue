@@ -108,6 +108,7 @@
             <Link :href="route('admin.chronicles.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.chronicles.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Sổ tay Hội thánh</Link>
             <Link :href="route('admin.assets.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.assets.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Quản lý thiết bị</Link>
             <Link :href="route('documents.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('documents.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Quản lý tài liệu</Link>
+            <Link :href="route('admin.forms-manager.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.forms-manager.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Biểu mẫu hệ thống</Link>
           </div>
         </div>
 

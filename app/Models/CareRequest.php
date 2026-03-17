@@ -18,6 +18,7 @@ class CareRequest extends Model
         'priority',
         'is_private',
         'assigned_to',
+        'department_id',
         'resolution_notes'
     ];
 
@@ -33,5 +34,10 @@ class CareRequest extends Model
     public function assignee()
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
     }
 }

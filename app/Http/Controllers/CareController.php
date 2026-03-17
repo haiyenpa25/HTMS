@@ -13,17 +13,28 @@ class CareController extends Controller
     {
         $user = Auth::user();
         $isPastor = $user->isSuperAdmin();
+        $isPortal = $request->routeIs('portal.*') || $request->routeIs('ministry.*');
+        $departmentId = $request->session()->get('active_department_id');
         
-        $query = CareRequest::with(['user', 'assignee'])->latest();
+        $query = CareRequest::with(['user', 'assignee', 'department'])->latest();
 
-        if (!$isPastor) {
-            // Tín hữu chỉ thấy yêu cầu của chính mỉnh
-            $query->where('user_id', $user->id);
-            // Kể cả Ban Chăm sóc/Deacon nếu không phải Pastor thì không xem được yêu cầu Tư vấn (Is_private)
-            if ($user->isSuperAdmin()) {
-                // Hoặc được assign, hoặc do chính mình tạo
-                $query->orWhere(function($q) use ($user) {
-                    $q->where('assigned_to', $user->id)->where('is_private', false);
+        if ($isPortal && $departmentId) {
+            // Portal: Xem yêu cầu thuộc Ban ngành này
+            $query->where('department_id', $departmentId);
+            if (!$isPastor) {
+                $query->where(function($q) use ($user) {
+                    $q->where('is_private', false)
+                      ->orWhere('user_id', $user->id)
+                      ->orWhere('assigned_to', $user->id);
+                });
+            }
+        } else {
+            // Admin / Global
+            if (!$isPastor) {
+                // Tín hữu chỉ thấy yêu cầu của chính mình hoặc được assign
+                $query->where(function($q) use ($user) {
+                    $q->where('user_id', $user->id)
+                      ->orWhere('assigned_to', $user->id);
                 });
             }
         }
@@ -43,7 +54,8 @@ class CareController extends Controller
         return Inertia::render('Care/Index', [
             'requests' => $requests,
             'filters' => $request->only(['category', 'status']),
-            'isPastor' => $isPastor
+            'isPastor' => $isPastor,
+            'isPortal' => $isPortal
         ]);
     }
 
@@ -54,8 +66,12 @@ class CareController extends Controller
             'content' => 'required|string',
             'category' => 'required|in:prayer,counseling,feedback,support',
             'priority' => 'required|in:low,normal,high,urgent',
-            'is_private' => 'boolean'
+            'is_private' => 'boolean',
+            'department_id' => 'nullable|exists:departments,id'
         ]);
+
+        $isPortal = $request->routeIs('portal.*') || $request->routeIs('ministry.*');
+        $deptId = $isPortal ? $request->session()->get('active_department_id') : ($validated['department_id'] ?? null);
 
         // Nếu là tư vấn thì luôn coi là ưu tiên và mật
         if ($validated['category'] === 'counseling') {
@@ -70,6 +86,7 @@ class CareController extends Controller
             'category' => $validated['category'],
             'priority' => $validated['priority'],
             'is_private' => $validated['is_private'] ?? false,
+            'department_id' => $deptId,
             'status' => 'pending'
         ]);
 
