@@ -31,6 +31,14 @@ class FeatureSeeder extends Seeder
         ['name' => 'Điểm Danh Lớp',     'slug' => 'education-attendance', 'icon' => '📝', 'portal_type' => 'ministry', 'description' => 'Điểm danh và chấm điểm theo buổi học'],
         ['name' => 'Tiền Dâng Lớp',     'slug' => 'education-offering',   'icon' => '💵', 'portal_type' => 'ministry', 'description' => 'Theo dõi tiền dâng theo lớp và buổi học'],
         ['name' => 'Báo Cáo Giáo Dục',  'slug' => 'education-report',     'icon' => '📈', 'portal_type' => 'ministry', 'description' => 'Báo cáo tổng hợp theo tháng cho cơ đốc giáo dục'],
+        // ── Tính Năng Hệ Thống (system / admin) ──────────────────────────────
+        ['name' => 'Sổ tay Hội Thánh',  'slug' => 'chronicles',           'icon' => '📖', 'portal_type' => 'admin', 'description' => 'Biên niên sử sự kiện trọng đại của tổ chức'],
+        ['name' => 'Nhật Ký Hoạt Động', 'slug' => 'activity-logs',        'icon' => '📜', 'portal_type' => 'admin', 'description' => 'Tra cứu System Audit Logs'],
+        ['name' => 'Tài Liệu',          'slug' => 'documents',            'icon' => '📁', 'portal_type' => 'admin', 'description' => 'Lưu trữ văn bản, file trên đám mây'],
+        ['name' => 'Thiết Bị',          'slug' => 'assets',               'icon' => '🖨️', 'portal_type' => 'admin', 'description' => 'Quản lý cơ sở vật chất, thiết bị mượn/trả'],
+        ['name' => 'Người Dùng',        'slug' => 'users-manager',        'icon' => '🧑‍💼', 'portal_type' => 'admin', 'description' => 'Danh sách tài khoản và phiên đăng nhập'],
+        ['name' => 'Biểu Mẫu',          'slug' => 'forms-manager',        'icon' => '📄', 'portal_type' => 'admin', 'description' => 'Tạo và quản lý các loại Đơn từ/Biểu mẫu trực tuyến'],
+        ['name' => 'Chăm Sóc',          'slug' => 'care',                 'icon' => '🤝', 'portal_type' => 'activities', 'description' => 'Quản lý thông tin và vòng đời chăm sóc tín hữu'],
     ];
 
     public function run(): void

@@ -30,7 +30,9 @@ git push origin main
 cd /var/www/html/cms
 git pull origin main
 composer install --no-dev --optimize-autoloader
+php artisan db:backup
 php artisan migrate --force
+php artisan mac:sync-features
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
