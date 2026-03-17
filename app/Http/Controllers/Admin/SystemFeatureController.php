@@ -37,16 +37,18 @@ class SystemFeatureController extends Controller
         $validated = $request->validate([
             'feature_id'     => 'required|exists:features,id',
             'scope'          => 'required|in:global,block,specific',
-            'block_type'     => 'nullable|string',
-            'is_active'      => 'required|boolean',
             'department_ids' => 'array',
             'department_ids.*' => 'integer|exists:departments,id',
+            'data_scope'     => 'required|in:global,dept,group,self',
+            'is_active'      => 'required|boolean',
+            'block_type'     => 'nullable|string'
         ]);
 
         $featureId  = $validated['feature_id'];
         $scope      = $validated['scope'];
         $blockType  = $validated['block_type'] ?? null;
         $isActive   = $validated['is_active'];
+        $dataScope  = $validated['data_scope'];
 
         // 1. DELETE ALL existing configs for this feature to prevent "ghost" records
         FeatureDepartment::where('feature_id', $featureId)->delete();
@@ -58,6 +60,7 @@ class SystemFeatureController extends Controller
                 'block_type'    => null,
                 'department_id' => null,
                 'scope'         => 'global',
+                'data_scope'    => $dataScope,
                 'is_active'     => $isActive,
             ]);
         } elseif ($scope === 'block') {
@@ -66,6 +69,7 @@ class SystemFeatureController extends Controller
                 'block_type'    => $blockType,
                 'department_id' => null,
                 'scope'         => 'block',
+                'data_scope'    => $dataScope,
                 'is_active'     => $isActive,
             ]);
         } else { // specific
@@ -81,6 +85,7 @@ class SystemFeatureController extends Controller
                         'block_type'    => $blockType,
                         'department_id' => $deptId,
                         'scope'         => 'specific',
+                        'data_scope'    => $dataScope,
                         'is_active'     => true,
                         'created_at'    => now(),
                         'updated_at'    => now(),
@@ -123,6 +128,7 @@ class SystemFeatureController extends Controller
             'block_type'    => 'nullable|string',
             'scope'         => 'required|in:global,block,specific',
             'is_active'     => 'required|boolean',
+            'data_scope'    => 'nullable|string',
         ]);
 
         $featureId    = $validated['feature_id'];
@@ -130,6 +136,7 @@ class SystemFeatureController extends Controller
         $block        = $validated['block_type'];
         $scope        = $validated['scope'];
         $isActive     = $validated['is_active'];
+        $dataScope    = $validated['data_scope'] ?? 'dept';
 
         // Find or create the assignment record
         $query = FeatureDepartment::where('feature_id', $featureId)
@@ -150,8 +157,16 @@ class SystemFeatureController extends Controller
                 'department_id' => ($scope === 'specific' ? $deptId : null),
                 'block_type'    => ($scope === 'block' ? $block : null),
             ], [
-                'is_active' => true
+                'is_active' => true,
+                'data_scope' => $dataScope
             ]);
+            
+            // If toggling a broader scope on, clean up narrower negative records
+            if ($scope === 'global') {
+                FeatureDepartment::where('feature_id', $featureId)->where('scope', '!=', 'global')->delete();
+            } elseif ($scope === 'block') {
+                FeatureDepartment::where('feature_id', $featureId)->where('scope', 'specific')->where('block_type', $block)->delete();
+            }
         } else {
             // Explicitly set is_active = false to prevent inheritance from global/block configs
             $query->updateOrCreate([
@@ -160,7 +175,8 @@ class SystemFeatureController extends Controller
                 'department_id' => ($scope === 'specific' ? $deptId : null),
                 'block_type'    => ($scope === 'block' ? $block : null),
             ], [
-                'is_active' => false
+                'is_active' => false,
+                'data_scope' => $dataScope ?? 'dept' // fallback
             ]);
         }
 

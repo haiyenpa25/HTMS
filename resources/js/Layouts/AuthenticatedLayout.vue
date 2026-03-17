@@ -88,6 +88,7 @@
             <Link :href="route('roles.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('roles.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Chức vụ</Link>
             <Link :href="route('admin.features.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.features.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Tính năng</Link>
             <Link :href="route('admin.users.permissions')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.users.permissions*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Phân quyền</Link>
+            <Link :href="route('admin.chronicles.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.chronicles.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Sổ tay Hội thánh</Link>
           </div>
         </div>
 
@@ -137,7 +138,7 @@
           <svg class="w-5 h-5 shrink-0" :class="route().current('documents.*') ? 'text-emerald-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
           <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Quản lý tài liệu Tài Liệu</span>
         </Link>
-        <Link :href="route('help.install')" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group text-emerald-600 hover:bg-emerald-50">
+        <Link :href="route('help.install', { mode: 'theo-chuc-nang' })" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group text-emerald-600 hover:bg-emerald-50">
           <svg class="w-5 h-5 shrink-0 text-emerald-500 group-hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Hướng dẫn / Tài liệu</span>
         </Link>
@@ -264,7 +265,7 @@
                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                  Kho Tài Liệu
                </Link>
-               <Link :href="route('help.install')" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">
+               <Link :href="route('help.install', { mode: 'theo-chuc-nang' })" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">
                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                  Hướng dẫn / Tài liệu
                </Link>
@@ -286,6 +287,10 @@
                <Link :href="route('admin.users.permissions')" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">
                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                  Phân quyền
+               </Link>
+               <Link :href="route('admin.chronicles.index')" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">
+                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                 Sổ tay Hội thánh
                </Link>
                <Link :href="route('member.portal.index')" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all text-gray-700 hover:bg-gray-50 mb-1">
                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -394,7 +399,7 @@ const isSidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'tru
 const isDeptsMenuOpen = ref(route().current('portal.*') || route().current('ministry.*') || route().current('deacon.*') || route().current('departments.*'));
 const isBelieversMenuOpen = ref(route().current('members.*') || route().current('admin.visitors.*') || route().current('care.*'));
 const isEventsMenuOpen = ref(route().current('calendar.*') || route().current('meetings.*') || route().current('duty-rooster.*'));
-const isSystemMenuOpen = ref(route().current('users.*') || route().current('roles.*') || route().current('admin.features.*') || route().current('admin.users.permissions*'));
+const isSystemMenuOpen = ref(route().current('users.*') || route().current('roles.*') || route().current('admin.features.*') || route().current('admin.users.permissions*') || route().current('admin.chronicles.*'));
 const isSettingsMenuOpen = ref(route().current('speakers.*') || route().current('member.portal.*') || route().current('admin.activity.logs*'));
 const isCommunicationsMenuOpen = ref(route().current('admin.announcements.*') || route().current('notifications.*') || route().current('admin.broadcasts.*'));
 

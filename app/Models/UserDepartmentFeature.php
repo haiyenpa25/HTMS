@@ -13,6 +13,7 @@ class UserDepartmentFeature extends Model
         'dept_type',
         'is_enabled',
         'access_level',
+        'data_scope',
     ];
 
     protected $casts = [

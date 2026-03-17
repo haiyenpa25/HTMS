@@ -25,7 +25,7 @@ class FinanceContextTest extends TestCase
 
     public function test_super_admin_can_switch_to_any_department_context()
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->create(['is_superadmin' => true]);
         $admin->assignRole('Pastor');
 
         $dept = Department::create(['code' => 'TN', 'name' => 'Thanh Niên']);
@@ -35,6 +35,7 @@ class FinanceContextTest extends TestCase
                 'department_id' => $dept->id,
             ]);
 
+        $response->dump();
         $response->assertSessionHas('active_finance_dept_id', $dept->id);
     }
 
@@ -42,13 +43,26 @@ class FinanceContextTest extends TestCase
     {
         $lead = User::factory()->create();
         $lead->assignRole('Department_Lead');
-        $lead->givePermissionTo('view_finance');
+        // $lead->givePermissionTo('view_finance'); // Deprecated by MAC V2
 
         $ownDept = Department::create(['code' => 'TN1', 'name' => 'Thiếu Nhi']);
         $otherDept = Department::create(['code' => 'PN1', 'name' => 'Phụ Nữ']);
 
+        $member = \App\Models\Member::factory()->create(['user_id' => $lead->id]);
         $deptLeadRole = \App\Models\OrgRole::where('code', 'dept_lead')->first() ?? \App\Models\OrgRole::create(['name' => 'Trưởng ban', 'code' => 'dept_lead', 'level' => 50]);
-        $ownDept->members()->attach($lead->id, ['org_role_id' => $deptLeadRole->id]);
+        $ownDept->members()->attach($member->id, [
+            'org_role_id' => $deptLeadRole->id,
+            'model_type' => Department::class
+        ]);
+
+        $financeFeature = \App\Models\Feature::where('slug', 'finance')->first();
+        \App\Models\UserDepartmentFeature::create([
+            'user_id' => $lead->id,
+            'department_id' => $ownDept->id,
+            'feature_id' => $financeFeature->id,
+            'is_enabled' => true,
+            'data_scope' => 'dept'
+        ]);
 
         // Can switch to own
         $response1 = $this->actingAs($lead)

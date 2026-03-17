@@ -20,29 +20,37 @@ const isCreating = ref(false);
 // ── Current config for active feature (parsed) ────────────────────────────────
 const getCurrentConfig = (featureId) => {
     const configs = (props.systemConfig || []).filter(c => c.feature_id === featureId);
-    const global = configs.find(c => c.scope === 'global' || (c.block_type === null && c.department_id === null));
-    if (global) return { scope: 'global', block_type: null, is_active: global.is_active, department_ids: [] };
     
-    const blockConfigs = configs.filter(c => c.department_id === null && c.block_type !== null);
-    if (blockConfigs.length > 0) {
-        return { scope: 'block', block_type: blockConfigs[0].block_type, is_active: blockConfigs[0].is_active, department_ids: [] };
+    // Check if there is a 'global' scope config specifically
+    const globalConfig = configs.find(c => c.scope === 'global');
+    if (globalConfig && globalConfig.is_active) {
+        return { scope: 'global', block_type: null, is_active: true, department_ids: [], data_scope: globalConfig.data_scope || 'dept' };
     }
 
-    const specific = configs.filter(c => c.department_id !== null);
-    if (specific.length > 0) {
+    // Check if there is a 'block' scope config
+    const blockConfigs = configs.filter(c => c.scope === 'block' && c.is_active);
+    if (blockConfigs.length > 0) {
+        return { scope: 'block', block_type: blockConfigs[0].block_type, is_active: true, department_ids: [], data_scope: blockConfigs[0].data_scope || 'dept' };
+    }
+
+    // Check if there are 'specific' scope configs
+    const specificConfigs = configs.filter(c => c.scope === 'specific' && c.is_active);
+    if (specificConfigs.length > 0) {
         return {
             scope: 'specific',
-            block_type: specific[0].block_type,
+            block_type: specificConfigs[0].block_type || 'activities', // Fallback block to show the right UI tab
             is_active: true,
-            department_ids: specific.map(c => c.department_id),
+            department_ids: specificConfigs.map(c => c.department_id),
+            data_scope: specificConfigs[0].data_scope || 'dept',
         };
     }
 
-    return { scope: 'block', block_type: 'activities', is_active: true, department_ids: [] };
+    // If no active configs found, default state for the UI form
+    return { scope: 'global', block_type: 'activities', is_active: false, department_ids: [], data_scope: 'dept' };
 };
 
 // ── Form State ─────────────────────────────────────────────────────────────────
-const form = ref({ scope: 'block', block_type: 'activities', is_active: true, department_ids: [] });
+const form = ref({ scope: 'block', block_type: 'activities', is_active: true, department_ids: [], data_scope: 'dept' });
 
 const blockTypes = [
     { id: 'activities', name: 'Ban Sinh Hoạt', icon: '🎯', desc: 'Điểm danh, báo cáo, thành viên v.v.', color: 'blue' },
@@ -67,6 +75,8 @@ const featureIconMap = {
     'assignments':      { path: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', color: 'text-amber-600 bg-amber-50' },
     'education-classes':{ path: 'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z', color: 'text-cyan-600 bg-cyan-50' },
     'education-report': { path: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', color: 'text-cyan-600 bg-cyan-50' },
+    'chronicles':       { path: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', color: 'text-rose-600 bg-rose-50' },
+    'module_chronicles':{ path: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', color: 'text-rose-600 bg-rose-50' },
     'default':          { path: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z', color: 'text-gray-600 bg-gray-100' },
 };
 
@@ -111,6 +121,7 @@ const saveConfig = async () => {
             block_type:     form.value.scope === 'global' ? null : form.value.block_type,
             is_active:      form.value.is_active,
             department_ids: form.value.scope === 'specific' ? form.value.department_ids : [],
+            data_scope:     form.value.data_scope,
         });
         router.reload({ only: ['systemConfig'], onSuccess: () => {
             showToast('✅ Đã lưu thành công!');
@@ -178,7 +189,8 @@ const toggleMatrix = async (featureId, deptId, block, scope, currentVal) => {
             department_id: deptId,
             block_type: block,
             scope: scope,
-            is_active: !currentVal
+            is_active: !currentVal,
+            data_scope: form.value.data_scope || 'dept'
         });
         router.reload({ only: ['systemConfig'] });
     } catch (err) {
@@ -438,6 +450,41 @@ const globalCount = computed(() => (props.systemConfig || []).filter(c => c.scop
                                         <span class="text-[10px] font-black bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full uppercase">Specific</span>
                                     </div>
                                     <p class="text-xs text-gray-500 mt-1">Chỉ hiển thị cho <strong>những ban được chọn</strong>. Các ban khác không thấy.</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- STEP 1.5: Data Scope -->
+                    <div class="mb-7">
+                        <p class="text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Bước 1.5 — Tầm Nhìn Dữ Liệu (Data Scope)</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <label :class="['flex items-center gap-2.5 p-3 rounded-xl border-2 cursor-pointer transition-all', form.data_scope === 'global' ? 'border-indigo-400 bg-indigo-50/60 shadow-sm' : 'border-gray-200 bg-white hover:border-indigo-200']">
+                                <input type="radio" v-model="form.data_scope" value="global" class="w-4 h-4 text-indigo-600">
+                                <div>
+                                    <p class="font-bold text-sm text-gray-900 leading-tight">Global (🌐)</p>
+                                    <p class="text-[10px] text-gray-500 mt-0.5">Toàn Hội Thánh</p>
+                                </div>
+                            </label>
+                            <label :class="['flex items-center gap-2.5 p-3 rounded-xl border-2 cursor-pointer transition-all', form.data_scope === 'dept' ? 'border-indigo-400 bg-indigo-50/60 shadow-sm' : 'border-gray-200 bg-white hover:border-indigo-200']">
+                                <input type="radio" v-model="form.data_scope" value="dept" class="w-4 h-4 text-indigo-600">
+                                <div>
+                                    <p class="font-bold text-sm text-gray-900 leading-tight">Department (🏢)</p>
+                                    <p class="text-[10px] text-gray-500 mt-0.5">Ban đang truy cập</p>
+                                </div>
+                            </label>
+                            <label :class="['flex items-center gap-2.5 p-3 rounded-xl border-2 cursor-pointer transition-all', form.data_scope === 'group' ? 'border-indigo-400 bg-indigo-50/60 shadow-sm' : 'border-gray-200 bg-white hover:border-indigo-200']">
+                                <input type="radio" v-model="form.data_scope" value="group" class="w-4 h-4 text-indigo-600">
+                                <div>
+                                    <p class="font-bold text-sm text-gray-900 leading-tight">Group (👥)</p>
+                                    <p class="text-[10px] text-gray-500 mt-0.5">Khu vực / Đội nhóm</p>
+                                </div>
+                            </label>
+                            <label :class="['flex items-center gap-2.5 p-3 rounded-xl border-2 cursor-pointer transition-all', form.data_scope === 'self' ? 'border-indigo-400 bg-indigo-50/60 shadow-sm' : 'border-gray-200 bg-white hover:border-indigo-200']">
+                                <input type="radio" v-model="form.data_scope" value="self" class="w-4 h-4 text-indigo-600">
+                                <div>
+                                    <p class="font-bold text-sm text-gray-900 leading-tight">Self (👤)</p>
+                                    <p class="text-[10px] text-gray-500 mt-0.5">Dữ liệu cá nhân</p>
                                 </div>
                             </label>
                         </div>

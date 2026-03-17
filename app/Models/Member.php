@@ -9,6 +9,8 @@ use App\Models\OrgRole;
 use App\Models\Department;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Models\ChronicleEntry;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Member extends Model
 {
@@ -117,6 +119,14 @@ class Member extends Model
     public function attendances()
     {
         return $this->hasMany(MeetingAttendance::class);
+    }
+
+    /**
+     * Get all chronicle entries explicitly related to this member profile.
+     */
+    public function chronicles(): MorphMany
+    {
+        return $this->morphMany(ChronicleEntry::class, 'subject');
     }
 
     public function hasOrgRoleIn($departmentId, array $roles)

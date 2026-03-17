@@ -287,6 +287,7 @@ const ICONS = {
   finance:    'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
   assignment: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
   education:  'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z',
+  logs:       'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
 };
 
 // Computes nav items based on portal type + enabled features + user permissions
@@ -307,7 +308,9 @@ const visibleNavItems = computed(() => {
       (f['members']||f['thanh-vien']) && { key: 'members', label: 'Thành Viên', shortLabel: 'T.Viên', icon: ICONS.members, href: route('portal.members.index'), active: route().current('portal.members.*'), disabled: !(p['members']||p['thanh-vien']) },
       f['reports']      && { key: 'reports',      label: 'Báo Cáo',     shortLabel: 'Báo Cáo',     icon: ICONS.reports,    href: route('portal.reports.index'),    active: route().current('portal.reports.*'),    disabled: !p['reports'] },
       f['finance']      && { key: 'finance',      label: 'Tài Chính',   shortLabel: 'Tài Chính',   icon: ICONS.finance,    href: route('portal.finance.index'),    active: route().current('portal.finance.*'),    disabled: !p['finance'] },
+      (f['module_chronicles'] || f['chronicles']) && { key: 'chronicles', label: 'Sổ Tay HT', shortLabel: 'Sổ Tay', icon: ICONS.logs, href: route('portal.chronicles.index'), active: route().current('portal.chronicles.*'), disabled: false },
       f['assignments']  && { key: 'assignments',  label: 'Phân Công',   shortLabel: 'P.Công',      icon: ICONS.assignment, href: route('portal.duty-rooster.index'), active: route().current('portal.duty-rooster.*'), disabled: !p['assignments'] },
+      { key: 'logs', label: 'Nhật Ký', shortLabel: 'Nhật Ký', icon: ICONS.logs, href: route('portal.logs'), active: route().current('portal.logs') },
     ].filter(Boolean);
   }
 
@@ -318,7 +321,9 @@ const visibleNavItems = computed(() => {
       f['visitation']   && { key: 'visitation',   label: 'Thăm Viếng',  shortLabel: 'Thăm Viếng',  icon: ICONS.visitation, href: route('ministry.visitation.index'), active: route().current('ministry.visitation.*'), disabled: !p['visitation'] },
       f['education-classes'] && { key: 'classes', label: 'Lớp Học',     shortLabel: 'Lớp Học',     icon: ICONS.education,  href: route('ministry.education.classes'), active: route().current('ministry.education.classes'), disabled: !p['education-classes'] },
       f['education-report']  && { key: 'edu-rep', label: 'BC Giáo Dục', shortLabel: 'BC-GD',       icon: ICONS.reports,    href: route('ministry.education.report'),  active: route().current('ministry.education.report'),  disabled: !p['education-report'] },
+      (f['module_chronicles'] || f['chronicles']) && { key: 'chronicles', label: 'Sổ Tay HT', shortLabel: 'Sổ Tay', icon: ICONS.logs, href: route('ministry.chronicles.index'), active: route().current('ministry.chronicles.*'), disabled: false },
       f['assignments']  && { key: 'assignments',  label: 'Phân Công',   shortLabel: 'P.Công',      icon: ICONS.assignment, href: route('ministry.duty-rooster.index'), active: route().current('ministry.duty-rooster.*'), disabled: !p['assignments'] },
+      { key: 'logs', label: 'Nhật Ký', shortLabel: 'Nhật Ký', icon: ICONS.logs, href: route('ministry.logs'), active: route().current('ministry.logs') },
     ].filter(Boolean);
   }
 

@@ -18,10 +18,21 @@ class MemberPortalController extends Controller
         $member = Member::where('user_id', $user->id)
             ->with([
                 'departments:id,name,block',
-                'household',
+                'household.members',
                 'sensitiveInfo',
+                'memberships.model',
+                'memberships.role',
+                'talents',
+                'attendances' => function($q) {
+                    $q->latest('created_at')->take(1)->with('meeting:id,date');
+                },
+                'visitations' => function($q) {
+                    $q->latest('visit_date')->with('visitors:id,full_name');
+                }
             ])
             ->first();
+
+        $hasPortalAccess = $user->isSuperAdmin() || \DB::table('user_department_features')->where('user_id', $user->id)->exists();
 
         // Các yêu cầu chăm sóc của tín hữu này
         $careRequests = [];
@@ -85,31 +96,87 @@ class MemberPortalController extends Controller
                 ->toArray();
                 
             $eventsQuery = \App\Models\Event::where('start_time', '>=', now());
-            $eventsQuery->where(function ($q) use ($userDepartments) {
+            $eventsQuery->where(function ($q) use ($userDepartments, $user) {
                 $q->whereIn('scope_type', ['global', 'internal'])
                   ->orWhere(function ($subQ) use ($userDepartments) {
                       $subQ->where('scope_type', 'department')
                            ->whereIn('scope_id', $userDepartments);
+                  })
+                  ->orWhere(function ($subQ) use ($user) {
+                      $subQ->where('scope_type', 'personal')
+                           ->where('created_by', $user->id);
                   });
             });
             $events = $eventsQuery->orderBy('start_time')->take(3)->get()->map(function($e) {
                 return [
                     'id' => 'evt_'.$e->id,
+                    'raw_id' => $e->id,
                     'title' => $e->title,
                     'meeting_date' => $e->start_time->format('Y-m-d H:i:s'),
                     'location' => $e->location,
                     'type' => $e->type,
+                    'scope_type' => $e->scope_type, // pass scope type to allow delete validation on frontend
                 ];
             })->toArray();
             
             $upcomingEvents = array_merge($meetings, $events);
+            
+            // Lấy Lịch phân công (Duty Assignments) của Tín hữu
+            if ($member) {
+                $duties = \App\Models\DutyAssignment::with(['meeting.department', 'role'])
+                    ->where('member_id', $member->id)
+                    ->whereHas('meeting', function($q) {
+                        $q->where('date', '>=', now()->toDateString());
+                    })
+                    ->get()
+                    ->map(function($duty) {
+                        return [
+                            'id' => 'duty_'.$duty->id,
+                            'raw_id' => $duty->id,
+                            'title' => '[Phân công] - ' . ($duty->role->name ?? 'Nhiệm vụ'),
+                            'meeting_date' => $duty->meeting->date . ' ' . ($duty->meeting->time ?? '00:00:00'),
+                            'location' => $duty->meeting->department->name ?? 'Hội Thánh',
+                            'type' => 'training', // Sử dụng màu xanh emerald (badge training)
+                            'status' => $duty->status,
+                            'reason' => $duty->reason,
+                        ];
+                    })->toArray();
+                $upcomingEvents = array_merge($upcomingEvents, $duties);
+            }
+
             usort($upcomingEvents, function($a, $b) {
                 return strtotime($a['meeting_date']) - strtotime($b['meeting_date']);
             });
-            $upcomingEvents = array_slice($upcomingEvents, 0, 3);
+            $upcomingEvents = array_slice($upcomingEvents, 0, 5); // Hiển thị 5 sự kiện cho phong phú
         } catch (\Exception $e) {
             // Error merging events
         }
+
+        // Lấy sự kiện toàn bộ lịch trình tháng để chấm màu (Dots) trên giao diện Lịch
+        $monthEvents = [];
+        try {
+            $monthEventsQuery = clone $eventsQuery; // $eventsQuery is already built with permission scopes
+            $monthEventsList = $monthEventsQuery->get()->map(function($e) {
+                return [
+                    'start' => $e->start_time->format('Y-m-d H:i:s'),
+                ];
+            })->toArray();
+            
+            $monthEvents = array_merge($monthEvents, $monthEventsList);
+            
+            if ($member) {
+                $monthDuties = \App\Models\DutyAssignment::with('meeting')
+                    ->where('member_id', $member->id)
+                    ->get()
+                    ->map(function($duty) {
+                        return [
+                            'start' => $duty->meeting->date . ' ' . ($duty->meeting->time ?? '00:00:00'),
+                        ];
+                    })->toArray();
+                $monthEvents = array_merge($monthEvents, $monthDuties);
+            }
+        } catch (\Exception $e) {}
+
 
         return Inertia::render('MemberPortal/Index', [
             'member'         => $member,
@@ -117,6 +184,7 @@ class MemberPortalController extends Controller
             'notifications'  => $notifications,
             'announcements'  => $announcements,
             'upcomingEvents' => $upcomingEvents,
+            'monthEventsData' => $monthEvents,
             'careCategories' => [
                 'prayer'     => 'Cầu nguyện',
                 'visitation' => 'Thăm viếng',
@@ -124,6 +192,7 @@ class MemberPortalController extends Controller
                 'help'       => 'Hỗ trợ vật chất',
                 'other'      => 'Khác',
             ],
+            'hasPortalAccess' => $hasPortalAccess,
         ]);
     }
 

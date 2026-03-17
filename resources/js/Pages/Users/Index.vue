@@ -94,6 +94,7 @@ const portalMeta = (type) => ({
   activities: { name: 'Sinh Hoạt', icon: '🎯', color: 'emerald' },
   ministry:   { name: 'Mục Vụ',   icon: '⛪', color: 'blue' },
   deacon:     { name: 'Chấp Sự',  icon: '🛡', color: 'amber' },
+  global:     { name: 'Toàn Hệ Thống', icon: '🌐', color: 'purple' },
 })[type] || { name: type, icon: '📦', color: 'indigo' };
 
 const cardBorder = (color) => ({
@@ -101,13 +102,15 @@ const cardBorder = (color) => ({
   blue:    'border-blue-200 hover:border-blue-400',
   amber:   'border-amber-200 hover:border-amber-400',
   indigo:  'border-indigo-200 hover:border-indigo-400',
-})[color] || 'border-gray-200';
+  purple:  'border-purple-200 hover:border-purple-400',
+})[color] || 'border-gray-200 hover:border-gray-300';
 
 const textAccent = (color) => ({
   emerald: 'text-emerald-600',
   blue:    'text-blue-600',
   amber:   'text-amber-600',
   indigo:  'text-indigo-600',
+  purple:  'text-purple-600',
 })[color] || 'text-gray-600';
 
 // ── Permissions Tab: MAC Matrix ───────────────────────────────────────────────
@@ -131,7 +134,7 @@ watch(activeDeptId, (newId) => {
 });
 
 const permDeptFeatures = computed(() =>
-  (props.features || []).filter(f => f.portal_type === permSelectedBlock.value)
+  (props.features || []).filter(f => f.portal_type === permSelectedBlock.value || f.portal_type === 'global')
 );
 
 const blockOptions = [

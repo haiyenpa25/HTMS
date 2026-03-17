@@ -21,7 +21,7 @@ class EnsureDeaconContext
 
         $hasDeaconPerm = false;
         try {
-            $hasDeaconPerm = $user->isSuperAdmin();
+            $hasDeaconPerm = $user->hasPermissionTo('view_deacon');
         } catch (\Spatie\Permission\Exceptions\PermissionDoesNotExist $e) {
             // Permission 'view_deacon' chưa được seed — bỏ qua, dùng role check
         }
@@ -53,7 +53,7 @@ class EnsureDeaconContext
             ->toArray();
 
         if ($isGlobalAdmin) {
-            // Admin only gets what the department has
+            // Admin only gets what the department has (which are scopes now)
             $userPermissions = collect(\App\Models\Feature::pluck('slug'))
                 ->mapWithKeys(fn($s) => [$s => $departmentFeatures[$s] ?? false])
                 ->toArray();
@@ -65,23 +65,25 @@ class EnsureDeaconContext
                 
             foreach ($overrideRecords as $uf) {
                 if (!$uf->feature) continue;
-                $userPermissions[$uf->feature->slug] = (bool) $uf->is_enabled;
+                $userPermissions[$uf->feature->slug] = $uf->is_enabled ? ($uf->data_scope ?? 'dept') : false;
             }
         }
 
         // Structural Deacon Role overrides
-        // Thư ký and Thủ quỹ need these rendered on the sidebar irrespective of the "Ban Lãnh đạo" matrix configurations.
-        $userPermissions['attendance'] = true;       // for Secretary Điểm danh
-        $userPermissions['reports'] = true;          // for Secretary Báo cáo
-        $userPermissions['finance'] = true;          // for Treasurer Quản lý quỹ
-        $userPermissions['finance-reports'] = true;  // for Treasurer Báo cáo tài chính
-        $userPermissions['assignments'] = true;      // for All Deacons Phân công
+        // Thư ký and Thủ quỹ need these rendered on the sidebar
+        $userPermissions['attendance'] = 'global';       // for Secretary Điểm danh
+        $userPermissions['reports'] = 'global';          // for Secretary Báo cáo
+        $userPermissions['finance'] = 'global';          // for Treasurer Quản lý quỹ
+        $userPermissions['finance-reports'] = 'global';  // for Treasurer Báo cáo tài chính
+        $userPermissions['assignments'] = 'global';      // for All Deacons Phân công
 
-        $departmentFeatures['attendance'] = true;
-        $departmentFeatures['reports'] = true;
-        $departmentFeatures['finance'] = true;
-        $departmentFeatures['finance-reports'] = true;
-        $departmentFeatures['assignments'] = true;
+        $departmentFeatures['attendance'] = 'global';
+        $departmentFeatures['reports'] = 'global';
+        $departmentFeatures['finance'] = 'global';
+        $departmentFeatures['finance-reports'] = 'global';
+        $departmentFeatures['assignments'] = 'global';
+
+        $request->attributes->set('userPermissions', $userPermissions);
 
         \Inertia\Inertia::share('departmentFeatures', $departmentFeatures);
         \Inertia\Inertia::share('userPermissions', $userPermissions);

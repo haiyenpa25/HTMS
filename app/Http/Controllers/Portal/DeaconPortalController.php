@@ -535,7 +535,7 @@ class DeaconPortalController extends Controller
     {
         $action = $request->input('action'); 
         $user = $request->user();
-        $role = session('deacon_role', 'secretary');
+        $role = session('active_deacon_role', 'secretary');
         $isLeader = in_array($role, ['head', 'pastor']) || $user->isSuperAdmin();
 
         switch ($action) {

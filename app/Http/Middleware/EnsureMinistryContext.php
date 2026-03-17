@@ -92,9 +92,11 @@ class EnsureMinistryContext
             foreach ($overrideRecords as $uf) {
                 if (!$uf->feature) continue;
                 // Override theo is_enabled (có thể true hoặc false)
-                $userPermissions[$uf->feature->slug] = (bool) $uf->is_enabled;
+                $userPermissions[$uf->feature->slug] = $uf->is_enabled ? ($uf->data_scope ?? 'dept') : false;
             }
         }
+
+        $request->attributes->set('userPermissions', $userPermissions);
 
         \Inertia\Inertia::share('departmentFeatures', $departmentFeatures);
         \Inertia\Inertia::share('userPermissions', $userPermissions);

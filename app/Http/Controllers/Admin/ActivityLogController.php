@@ -3,64 +3,104 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Spatie\Activitylog\Models\Activity;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Inertia\Response;
+use Spatie\Activitylog\Models\Activity;
 
 class ActivityLogController extends Controller
 {
     /**
-     * Hiển thị màn hình Nhật ký hoạt động toàn hệ thống
+     * Display a listing of the system-wide activity logs.
+     * Only accessible by SuperAdmins via middleware.
      */
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
-        $search = $request->input('search');
-        $eventFilter = $request->input('event');
-        $dateFilter = $request->input('date');
+        $query = Activity::with(['causer', 'subject'])->latest();
 
-        $query = Activity::with('causer')
-            ->orderBy('created_at', 'desc');
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('description', 'like', "%{$search}%")
-                  ->orWhere('log_name', 'like', "%{$search}%")
-                  ->orWhereHas('causer', function ($uq) use ($search) {
-                      $uq->where('name', 'like', "%{$search}%");
-                  });
-            });
+        // Optional filtering by event type (created, updated, deleted)
+        if ($request->filled('event')) {
+            $query->where('event', $request->event);
         }
 
-        if ($eventFilter) {
-            $query->where('event', $eventFilter);
+        // Optional filtering by causer (user_id)
+        if ($request->filled('causer_id')) {
+            $query->where('causer_id', $request->causer_id);
         }
 
-        if ($dateFilter) {
-            $query->whereDate('created_at', $dateFilter);
+        // Optional filtering by specific module/subject type
+        if ($request->filled('subject_type')) {
+            $query->where('subject_type', 'like', "%{$request->subject_type}%");
         }
 
-        $logs = $query->paginate(30)->withQueryString()->through(function($log) {
+        $activities = $query->paginate(20)->through(function ($log) {
+            $causer = $log->causer;
+            
+            // Format Subject Type cleanly (e.g. App\Models\FinanceTransaction -> Phiếu Kế Toán)
+            $subjectLabel = $this->translateSubjectType($log->subject_type);
+
             return [
                 'id' => $log->id,
-                'log_name' => $log->log_name,
                 'description' => $log->description,
                 'event' => $log->event,
-                'subject_type' => $log->subject_type ? class_basename($log->subject_type) : null,
+                'subject_type' => $log->subject_type,
+                'subject_label' => $subjectLabel,
                 'subject_id' => $log->subject_id,
-                'causer_name' => $log->causer ? $log->causer->name : 'Hệ thống',
+                'causer_name' => $causer ? $causer->name : 'Hệ thống',
+                'causer_email' => $causer ? $causer->email : '',
                 'properties' => $log->properties,
-                'created_at' => $log->created_at->format('d/m/Y H:i:s'),
-                'created_at_human' => $log->created_at->diffForHumans(),
+                'created_at' => $log->created_at->format('Y-m-d H:i:s'),
+                'human_time' => $log->created_at->diffForHumans(),
             ];
         });
 
-        $events = Activity::select('event')->distinct()->pluck('event')->filter();
+        // Basic stats for filter dropdowns (Optional enhancement)
+        $events = [
+            ['value' => 'created', 'label' => 'Tạo mới'],
+            ['value' => 'updated', 'label' => 'Cập nhật'],
+            ['value' => 'deleted', 'label' => 'Xoá']
+        ];
+        $modules = [
+            ['value' => 'User', 'label' => 'Người dùng'],
+            ['value' => 'Member', 'label' => 'Tín hữu'],
+            ['value' => 'Department', 'label' => 'Ban ngành'],
+            ['value' => 'FinanceTransaction', 'label' => 'Tài chính'],
+            ['value' => 'Meeting', 'label' => 'Buổi nhóm'],
+            ['value' => 'Attendance', 'label' => 'Điểm danh'],
+            ['value' => 'CareTicket', 'label' => 'Phiếu yêu cầu'],
+        ];
 
-        return Inertia::render('Admin/ActivityLogs', [
-            'logs' => $logs,
-            'events' => $events,
-            'filters' => $request->only(['search', 'event', 'date']),
+        return Inertia::render('Admin/ActivityLogs/Index', [
+            'activities' => $activities,
+            'filters' => $request->only('event', 'causer_id', 'subject_type'),
+            'filterOptions' => [
+                'events' => $events,
+                'modules' => $modules
+            ]
         ]);
+    }
+
+    /**
+     * Helper to translate Spatie Model Paths to Vietnamese Labels
+     */
+    private function translateSubjectType($type)
+    {
+        if (!$type) return 'Khác';
+        
+        $basename = class_basename($type);
+        
+        $map = [
+            'User' => 'Tài khoản',
+            'Member' => 'Hồ sơ Tín hữu',
+            'Department' => 'Ban ngành',
+            'FinanceTransaction' => 'GD Tài chính',
+            'Meeting' => 'Buổi nhóm',
+            'Attendance' => 'Điểm danh',
+            'CareTicket' => 'Phiếu YC',
+            'Asset' => 'Thiết bị',
+            'Visitor' => 'Thân hữu',
+            'Document' => 'Tài liệu',
+        ];
+
+        return $map[$basename] ?? $basename;
     }
 }

@@ -13,27 +13,19 @@ class FinanceTransactionPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isSuperAdmin();
+        return $user->isSuperAdmin() || $user->hasPermissionTo('view_finance') || $user->hasPermissionTo('create_finance');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, ?FinanceTransaction $financeTransaction = null): bool
     {
-        if (!$user->isSuperAdmin()) {
+        if ($user->isSuperAdmin()) return true;
+        
+        if (!$user->hasPermissionTo('view_finance') && !$user->hasPermissionTo('create_finance')) {
             return false;
         }
 
-        if (!$financeTransaction) {
-            return true;
-        }
+        if (!$financeTransaction) return true;
 
-        if ($user->isSuperAdmin()) {
-            return true;
-        }
-
-        // Must own the fund
         $fund = $financeTransaction->fund;
         if ($fund && $fund->owner_type === 'department') {
             return session('active_finance_dept_id') == $fund->owner_id;
@@ -42,34 +34,26 @@ class FinanceTransactionPolicy
         return false;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return $user->isSuperAdmin();
+        // Debugging Spatie
+        dd($user->getAllPermissions()->toArray());
+        
+        return $user->isSuperAdmin() || $user->hasPermissionTo('create_finance');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, ?FinanceTransaction $financeTransaction = null): bool
     {
-        if (!$user->isSuperAdmin() && !$user->isSuperAdmin()) {
-            return false;
-        }
-
-        if (!$financeTransaction) {
-            return true;
-        }
+        if ($user->isSuperAdmin()) return true;
         
-        // Cannot edit approved transactions unless you are an admin
-        if ($financeTransaction->status === 'approved' && !$user->isSuperAdmin()) {
+        if (!$user->hasPermissionTo('create_finance')) {
             return false;
         }
 
-        if ($user->isSuperAdmin()) {
-            return true;
+        if (!$financeTransaction) return true;
+        
+        if ($financeTransaction->status === 'approved' && !$user->hasPermissionTo('approve_finance')) {
+            return false;
         }
 
         $fund = $financeTransaction->fund;
@@ -80,28 +64,20 @@ class FinanceTransactionPolicy
         return false;
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, ?FinanceTransaction $financeTransaction = null): bool
     {
-         // Same rules as update
          return $this->update($user, $financeTransaction);
     }
     
     public function approve(User $user, ?FinanceTransaction $financeTransaction = null): bool
     {
-        if (!$user->isSuperAdmin()) {
+        if ($user->isSuperAdmin()) return true;
+        
+        if (!$user->hasPermissionTo('approve_finance')) {
             return false;
         }
 
-        if (!$financeTransaction) {
-            return true;
-        }
-
-        if ($user->isSuperAdmin()) {
-            return true;
-        }
+        if (!$financeTransaction) return true;
 
         $fund = $financeTransaction->fund;
         if ($fund && $fund->owner_type === 'department') {
@@ -116,7 +92,7 @@ class FinanceTransactionPolicy
      */
     public function restore(User $user, ?FinanceTransaction $financeTransaction = null): bool
     {
-        return clone $this->delete($user, $financeTransaction);
+        return $this->delete($user, $financeTransaction);
     }
 
     /**
@@ -124,6 +100,6 @@ class FinanceTransactionPolicy
      */
     public function forceDelete(User $user, ?FinanceTransaction $financeTransaction = null): bool
     {
-        return clone $this->delete($user, $financeTransaction);
+        return $this->delete($user, $financeTransaction);
     }
 }

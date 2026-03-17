@@ -32,7 +32,7 @@
                 <h3 class="font-black text-slate-800 uppercase tracking-widest text-xs">Mục Lục Tài Liệu</h3>
             </div>
             <nav class="p-3 space-y-1">
-                <Link :href="route('help.install')" class="flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-colors" :class="route().current('help.install') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'">
+                <Link :href="route('help.install', { mode: 'theo-chuc-nang' })" class="flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-colors" :class="route().current('help.install') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'">
                     <span class="w-2 h-2 rounded-full mr-3" :class="route().current('help.install') ? 'bg-indigo-600' : 'bg-slate-300'"></span>
                     Cài Đặt Hệ Thống (Mới)
                 </Link>

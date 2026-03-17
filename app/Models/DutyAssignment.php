@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DutyAssignment extends Model
 {
-    protected $fillable = ['meeting_id', 'department_role_id', 'slot', 'member_id', 'notes'];
+    protected $fillable = ['meeting_id', 'department_role_id', 'slot', 'member_id', 'status', 'reason', 'notes'];
 
 
     public function meeting()

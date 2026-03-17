@@ -23,6 +23,7 @@ use App\Models\EduClass;
 use App\Models\EduSession;
 use App\Models\FinanceFund;
 use App\Models\FinanceTransaction;
+use App\Models\ChronicleEntry;
 
 class FullDemoSeeder extends Seeder
 {
@@ -144,6 +145,50 @@ class FullDemoSeeder extends Seeder
             }
         }
 
-        $this->command->info('🎉 Hoàn tất tạo dữ liệu mẫu! Bạn đã có thể chụp ảnh màn hình.');
+        // 8. Sổ Tay Hội Thánh (Chronicle Entries)
+        $this->command->info('Tufting 15 Chronicle Entries...');
+        $chronicleCategories = ['history', 'leadership', 'wedding', 'funeral', 'custom'];
+        
+        // Auto generated past leaderships
+        for ($i = 1; $i <= 5; $i++) {
+            ChronicleEntry::create([
+                'type' => 'auto',
+                'category' => 'leadership',
+                'title' => 'Kết thúc nhiệm kỳ: Trưởng Ban - Ban Tráng Niên',
+                'description' => 'Tín hữu Demo ' . $i . ' đã hoàn thành trách nhiệm phục vụ.',
+                'occurred_at' => Carbon::now()->subYears(rand(1, 4))->subMonths(rand(1, 11)),
+                'ended_at' => Carbon::now()->subMonths(rand(1, 6)),
+                'subject_type' => 'App\Models\Member',
+                'subject_id' => rand(1, 10),
+                'meta_data' => ['days_served' => rand(365, 730)],
+                'created_by' => null
+            ]);
+        }
+
+        // Manual recorded events
+        for ($i = 1; $i <= 10; $i++) {
+            $cat = collect($chronicleCategories)->random();
+            $titles = [
+                'history' => ['Kỷ niệm 10 năm thành lập Hội Thánh', 'Cung hiến cơ sở mới', 'Thành lập Ban Phụ Lão'],
+                'leadership' => ['Lễ Bổ nhiệm Mục sư Quản nhiệm', 'Bầu cử Ban Chấp Sự nhiệm kỳ 2024-2026'],
+                'wedding' => ['Lễ Thành Hôn: Anh A & Chị B', 'Lễ Kỷ Niệm 50 Năm Ngày Cưới Ông C'],
+                'funeral' => ['Lễ Tang: Cụ Bà D', 'Lễ Tang: Cụ Ông E'],
+                'custom' => ['Chương trình Truyền Giảng Giáng Sinh đặc biệt', 'Chuyến truyền giáo y tế vùng sâu']
+            ];
+
+            ChronicleEntry::create([
+                'type' => 'manual',
+                'category' => $cat,
+                'title' => collect($titles[$cat])->random(),
+                'description' => 'Nội dung chi tiết sự kiện được ghi nhận lại trong cuốn sổ lưu trữ nội bộ của Hội Thánh. Sự kiện diễn ra rất phước hạnh.',
+                'occurred_at' => Carbon::now()->subDays(rand(10, 1000)),
+                'ended_at' => null,
+                'subject_type' => null,
+                'subject_id' => null,
+                'created_by' => $admin->id
+            ]);
+        }
+
+        $this->command->info('🎉 Hoàn tất tạo dữ liệu mẫu!');
     }
 }

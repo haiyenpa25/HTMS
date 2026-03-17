@@ -10,6 +10,7 @@ use App\Models\Member;
 use App\Models\Visitation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
+use App\Services\ScopeResolver;
 
 class VisitationController extends Controller
 {
@@ -31,13 +32,10 @@ class VisitationController extends Controller
 
         $query = Visitation::with(['member', 'visitors', 'department']);
 
-        // Data Isolation
+        // Data Isolation via MAC V2 ScopeResolver
         if (!$user->isSuperAdmin()) {
-            if ($departmentId) {
-                $query->where('department_id', $departmentId);
-            } else {
-                $query->whereRaw('1 = 0'); 
-            }
+            $userScope = request()->attributes->get('userPermissions')['visitation'] ?? 'dept';
+            $query = ScopeResolver::apply($query, $userScope, $departmentId, $user->id, 'department_id', 'created_by');
         }
 
         // Apply filters

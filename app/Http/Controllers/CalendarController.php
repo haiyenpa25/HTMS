@@ -38,11 +38,15 @@ class CalendarController extends Controller
             $query->whereIn('scope_type', ['global', 'internal', 'leadership', 'department']);
         } elseif (Auth::check()) {
             $userDepartments = $user->member ? $user->member->departments->pluck('id')->toArray() : [];
-            $query->where(function ($q) use ($userDepartments) {
+            $query->where(function ($q) use ($userDepartments, $user) {
                 $q->whereIn('scope_type', ['global', 'internal'])
                   ->orWhere(function ($subQ) use ($userDepartments) {
                       $subQ->where('scope_type', 'department')
                            ->whereIn('scope_id', $userDepartments);
+                  })
+                  ->orWhere(function ($subQ) use ($user) {
+                      $subQ->where('scope_type', 'personal')
+                           ->where('created_by', $user->id);
                   });
             });
         } else {
@@ -153,8 +157,11 @@ class CalendarController extends Controller
     }
 
     public function store(Request $request) {
-        if (!Auth::user()->isSuperAdmin()) {
-            abort(403, 'Chỉ có SuperAdmin mới có thể tạo sự kiện.');
+        $user = Auth::user();
+        $isPersonal = $request->scope_type === 'personal';
+        
+        if (!$isPersonal && !$user->isSuperAdmin()) {
+            abort(403, 'Chỉ có SuperAdmin mới có thể tạo sự kiện chung.');
         }
 
         $request->validate([
@@ -162,8 +169,8 @@ class CalendarController extends Controller
             'start_time' => 'required|date',
             'end_time' => 'nullable|date|after_or_equal:start_time',
             'color' => 'nullable|string',
-            'type' => 'required|string',
-            'scope_type' => 'required|string|in:global,internal,leadership,department',
+            'type' => 'nullable|string',
+            'scope_type' => 'required|string|in:global,internal,leadership,department,personal',
             'scope_id' => 'required_if:scope_type,department|nullable|exists:departments,id',
         ]);
 
@@ -173,7 +180,7 @@ class CalendarController extends Controller
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
             'is_all_day' => $request->is_all_day ?? false,
-            'type' => $request->type,
+            'type' => $request->type ?? 'other',
             'color' => $request->color ?? '#8b5cf6',
             'location' => $request->location,
             'scope_type' => $request->scope_type,
@@ -185,15 +192,16 @@ class CalendarController extends Controller
     }
     
     public function update(Request $request, Event $event) {
-        if (!Auth::user()->isSuperAdmin()) {
-            abort(403, 'Chỉ có SuperAdmin mới có thể chỉnh sửa sự kiện.');
+        $user = Auth::user();
+        if (!$user->isSuperAdmin() && !($event->scope_type === 'personal' && $event->created_by === $user->id)) {
+            abort(403, 'Bạn không có quyền chỉnh sửa sự kiện này.');
         }
         
         $request->validate([
             'title' => 'required|string|max:255',
             'start_time' => 'required|date',
             'end_time' => 'nullable|date|after_or_equal:start_time',
-            'scope_type' => 'required|string|in:global,internal,leadership,department',
+            'scope_type' => 'required|string|in:global,internal,leadership,department,personal',
             'scope_id' => 'required_if:scope_type,department|nullable|exists:departments,id',
         ]);
 
@@ -208,11 +216,12 @@ class CalendarController extends Controller
     }
 
     public function destroy(Event $event) {
-        if (!Auth::user()->isSuperAdmin()) {
-            abort(403, 'Chỉ có SuperAdmin mới có thể xóa sự kiện.');
+        $user = Auth::user();
+        if (!$user->isSuperAdmin() && !($event->scope_type === 'personal' && $event->created_by === $user->id)) {
+            abort(403, 'Bạn không có quyền xóa sự kiện này.');
         }
         
         $event->delete();
-        return redirect()->back()->with('success', 'Đã xóa Sự kiện khỏi Lịch.');
+        return redirect()->back()->with('success', 'Đã xóa Sự kiện.');
     }
 }

@@ -83,4 +83,9 @@ class Department extends Model
     {
         return $this->hasMany(RosterTemplate::class);
     }
+
+    public function chronicles()
+    {
+        return $this->hasMany(ChronicleEntry::class);
+    }
 }

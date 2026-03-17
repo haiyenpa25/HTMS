@@ -27,8 +27,10 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('deacon_monthly_reports', function (Blueprint $table) {
-            $table->dropColumnIfExists(['reporter_name', 'evaluation', 'proposals', 'notes']);
-        });
+        if (Schema::hasColumn('deacon_monthly_reports', 'reporter_name')) {
+            Schema::table('deacon_monthly_reports', function (Blueprint $table) {
+                $table->dropColumn(['reporter_name', 'evaluation', 'proposals', 'notes']);
+            });
+        }
     }
 };

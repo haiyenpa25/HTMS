@@ -18,7 +18,7 @@ class FeatureAssignmentService
      *  4. Default: ALLOW (backward compat — no config at all)
      *
      * @param Department $department
-     * @return array<string, bool>
+     * @return array<string, string|bool>
      */
     public function getAvailableFeaturesForDepartment(Department $department): array
     {
@@ -59,19 +59,22 @@ class FeatureAssignmentService
                     $finalAccess[$feature->slug] = false;
                 } else {
                     // Tính năng hoàn toàn chưa được cấu hình ở bất kỳ đâu
-                    // → ALLOW (backward compat: hiển thị mặc định cho tất cả)
-                    $finalAccess[$feature->slug] = true;
+                    // → ALLOW với scope mặc định là 'dept'
+                    $finalAccess[$feature->slug] = 'dept';
                 }
                 continue;
             }
 
             // Áp dụng theo thứ tự ưu tiên: specific > block > global
             if ($hasDeptConfig) {
-                $finalAccess[$feature->slug] = (bool) $deptAssignments->get($feature->id)->is_active;
+                $config = $deptAssignments->get($feature->id);
+                $finalAccess[$feature->slug] = $config->is_active ? ($config->data_scope ?? 'dept') : false;
             } elseif ($hasBlockConfig) {
-                $finalAccess[$feature->slug] = (bool) $blockAssignments->get($feature->id)->is_active;
+                $config = $blockAssignments->get($feature->id);
+                $finalAccess[$feature->slug] = $config->is_active ? ($config->data_scope ?? 'dept') : false;
             } elseif ($hasGlobalConfig) {
-                $finalAccess[$feature->slug] = (bool) $globalAssignments->get($feature->id)->is_active;
+                $config = $globalAssignments->get($feature->id);
+                $finalAccess[$feature->slug] = $config->is_active ? ($config->data_scope ?? 'dept') : false;
             }
         }
 
@@ -84,6 +87,6 @@ class FeatureAssignmentService
     public function isFeatureEnabledForDepartment(Department $department, string $featureSlug): bool
     {
         $accessMap = $this->getAvailableFeaturesForDepartment($department);
-        return $accessMap[$featureSlug] ?? true;
+        return !empty($accessMap[$featureSlug]);
     }
 }

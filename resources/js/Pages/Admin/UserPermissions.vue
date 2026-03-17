@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { Head, router, Link } from '@inertiajs/vue3';
 import AdminPortalLayout from '@/Layouts/AdminPortalLayout.vue';
@@ -251,17 +251,19 @@ const showToast = (msg, isError = false) => {
 
 // Icon map for features
 const featureIcon = (slug) => ({
-  'attendance':          '??',
-  'visitation':          '??',
-  'members':             '??',
-  'assignments':         '??',
-  'reports':             '??',
-  'finance':             '??',
-  'education-classes':   '??',
-  'education-attendance':'??',
-  'education-offering':  '??',
-  'education-report':    '??',
-})[slug] ?? '??';
+  'attendance':          '📝',
+  'visitation':          '🏥',
+  'members':             '👥',
+  'assignments':         '📋',
+  'reports':             '📊',
+  'finance':             '💰',
+  'education-classes':   '🎓',
+  'education-attendance':'📅',
+  'education-offering':  '💵',
+  'chronicles':          '📔',
+  'module_chronicles':   '📔',
+  'education-report':    '📈',
+})[slug] ?? '📦';
 </script>
 
 <template>

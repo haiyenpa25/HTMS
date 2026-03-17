@@ -17,25 +17,34 @@ class EnsureFinanceContext
     {
         $user = $request->user();
 
-        if (!$user || !$user->isSuperAdmin()) {
+        if (!$user) {
             abort(403, 'Bạn không có quyền truy cập cổng Tài chính.');
         }
 
+        $isGlobalAdmin = $user->isSuperAdmin();
+        $validDeptIds = [];
+
+        // Lấy danh sách các ban mà user được cấp quyền "finance"
+        if (!$isGlobalAdmin) {
+            $validDeptIds = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
+                ->where('is_enabled', true)
+                ->whereHas('feature', fn ($q) => $q->where('slug', 'finance'))
+                ->pluck('department_id')
+                ->toArray();
+                
+            if (empty($validDeptIds)) {
+                abort(403, 'Bạn không có quyền truy cập cổng Tài chính.');
+            }
+        }
+
         // Logic to determine and set active_finance_dept_id
-        if (!session()->has('active_finance_dept_id')) {
-            if ($user->isSuperAdmin()) {
-                // Default to a specific department or null (Church)
+        if (!session()->has('active_finance_dept_id') || (!$isGlobalAdmin && !in_array(session('active_finance_dept_id'), $validDeptIds))) {
+            if ($isGlobalAdmin) {
+                // Default to Church level (null) or first dept
                 $firstDept = \App\Models\Department::first();
                 session(['active_finance_dept_id' => $firstDept ? $firstDept->id : null]);
             } else {
-                // Find all departments the user is a member of
-                $deptIds = $user->memberships()->where('model_type', \App\Models\Department::class)->pluck('model_id');
-
-                if ($deptIds->isEmpty()) {
-                    abort(403, 'Bạn không thuộc ban ngành nào để quản lý tài chính.');
-                }
-                
-                session(['active_finance_dept_id' => $deptIds->first()]);
+                session(['active_finance_dept_id' => $validDeptIds[0]]);
             }
         }
 

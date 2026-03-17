@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use App\Models\OrgMembership;
+use App\Observers\OrgMembershipObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+        OrgMembership::observe(OrgMembershipObserver::class);
 
         // Implicitly grant "Super_Admin" role all permissions
         // This works in the app by using gate-related functions like auth()->user->can() and @can()

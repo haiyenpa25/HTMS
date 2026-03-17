@@ -23,6 +23,9 @@ class InitialSeeder extends Seeder
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 
+        // 1.5 Features (MAC V2)
+        $this->call(\Database\Seeders\FeatureSeeder::class);
+
         // 2. OrgRoles (Legacy/App Logic)
         $orgRoles = [
             'pastor' => OrgRole::firstOrCreate(['code' => 'pastor'], ['name' => 'Mục sư', 'level' => 100]),

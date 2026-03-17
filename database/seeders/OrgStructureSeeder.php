@@ -165,7 +165,7 @@ class OrgStructureSeeder extends Seeder
         $createFunctionalAccount = function ($email, $name, $roleCode, $dept) use ($orgRoles) {
             $user = User::updateOrCreate(['email' => $email], [
                 'name' => $name,
-                'password' => Hash::make('Abc.1234'),
+                'password' => 'Abc.1234',
                 'is_superadmin' => false,
             ]);
 
@@ -191,7 +191,7 @@ class OrgStructureSeeder extends Seeder
         // Super Admin (God Mode)
         $pastor = User::updateOrCreate(['email' => "superadmin@$domain"], [
             'name' => 'Mục sư Quản nhiệm (SuperAdmin)',
-            'password' => Hash::make('Abc.1234'),
+            'password' => 'Abc.1234',
             'is_superadmin' => true,
         ]);
 

@@ -155,4 +155,116 @@ class DepartmentPortalController extends Controller
 
         return redirect()->route('dashboard');
     }
+
+    /**
+     * View Activity Logs specific to a department.
+     */
+    public function logs(Request $request)
+    {
+        $deptId = session('active_portal_dept_id');
+        if (!$deptId) abort(403);
+        
+        $department = Department::findOrFail($deptId);
+
+        // 1. Ensure user has access
+        $user = $request->user();
+        if (!$user->isSuperAdmin()) {
+            $isMember = \App\Models\Member::where('user_id', $user->id)
+                ->whereHas('departments', fn($q) => $q->where('departments.id', $department->id))
+                ->exists();
+            
+            $hasFeatures = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
+                    ->where('department_id', $department->id)
+                    ->where('is_enabled', true)->exists();
+
+            if (!$isMember && !$hasFeatures) {
+                abort(403, 'Bạn không có quyền xem nhật ký ban ngành này.');
+            }
+        }
+
+        // 2. Fetch polymorphic logs where subject relates to this department.
+        $query = \Spatie\Activitylog\Models\Activity::with(['causer', 'subject'])->latest();
+
+        // Prepare IDs for relationships that belong to this department
+        $financeFundIds = \App\Models\FinanceFund::where('owner_type', 'department')
+            ->where('owner_id', $department->id)->pluck('id')->toArray();
+            
+        $financeTransactionIds = [];
+        if (!empty($financeFundIds)) {
+            $financeTransactionIds = \App\Models\FinanceTransaction::whereIn('fund_id', $financeFundIds)->pluck('id')->toArray();
+        }
+
+        $meetingIds = \App\Models\Meeting::where('department_id', $department->id)->pluck('id')->toArray();
+        $attendanceIds = \App\Models\MeetingAttendance::whereIn('meeting_id', $meetingIds)->pluck('id')->toArray();
+
+        // 3. Filter only for models that belong to the department
+        $query->where(function($q) use ($department, $financeTransactionIds, $meetingIds, $attendanceIds) {
+            // FinanceTransactions
+            if (!empty($financeTransactionIds)) {
+                $q->orWhere(function($subq) use ($financeTransactionIds) {
+                    $subq->where('subject_type', 'App\Models\FinanceTransaction')
+                         ->whereIn('subject_id', $financeTransactionIds);
+                });
+            }
+            // Meetings
+            if (!empty($meetingIds)) {
+                $q->orWhere(function($subq) use ($meetingIds) {
+                    $subq->where('subject_type', 'App\Models\Meeting')
+                         ->whereIn('subject_id', $meetingIds);
+                });
+            }
+            // Attendance
+            if (!empty($attendanceIds)) {
+                $q->orWhere(function($subq) use ($attendanceIds) {
+                    $subq->where('subject_type', 'App\Models\MeetingAttendance')
+                         ->whereIn('subject_id', $attendanceIds);
+                });
+            }
+            // Department Details themselves
+            $q->orWhere(function($subq) use ($department) {
+                $subq->where('subject_type', 'App\Models\Department')
+                     ->where('subject_id', $department->id);
+            });
+            // Member roles assigned to this department
+            $q->orWhere(function($subq) use ($department) {
+                $subq->where('subject_type', 'App\Models\UserDepartmentRole')
+                     ->where('subject_id', $department->id); // Usually pivot logs are different, assuming subject is dept.
+            });
+        });
+
+        $activities = $query->paginate(20)->through(function ($log) {
+            $causer = $log->causer;
+            return [
+                'id' => $log->id,
+                'description' => $log->description,
+                'event' => $log->event,
+                'subject_type' => $log->subject_type,
+                'subject_id' => $log->subject_id,
+                'subject_label' => $this->trans_subject_type($log->subject_type),
+                'causer_name' => $causer ? $causer->name : 'Hệ thống',
+                'properties' => $log->properties,
+                'created_at' => $log->created_at->format('Y-m-d H:i:s'),
+                'human_time' => $log->created_at->diffForHumans(),
+            ];
+        });
+
+        // Use same template from Admin, or localized one?
+        // Wait, the plan says build `resources/js/Pages/Portal/ActivityLogs.vue` for Portal
+        return Inertia::render('Portal/ActivityLogs', [
+            'department' => $department,
+            'activities' => $activities,
+        ]);
+    }
+
+    private function trans_subject_type($type)
+    {
+        if (!$type) return 'Khác';
+        $basename = class_basename($type);
+        $map = [
+            'User' => 'Tài khoản', 'Member' => 'Hồ sơ Tín hữu', 'Department' => 'Ban ngành',
+            'FinanceTransaction' => 'GD Tài chính', 'Meeting' => 'Buổi nhóm',
+            'Attendance' => 'Điểm danh', 'CareTicket' => 'Phiếu YC'
+        ];
+        return $map[$basename] ?? $basename;
+    }
 }

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="min-h-screen bg-[#f8fafc] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
     <!-- Premium Gradient Background elements -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
@@ -138,7 +138,7 @@
 
     <!-- Installation Guide Link -->
     <div class="fixed bottom-4 right-4 z-20">
-      <Link :href="route('help.install')" class="flex items-center space-x-2 px-3 py-1.5 bg-slate-200/50 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors text-xs font-bold backdrop-blur-sm border border-slate-300/30">
+      <Link :href="route('help.install', { mode: 'theo-chuc-nang' })" class="flex items-center space-x-2 px-3 py-1.5 bg-slate-200/50 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors text-xs font-bold backdrop-blur-sm border border-slate-300/30">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         <span>Hướng dẫn cài đặt</span>
       </Link>

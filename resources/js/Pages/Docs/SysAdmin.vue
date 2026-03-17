@@ -13,6 +13,7 @@
           <li><a href="#tinh-nang-he-thong" class="hover:underline">2. Giao diện Cấp quyền ngang (Feature Assignments)</a></li>
           <li><a href="#truyen-thong" class="hover:underline">3. Gửi Thông Báo Hàng Loạt (Broadcasts) & Bản Tin</a></li>
           <li><a href="#co-cau" class="hover:underline">4. Cấu trúc Ban Ngành & Tổ Nhóm</a></li>
+          <li><a href="#so-tay" class="hover:underline">5. Sổ Tay Hội Thánh (Biên Niên Sử)</a></li>
         </ul>
       </div>
 
@@ -80,6 +81,28 @@
       </h2>
       <p>Từ mục Menu Cấu Hình Tổ Chức, bạn có thể thiết lập hàng loạt các Ban. Trong một Ban Ngành đặc thù như Thanh Niên, bạn lại có thể chia nhỏ ra thành các Tổ (Team) như Tổ 1, Tổ 2, Toán kỹ thuật, Toán hát dẫn.</p>
       <p>Điều này giúp các Trưởng ban sau này dễ dàng giao việc và lập lịch Phân công Duty Roster hơn so với việc gọi tên từng cá nhân.</p>
+
+      <!-- Section 5 -->
+      <h2 id="so-tay" class="text-xl font-bold text-gray-900 pb-2 border-b border-gray-100 mt-10 mb-4 flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">5</span> 
+        Sổ Tay Hội Thánh (Biên Niên Sử)
+      </h2>
+      <p>Hệ thống tự động lưu giữ **Biên Niên Sử** cho các sự kiện quan trọng để các thế hệ Chấp Sự và Quản nhiệm sau này có thể tra cứu nhanh.</p>
+      
+      <div class="my-6 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+        <img src="/images/docs/sysadmin-chronicles.png" alt="Ảnh minh hoạ Giao diện Sổ Tay Hội Thánh" class="w-full object-cover" onerror="this.onerror=null; this.outerHTML='<div class=\'aspect-video bg-gray-50 flex flex-col items-center justify-center p-6 text-center\'><svg class=\'w-12 h-12 text-gray-300 mb-2\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z\'></path></svg><span class=\'text-sm text-gray-500\'>Vui lòng chụp ảnh màn hình giao diện /admin/chronicles và lưu vào /public/images/docs/sysadmin-chronicles.png</span></div>'">
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4 mt-4">
+        <div class="border border-indigo-200 rounded-xl p-4 shadow-sm bg-indigo-50/20">
+          <h3 class="font-bold text-indigo-900 mb-2">Tự động Lưu Nội Bộ (Auto)</h3>
+          <p class="text-sm text-gray-600">Khi một thành viên kết thúc nhiệm kỳ Trưởng Ban/Thủ quỹ, hệ thống Observer tự đóng mốc và ghi nhận thời gian phục vụ của họ vào Sổ Tay.</p>
+        </div>
+        <div class="border border-emerald-200 rounded-xl p-4 shadow-sm bg-emerald-50/20">
+          <h3 class="font-bold text-emerald-900 mb-2">Ghi Nhận Thủ Công (Manual)</h3>
+          <p class="text-sm text-gray-600">Admin có thể tùy chọn Thêm Sự Kiện để nhập hình ảnh lễ Khánh thành nhà thờ, Lễ thành hôn, Lễ tang, v.v. và Tag mã định danh của Tín Hữu vào hồ sơ.</p>
+        </div>
+      </div>
 
     </article>
   </DocsLayout>

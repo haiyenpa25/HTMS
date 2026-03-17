@@ -482,4 +482,29 @@ class DutyRosterController extends Controller
         }
         return back()->with('success', 'Đã sao chép phân công từ buổi trước.');
     }
+
+    // ── Member Portal: Update Duty Status ──────────────────
+    public function updateMemberStatus(Request $request, DutyAssignment $dutyAssignment)
+    {
+        // Require current user strictly
+        $user = $request->user();
+        if (!$user || !$user->member_id || $dutyAssignment->member_id !== $user->member_id) {
+            abort(403, 'Bạn không có quyền cập nhật phân công này.');
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:pending,accepted,declined',
+            'reason' => 'nullable|string|max:1000'
+        ]);
+
+        $dutyAssignment->update([
+            'status' => $validated['status'],
+            'reason' => $validated['status'] === 'declined' ? $validated['reason'] : null
+        ]);
+
+        return response()->json([
+            'message' => 'Đã cập nhật trạng thái phân công.',
+            'status'  => $dutyAssignment->status
+        ]);
+    }
 }

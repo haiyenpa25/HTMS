@@ -10,6 +10,8 @@ use Spatie\Permission\Traits\HasRoles;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use App\Traits\HasDataScope;
+use App\Models\ChronicleEntry;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class User extends Authenticatable
 {
@@ -64,6 +66,14 @@ class User extends Authenticatable
         return $this->hasOne(Member::class);
     }
 
+    /**
+     * Get the associated member ID.
+     */
+    public function getMemberIdAttribute()
+    {
+        return $this->member->id ?? null;
+    }
+
     // ── MAC: Matrix Access Control ──────────────────────────────────
 
     /**
@@ -106,5 +116,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Announcement::class, 'author_id');
     }
-}
 
+    /**
+     * Get all chronicle entries explicitly related to this user account.
+     */
+    public function chronicles(): MorphMany
+    {
+        return $this->morphMany(ChronicleEntry::class, 'subject');
+    }
+}

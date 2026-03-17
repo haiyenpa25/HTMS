@@ -71,6 +71,16 @@ Route::middleware('auth')->group(function () {
     Route::patch('members/update-status', [\App\Http\Controllers\MemberController::class, 'updateStatus'])->name('members.update-status');
     
     // ==========================================
+    // Sổ Tay Hội Thánh & Ban Ngành (Data Scope MAC V2)
+    // ==========================================
+    Route::prefix('admin/chronicles')->name('admin.chronicles.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ChronicleController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\ChronicleController::class, 'store'])->name('store');
+        Route::put('/{chronicle}', [\App\Http\Controllers\Admin\ChronicleController::class, 'update'])->name('update');
+        Route::delete('/{chronicle}', [\App\Http\Controllers\Admin\ChronicleController::class, 'destroy'])->name('destroy');
+    });
+
+    // ==========================================
     // Restricted Administrative Routes
     // ==========================================
     Route::middleware(\App\Http\Middleware\EnsureSuperAdmin::class)->group(function () {
@@ -112,6 +122,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/{user}/permissions/toggle', [\App\Http\Controllers\Admin\UserPermissionController::class, 'toggle'])->name('admin.users.permissions.toggle');
         Route::post('/users/{user}/permissions/roles', [\App\Http\Controllers\Admin\UserPermissionController::class, 'updateRoles'])->name('admin.users.permissions.roles');
         Route::post('/users/{user}/permissions/grant-full', [\App\Http\Controllers\Admin\UserPermissionController::class, 'grantFull'])->name('admin.users.permissions.grant-full');
+
+        // Global System Activity Logs
+        Route::get('/activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity.index');
 
         // Feature System Configuration (Tab Tính Năng)
         Route::get('/features', [\App\Http\Controllers\Admin\SystemFeatureController::class, 'index'])->name('admin.features.index');
@@ -171,6 +184,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('member')->group(function () {
         Route::get('/', [\App\Http\Controllers\MemberPortalController::class, 'index'])->name('member.portal.index');
         Route::post('/care', [\App\Http\Controllers\MemberPortalController::class, 'submitCare'])->name('member.portal.care.submit');
+        Route::patch('/duty/{dutyAssignment}/status', [\App\Http\Controllers\DutyRosterController::class, 'updateMemberStatus'])->name('member.duty.update-status');
     });
 
     // Department Portal (Ban Sinh Hoạt — Activities)
@@ -178,6 +192,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\DepartmentPortalController::class, 'index'])->name('portal.index');
         Route::post('/switch-context', [\App\Http\Controllers\DepartmentPortalController::class, 'switchContext'])->name('portal.switch-context');
         
+        // Nhật ký Ban ngành
+        Route::get('/logs', [\App\Http\Controllers\DepartmentPortalController::class, 'logs'])->name('portal.logs');
+
         // Điểm danh
         Route::middleware('portal.access:attendance,activities')->group(function () {
             Route::get('/attendance', [\App\Http\Controllers\Portal\AttendanceController::class, 'index'])->name('portal.attendance.index');
@@ -248,6 +265,16 @@ Route::middleware('auth')->group(function () {
             Route::put('/visitation/{visitation}', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'update'])->name('portal.visitation.update');
             Route::delete('/visitation/{visitation}', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'destroy'])->name('portal.visitation.destroy');
         });
+
+        // Sổ Tay Ban Ngành (Chronicles)
+        Route::middleware('portal.access:chronicles,activities')->group(function () {
+            Route::prefix('chronicles')->name('portal.chronicles.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Portal\ChronicleController::class, 'index'])->name('index');
+                Route::post('/', [\App\Http\Controllers\Portal\ChronicleController::class, 'store'])->name('store');
+                Route::put('/{chronicle}', [\App\Http\Controllers\Portal\ChronicleController::class, 'update'])->name('update');
+                Route::delete('/{chronicle}', [\App\Http\Controllers\Portal\ChronicleController::class, 'destroy'])->name('destroy');
+            });
+        });
     });
 
 
@@ -256,6 +283,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\MinistryPortalController::class, 'index'])->name('ministry.index');
         Route::post('/switch-context', [\App\Http\Controllers\MinistryPortalController::class, 'switchContext'])->name('ministry.switch-context');
         
+        // Nhật ký Ban ngành (Mục vụ)
+        Route::get('/logs', [\App\Http\Controllers\MinistryPortalController::class, 'logs'])->name('ministry.logs');
+
         // Visitation Module
         Route::get('/visitation', [\App\Http\Controllers\Portal\VisitationController::class, 'index'])->name('ministry.visitation.index');
         Route::post('/visitation', [\App\Http\Controllers\Portal\VisitationController::class, 'store'])->name('ministry.visitation.store');
@@ -295,6 +325,16 @@ Route::middleware('auth')->group(function () {
 
                 Route::get('/{meeting}/export', [\App\Http\Controllers\DutyRosterController::class, 'exportMeeting'])->name('export');
                 Route::get('/{meeting}', [\App\Http\Controllers\DutyRosterController::class, 'show'])->name('show');
+            });
+        });
+
+        // Sổ Tay Ban Ngành (Chronicles)
+        Route::middleware('portal.access:chronicles,ministry')->group(function () {
+            Route::prefix('chronicles')->name('ministry.chronicles.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Portal\ChronicleController::class, 'index'])->name('index');
+                Route::post('/', [\App\Http\Controllers\Portal\ChronicleController::class, 'store'])->name('store');
+                Route::put('/{chronicle}', [\App\Http\Controllers\Portal\ChronicleController::class, 'update'])->name('update');
+                Route::delete('/{chronicle}', [\App\Http\Controllers\Portal\ChronicleController::class, 'destroy'])->name('destroy');
             });
         });
 
@@ -446,37 +486,52 @@ Route::middleware('auth')->group(function () {
 // Help / Documentation (Publicly accessible)
 Route::group(['prefix' => 'huong-dan', 'as' => 'help.'], function () {
     Route::get('/', function () {
-        return redirect()->route('help.install');
+        return redirect()->route('help.install', ['mode' => 'theo-chuc-nang']);
     });
     
-    Route::get('/cai-dat', [\App\Http\Controllers\DocsController::class, 'setup'])->name('install');
-    Route::get('/tong-quan', [\App\Http\Controllers\DocsController::class, 'overview'])->name('overview');
-    Route::get('/lich-phan-cong', [\App\Http\Controllers\DocsController::class, 'dutyRoster'])->name('duty_rooster');
-    Route::group(['prefix' => 'ban-nganh', 'as' => 'departments.'], function () {
-        Route::get('/', function () { return redirect()->route('help.departments.members'); })->name('index');
-        Route::get('/thanh-vien', [\App\Http\Controllers\DocsController::class, 'deptMembers'])->name('members');
-        Route::get('/diem-danh', [\App\Http\Controllers\DocsController::class, 'deptAttendance'])->name('attendance');
-        Route::get('/tham-vieng', [\App\Http\Controllers\DocsController::class, 'deptVisitation'])->name('visitation');
-        Route::get('/phan-cong', [\App\Http\Controllers\DocsController::class, 'deptAssignments'])->name('assignments');
-        Route::get('/tai-chinh', [\App\Http\Controllers\DocsController::class, 'deptFinance'])->name('finance');
-        Route::get('/bao-cao', [\App\Http\Controllers\DocsController::class, 'deptReports'])->name('reports');
+    Route::group(['prefix' => '{mode}', 'where' => ['mode' => 'theo-chuc-nang|theo-nguoi-dung|theo-portal']], function () {
+        Route::get('/dang-nhap', [\App\Http\Controllers\DocsController::class, 'auth'])->name('auth');
+        Route::get('/cai-dat', [\App\Http\Controllers\DocsController::class, 'setup'])->name('install');
+        Route::get('/tong-quan', [\App\Http\Controllers\DocsController::class, 'overview'])->name('overview');
+        Route::get('/lich-phan-cong', [\App\Http\Controllers\DocsController::class, 'dutyRoster'])->name('duty_rooster');
+        
+        Route::group(['prefix' => 'ban-nganh', 'as' => 'departments.'], function () {
+            Route::get('/', function ($mode) { return redirect()->route('help.departments.members', ['mode' => $mode]); })->name('index');
+            Route::get('/gioi-thieu', [\App\Http\Controllers\DocsController::class, 'deptIntro'])->name('intro');
+            Route::get('/thanh-vien', [\App\Http\Controllers\DocsController::class, 'deptMembers'])->name('members');
+            Route::get('/diem-danh', [\App\Http\Controllers\DocsController::class, 'deptAttendance'])->name('attendance');
+            Route::get('/tham-vieng', [\App\Http\Controllers\DocsController::class, 'deptVisitation'])->name('visitation');
+            Route::get('/phan-cong', [\App\Http\Controllers\DocsController::class, 'deptAssignments'])->name('assignments');
+            Route::get('/tai-chinh', [\App\Http\Controllers\DocsController::class, 'deptFinance'])->name('finance');
+            Route::get('/bao-cao', [\App\Http\Controllers\DocsController::class, 'deptReports'])->name('reports');
+        });
+
+        Route::group(['prefix' => 'portal', 'as' => 'portals.'], function () {
+            Route::get('/gioi-thieu', [\App\Http\Controllers\DocsController::class, 'portalIntro'])->name('intro');
+        });
+
+        Route::get('/su-kien', [\App\Http\Controllers\DocsController::class, 'meetings'])->name('meetings');
+        Route::get('/nhan-su', [\App\Http\Controllers\DocsController::class, 'members'])->name('members');
+        Route::get('/tai-chinh', [\App\Http\Controllers\DocsController::class, 'finance'])->name('finance');
+
+        Route::group(['prefix' => 'quan-tri', 'as' => 'admin.'], function () {
+            Route::get('/nguoi-dung', [\App\Http\Controllers\DocsController::class, 'adminUsers'])->name('users');
+            Route::get('/tinh-nang', [\App\Http\Controllers\DocsController::class, 'adminFeatures'])->name('features');
+            Route::get('/phan-quyen', [\App\Http\Controllers\DocsController::class, 'adminPermissions'])->name('permissions');
+        });
+
+        Route::get('/quan-tri-he-thong', [\App\Http\Controllers\DocsController::class, 'sysadmin'])->name('sysadmin');
+        Route::get('/lanh-dao', [\App\Http\Controllers\DocsController::class, 'leadership'])->name('leadership');
+        Route::get('/giao-duc', [\App\Http\Controllers\DocsController::class, 'education'])->name('education');
+        Route::get('/cong-truc-tuyen', [\App\Http\Controllers\DocsController::class, 'portals'])->name('portals');
     });
-
-    Route::get('/su-kien', [\App\Http\Controllers\DocsController::class, 'meetings'])->name('meetings');
-    Route::get('/nhan-su', [\App\Http\Controllers\DocsController::class, 'members'])->name('members');
-    Route::get('/tai-chinh', [\App\Http\Controllers\DocsController::class, 'finance'])->name('finance');
-
-    Route::get('/quan-tri-he-thong', [\App\Http\Controllers\DocsController::class, 'sysadmin'])->name('sysadmin');
-    Route::get('/lanh-dao', [\App\Http\Controllers\DocsController::class, 'leadership'])->name('leadership');
-    Route::get('/giao-duc', [\App\Http\Controllers\DocsController::class, 'education'])->name('education');
-    Route::get('/cong-truc-tuyen', [\App\Http\Controllers\DocsController::class, 'portals'])->name('portals');
 
     // Keep leftover routes as redirects to Docs logic or keep them if needed,
     // but we will mainly use the new Docs pages.
-    Route::get('/thong-bao', function () { return redirect()->route('help.install'); })->name('notifications');
-    Route::get('/ban-tin', function () { return redirect()->route('help.install'); })->name('announcements');
-    Route::get('/tin-tu-dong', function () { return redirect()->route('help.install'); })->name('broadcasts');
-    Route::get('/thanh-vien-phan-cong', function () { return redirect()->route('help.install'); })->name('portal.members');
-    Route::get('/diem-danh-tham-vieng', function () { return redirect()->route('help.install'); })->name('portal.attendance');
-    Route::get('/tai-chinh-bao-cao', function () { return redirect()->route('help.install'); })->name('portal.finance');
+    Route::get('/thong-bao', function () { return redirect()->route('help.install', ['mode' => 'theo-chuc-nang']); })->name('notifications');
+    Route::get('/ban-tin', function () { return redirect()->route('help.install', ['mode' => 'theo-chuc-nang']); })->name('announcements');
+    Route::get('/tin-tu-dong', function () { return redirect()->route('help.install', ['mode' => 'theo-chuc-nang']); })->name('broadcasts');
+    Route::get('/thanh-vien-phan-cong', function () { return redirect()->route('help.install', ['mode' => 'theo-chuc-nang']); })->name('portal.members');
+    Route::get('/diem-danh-tham-vieng', function () { return redirect()->route('help.install', ['mode' => 'theo-chuc-nang']); })->name('portal.attendance');
+    Route::get('/tai-chinh-bao-cao', function () { return redirect()->route('help.install', ['mode' => 'theo-chuc-nang']); })->name('portal.finance');
 });

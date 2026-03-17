@@ -208,6 +208,7 @@ class FinanceTransactionController extends Controller
             }
         });
 
+
         return back()->with('message', 'Đã tạo giao dịch thành công.');
     }
 
