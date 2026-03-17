@@ -86,26 +86,28 @@
           <div v-if="isSystemMenuOpen && !isSidebarCollapsed" class="pl-11 space-y-1 pb-1">
             <Link :href="route('users.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('users.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Tài khoản</Link>
             <Link :href="route('roles.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('roles.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Chức vụ</Link>
-            <Link :href="route('admin.features.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.features.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Tính năng</Link>
             <Link :href="route('admin.users.permissions')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.users.permissions*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Phân quyền</Link>
-            <Link :href="route('admin.chronicles.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.chronicles.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Sổ tay Hội thánh</Link>
+            <Link :href="route('speakers.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('speakers.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Diễn giả</Link>
+            <Link :href="route('member.portal.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('member.portal.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Hồ Sơ Của Tôi</Link>
           </div>
         </div>
 
-        <!-- 6. CÀI ĐẶT HỆ THỐNG (Hierarchical) -->
+        <!-- 6. TÍNH NĂNG (Features) -->
         <div class="space-y-1">
           <button @click="toggleSettingsMenu" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-bold transition-all group" :class="isSettingsMenuOpen ? 'text-slate-800 bg-slate-100' : 'text-gray-600 hover:bg-gray-50'">
             <div class="flex items-center space-x-3">
               <svg class="w-5 h-5 shrink-0" :class="isSettingsMenuOpen ? 'text-slate-800' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
-              <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Cài đặt hệ thống</span>
+              <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Tính năng</span>
             </div>
             <svg v-if="!isSidebarCollapsed" class="w-4 h-4 transition-transform duration-200" :class="isSettingsMenuOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
           </button>
           
           <div v-if="isSettingsMenuOpen && !isSidebarCollapsed" class="pl-11 space-y-1 pb-1">
-            <Link :href="route('speakers.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('speakers.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Diễn giả</Link>
-            <Link :href="route('member.portal.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('member.portal.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Hồ Sơ Của Tôi</Link>
+            <Link :href="route('admin.features.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.features.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Cấu hình Tính Năng</Link>
             <Link :href="route('admin.activity.logs')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.activity.logs*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Nhật ký hoạt động</Link>
+            <Link :href="route('admin.chronicles.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.chronicles.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Sổ tay Hội thánh</Link>
+            <Link :href="route('admin.assets.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.assets.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Quản lý thiết bị</Link>
+            <Link :href="route('documents.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('documents.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Quản lý tài liệu</Link>
           </div>
         </div>
 
@@ -129,14 +131,6 @@
         <Link :href="route('finance.index')" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group" :class="route().current('finance.*') ? 'bg-emerald-50 text-emerald-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
           <svg class="w-5 h-5 shrink-0" :class="route().current('finance.*') ? 'text-emerald-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Tài chính</span>
-        </Link>
-        <Link :href="route('admin.assets.index')" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group" :class="route().current('admin.assets.*') ? 'bg-emerald-50 text-emerald-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
-          <svg class="w-5 h-5 shrink-0" :class="route().current('admin.assets.*') ? 'text-emerald-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-          <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Quản lý thiết bị</span>
-        </Link>
-        <Link :href="route('documents.index')" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group" :class="route().current('documents.*') ? 'bg-emerald-50 text-emerald-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
-          <svg class="w-5 h-5 shrink-0" :class="route().current('documents.*') ? 'text-emerald-600' : 'text-gray-400 group-hover:text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-          <span v-if="!isSidebarCollapsed" class="whitespace-nowrap">Quản lý tài liệu Tài Liệu</span>
         </Link>
         <Link :href="route('help.install', { mode: 'theo-chuc-nang' })" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-bold transition-all group text-emerald-600 hover:bg-emerald-50">
           <svg class="w-5 h-5 shrink-0 text-emerald-500 group-hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -399,8 +393,8 @@ const isSidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'tru
 const isDeptsMenuOpen = ref(route().current('portal.*') || route().current('ministry.*') || route().current('deacon.*') || route().current('departments.*'));
 const isBelieversMenuOpen = ref(route().current('members.*') || route().current('admin.visitors.*') || route().current('care.*'));
 const isEventsMenuOpen = ref(route().current('calendar.*') || route().current('meetings.*') || route().current('duty-rooster.*'));
-const isSystemMenuOpen = ref(route().current('users.*') || route().current('roles.*') || route().current('admin.features.*') || route().current('admin.users.permissions*') || route().current('admin.chronicles.*'));
-const isSettingsMenuOpen = ref(route().current('speakers.*') || route().current('member.portal.*') || route().current('admin.activity.logs*'));
+const isSystemMenuOpen = ref(route().current('users.*') || route().current('roles.*') || route().current('admin.users.permissions*') || route().current('speakers.*') || route().current('member.portal.*'));
+const isSettingsMenuOpen = ref(route().current('admin.features.*') || route().current('admin.activity.logs*') ||  route().current('admin.chronicles.*') || route().current('admin.assets.*') || route().current('documents.*'));
 const isCommunicationsMenuOpen = ref(route().current('admin.announcements.*') || route().current('notifications.*') || route().current('admin.broadcasts.*'));
 
 const toggleSidebar = () => {
