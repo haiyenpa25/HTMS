@@ -293,7 +293,8 @@ class MemberController extends Controller
         $request->validate([
             'related_member_id' => 'required|exists:members,id',
             'type' => 'required|string',
-            'inverse_type' => 'nullable|string'
+            'inverse_type' => 'nullable|string',
+            'sync_household' => 'boolean'
         ]);
 
         if ($member->id == $request->related_member_id) {
@@ -311,6 +312,24 @@ class MemberController extends Controller
                 ['type' => $request->inverse_type]
             );
         }
+
+        if ($request->sync_household) {
+            $related = \App\Models\Member::find($request->related_member_id);
+            if ($member->household_id && !$related->household_id) {
+                $related->update(['household_id' => $member->household_id]);
+            } elseif (!$member->household_id && $related->household_id) {
+                $member->update(['household_id' => $related->household_id]);
+            } elseif (!$member->household_id && !$related->household_id) {
+                // Creates a new household if both don't have one
+                $household = \App\Models\Household::create([
+                    'name' => 'Gia đình ' . $member->full_name,
+                    'head_member_id' => $member->id,
+                ]);
+                $member->update(['household_id' => $household->id]);
+                $related->update(['household_id' => $household->id]);
+            }
+        }
+
         return back()->with('message', 'Thêm quan hệ gia đình thành công.');
     }
 

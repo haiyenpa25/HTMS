@@ -28,6 +28,10 @@ Route::middleware('auth')->group(function () {
 
     // Household Head & Member Relationships
     Route::put('households/{household}/head', [\App\Http\Controllers\MemberController::class, 'setHouseholdHead'])->name('households.set-head');
+    Route::post('members/{member}/household', [\App\Http\Controllers\HouseholdController::class, 'store'])->name('households.store');
+    Route::post('households/{household}/members', [\App\Http\Controllers\HouseholdController::class, 'addMember'])->name('households.add_member');
+    Route::delete('households/{household}/members/{member}', [\App\Http\Controllers\HouseholdController::class, 'removeMember'])->name('households.remove_member');
+
     Route::post('members/{member}/relationships', [\App\Http\Controllers\MemberController::class, 'storeRelationship'])->name('members.relationships.store');
     Route::delete('members/{member}/relationships/{relatedMember}', [\App\Http\Controllers\MemberController::class, 'destroyRelationship'])->name('members.relationships.destroy');
 
