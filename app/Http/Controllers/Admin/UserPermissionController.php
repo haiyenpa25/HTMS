@@ -102,11 +102,20 @@ class UserPermissionController extends Controller
                 'feature'       => $r->feature,
             ]);
 
+        // Lấy Level 1 (dept features) cho từng ban mà user có quyền
+        $service = app(\App\Services\FeatureAssignmentService::class);
+        $deptIds = $rows->pluck('department_id')->unique()->values();
+        $deptFeaturesMap = [];
+        foreach (Department::whereIn('id', $deptIds)->get() as $dept) {
+            $deptFeaturesMap[$dept->id] = $service->getAvailableFeaturesForDepartment($dept);
+        }
+
         return response()->json([
             'user'          => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email],
             'global_roles'  => $user->getRoleNames(),
             'is_super_admin' => $user->isSuperAdmin(),
             'permissions'   => $rows,
+            'dept_features' => $deptFeaturesMap, // Level 1: what the dept allows
         ]);
     }
 

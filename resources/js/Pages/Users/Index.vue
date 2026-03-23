@@ -133,9 +133,32 @@ watch(activeDeptId, (newId) => {
   if (dept) permSelectedBlock.value = dept.block || 'activities';
 });
 
-const permDeptFeatures = computed(() =>
-  (props.features || []).filter(f => f.portal_type === permSelectedBlock.value || f.portal_type === 'global')
-);
+const deptFeaturesMap = ref({}); // Level 1: features allowed by dept (from backend)
+
+const permDeptFeatures = computed(() => {
+  if (!activeDeptId.value) return (props.features || []).filter(f => f.portal_type === permSelectedBlock.value);
+  const allowedByDept = deptFeaturesMap.value[activeDeptId.value] || {};
+  // Show block-matching AND global features that dept allows
+  return (props.features || []).filter(f => {
+    const deptAllows = allowedByDept[f.slug];
+    if (!deptAllows) return false;
+    return f.portal_type === permSelectedBlock.value || f.portal_type === 'global';
+  });
+});
+
+// True if feature has no explicit user record (inherited from dept Level 1)
+const isInherited = (deptId, featureId) => !macMatrix.value[macKey(deptId, featureId)];
+
+// Effective access: user record OR dept default (Level 1 inheritance)
+const isEffectivelyEnabled = (deptId, featureId) => {
+  const feature = props.features?.find(f => f.id === featureId);
+  if (!feature) return false;
+  const userRecord = macMatrix.value[macKey(deptId, featureId)];
+  if (userRecord !== undefined) return userRecord.is_enabled;
+  // No explicit record → inherit from dept Level 1
+  const deptAllow = (deptFeaturesMap.value[deptId] || {})[feature.slug];
+  return !!deptAllow;
+};
 
 const blockOptions = [
   { value: 'activities', label: '🎯 Sinh Hoạt' },
@@ -189,6 +212,7 @@ const selectPermUser = async (user) => {
   permUser.value     = user;
   isLoadingPerm.value = true;
   macMatrix.value    = {};
+  deptFeaturesMap.value = {};
   globalRoles.value  = [];
   isSuperAdmin.value = false;
   activeDeptId.value = null;
@@ -198,6 +222,7 @@ const selectPermUser = async (user) => {
     const res = await axios.get(route('admin.users.permissions.show', user.id));
     globalRoles.value  = res.data.global_roles   || [];
     isSuperAdmin.value = res.data.is_super_admin || false;
+    deptFeaturesMap.value = res.data.dept_features || {};
     const map = {};
     for (const row of (res.data.permissions || [])) {
       map[`${row.department_id}-${row.feature_id}`] = {
@@ -208,6 +233,9 @@ const selectPermUser = async (user) => {
     macMatrix.value = map;
     if (grantedDeptIds.value.size > 0) {
       activeDeptId.value = [...grantedDeptIds.value][0];
+    } else if (Object.keys(deptFeaturesMap.value).length > 0) {
+      // Fallback: show first dept that has features
+      activeDeptId.value = Number(Object.keys(deptFeaturesMap.value)[0]);
     }
   } catch (e) {
     showPermToast('Lỗi khi tải phân quyền.', true);
@@ -279,16 +307,18 @@ const grantFull = async () => {
 };
 
 const featureIconMap = {
-    'attendance':       { path: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', color: 'text-blue-600 bg-blue-50' },
-    'visitation':       { path: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z', color: 'text-rose-600 bg-rose-50' },
-    'members':          { path: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', color: 'text-violet-600 bg-violet-50' },
-    'thanh-vien':       { path: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', color: 'text-violet-600 bg-violet-50' },
-    'reports':          { path: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', color: 'text-indigo-600 bg-indigo-50' },
-    'finance':          { path: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', color: 'text-emerald-600 bg-emerald-50' },
-    'assignments':      { path: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', color: 'text-amber-600 bg-amber-50' },
-    'education-classes':{ path: 'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z', color: 'text-cyan-600 bg-cyan-50' },
-    'education-report': { path: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', color: 'text-cyan-600 bg-cyan-50' },
-    'default':          { path: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z', color: 'text-gray-600 bg-gray-100' },
+    'attendance':        { path: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', color: 'text-blue-600 bg-blue-50' },
+    'visitation':        { path: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z', color: 'text-rose-600 bg-rose-50' },
+    'members':           { path: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', color: 'text-violet-600 bg-violet-50' },
+    'thanh-vien':        { path: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', color: 'text-violet-600 bg-violet-50' },
+    'reports':           { path: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', color: 'text-indigo-600 bg-indigo-50' },
+    'finance':           { path: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', color: 'text-emerald-600 bg-emerald-50' },
+    'assignments':       { path: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', color: 'text-amber-600 bg-amber-50' },
+    'education-classes': { path: 'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z', color: 'text-cyan-600 bg-cyan-50' },
+    'education-report':  { path: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', color: 'text-cyan-600 bg-cyan-50' },
+    'chronicles':        { path: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', color: 'text-rose-600 bg-rose-50' },
+    'module_chronicles': { path: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', color: 'text-rose-600 bg-rose-50' },
+    'default':           { path: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z', color: 'text-gray-600 bg-gray-100' },
 };
 const getFeatureIcon = (slug) => featureIconMap[slug] || featureIconMap['default'];
 
@@ -805,12 +835,22 @@ const sidebarCollapsed = ref(false);
                         </svg>
                     </div>
                     <div>
-                      <span class="text-sm font-bold text-gray-800">{{ feature.name }}</span>
+                      <div class="flex items-center gap-2">
+                        <span class="text-sm font-bold text-gray-800">{{ feature.name }}</span>
+                        <span v-if="isInherited(activeDept.id, feature.id)"
+                          class="text-[9px] px-1.5 py-0.5 bg-gray-100 text-gray-400 rounded font-bold uppercase tracking-wide">
+                          Kế thừa
+                        </span>
+                        <span v-else
+                          class="text-[9px] px-1.5 py-0.5 bg-indigo-50 text-indigo-500 rounded font-bold uppercase tracking-wide">
+                          Tường minh
+                        </span>
+                      </div>
                       <p class="text-xs text-gray-400 font-mono">{{ feature.slug }}</p>
                     </div>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" :checked="isEnabled(activeDept.id, feature.id)"
+                    <input type="checkbox" :checked="isEffectivelyEnabled(activeDept.id, feature.id)"
                       @change="toggleFeature(activeDept.id, feature.id, $event.target.checked)" class="sr-only peer">
                     <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-400 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
                   </label>

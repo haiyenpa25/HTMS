@@ -84,18 +84,21 @@ class CheckPortalAccess
             $service = app(FeatureAssignmentService::class);
             $departmentFeatures = $service->getAvailableFeaturesForDepartment($activeDept);
             
-            // Level 2: Strict Whitelist: Mặc định user không có quyền gì cả (false). Phải cấp tường minh.
+            // Level 2: Inherit from Level 1 by default (MAC v2 standard).
+            // If the department has a feature, all its members have it by default.
+            // user_department_features records serve as explicit OVERRIDES only.
             $userPermissions = collect(\App\Models\Feature::pluck('slug'))
-                ->mapWithKeys(fn($s) => [$s => false])
+                ->mapWithKeys(fn($s) => [$s => !empty($departmentFeatures[$s])])
                 ->toArray();
 
             $isGlobalAdmin = $user->isSuperAdmin();
 
             if ($isGlobalAdmin) {
                 $userPermissions = collect(\App\Models\Feature::pluck('slug'))
-                    ->mapWithKeys(fn($s) => [$s => $departmentFeatures[$s] ?? false])
+                    ->mapWithKeys(fn($s) => [$s => !empty($departmentFeatures[$s])])
                     ->toArray();
             } else {
+                // Apply explicit user-level overrides (can grant OR restrict)
                 $overrideRecords = UserDepartmentFeature::where('user_id', $user->id)
                     ->where('department_id', $activeDeptId)
                     ->with('feature')

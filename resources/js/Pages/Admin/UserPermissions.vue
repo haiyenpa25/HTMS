@@ -183,7 +183,7 @@ const setAccessLevel = async (deptId, featureId, level) => {
 const isGrantingAll = ref(false);
 const grantAllForDept = async (dept) => {
   isGrantingAll.value = true;
-  const validFeatures = props.features.filter(f => f.portal_type === selectedFeatureBlock.value);
+  const validFeatures = props.features.filter(f => f.portal_type === selectedBlock.value);
   
   const allEnabled = validFeatures.every(f => isEnabled(dept.id, f.id));
   // Toggle all to opposite

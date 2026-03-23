@@ -21,7 +21,8 @@ Route::middleware('guest')->group(function () {
 // Hướng dẫn cài đặt và Dữ liệu mẫu ban đầu (Moved to 'help.' group)
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'index'])->name('welcome');
+    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('api/members', [\App\Http\Controllers\MemberController::class, 'apiIndex'])->name('api.members.index');
     Route::resource('members', \App\Http\Controllers\MemberController::class)->except(['create', 'edit']);

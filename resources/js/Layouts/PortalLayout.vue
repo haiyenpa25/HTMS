@@ -312,9 +312,9 @@ const visibleNavItems = computed(() => {
       f['reports']      && { key: 'reports',      label: 'Báo Cáo',     shortLabel: 'Báo Cáo',     icon: ICONS.reports,    href: route('portal.reports.index'),    active: route().current('portal.reports.*'),    disabled: !p['reports'] },
       f['finance']      && { key: 'finance',      label: 'Tài Chính',   shortLabel: 'Tài Chính',   icon: ICONS.finance,    href: route('portal.finance.index'),    active: route().current('portal.finance.*'),    disabled: !p['finance'] },
       f['documents']    && { key: 'documents',    label: 'Tài Liệu',    shortLabel: 'Tài Liệu',    icon: ICONS.documents,  href: route('portal.documents.index'),  active: route().current('portal.documents.*'),  disabled: !p['documents'] },
-      (f['module_chronicles'] || f['chronicles']) && { key: 'chronicles', label: 'Sổ Tay HT', shortLabel: 'Sổ Tay', icon: ICONS.logs, href: route('portal.chronicles.index'), active: route().current('portal.chronicles.*'), disabled: false },
+      (f['module_chronicles'] || f['chronicles']) && { key: 'chronicles', label: 'Sổ Tay HT', shortLabel: 'Sổ Tay', icon: ICONS.logs, href: route('portal.chronicles.index'), active: route().current('portal.chronicles.*'), disabled: !(p['module_chronicles'] || p['chronicles']) },
       f['assignments']  && { key: 'assignments',  label: 'Phân Công',   shortLabel: 'P.Công',      icon: ICONS.assignment, href: route('portal.duty-rooster.index'), active: route().current('portal.duty-rooster.*'), disabled: !p['assignments'] },
-      { key: 'logs', label: 'Nhật Ký', shortLabel: 'Nhật Ký', icon: ICONS.logs, href: route('portal.logs'), active: route().current('portal.logs') },
+      (f['activity-logs'] || f['logs']) && { key: 'logs', label: 'Nhật Ký', shortLabel: 'Nhật Ký', icon: ICONS.logs, href: route('portal.logs'), active: route().current('portal.logs'), disabled: !(p['activity-logs'] || p['logs']) },
     ].filter(Boolean);
   }
 
@@ -327,9 +327,9 @@ const visibleNavItems = computed(() => {
       f['education-classes'] && { key: 'classes', label: 'Lớp Học',     shortLabel: 'Lớp Học',     icon: ICONS.education,  href: route('ministry.education.classes'), active: route().current('ministry.education.classes'), disabled: !p['education-classes'] },
       f['education-report']  && { key: 'edu-rep', label: 'BC Giáo Dục', shortLabel: 'BC-GD',       icon: ICONS.reports,    href: route('ministry.education.report'),  active: route().current('ministry.education.report'),  disabled: !p['education-report'] },
       f['documents']    && { key: 'documents',    label: 'Tài Liệu',    shortLabel: 'Tài Liệu',    icon: ICONS.documents,  href: route('ministry.documents.index'),  active: route().current('ministry.documents.*'),  disabled: !p['documents'] },
-      (f['module_chronicles'] || f['chronicles']) && { key: 'chronicles', label: 'Sổ Tay HT', shortLabel: 'Sổ Tay', icon: ICONS.logs, href: route('ministry.chronicles.index'), active: route().current('ministry.chronicles.*'), disabled: false },
+      (f['module_chronicles'] || f['chronicles']) && { key: 'chronicles', label: 'Sổ Tay HT', shortLabel: 'Sổ Tay', icon: ICONS.logs, href: route('ministry.chronicles.index'), active: route().current('ministry.chronicles.*'), disabled: !(p['module_chronicles'] || p['chronicles']) },
       f['assignments']  && { key: 'assignments',  label: 'Phân Công',   shortLabel: 'P.Công',      icon: ICONS.assignment, href: route('ministry.duty-rooster.index'), active: route().current('ministry.duty-rooster.*'), disabled: !p['assignments'] },
-      { key: 'logs', label: 'Nhật Ký', shortLabel: 'Nhật Ký', icon: ICONS.logs, href: route('ministry.logs'), active: route().current('ministry.logs') },
+      (f['activity-logs'] || f['logs']) && { key: 'logs', label: 'Nhật Ký', shortLabel: 'Nhật Ký', icon: ICONS.logs, href: route('ministry.logs'), active: route().current('ministry.logs'), disabled: !(p['activity-logs'] || p['logs']) },
     ].filter(Boolean);
   }
 

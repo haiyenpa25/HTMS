@@ -69,12 +69,20 @@ const allFeatureCards = [
         icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>`,
     },
     {
+        key: 'care',
+        label: 'Chăm Sóc',
+        sub: 'Theo dõi & Hỗ trợ',
+        route: 'portal.care.index',
+        color: 'pink',
+        icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>`,
+    },
+    {
         key: 'chronicles',
         label: 'Sổ Tay HT',
         sub: 'Biên Niên Sử',
         route: 'portal.chronicles.index',
         color: 'purple',
-        icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>`,
+        icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>`,
     },
 
     {
@@ -100,6 +108,7 @@ const colorMap = {
     indigo:  { bg: 'bg-indigo-50',  text: 'text-indigo-500',  hover: 'hover:bg-indigo-600',  hoverBorder: 'hover:border-indigo-200',  sub: 'text-indigo-600' },
     purple:  { bg: 'bg-purple-50',  text: 'text-purple-500',  hover: 'hover:bg-purple-600',  hoverBorder: 'hover:border-purple-200',  sub: 'text-purple-600' },
     rose:    { bg: 'bg-rose-50',    text: 'text-rose-500',    hover: 'hover:bg-rose-600',    hoverBorder: 'hover:border-rose-200',    sub: 'text-rose-600' },
+    pink:    { bg: 'bg-pink-50',    text: 'text-pink-500',    hover: 'hover:bg-pink-600',    hoverBorder: 'hover:border-pink-200',    sub: 'text-pink-600' },
 };
 </script>
 

@@ -50,56 +50,29 @@ class AuthController extends Controller
             $user = Auth::user();
             $member = Member::where('user_id', $user->id)->first();
             
-            // 1. Super Admin / Pastor → admin dashboard
-            if ($user->isSuperAdmin()) {
-                return redirect()->intended(route('dashboard'));
-            }
-            
-            // 2. Identify Primary Department & Block
-            // Priority: leadership > ministry > activities
-            $primaryDept = null;
+            // Load session phân quyền theo Block Ban Ngành
             if ($member) {
                 $primaryDept = $member->departments()
                     ->orderByRaw("CASE WHEN block = 'leadership' THEN 1 WHEN block = 'ministry' THEN 2 ELSE 3 END")
                     ->first();
-            }
 
-            // Fallback to MAC permissions if no direct membership
-            if (!$primaryDept) {
-                $featureDept = UserDepartmentFeature::where('user_id', $user->id)
-                    ->where('is_enabled', true)
-                    ->with('department')
-                    ->get()
-                    ->sortBy(fn($uf) => match($uf->department->block ?? '') {
-                        'leadership' => 1,
-                        'ministry' => 2,
-                        default => 3
-                    })
-                    ->first();
-                $primaryDept = $featureDept->department ?? null;
-            }
-
-            if ($primaryDept) {
-                switch ($primaryDept->block) {
-                    case 'leadership':
-                        session(['active_deacon_dept_id' => $primaryDept->id]);
-                        return redirect()->intended(route('deacon.index'));
-                    case 'ministry':
-                        session(['active_ministry_dept_id' => $primaryDept->id]);
-                        return redirect()->intended(route('ministry.index'));
-                    case 'activities':
-                        session(['active_portal_dept_id' => $primaryDept->id]);
-                        return redirect()->intended(route('portal.index'));
+                if ($primaryDept) {
+                    switch ($primaryDept->block) {
+                        case 'leadership':
+                            session(['active_deacon_dept_id' => $primaryDept->id]);
+                            break;
+                        case 'ministry':
+                            session(['active_ministry_dept_id' => $primaryDept->id]);
+                            break;
+                        case 'activities':
+                            session(['active_portal_dept_id' => $primaryDept->id]);
+                            break;
+                    }
                 }
             }
-            
-            // 3. Fallback: deacon portal for BTS_Admin roles even without dept
-            if ($user->isSuperAdmin()) {
-                return redirect()->intended(route('deacon.index'));
-            }
-            
-            // 4. Default fallback: Member Portal
-            return redirect()->route('member.portal.index');
+
+            // Tất cả đều về Welcome Portal trước
+            return redirect()->intended(route('welcome'));
         }
 
         return back()->withErrors([
