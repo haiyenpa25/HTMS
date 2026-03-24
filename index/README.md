@@ -1,5 +1,5 @@
 # HTMS Code Knowledge Graph
-> Generated: 2026-03-24 03:46 | Run `php artisan htms:index` to refresh
+> Generated: 2026-03-24 03:49 | Run `php artisan htms:index` to refresh
 
 ## Navigation Guide
 

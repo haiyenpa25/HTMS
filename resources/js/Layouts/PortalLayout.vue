@@ -222,22 +222,23 @@
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import SlideOver from '@/Components/SlideOver.vue';
+import { usePermissions } from '@/Composables/usePermissions';
 
 // Allow child pages to trigger the dept switcher via @open-switcher
 const emit = defineEmits(['openSwitcher']);
 
 const page = usePage();
-const deptFeatures = computed(() => page.props.departmentFeatures || {});
-const authPermissions = computed(() => page.props.userPermissions || {});
+// Single source of truth: auth.allowed_features (computed by PortalService in HandleInertiaRequests)
+const { can, isSuperAdmin: isAdmin } = usePermissions();
 
 const props = defineProps({
   department:           Object,
   availableDepartments: Array,
   isGlobalAdmin:        Boolean,
-  userPermissions:      { type: Object, default: () => ({}) },
+  userPermissions:      { type: Object, default: () => ({}) }, // kept for backward compat, not used for nav
   portalType:           { type: String, default: 'activities' },
   hideNav:              { type: Boolean, default: false },
-  title:                { type: String, default: null }, // backward-compat for old pages
+  title:                { type: String, default: null },
 });
 
 // Sidebar / switcher state
@@ -292,59 +293,63 @@ const ICONS = {
   care:       'M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
 };
 
-// Computes nav items based on portal type + enabled features + user permissions
+/**
+ * visibleNavItems — Nguồn sự thật duy nhất: can(slug) từ usePermissions
+ * can(slug) đọc từ auth.allowed_features (PortalService::getAllowedFeaturesForDept)
+ * Quy tắc: can(slug) = true → hiện và enable; false → ẩn hoàn toàn
+ */
 const visibleNavItems = computed(() => {
-  const f = deptFeatures.value;
-  const p = authPermissions.value;
   const type = props.portalType;
 
   const always = [
-    { key: 'home', label: 'Tổng Quan', shortLabel: 'Tổng Quan', icon: ICONS.dashboard, href: type === 'activities' ? route('portal.index') : type === 'ministry' ? route('ministry.index') : route('deacon.index'), active: false, disabled: false },
+    { key: 'home', label: 'Tổng Quan', icon: ICONS.dashboard,
+      href: type === 'activities' ? route('portal.index') : type === 'ministry' ? route('ministry.index') : route('deacon.index'),
+      active: false, disabled: false },
   ];
 
   if (type === 'activities') {
     return [
       ...always,
-      f['attendance']   && { key: 'attendance',   label: 'Điểm Danh',   shortLabel: 'Điểm Danh',   icon: ICONS.attendance, href: route('portal.attendance.index'), active: route().current('portal.attendance.*'), disabled: !p['attendance'] },
-      f['visitation']   && { key: 'visitation',   label: 'Thăm Viếng',  shortLabel: 'Thăm Viếng',  icon: ICONS.visitation, href: route('portal.visitation.index'), active: route().current('portal.visitation.*'), disabled: !p['visitation'] },
-      f['care']         && { key: 'care',         label: 'Chăm Sóc',    shortLabel: 'Chăm Sóc',    icon: ICONS.care,       href: route('portal.care.index'),       active: route().current('portal.care.*'),       disabled: !p['care'] },
-      (f['members']||f['thanh-vien']) && { key: 'members', label: 'Thành Viên', shortLabel: 'T.Viên', icon: ICONS.members, href: route('portal.members.index'), active: route().current('portal.members.*'), disabled: !(p['members']||p['thanh-vien']) },
-      f['reports']      && { key: 'reports',      label: 'Báo Cáo',     shortLabel: 'Báo Cáo',     icon: ICONS.reports,    href: route('portal.reports.index'),    active: route().current('portal.reports.*'),    disabled: !p['reports'] },
-      f['finance']      && { key: 'finance',      label: 'Tài Chính',   shortLabel: 'Tài Chính',   icon: ICONS.finance,    href: route('portal.finance.index'),    active: route().current('portal.finance.*'),    disabled: !p['finance'] },
-      f['documents']    && { key: 'documents',    label: 'Tài Liệu',    shortLabel: 'Tài Liệu',    icon: ICONS.documents,  href: route('portal.documents.index'),  active: route().current('portal.documents.*'),  disabled: !p['documents'] },
-      (f['module_chronicles'] || f['chronicles']) && { key: 'chronicles', label: 'Sổ Tay HT', shortLabel: 'Sổ Tay', icon: ICONS.logs, href: route('portal.chronicles.index'), active: route().current('portal.chronicles.*'), disabled: !(p['module_chronicles'] || p['chronicles']) },
-      f['assignments']  && { key: 'assignments',  label: 'Phân Công',   shortLabel: 'P.Công',      icon: ICONS.assignment, href: route('portal.duty-rooster.index'), active: route().current('portal.duty-rooster.*'), disabled: !p['assignments'] },
-      (f['activity-logs'] || f['logs']) && { key: 'logs', label: 'Nhật Ký', shortLabel: 'Nhật Ký', icon: ICONS.logs, href: route('portal.logs'), active: route().current('portal.logs'), disabled: !(p['activity-logs'] || p['logs']) },
+      can('attendance')   && { key: 'attendance',   label: 'Điểm Danh',  icon: ICONS.attendance, href: route('portal.attendance.index'),     active: route().current('portal.attendance.*'),     disabled: false },
+      can('visitation')   && { key: 'visitation',   label: 'Thăm Viếng', icon: ICONS.visitation, href: route('portal.visitation.index'),     active: route().current('portal.visitation.*'),     disabled: false },
+      can('care')         && { key: 'care',         label: 'Chăm Sóc',   icon: ICONS.care,       href: route('portal.care.index'),           active: route().current('portal.care.*'),           disabled: false },
+      can('members')      && { key: 'members',      label: 'Thành Viên', icon: ICONS.members,    href: route('portal.members.index'),        active: route().current('portal.members.*'),        disabled: false },
+      can('reports')      && { key: 'reports',      label: 'Báo Cáo',    icon: ICONS.reports,    href: route('portal.reports.index'),        active: route().current('portal.reports.*'),        disabled: false },
+      can('finance')      && { key: 'finance',      label: 'Tài Chính',  icon: ICONS.finance,    href: route('portal.finance.index'),        active: route().current('portal.finance.*'),        disabled: false },
+      can('documents')    && { key: 'documents',    label: 'Tài Liệu',   icon: ICONS.documents,  href: route('portal.documents.index'),      active: route().current('portal.documents.*'),      disabled: false },
+      can('chronicles')   && { key: 'chronicles',   label: 'Sổ Tay HT',  icon: ICONS.logs,       href: route('portal.chronicles.index'),     active: route().current('portal.chronicles.*'),     disabled: false },
+      can('assignments')  && { key: 'assignments',  label: 'Phân Công',  icon: ICONS.assignment, href: route('portal.duty-rooster.index'),   active: route().current('portal.duty-rooster.*'),  disabled: false },
+      can('activity-logs')&& { key: 'logs',         label: 'Nhật Ký',    icon: ICONS.logs,       href: route('portal.logs'),                active: route().current('portal.logs'),             disabled: false },
     ].filter(Boolean);
   }
 
   if (type === 'ministry') {
     return [
       ...always,
-      (f['members']||f['thanh-vien']) && { key: 'members', label: 'Thành Viên', shortLabel: 'T.Viên', icon: ICONS.members, href: route('ministry.members.index'), active: route().current('ministry.members.*'), disabled: !(p['members']||p['thanh-vien']) },
-      f['visitation']   && { key: 'visitation',   label: 'Thăm Viếng',  shortLabel: 'Thăm Viếng',  icon: ICONS.visitation, href: route('ministry.visitation.index'), active: route().current('ministry.visitation.*'), disabled: !p['visitation'] },
-      f['care']         && { key: 'care',         label: 'Chăm Sóc',    shortLabel: 'Chăm Sóc',    icon: ICONS.care,       href: route('ministry.care.index'),       active: route().current('ministry.care.*'),       disabled: !p['care'] },
-      f['education-classes'] && { key: 'classes', label: 'Lớp Học',     shortLabel: 'Lớp Học',     icon: ICONS.education,  href: route('ministry.education.classes'), active: route().current('ministry.education.classes'), disabled: !p['education-classes'] },
-      f['education-report']  && { key: 'edu-rep', label: 'BC Giáo Dục', shortLabel: 'BC-GD',       icon: ICONS.reports,    href: route('ministry.education.report'),  active: route().current('ministry.education.report'),  disabled: !p['education-report'] },
-      f['documents']    && { key: 'documents',    label: 'Tài Liệu',    shortLabel: 'Tài Liệu',    icon: ICONS.documents,  href: route('ministry.documents.index'),  active: route().current('ministry.documents.*'),  disabled: !p['documents'] },
-      (f['module_chronicles'] || f['chronicles']) && { key: 'chronicles', label: 'Sổ Tay HT', shortLabel: 'Sổ Tay', icon: ICONS.logs, href: route('ministry.chronicles.index'), active: route().current('ministry.chronicles.*'), disabled: !(p['module_chronicles'] || p['chronicles']) },
-      f['assignments']  && { key: 'assignments',  label: 'Phân Công',   shortLabel: 'P.Công',      icon: ICONS.assignment, href: route('ministry.duty-rooster.index'), active: route().current('ministry.duty-rooster.*'), disabled: !p['assignments'] },
-      (f['activity-logs'] || f['logs']) && { key: 'logs', label: 'Nhật Ký', shortLabel: 'Nhật Ký', icon: ICONS.logs, href: route('ministry.logs'), active: route().current('ministry.logs'), disabled: !(p['activity-logs'] || p['logs']) },
+      can('members')              && { key: 'members',   label: 'Thành Viên',    icon: ICONS.members,    href: route('ministry.members.index'),          active: route().current('ministry.members.*'),          disabled: false },
+      can('visitation')           && { key: 'visitation', label: 'Thăm Viếng',    icon: ICONS.visitation, href: route('ministry.visitation.index'),        active: route().current('ministry.visitation.*'),        disabled: false },
+      can('care')                 && { key: 'care',       label: 'Chăm Sóc',      icon: ICONS.care,       href: route('ministry.care.index'),             active: route().current('ministry.care.*'),             disabled: false },
+      can('education-classes')    && { key: 'classes',   label: 'Lớp Học',        icon: ICONS.education,  href: route('ministry.education.classes'),      active: route().current('ministry.education.classes'),  disabled: false },
+      can('education-report')     && { key: 'edu-rep',   label: 'BC Giáo Dục',    icon: ICONS.reports,    href: route('ministry.education.report'),       active: route().current('ministry.education.report'),   disabled: false },
+      can('documents')            && { key: 'documents', label: 'Tài Liệu',       icon: ICONS.documents,  href: route('ministry.documents.index'),        active: route().current('ministry.documents.*'),        disabled: false },
+      can('chronicles')           && { key: 'chronicles', label: 'Sổ Tay HT',     icon: ICONS.logs,       href: route('ministry.chronicles.index'),       active: route().current('ministry.chronicles.*'),       disabled: false },
+      can('assignments')          && { key: 'assignments', label: 'Phân Công',    icon: ICONS.assignment, href: route('ministry.duty-rooster.index'),     active: route().current('ministry.duty-rooster.*'),     disabled: false },
+      can('activity-logs')        && { key: 'logs',       label: 'Nhật Ký',        icon: ICONS.logs,       href: route('ministry.logs'),                  active: route().current('ministry.logs'),               disabled: false },
     ].filter(Boolean);
   }
 
-  // deacon
-  const deaconRole = usePage().props.activeDeaconRole;
+  // Deacon portal
+  const deaconRole = page.props.activeDeaconRole;
   return [
     ...always,
-    deaconRole === 'secretary' && f['attendance'] && { key: 'attendance', label: 'Điểm Danh', shortLabel: 'Điểm Danh', icon: ICONS.attendance, href: route('deacon.attendance'), active: route().current('deacon.attendance.*'), disabled: !p['attendance'] },
-    deaconRole === 'secretary' && f['reports'] && { key: 'reports', label: 'Báo Cáo', shortLabel: 'Báo Cáo', icon: ICONS.reports, href: route('deacon.report'), active: route().current('deacon.report.*'), disabled: !p['reports'] },
-    deaconRole === 'treasurer' && f['finance'] && { key: 'finance', label: 'Quản Lý Quỹ', shortLabel: 'QL Quỹ', icon: ICONS.finance, href: route('finance.index'), active: route().current('finance.*'), disabled: !p['finance'] },
-    f['assignments']  && { key: 'assignments', label: 'Phân Công', shortLabel: 'P.Công', icon: ICONS.assignment, href: route('deacon.duty-rooster.index'), active: route().current('deacon.duty-rooster.*'), disabled: !p['assignments'] },
+    deaconRole === 'secretary' && can('attendance') && { key: 'attendance', label: 'Điểm Danh',   icon: ICONS.attendance, href: route('deacon.attendance'),         active: route().current('deacon.attendance.*'), disabled: false },
+    deaconRole === 'secretary' && can('reports')    && { key: 'reports',    label: 'Báo Cáo',     icon: ICONS.reports,    href: route('deacon.report'),             active: route().current('deacon.report.*'),    disabled: false },
+    deaconRole === 'treasurer' && can('finance')    && { key: 'finance',    label: 'Quản Lý Quỹ', icon: ICONS.finance,    href: route('finance.index'),             active: route().current('finance.*'),          disabled: false },
+    can('assignments')                              && { key: 'assignments', label: 'Phân Công',   icon: ICONS.assignment, href: route('deacon.duty-rooster.index'), active: route().current('deacon.duty-rooster.*'), disabled: false },
   ].filter(Boolean);
 });
 
-// Mobile shows first 4 items only (space for switcher button)
+// Mobile shows first 4 items only
 const mobileNavItems = computed(() => visibleNavItems.value.slice(0, 4));
 </script>
 
