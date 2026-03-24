@@ -28,14 +28,20 @@ class Member extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
+        return $query->where('status', 'Chính thức');
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
     }
 
     protected $fillable = [
         'user_id', 'household_id', 'member_code', 'full_name', 'email', 'phone', 
         'address', 'visit_location', 'latitude', 'longitude', 'date_of_birth', 'gender', 'member_type',
         'faith_date', 'is_baptized', 'baptism_date', 'joined_date',
-        'attendance_status', 'status', 'general_notes'
+        'attendance_status', 'status', 'general_notes',
+        'pending_dept_id', 'submitted_by_user_id',
     ];
 
     protected $appends = ['marital_status'];
@@ -56,6 +62,11 @@ class Member extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function submittedBy()
+    {
+        return $this->belongsTo(User::class, 'submitted_by_user_id');
     }
 
     public function household()

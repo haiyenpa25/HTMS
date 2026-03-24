@@ -69,6 +69,15 @@
                     Toàn Ban
                     <div v-if="activeTab === 'all'" class="absolute bottom-0 left-0 w-full h-[3px] bg-blue-600"></div>
                 </button>
+                <button 
+                    @click="activeTab = 'pending'"
+                    class="flex-1 py-4 text-center font-bold text-base transition-colors relative"
+                    :class="activeTab === 'pending' ? 'text-amber-600 bg-amber-50/50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+                >
+                    Khách Mới
+                    <span v-if="pendingCount > 0" class="ml-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white text-[11px] font-black">{{ pendingCount }}</span>
+                    <div v-if="activeTab === 'pending'" class="absolute bottom-0 left-0 w-full h-[3px] bg-amber-500"></div>
+                </button>
             </div>
             
             <!-- Mobile Tab Dropdown -->
@@ -76,6 +85,7 @@
                 <select v-model="activeTab" class="w-full border-gray-200 rounded-xl font-bold focus:ring-blue-500 focus:border-blue-500 bg-white py-3 pl-4 pr-8 text-blue-900 shadow-sm">
                     <option value="board">Nhân sự Ban Điều Hành</option>
                     <option value="all">Danh sách Toàn Ban</option>
+                    <option value="pending">Khách Mới {{ pendingCount > 0 ? `(${pendingCount})` : '' }}</option>
                 </select>
             </div>
 
@@ -338,8 +348,98 @@
                     </div>
                 </div>
             </div>
-            
+
+            <!-- Pending Members Tab -->
+            <div v-if="activeTab === 'pending'" class="animate-fade-in space-y-4">
+                <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-[15px] font-bold text-amber-900">Khách mới chờ duyệt</p>
+                        <p class="text-sm text-amber-700 mt-0.5">Sau khi được duyệt, họ sẽ trở thành tín hữu chính thức.</p>
+                    </div>
+                    <button @click="isAddPendingOpen = true" class="shrink-0 px-4 py-2.5 bg-amber-500 text-white font-bold text-sm rounded-xl hover:bg-amber-600 transition-colors shadow-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Thêm Khách Mới
+                    </button>
+                </div>
+
+                <div v-if="pendingMembers.length === 0" class="bg-white rounded-2xl p-10 border border-gray-100 text-center text-gray-400 font-medium">
+                    Không có khách mới nào đang chờ duyệt.
+                </div>
+
+                <div v-else class="space-y-3">
+                    <div v-for="pending in pendingMembers" :key="pending.id"
+                        class="bg-white rounded-2xl border border-amber-100 shadow-sm p-4 flex items-start justify-between gap-4">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h4 class="font-bold text-gray-900 text-[15px]">{{ pending.full_name }}</h4>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-700">Chờ duyệt</span>
+                            </div>
+                            <p v-if="pending.phone" class="text-sm text-gray-500 mt-1">📞 {{ pending.phone }}</p>
+                            <p v-if="pending.general_notes" class="text-sm text-gray-400 mt-1 italic">{{ pending.general_notes }}</p>
+                            <p class="text-xs text-gray-400 mt-2">Ghi nhận bởi <strong>{{ pending.submitted_by || 'không rõ' }}</strong> · {{ pending.created_at }}</p>
+                        </div>
+                        <div v-if="canApprovePending" class="flex flex-col gap-2 shrink-0">
+                            <button @click="approvePending(pending.id)" class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition-colors">✓ Duyệt</button>
+                            <button @click="rejectPending(pending.id)" class="px-3 py-1.5 bg-red-50 text-red-600 text-xs font-bold rounded-lg hover:bg-red-100 border border-red-200 transition-colors">✕ Từ chối</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile FAB: Thêm Khách Mới (luôn hiển thị trên mobile) -->
+            <div class="sm:hidden fixed bottom-6 right-6 z-50">
+                <button @click="isAddPendingOpen = true"
+                    class="flex items-center gap-2 px-5 py-3.5 bg-amber-500 text-white font-black text-[15px] rounded-2xl shadow-lg hover:bg-amber-600 active:scale-95 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                    Khách Mới
+                </button>
+            </div>
+
         </div>
+
+        <!-- SlideOver: Thêm Khách Mới -->
+
+        <SlideOver v-model="isAddPendingOpen" title="Thêm Khách Mới" size="sm">
+            <template #default>
+                <div class="p-6 space-y-5">
+                    <div class="bg-amber-50 border border-amber-100 rounded-xl p-3">
+                        <p class="text-sm text-amber-800 font-medium">Nhập họ tên người mới đến. Thông tin sẽ được gửi cho Mục Sư / Trưởng Ban xét duyệt.</p>
+                    </div>
+                    <form @submit.prevent="submitPending" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-900 mb-1.5">Họ và tên <span class="text-red-500">*</span></label>
+                            <input v-model="pendingForm.full_name" type="text" required placeholder="Nguyễn Văn A"
+                                class="block w-full border-gray-200 rounded-xl text-[15px] font-medium focus:ring-amber-500 focus:border-amber-500 py-3 bg-gray-50 transition-colors"
+                                :class="{ 'border-red-300': pendingForm.errors.full_name }">
+                            <p v-if="pendingForm.errors.full_name" class="text-red-500 text-sm mt-1">{{ pendingForm.errors.full_name }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-900 mb-1.5">Số điện thoại</label>
+                            <input v-model="pendingForm.phone" type="tel" placeholder="0901 234 567"
+                                class="block w-full border-gray-200 rounded-xl text-[15px] font-medium focus:ring-amber-500 focus:border-amber-500 py-3 bg-gray-50 transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-900 mb-1.5">Ghi chú</label>
+                            <textarea v-model="pendingForm.general_notes" rows="3" placeholder="Người quen của ai, được mời lần đầu..."
+                                class="block w-full border-gray-200 rounded-xl text-[15px] font-medium focus:ring-amber-500 focus:border-amber-500 py-2.5 bg-gray-50 transition-colors resize-none">
+                            </textarea>
+                        </div>
+                        <div class="pt-2 flex gap-3">
+                            <button type="button" @click="isAddPendingOpen = false"
+                                class="flex-1 py-3 border border-gray-200 rounded-xl text-[15px] font-bold text-gray-600 hover:bg-gray-50 transition-colors">
+                                Hủy
+                            </button>
+                            <button type="submit" :disabled="pendingForm.processing || !pendingForm.full_name"
+                                class="flex-1 py-3 bg-amber-500 text-white rounded-xl text-[15px] font-bold hover:bg-amber-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
+                                <svg v-if="pendingForm.processing" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                                Gửi lên duyệt
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </template>
+        </SlideOver>
+
 
         <SlideOver v-model="isSwitchOpen" title="Chuyển đổi Ban Sinh Hoạt" size="md">
             <!-- Context Switcher Schema same as Attendance -->
@@ -531,9 +631,13 @@ const props = defineProps({
     filters: Object,
     routePrefix: String,
     portalType: String,
+    pendingMembers: Array,
+    pendingCount: Number,
+    canApprovePending: Boolean,
 });
 
 const isSwitchOpen = ref(false);
+const isAddPendingOpen = ref(false);
 const activeTab = ref(
     (props.members?.current_page > 1 || 
      (typeof window !== 'undefined' && window.location.search.includes('page=')) ||
@@ -549,6 +653,22 @@ const roleFilter  = ref(props.filters?.org_role || '');
 const activeStatusFilter = ref(props.filters?.active_status || '');
 const isMemberSlideOpen = ref(false);
 const selectedMember = ref(null);
+
+const pendingForm = useForm({
+    full_name: '',
+    phone: '',
+    general_notes: '',
+});
+
+const submitPending = () => {
+    pendingForm.post(route(`${props.routePrefix}.store-pending`), {
+        preserveScroll: true,
+        onSuccess: () => {
+            isAddPendingOpen.value = false;
+            pendingForm.reset();
+        },
+    });
+};
 
 const form = useForm({
     org_role: 'Member',
@@ -706,6 +826,19 @@ const getRoleName = (roleKey) => {
         'Member': 'Ban Viên',
     };
     return roles[roleKey] || 'Chưa phân công';
+};
+
+const approvePending = (memberId) => {
+    if (confirm('Duyệt thành viên này thành tín hữu chính thức?')) {
+        router.post(route(`${props.routePrefix}.approve-pending`, memberId), {}, { preserveScroll: true });
+    }
+};
+
+const rejectPending = (memberId) => {
+    const reason = prompt('Lý do từ chối (tuỳ chọn):') ?? null;
+    if (reason !== undefined) { // user did not press cancel
+        router.post(route(`${props.routePrefix}.reject-pending`, memberId), { rejection_reason: reason }, { preserveScroll: true });
+    }
 };
 
 // Import/Export Logic

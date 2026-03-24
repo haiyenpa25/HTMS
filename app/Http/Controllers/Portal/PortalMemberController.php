@@ -7,10 +7,13 @@ use App\Models\Department;
 use App\Models\Member;
 use App\Models\OrgMembership;
 use App\Models\OrgRole;
+use App\Models\ApprovalRequest;
 use App\Exports\PortalMemberExport;
 use App\Imports\PortalMemberImport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\User;
+use App\Notifications\PendingMemberNotification;
+use App\Notifications\MemberApprovalResultNotification;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -216,6 +219,23 @@ class PortalMemberController extends Controller
              ];
         })->withQueryString();
 
+        // Load pending members cho ban này
+        $pendingMembers = Member::where('status', 'pending')
+            ->where('pending_dept_id', $departmentId)
+            ->with(['submittedBy:id,name'])
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(fn($m) => [
+                'id'            => $m->id,
+                'full_name'     => $m->full_name,
+                'phone'         => $m->phone,
+                'general_notes' => $m->general_notes,
+                'submitted_by'  => $m->submittedBy?->name,
+                'created_at'    => $m->created_at?->diffForHumans(),
+            ]);
+
+        $canApprovePending = auth()->user()->isSuperAdmin() || $this->isTruongBan($departmentId);
+
         return Inertia::render('Portal/Members/Index', [
             'department' => $department,
             'teams' => $teams,
@@ -229,8 +249,11 @@ class PortalMemberController extends Controller
                 'org_role' => $orgRole ?? null,
                 'active_status' => $activeStatus ?? null,
             ],
-            'routePrefix' => $context['route_prefix'],
-            'portalType' => $context['type'],
+            'routePrefix'       => $context['route_prefix'],
+            'portalType'        => $context['type'],
+            'pendingMembers'    => $pendingMembers,
+            'pendingCount'      => $pendingMembers->count(),
+            'canApprovePending' => $canApprovePending,
         ]);
     }
 
@@ -613,6 +636,135 @@ class PortalMemberController extends Controller
         } catch (\Exception $e) {
             return back()->withErrors(['file' => 'Lỗi import: ' . $e->getMessage()]);
         }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // PENDING MEMBER (Thêm Thành Viên Tạm)
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Tạo thành viên tạm — ai vào được portal của ban đó đều tạo được.
+     */
+    public function storePending(Request $request)
+    {
+        $context = $this->getContext();
+        $departmentId = $this->getDeptId($context);
+        $department = Department::findOrFail($departmentId);
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            'full_name'     => 'required|string|max:255',
+            'phone'         => 'nullable|string|max:20',
+            'general_notes' => 'nullable|string|max:500',
+        ]);
+
+        $member = Member::create([
+            'full_name'            => $validated['full_name'],
+            'phone'                => $validated['phone'] ?? null,
+            'general_notes'        => $validated['general_notes'] ?? null,
+            'status'               => 'pending',
+            'pending_dept_id'      => $departmentId,
+            'submitted_by_user_id' => $user->id,
+        ]);
+
+        ApprovalRequest::create([
+            'requester_id'   => $member->id,
+            'requester_type' => Member::class,
+            'type'           => 'new_member',
+            'content'        => json_encode([
+                'name'              => $member->full_name,
+                'phone'             => $member->phone,
+                'notes'             => $member->general_notes,
+                'dept_id'           => $departmentId,
+                'dept_name'         => $department->name,
+                'submitted_by_name' => $user->name,
+            ]),
+            'status' => 'pending',
+        ]);
+
+        // Notify SuperAdmins + TruongBan
+        try {
+            $superAdmins = User::whereHas('roles', fn($q) => $q->where('name', 'SuperAdmin'))->get();
+            $truongBanUsers = User::whereHas('member', function($q) use ($department) {
+                $q->whereHas('memberships', function($mq) use ($department) {
+                    $mq->where('model_type', Department::class)
+                       ->where('model_id', $department->id)
+                       ->whereHas('role', fn($r) => $r->whereIn('code', ['tb', 'pb']));
+                });
+            })->get();
+            $superAdmins->merge($truongBanUsers)->unique('id')->each(
+                fn($u) => $u->notify(new PendingMemberNotification($member, $department, $user))
+            );
+        } catch (\Exception $e) {
+            \Log::warning('PendingMember notify failed: ' . $e->getMessage());
+        }
+
+        return back()->with('success', "\u0110\u00e3 ghi nh\u1eadnkhách mới \"{$member->full_name}\" — đang chờ duyệt.");
+    }
+
+    /**
+     * Duyệt thành viên tạm — SuperAdmin hoặc TruongBan/PhoBan của ban.
+     */
+    public function approvePending(Member $member)
+    {
+        abort_unless(
+            auth()->user()->isSuperAdmin() || $this->isTruongBan($member->pending_dept_id),
+            403, 'Bạn không có quyền duyệt.'
+        );
+
+        $member->update(['status' => 'Chính thức']);
+
+        ApprovalRequest::where('requester_id', $member->id)
+            ->where('requester_type', Member::class)
+            ->where('status', 'pending')
+            ->first()?->update(['status' => 'approved', 'approver_id' => auth()->id()]);
+
+        try {
+            User::find($member->submitted_by_user_id)
+                ?->notify(new MemberApprovalResultNotification($member, 'approved'));
+        } catch (\Exception $e) {}
+
+        return back()->with('success', "Đã duyệt \"{$member->full_name}\" thành tín hữu chính thức.");
+    }
+
+    /**
+     * Từ chối thành viên tạm.
+     */
+    public function rejectPending(Request $request, Member $member)
+    {
+        abort_unless(
+            auth()->user()->isSuperAdmin() || $this->isTruongBan($member->pending_dept_id),
+            403, 'Bạn không có quyền từ chối.'
+        );
+
+        $validated = $request->validate(['rejection_reason' => 'nullable|string|max:255']);
+
+        ApprovalRequest::where('requester_id', $member->id)
+            ->where('requester_type', Member::class)
+            ->where('status', 'pending')
+            ->first()?->update([
+                'status'           => 'rejected',
+                'approver_id'      => auth()->id(),
+                'rejection_reason' => $validated['rejection_reason'] ?? null,
+            ]);
+
+        $memberName = $member->full_name;
+        try {
+            User::find($member->submitted_by_user_id)
+                ?->notify(new MemberApprovalResultNotification($member, 'rejected', $validated['rejection_reason'] ?? null));
+        } catch (\Exception $e) {}
+
+        $member->delete();
+        return back()->with('success', "Đã từ chối \"{$memberName}\".");
+    }
+
+    private function isTruongBan(?int $deptId): bool
+    {
+        if (!$deptId) return false;
+        $user = auth()->user();
+        if (!$user->member_id) return false;
+        $member = Member::find($user->member_id);
+        return $member?->hasOrgRoleIn($deptId, ['TruongBan', 'PhoBan']) ?? false;
     }
 }
 

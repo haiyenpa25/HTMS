@@ -225,6 +225,10 @@ Route::middleware('auth')->group(function () {
             Route::post('/members/{member}/generate-account', [\App\Http\Controllers\Portal\PortalMemberController::class, 'createUserAccount'])->name('portal.members.generate-account');
             Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('portal.members.remove');
             Route::delete('/members/bulk/remove', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkRemove'])->name('portal.members.bulk-remove');
+            // Thành viên tạm
+            Route::post('/members/store-pending', [\App\Http\Controllers\Portal\PortalMemberController::class, 'storePending'])->name('portal.members.store-pending');
+            Route::post('/members/{member}/approve-pending', [\App\Http\Controllers\Portal\PortalMemberController::class, 'approvePending'])->name('portal.members.approve-pending');
+            Route::post('/members/{member}/reject-pending', [\App\Http\Controllers\Portal\PortalMemberController::class, 'rejectPending'])->name('portal.members.reject-pending');
         });
 
         // Phân công
