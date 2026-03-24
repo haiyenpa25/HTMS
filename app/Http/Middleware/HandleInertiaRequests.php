@@ -41,7 +41,7 @@ class HandleInertiaRequests extends Middleware
         if ($user) {
             if ($user->isSuperAdmin()) {
                 $homePortal = '/dashboard';
-            } elseif ($user->isSuperAdmin()) {
+            } elseif ($user->hasRole('Deacon') || $user->hasRole('Secretary')) {
                 $homePortal = '/deacon';
             } else {
                 // Check Ministry

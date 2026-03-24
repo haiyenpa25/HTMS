@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\FinanceFund;
-use Illuminate\Support\Facades\Gate;
 
 class FinanceFundController extends Controller
 {
     public function index(Request $request)
     {
-        Gate::authorize('viewAny', FinanceFund::class);
+        $this->authorizeFeature('finance');
+
 
         $user = $request->user();
         $isGlobalAdmin = $user->isSuperAdmin();
@@ -39,7 +39,8 @@ class FinanceFundController extends Controller
 
     public function store(Request $request)
     {
-        Gate::authorize('create', FinanceFund::class);
+        $this->authorizeManage('finance');
+
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -68,7 +69,8 @@ class FinanceFundController extends Controller
 
     public function update(Request $request, FinanceFund $fund)
     {
-        Gate::authorize('update', $fund);
+        $this->authorizeManage('finance');
+
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -81,7 +83,8 @@ class FinanceFundController extends Controller
 
     public function destroy(FinanceFund $fund)
     {
-        Gate::authorize('delete', $fund);
+        $this->authorizeManage('finance');
+
 
         if ($fund->transactions()->count() > 0) {
             return back()->with('error', 'Không thể xóa quỹ đang có giao dịch.');

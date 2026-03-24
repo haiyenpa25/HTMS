@@ -143,6 +143,42 @@ class PortalService
     }
 
     /**
+     * Kiểm tra user có quyền QUẢN LÝ (tạo/sửa/xóa) feature trong department.
+     * Yêu cầu: is_enabled = true VÀ access_level = 'manage'.
+     * Nếu không có explicit record → mặc định là view (không manage).
+     */
+    public function canManage(User $user, int $deptId, string $featureSlug): bool
+    {
+        // God Mode
+        if ($user->isSuperAdmin()) return true;
+
+        // Level 1 check trước
+        $department = Department::find($deptId);
+        if (!$department) return false;
+
+        $systemAccess = app(\App\Services\FeatureAssignmentService::class)
+            ->isFeatureEnabledForDepartment($department, $featureSlug);
+
+        if (!$systemAccess) return false;
+
+        // Level 2: cần explicit manage grant
+        $featureId = $this->resolveFeatureId($featureSlug);
+        if (!$featureId) return false;
+
+        $record = UserDepartmentFeature::where([
+            'user_id'       => $user->id,
+            'department_id' => $deptId,
+            'feature_id'    => $featureId,
+        ])->first();
+
+        // Không có record → kế thừa Level 1 nhưng chỉ view, không manage
+        if ($record === null) return false;
+
+        // Có record: cần is_enabled=true VÀ access_level='manage'
+        return $record->is_enabled && $record->access_level === 'manage';
+    }
+
+    /**
      * Toggle (upsert) 1 feature permission cho user.
      * Được gọi từ UserPermissionController::toggle().
      */
@@ -254,8 +290,8 @@ class PortalService
 
         foreach ($blocks as $block) {
             if ($block === 'leadership') {
-                // Ban Chấp Sự / Lãnh Đạo sử dụng logic Role chứ không phải bảng departments
-                if ($user->isSuperAdmin() || $user->isSuperAdmin()) {
+                // Ban Chấp Sự / Lãnh Đạo sử dụng logic Role
+                if ($user->isSuperAdmin()) {
                     $grouped[$block] = collect([
                         ['id' => 'secretary', 'name' => 'Thư Ký Hội Thánh', 'block' => 'leadership', 'code' => 'SEC'],
                         ['id' => 'treasurer', 'name' => 'Thủ Quỹ Hội Thánh', 'block' => 'leadership', 'code' => 'TRE']

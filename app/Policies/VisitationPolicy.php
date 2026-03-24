@@ -25,17 +25,12 @@ class VisitationPolicy
 
         $visitation = ($arg1 instanceof Visitation) ? $arg1 : $arg2;
         
-        // MAC check
-        $deptId = $visitation?->department_id ?? session('active_portal_dept_id');
+        // MAC check using the correct session key based on context
+        $deptId = $visitation?->department_id 
+            ?? session('active_portal_dept_id') 
+            ?? session('active_ministry_dept_id');
         if ($deptId && $this->hasMacAccess($user, $deptId, 'visitation')) {
             return true;
-        }
-
-        // Legacy Spatie fallback
-        if ($user->isSuperAdmin()) {
-            if (!$visitation) return true;
-            if ($user->isSuperAdmin()) return true;
-            if ($visitation->department_id === (int)session('active_portal_dept_id')) return true;
         }
 
         return false;
@@ -44,10 +39,17 @@ class VisitationPolicy
     public function viewSensitiveContent(User $user, Visitation $visitation): bool
     {
         if ($user->isSuperAdmin()) return true;
-        if ($user->isSuperAdmin()) return true;
 
         // Visitors can see their own reports
         if ($user->member_id && $visitation->visitors->contains('id', $user->member_id)) {
+            return true;
+        }
+
+        // Users with manage-level MAC access to visitation in the dept
+        $deptId = $visitation->department_id 
+            ?? session('active_portal_dept_id') 
+            ?? session('active_ministry_dept_id');
+        if ($deptId && $this->hasMacAccess($user, $deptId, 'visitation')) {
             return true;
         }
 
@@ -58,7 +60,8 @@ class VisitationPolicy
     {
         if ($user->isSuperAdmin()) return true;
         
-        $deptId = session('active_portal_dept_id');
+        // Support both Activities (/portal) and Ministry (/ministry) contexts
+        $deptId = session('active_portal_dept_id') ?? session('active_ministry_dept_id');
         return $deptId && $this->hasMacAccess($user, $deptId, 'visitation');
     }
 

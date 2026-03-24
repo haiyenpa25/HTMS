@@ -18,10 +18,7 @@ class MembersController extends Controller
         }
 
         $department = Department::findOrFail($departmentId);
-        Gate::authorize('access_portal', [Department::class, $department]);
-        
-        // Ensure they have permission to view members specifically
-        Gate::authorize('portal_view_members');
+        // Portal access already managed by CheckPortalAccess middleware
 
         $availableDepartments = [];
         if (auth()->user()->isSuperAdmin()) {

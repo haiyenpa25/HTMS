@@ -134,16 +134,13 @@ watch(activeDeptId, (newId) => {
 });
 
 const deptFeaturesMap = ref({}); // Level 1: features allowed by dept (from backend)
+const memberDeptIds  = ref([]); // Depts from membership
 
 const permDeptFeatures = computed(() => {
-  if (!activeDeptId.value) return (props.features || []).filter(f => f.portal_type === permSelectedBlock.value);
+  if (!activeDeptId.value) return [];
   const allowedByDept = deptFeaturesMap.value[activeDeptId.value] || {};
-  // Show block-matching AND global features that dept allows
-  return (props.features || []).filter(f => {
-    const deptAllows = allowedByDept[f.slug];
-    if (!deptAllows) return false;
-    return f.portal_type === permSelectedBlock.value || f.portal_type === 'global';
-  });
+  // Trả về tất cả features mà dept này cho phép (không filter theo block - dept đã đúng type rồi)
+  return (props.features || []).filter(f => !!allowedByDept[f.slug]);
 });
 
 // True if feature has no explicit user record (inherited from dept Level 1)
@@ -213,6 +210,7 @@ const selectPermUser = async (user) => {
   isLoadingPerm.value = true;
   macMatrix.value    = {};
   deptFeaturesMap.value = {};
+  memberDeptIds.value   = [];
   globalRoles.value  = [];
   isSuperAdmin.value = false;
   activeDeptId.value = null;
@@ -220,9 +218,11 @@ const selectPermUser = async (user) => {
 
   try {
     const res = await axios.get(route('admin.users.permissions.show', user.id));
-    globalRoles.value  = res.data.global_roles   || [];
-    isSuperAdmin.value = res.data.is_super_admin || false;
-    deptFeaturesMap.value = res.data.dept_features || {};
+    globalRoles.value     = res.data.global_roles   || [];
+    isSuperAdmin.value    = res.data.is_super_admin || false;
+    deptFeaturesMap.value = res.data.dept_features  || {};
+    memberDeptIds.value   = res.data.member_dept_ids || [];
+
     const map = {};
     for (const row of (res.data.permissions || [])) {
       map[`${row.department_id}-${row.feature_id}`] = {
@@ -231,10 +231,14 @@ const selectPermUser = async (user) => {
       };
     }
     macMatrix.value = map;
+
+    // Ưu tiên: dept có explicit grants → dept từ membership → dept đầu tiên có features
     if (grantedDeptIds.value.size > 0) {
       activeDeptId.value = [...grantedDeptIds.value][0];
+    } else if (memberDeptIds.value.length > 0) {
+      // Chọn dept đầu tiên từ membership
+      activeDeptId.value = memberDeptIds.value[0];
     } else if (Object.keys(deptFeaturesMap.value).length > 0) {
-      // Fallback: show first dept that has features
       activeDeptId.value = Number(Object.keys(deptFeaturesMap.value)[0]);
     }
   } catch (e) {
@@ -322,7 +326,28 @@ const featureIconMap = {
 };
 const getFeatureIcon = (slug) => featureIconMap[slug] || featureIconMap['default'];
 
-const addDept = (dept) => { activeDeptId.value = dept.id; };
+const addDept = async (dept) => {
+  if (!permUser.value) return;
+
+  // Auto-set block to dept's block so features display correctly
+  permSelectedBlock.value = dept.block || 'activities';
+  activeDeptId.value = dept.id;
+
+  // If dept has no existing permissions in macMatrix, bootstrap with first feature
+  if (!grantedDeptIds.value.has(dept.id)) {
+    // Find first feature matching this dept's block
+    const firstFeature = (props.features || []).find(f => f.portal_type === dept.block);
+    if (firstFeature) {
+      await toggleFeature(dept.id, firstFeature.id, true);
+    }
+  }
+
+  // Scroll panel into view
+  setTimeout(() => {
+    document.querySelector('[data-dept-panel]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 120);
+};
+
 
 // ── Sidebar state ─────────────────────────────────────────────────────────────
 const sidebarOpen = ref(false);
@@ -809,7 +834,8 @@ const sidebarCollapsed = ref(false);
             </template>
             <p v-else class="text-xs text-gray-400 italic py-1">Chưa cấp quyền ban ngành nào. Dùng nút ➕ bên dưới.</p>
           </div>
-          <div v-if="activeDept" class="px-5 pb-5 pt-4">
+          <div v-if="activeDept" data-dept-panel class="px-5 pb-5 pt-4">
+
             <div class="rounded-xl border border-gray-200 overflow-hidden">
               <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
                 <div class="flex items-center gap-2">

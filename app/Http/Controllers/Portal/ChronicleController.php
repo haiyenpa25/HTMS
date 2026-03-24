@@ -7,7 +7,7 @@ use App\Models\ChronicleEntry;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Gate;
+
 
 class ChronicleController extends Controller
 {
@@ -36,7 +36,8 @@ class ChronicleController extends Controller
         $departmentId = $this->getDeptId($context);
         $department = Department::findOrFail($departmentId);
 
-        Gate::authorize('access_portal', [Department::class, $department]);
+        $this->authorizeFeature('chronicles');
+
         
         // Middleware `portal.access:chronicles,*` handles feature permission check
 
@@ -92,7 +93,7 @@ class ChronicleController extends Controller
         $departmentId = $this->getDeptId($context);
         $department = Department::findOrFail($departmentId);
 
-        Gate::authorize('access_portal', [Department::class, $department]);
+        $this->authorizeManage('chronicles');
 
         $validated = $request->validate([
             'category' => 'required|string|max:50',
@@ -104,6 +105,7 @@ class ChronicleController extends Controller
             'subject_id' => 'nullable|integer',
             'meta_data' => 'nullable|array'
         ]);
+
 
         $validated['department_id'] = $departmentId;
         $validated['type'] = 'manual';
@@ -120,7 +122,8 @@ class ChronicleController extends Controller
         $departmentId = $this->getDeptId($context);
         $department = Department::findOrFail($departmentId);
 
-        Gate::authorize('access_portal', [Department::class, $department]);
+        $this->authorizeManage('chronicles');
+
 
         if ($chronicle->type === 'auto') {
             abort(403, 'Không thể chỉnh sửa các dữ liệu lưu sử tự động từ hệ thống.');
@@ -152,7 +155,8 @@ class ChronicleController extends Controller
         $departmentId = $this->getDeptId($context);
         $department = Department::findOrFail($departmentId);
 
-        Gate::authorize('access_portal', [Department::class, $department]);
+        $this->authorizeManage('chronicles');
+
 
         if ($chronicle->type === 'auto') {
             abort(403, 'Không thể xóa các dữ liệu lưu sử tự động từ hệ thống.');

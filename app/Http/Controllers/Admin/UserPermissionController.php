@@ -88,7 +88,7 @@ class UserPermissionController extends Controller
 
     public function show(User $user)
     {
-        // Lấy tất cả dòng user_department_features của user này
+        // Lấy tất cả dòng user_department_features của user này (Level 2 overrides)
         $rows = UserDepartmentFeature::with(['department:id,name,code,block', 'feature:id,name,slug,icon,portal_type'])
             ->where('user_id', $user->id)
             ->get()
@@ -102,20 +102,32 @@ class UserPermissionController extends Controller
                 'feature'       => $r->feature,
             ]);
 
-        // Lấy Level 1 (dept features) cho từng ban mà user có quyền
+        // Lấy Level 1 cho TẤT CẢ depts lien quan:
+        // 1) Depts từ membership (ban ngành user thuộc)
+        // 2) Depts từ explicit grants (user_department_features)
         $service = app(\App\Services\FeatureAssignmentService::class);
-        $deptIds = $rows->pluck('department_id')->unique()->values();
+
+        $memberDeptIds = [];
+        $member = \App\Models\Member::where('user_id', $user->id)->first();
+        if ($member) {
+            $memberDeptIds = $member->departments()->pluck('departments.id')->toArray();
+        }
+
+        $explicitDeptIds = $rows->pluck('department_id')->unique()->toArray();
+        $allDeptIds = array_unique(array_merge($memberDeptIds, $explicitDeptIds));
+
         $deptFeaturesMap = [];
-        foreach (Department::whereIn('id', $deptIds)->get() as $dept) {
+        foreach (Department::whereIn('id', $allDeptIds)->get() as $dept) {
             $deptFeaturesMap[$dept->id] = $service->getAvailableFeaturesForDepartment($dept);
         }
 
         return response()->json([
-            'user'          => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email],
-            'global_roles'  => $user->getRoleNames(),
+            'user'           => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email],
+            'global_roles'   => $user->getRoleNames(),
             'is_super_admin' => $user->isSuperAdmin(),
-            'permissions'   => $rows,
-            'dept_features' => $deptFeaturesMap, // Level 1: what the dept allows
+            'permissions'    => $rows,
+            'dept_features'  => $deptFeaturesMap,
+            'member_dept_ids' => $memberDeptIds, // depts từ membership (để UI biết ban nào cần show)
         ]);
     }
 

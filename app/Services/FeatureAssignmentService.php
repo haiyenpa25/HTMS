@@ -54,13 +54,11 @@ class FeatureAssignmentService
 
             if (!$hasAnyConfig) {
                 if ($configuredFeatureIds->has($feature->id)) {
-                    // Tính năng đã được cấu hình cho block/dept KHÁC nhưng không phải cho dept này
-                    // → DENY: ẩn card. VD: "members" cho activities, ban ministry sẽ không thấy
+                    // Feature configured for another block/dept → DENY for this dept
                     $finalAccess[$feature->slug] = false;
                 } else {
-                    // Tính năng hoàn toàn chưa được cấu hình ở bất kỳ đâu
-                    // → ALLOW với scope mặc định là 'dept'
-                    $finalAccess[$feature->slug] = 'dept';
+                    // Feature has NO config anywhere → DENY (explicit config required)
+                    $finalAccess[$feature->slug] = false;
                 }
                 continue;
             }

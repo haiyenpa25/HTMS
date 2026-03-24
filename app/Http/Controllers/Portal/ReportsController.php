@@ -18,7 +18,7 @@ class ReportsController extends Controller
         }
 
         $department = Department::findOrFail($departmentId);
-        Gate::authorize('access_portal', [Department::class, $department]);
+        // Portal access already managed by CheckPortalAccess middleware
 
         $availableDepartments = [];
         if (auth()->user()->isSuperAdmin()) {

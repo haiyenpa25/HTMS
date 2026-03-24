@@ -152,8 +152,8 @@ const scopeBadgeColor = (scope) => ({
     specific: 'bg-emerald-100 text-emerald-700',
 })[scope] ?? 'bg-gray-100 text-gray-500';
 
-// ── Matrix View State ───────────────────────────────────────────────────────
-const viewMode = ref('detail');
+// ── Matrix View State (mặc định show matrix, bỏ tab Chi Tiết) ───────────────────
+const viewMode = ref('matrix'); // mặc định Bảng Ma Trận
 const matrixAssignments = computed(() => {
     const map = {};
     (props.systemConfig || []).forEach(c => {
@@ -242,34 +242,23 @@ const globalCount = computed(() => (props.systemConfig || []).filter(c => c.scop
         </div>
     </transition>
 
-    <!-- ── View Switcher ──────────────────────────────── -->
-    <div class="flex items-center justify-between">
-        <!-- Pill Tabs -->
-        <div class="flex gap-1 p-1.5 bg-gray-100/80 rounded-2xl shadow-inner border border-gray-200/60">
-            <button @click="viewMode = 'detail'"
-                :class="['flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black transition-all duration-200',
-                    viewMode === 'detail' ? 'bg-white text-indigo-700 shadow-md border border-indigo-100' : 'text-gray-500 hover:text-gray-700 hover:bg-white/50']">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                Cấu Hình Chi Tiết
-            </button>
-            <button @click="viewMode = 'matrix'"
-                :class="['flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black transition-all duration-200',
-                    viewMode === 'matrix' ? 'bg-white text-indigo-700 shadow-md border border-indigo-100' : 'text-gray-500 hover:text-gray-700 hover:bg-white/50']">
+    <!-- ── Header: Bảng Ma Trận + nút Thêm Module ────────────────────────── -->
+    <div class="flex items-center justify-between mb-1">
+        <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M3 14h18M10 3v18M14 3v18M3 6a3 3 0 013-3h12a3 3 0 013 3v12a3 3 0 01-3 3H6a3 3 0 01-3-3V6z"/>
                 </svg>
-                Bảng Ma Trận
-            </button>
+            </div>
+            <p class="text-sm font-black text-gray-700">Bảng Ma Trận Phân Quyền</p>
         </div>
-        <!-- Add Feature button (detail mode only) -->
-        <button v-if="viewMode === 'detail'" @click="isCreating = true"
-            class="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-sm active:scale-95">
+        <button @click="viewMode = 'detail'; isCreating = true"
+            class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-sm active:scale-95">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-            Thêm Module
+            + Thêm Module
         </button>
     </div>
+
 
     <!-- ══════════════════════════════════════════════════════ -->
     <!-- DETAIL VIEW                                           -->

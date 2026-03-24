@@ -223,6 +223,7 @@ import { ref, watch, computed } from 'vue';
 import { useForm, router, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import MobileLayout from '@/Layouts/MobileLayout.vue';
+import PortalLayout from '@/Layouts/PortalLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -232,12 +233,24 @@ import Pagination from '@/Components/Pagination.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import debounce from 'lodash/debounce';
 
+const page = usePage();
+
+// Layout detection: portal context → PortalLayout, else mobile/desktop split
 const currentLayout = computed(() => {
-    if (typeof window === 'undefined') return AuthenticatedLayout;
-    return window.innerWidth < 768 ? MobileLayout : AuthenticatedLayout;
+    const url = page.url || window.location.pathname;
+    if (url.startsWith('/portal')) return PortalLayout;
+    if (url.startsWith('/ministry')) return PortalLayout;
+    if (typeof window !== 'undefined' && window.innerWidth < 768) return MobileLayout;
+    return AuthenticatedLayout;
 });
 
-const page = usePage();
+// Active route for filter navigation based on context
+const careIndexRoute = computed(() => {
+    const url = page.url || window.location.pathname;
+    if (url.startsWith('/portal'))   return route('portal.care.index');
+    if (url.startsWith('/ministry')) return route('ministry.care.index');
+    return route('care.index');
+});
 
 const props = defineProps({
     requests: Object,
@@ -258,7 +271,7 @@ const activeCategory = ref(props.filters.category || 'all');
 const activeStatus = ref(props.filters.status || 'all');
 
 watch([activeCategory, activeStatus], debounce(([newCat, newStatus]) => {
-    router.get(route('care.index'), {
+    router.get(careIndexRoute.value, {
         category: newCat,
         status: newStatus
     }, { preserveState: true, preserveScroll: true, replace: true });

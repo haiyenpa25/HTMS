@@ -18,7 +18,7 @@ class AssignmentsController extends Controller
         }
 
         $department = Department::findOrFail($departmentId);
-        Gate::authorize('access_portal', [Department::class, $department]);
+        // Portal access already managed by CheckPortalAccess middleware
 
         $availableDepartments = app(\App\Services\PortalService::class)->getAvailableDepartments(auth()->user(), 'activities');
 

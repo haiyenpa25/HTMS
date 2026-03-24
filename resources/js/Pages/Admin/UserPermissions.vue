@@ -195,13 +195,28 @@ const grantAllForDept = async (dept) => {
   isGrantingAll.value = false;
 };
 
-// -- Add dept to user (enable first feature to grant initial access) ------------
-const addDept = (dept) => {
+// -- Add dept to user: grants initial feature access & opens dept panel -------
+const addDept = async (dept) => {
+  if (!activeUser.value) return;
+
+  // Set active block to dept's block so features load correctly
+  selectedBlock.value = dept.block || 'activities';
   activeDeptId.value = dept.id;
+
+  // If dept is NOT yet in grantedDeptIds, enable the first feature to bootstrap it
   if (!grantedDeptIds.value.has(dept.id)) {
-    // Scroll to dept
+    const firstFeature = props.features.find(f => f.portal_type === dept.block);
+    if (firstFeature) {
+      await toggleFeature(dept.id, firstFeature.id, true);
+    }
   }
+
+  // Scroll the feature panel into view after short delay
+  setTimeout(() => {
+    document.querySelector('[data-dept-panel]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
 };
+
 
 // -- Global Roles --------------------------------------------------------------
 const roleOptions = [
@@ -417,8 +432,9 @@ const featureIcon = (slug) => ({
             <p v-else class="text-xs text-gray-400 italic py-1">Chua c?p quy?n b?t k? ban ng�nh n�o.</p>
           </div>
 
-          <!-- Expanded dept ? feature list -->
-          <div v-if="activeDept" class="border-t border-gray-100 mx-4 mb-4 rounded-xl border border-gray-200 overflow-hidden">
+          <!-- Expanded dept → feature list -->
+          <div v-if="activeDept" data-dept-panel class="border-t border-gray-100 mx-4 mb-4 rounded-xl border border-gray-200 overflow-hidden">
+
             <!-- Dept card header -->
             <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200 flex-wrap gap-2">
               <div class="flex items-center gap-2">

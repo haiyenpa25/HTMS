@@ -100,9 +100,8 @@ class PortalMemberController extends Controller
 
         $department = Department::findOrFail($departmentId);
         
-        // Ensure user has access to portal first, then check specific members permission
-        Gate::authorize('access_portal', [Department::class, $department]);
-        Gate::authorize('portal_view_all_members', Member::class);
+        // Portal access already verified by middleware (CheckPortalAccess / EnsureMinistryContext / EnsureDeaconContext)
+        // No need for Spatie Gate checks here — functional accounts (e.g. tb.thanhtrang) use OrgRole not Spatie roles
 
         // Required generic portal layout info
         $availableDepartments = $this->getAvailableDepartments();
@@ -243,7 +242,13 @@ class PortalMemberController extends Controller
         $context = $this->getContext();
         $departmentId = $this->getDeptId($context);
 
-        Gate::authorize('portal_manage_board', Member::class);
+        // Check that user has at least a leadership-level role in this department (OrgRole level >= 40)
+        $canManage = auth()->user()->isSuperAdmin() || OrgMembership::where('member_id', function($q) {
+            $q->select('id')->from('members')->where('user_id', auth()->id());
+        })->where('model_type', Department::class)->where('model_id', $departmentId)
+          ->whereHas('role', fn($r) => $r->where('level', '>=', 40))->exists();
+
+        if (!$canManage) abort(403, 'Bạn không có quyền quản lý ban viên.');
 
         $membership = OrgMembership::where('model_type', Department::class)
             ->where('model_id', $departmentId)
@@ -322,7 +327,13 @@ class PortalMemberController extends Controller
         $context = $this->getContext();
         $departmentId = $this->getDeptId($context);
 
-        Gate::authorize('portal_manage_board', Member::class);
+        // Check that user has at least a leadership-level role in this department (OrgRole level >= 40)
+        $canManage = auth()->user()->isSuperAdmin() || OrgMembership::where('member_id', function($q) {
+            $q->select('id')->from('members')->where('user_id', auth()->id());
+        })->where('model_type', Department::class)->where('model_id', $departmentId)
+          ->whereHas('role', fn($r) => $r->where('level', '>=', 40))->exists();
+
+        if (!$canManage) abort(403, 'Bạn không có quyền quản lý ban viên.');
 
 
         $validated = $request->validate([
@@ -378,7 +389,13 @@ class PortalMemberController extends Controller
         $context = $this->getContext();
         $departmentId = $this->getDeptId($context);
 
-        Gate::authorize('portal_manage_board', Member::class);
+        // Check that user has at least a leadership-level role in this department (OrgRole level >= 40)
+        $canManage = auth()->user()->isSuperAdmin() || OrgMembership::where('member_id', function($q) {
+            $q->select('id')->from('members')->where('user_id', auth()->id());
+        })->where('model_type', Department::class)->where('model_id', $departmentId)
+          ->whereHas('role', fn($r) => $r->where('level', '>=', 40))->exists();
+
+        if (!$canManage) abort(403, 'Bạn không có quyền quản lý ban viên.');
 
         $validated = $request->validate([
             'member_ids' => 'required|array',
@@ -419,7 +436,13 @@ class PortalMemberController extends Controller
         $context = $this->getContext();
         $departmentId = $this->getDeptId($context);
 
-        Gate::authorize('portal_manage_board', Member::class);
+        // Check that user has at least a leadership-level role in this department (OrgRole level >= 40)
+        $canManage = auth()->user()->isSuperAdmin() || OrgMembership::where('member_id', function($q) {
+            $q->select('id')->from('members')->where('user_id', auth()->id());
+        })->where('model_type', Department::class)->where('model_id', $departmentId)
+          ->whereHas('role', fn($r) => $r->where('level', '>=', 40))->exists();
+
+        if (!$canManage) abort(403, 'Bạn không có quyền quản lý ban viên.');
 
 
         \DB::transaction(function () use ($departmentId, $member) {
@@ -452,7 +475,13 @@ class PortalMemberController extends Controller
         $context = $this->getContext();
         $departmentId = $this->getDeptId($context);
 
-        Gate::authorize('portal_manage_board', Member::class);
+        // Check that user has at least a leadership-level role in this department (OrgRole level >= 40)
+        $canManage = auth()->user()->isSuperAdmin() || OrgMembership::where('member_id', function($q) {
+            $q->select('id')->from('members')->where('user_id', auth()->id());
+        })->where('model_type', Department::class)->where('model_id', $departmentId)
+          ->whereHas('role', fn($r) => $r->where('level', '>=', 40))->exists();
+
+        if (!$canManage) abort(403, 'Bạn không có quyền quản lý ban viên.');
 
         $validated = $request->validate([
             'member_ids' => 'required|array',
@@ -488,8 +517,16 @@ class PortalMemberController extends Controller
      */
     public function createUserAccount(Request $request, Member $member)
     {
-        // Require Manage Board permission or Global Admin
-        Gate::authorize('portal_manage_board', Member::class);
+        $context = $this->getContext();
+        $departmentId = $this->getDeptId($context);
+
+        // Check that user has at least a leadership-level role in this department (OrgRole level >= 40)
+        $canManage = auth()->user()->isSuperAdmin() || OrgMembership::where('member_id', function($q) {
+            $q->select('id')->from('members')->where('user_id', auth()->id());
+        })->where('model_type', Department::class)->where('model_id', $departmentId)
+          ->whereHas('role', fn($r) => $r->where('level', '>=', 40))->exists();
+
+        if (!$canManage) abort(403, 'Bạn không có quyền quản lý ban viên.');
 
         if ($member->user_id) {
             return back()->with('error', 'Tín hữu này đã có tài khoản rồi.');
@@ -530,7 +567,7 @@ class PortalMemberController extends Controller
         $context = $this->getContext();
         $departmentId = $this->getDeptId($context);
 
-        Gate::authorize('portal_view_all_members', Member::class);
+        // Portal access already verified by middleware — remove Gate check
 
         $department = Department::findOrFail($departmentId);
         $dateStr = now()->format('Y-m-d');
@@ -551,7 +588,13 @@ class PortalMemberController extends Controller
         $context = $this->getContext();
         $departmentId = $this->getDeptId($context);
 
-        Gate::authorize('portal_manage_board', Member::class);
+        // Check that user has at least a leadership-level role in this department (OrgRole level >= 40)
+        $canManage = auth()->user()->isSuperAdmin() || OrgMembership::where('member_id', function($q) {
+            $q->select('id')->from('members')->where('user_id', auth()->id());
+        })->where('model_type', Department::class)->where('model_id', $departmentId)
+          ->whereHas('role', fn($r) => $r->where('level', '>=', 40))->exists();
+
+        if (!$canManage) abort(403, 'Bạn không có quyền quản lý ban viên.');
 
         $request->validate([
             'file' => 'required|file|mimes:xlsx,xls|max:5120',

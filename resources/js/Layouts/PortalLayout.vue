@@ -138,14 +138,14 @@
   <nav class="lg:hidden bg-white border-t border-gray-100 fixed bottom-0 left-0 right-0 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]" style="padding-bottom: env(safe-area-inset-bottom)">
     <div class="flex justify-around items-center h-14 max-w-lg mx-auto">
 
-      <!-- Dynamic nav from visibleNavItems (max 5) -->
+      <!-- Dynamic nav from mobileNavItems (max 6) -->
       <template v-for="item in mobileNavItems" :key="item.key">
         <Link v-if="!item.disabled" :href="item.href"
           class="flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors"
           :class="item.active
             ? (portalType === 'activities' ? 'text-blue-600' : portalType === 'ministry' ? 'text-emerald-600' : 'text-amber-500')
             : 'text-gray-500'">
-          <svg class="w-5 h-5" :fill="item.active ? 'none' : 'none'" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" :d="item.icon"/>
           </svg>
           <span class="text-[9px] font-bold">{{ item.shortLabel || item.label }}</span>
@@ -169,8 +169,44 @@
         <span class="text-[9px] font-bold">Chuyển</span>
       </button>
 
+      <!-- Nav Settings button (only show if > 6 items available) -->
+      <button v-if="visibleNavItems.length > 6"
+        @click="isNavSettingsOpen = true"
+        class="flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-gray-400 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+        </svg>
+        <span class="text-[9px] font-bold">Thêm</span>
+      </button>
     </div>
   </nav>
+
+  <!-- Mobile Nav Settings SlideOver -->
+  <SlideOver v-model="isNavSettingsOpen" title="Tùy chỉnh Menu Mobile" size="sm">
+    <template #default>
+      <div class="p-4 space-y-2">
+        <p class="text-xs text-gray-500 mb-3">Chọn tối đa 6 mục hiển thị dưới cùng. Mục "Tổng Quan" luôn hiển thị.</p>
+        <div v-for="item in visibleNavItems" :key="item.key"
+          class="flex items-center justify-between p-3 rounded-xl border transition-all"
+          :class="item.key === 'home' ? 'bg-gray-50 border-gray-200 opacity-60' : 'border-gray-200 hover:border-indigo-200 hover:bg-indigo-50'">
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon"/>
+            </svg>
+            <span class="text-sm font-bold text-gray-700">{{ item.label }}</span>
+          </div>
+          <div v-if="item.key === 'home'" class="text-xs text-gray-400 font-bold">Cố định</div>
+          <button v-else @click="toggleNavItem(item.key)"
+            :class="['relative w-11 h-6 rounded-full transition-all duration-200',
+              hiddenNavKeys.has(item.key) ? 'bg-gray-200' : 'bg-indigo-600']">
+            <span :class="['absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200',
+              hiddenNavKeys.has(item.key) ? 'translate-x-0.5' : 'translate-x-5']"/>
+          </button>
+        </div>
+        <p v-if="selectedNavCount >= 6" class="text-xs text-amber-600 font-bold mt-2">Đã đạt giới hạn 6 mục. Tắt 1 mục để bật mục khác.</p>
+      </div>
+    </template>
+  </SlideOver>
 
   <!-- Global Context Switcher SlideOver -->
   <SlideOver v-model="isSwitcherOpen" title="Chuyển đổi Ban ngành" size="md">
@@ -349,8 +385,42 @@ const visibleNavItems = computed(() => {
   ].filter(Boolean);
 });
 
-// Mobile shows first 4 items only
-const mobileNavItems = computed(() => visibleNavItems.value.slice(0, 4));
+// Mobile nav: max 6, user-configurable via localStorage
+const MOBILE_NAV_MAX = 6;
+const isNavSettingsOpen = ref(false);
+
+// Load user hidden nav preferences from localStorage (per portal type)
+const navPrefKey = computed(() => `portal_nav_hidden_${props.portalType}`);
+const hiddenNavKeys = ref(new Set(
+  JSON.parse(localStorage.getItem(`portal_nav_hidden_${props.portalType}`) || '[]')
+));
+
+const toggleNavItem = (key) => {
+  const hidden = new Set(hiddenNavKeys.value);
+  if (hidden.has(key)) {
+    hidden.delete(key); // show it
+  } else if (selectedNavCount.value >= MOBILE_NAV_MAX) {
+    return; // already at max, can't add more
+  } else {
+    hidden.add(key); // hide it
+  }
+  hiddenNavKeys.value = hidden;
+  localStorage.setItem(navPrefKey.value, JSON.stringify([...hidden]));
+};
+
+// How many items are currently visible (not hidden, not counting 'home' which is always visible)
+const selectedNavCount = computed(() =>
+  visibleNavItems.value.filter(i => i.key !== 'home' && !hiddenNavKeys.value.has(i.key)).length + 1 // +1 for home
+);
+
+// Mobile shows up to MOBILE_NAV_MAX items, filtering out hidden ones
+const mobileNavItems = computed(() => {
+  const ordered = visibleNavItems.value.filter(
+    i => i.key === 'home' || !hiddenNavKeys.value.has(i.key)
+  );
+  return ordered.slice(0, MOBILE_NAV_MAX);
+});
+
 </script>
 
 <style scoped>

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use App\Models\FundTransfer;
 use App\Models\FinanceFund;
 use App\Models\Department;
@@ -14,7 +13,8 @@ class FinanceFundTransferController extends Controller
 {
     public function store(Request $request)
     {
-        Gate::authorize('transfer', FundTransfer::class);
+        $this->authorizeManage('finance');
+
 
         $validated = $request->validate([
             'from_fund_id' => 'required|exists:finance_funds,id',
@@ -57,7 +57,8 @@ class FinanceFundTransferController extends Controller
 
     public function approve(Request $request, FundTransfer $fundTransfer)
     {
-        Gate::authorize('approve', $fundTransfer);
+        $this->authorizeManage('finance');
+
 
         $request->validate([
             'status' => 'required|in:pending,approved',
@@ -70,7 +71,8 @@ class FinanceFundTransferController extends Controller
 
     public function destroy(FundTransfer $fundTransfer)
     {
-        Gate::authorize('transfer', $fundTransfer);
+        $this->authorizeManage('finance');
+
 
         // Only allow deleting pending transfers
         if ($fundTransfer->status === 'approved') {

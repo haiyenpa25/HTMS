@@ -14,9 +14,6 @@ class ActivitiesVisitationController extends Controller
 {
     public function index(Request $request)
     {
-        // Require portal access
-        Gate::authorize('access_department_portal');
-        
         $user = auth()->user();
         $departmentId = session('active_portal_dept_id');
         
@@ -25,7 +22,6 @@ class ActivitiesVisitationController extends Controller
         }
 
         $department = Department::findOrFail($departmentId);
-        Gate::authorize('access_portal', [Department::class, $department]);
 
         $query = Visitation::with(['member', 'visitors', 'department'])
                            ->where('department_id', $departmentId)
@@ -215,10 +211,6 @@ class ActivitiesVisitationController extends Controller
 
     public function store(Request $request)
     {
-        // Note: For localized visitation, any lead or member might be allowed depending on church policy,
-        // but let's stick to people who can manage/create.
-        Gate::authorize('access_department_portal');
-
         $departmentId = session('active_portal_dept_id');
         if (!$departmentId) abort(403);
 

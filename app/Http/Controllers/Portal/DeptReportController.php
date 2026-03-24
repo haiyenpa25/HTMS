@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use App\Models\Department;
@@ -91,7 +90,8 @@ class DeptReportController extends Controller
         if (!$deptId) return redirect()->route('portal.index');
         $department = Department::findOrFail($deptId);
 
-        Gate::authorize('view_reports', [Department::class, $department]);
+        $this->authorizeFeature('reports');
+
 
         $month = (int) $request->input('month', now()->month);
         $year  = (int) $request->input('year',  now()->year);
@@ -223,8 +223,8 @@ class DeptReportController extends Controller
             'department'           => $department,
             'availableDepartments' => $this->getAvailableDepartments($request->user()),
             'isGlobalAdmin'        => $request->user()->isSuperAdmin(),
-            'canCreate'            => $request->user()->isSuperAdmin(),
-            'canApprove'           => $request->user()->isSuperAdmin(),
+            'canCreate' => app(\App\Services\PortalService::class)->canManage($request->user(), (int)$deptId, 'reports'),
+            'canApprove' => $request->user()->isSuperAdmin(),
             'filters'              => ['month' => $month, 'year' => $year],
 
             // Meeting tables
@@ -271,7 +271,8 @@ class DeptReportController extends Controller
     // ============================================================
     public function saveReport(Request $request)
     {
-        Gate::authorize('create', DepartmentReport::class);
+        $this->authorizeManage('reports');
+
         $deptId = session('active_portal_dept_id');
         if (!$deptId) abort(403);
         $v = $request->validate([
@@ -297,7 +298,8 @@ class DeptReportController extends Controller
 
     public function approveReport(Request $request, DepartmentReport $report)
     {
-        Gate::authorize('approve', $report);
+        $this->authorizeManage('reports');
+
         $report->update(['status' => 'approved']);
         return back()->with('message', 'Báo cáo đã được duyệt.');
     }

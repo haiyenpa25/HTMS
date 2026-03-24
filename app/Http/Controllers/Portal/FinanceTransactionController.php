@@ -5,19 +5,20 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Gate;
 use App\Models\FinanceTransaction;
 use App\Models\FinanceFund;
 use App\Models\MemberContribution;
 use App\Models\Department;
 use App\Models\FinanceSessionMetric;
 use App\Models\FundTransfer;
+use App\Services\PortalService;
 
 class FinanceTransactionController extends Controller
 {
     public function index(Request $request)
     {
-        Gate::authorize('viewAny', FinanceTransaction::class);
+        $this->authorizeFeature('finance');
+
 
         $user = $request->user();
         $isGlobalAdmin = $user->isSuperAdmin();
@@ -122,8 +123,8 @@ class FinanceTransactionController extends Controller
                 'periodExpense' => $periodExpense,
                 'currentBalance' => $currentBalance,
             ],
-            'canManage' => $user->isSuperAdmin(),
-            'canApprove' => $user->isSuperAdmin(),
+            'canManage' => app(PortalService::class)->canManage($request->user(), (int) session('active_portal_dept_id', session('active_ministry_dept_id', 0)), 'finance'),
+            'canApprove' => $request->user()->isSuperAdmin(),
             'department' => $department,
             'isGlobalAdmin' => $isGlobalAdmin,
         ]);
@@ -131,7 +132,8 @@ class FinanceTransactionController extends Controller
 
     public function store(Request $request)
     {
-        Gate::authorize('create', FinanceTransaction::class);
+        $this->authorizeManage('finance');
+
 
         $validated = $request->validate([
             'fund_id'          => 'required|exists:finance_funds,id',
@@ -214,7 +216,8 @@ class FinanceTransactionController extends Controller
 
     public function update(Request $request, FinanceTransaction $transaction)
     {
-        Gate::authorize('update', $transaction);
+        $this->authorizeManage('finance');
+
 
         $validated = $request->validate([
             'amount'           => 'required|numeric|min:0',
@@ -284,7 +287,8 @@ class FinanceTransactionController extends Controller
 
     public function destroy(FinanceTransaction $transaction)
     {
-        Gate::authorize('delete', $transaction);
+        $this->authorizeManage('finance');
+
         
         $metricId = $transaction->session_metrics_id;
         
@@ -303,7 +307,8 @@ class FinanceTransactionController extends Controller
 
     public function approve(Request $request, FinanceTransaction $transaction)
     {
-        Gate::authorize('approve', $transaction);
+        $this->authorizeManage('finance');
+
 
         $request->validate([
             'status' => 'required|in:pending,approved'

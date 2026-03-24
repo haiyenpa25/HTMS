@@ -474,10 +474,14 @@ class DashboardController extends Controller
         }
 
         // ── 12. THÂN HỮU TRUYỀN GIẢNG NÀY ─────────────────────────
-        $evangelisticGuests = MeetingAttendanceSummary::where('department_id', 9) // Ban Truyền Giảng
-            ->whereHas('meeting', function($q) use ($monthStart, $monthEnd) {
-                $q->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()]);
-            })->sum('manual_count');
+        $btgDept = Department::where('code', 'BTG')->first();
+        $evangelisticGuests = $btgDept
+            ? MeetingAttendanceSummary::where('department_id', $btgDept->id)
+                ->whereHas('meeting', function($q) use ($monthStart, $monthEnd) {
+                    $q->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()]);
+                })->sum('manual_count')
+            : 0;
+
 
         return Inertia::render('Dashboard', [
             'filters' => ['month' => $month, 'year' => $year],

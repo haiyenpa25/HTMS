@@ -1,5 +1,5 @@
 # HTMS Code Knowledge Graph
-> Generated: 2026-03-24 03:49 | Run `php artisan htms:index` to refresh
+> Generated: 2026-03-24 14:45 | Run `php artisan htms:index` to refresh
 
 ## Navigation Guide
 
@@ -26,8 +26,55 @@
 
 ### Key Service Files
 ```
-PortalService.php            — canAccess(), getAllowedFeaturesForDept()
-FeatureAssignmentService.php — isFeatureEnabled(), getAvailableFeatures()
+PortalService.php            — canAccess(user, deptId, slug)   → bool (view)
+                               canManage(user, deptId, slug)   → bool (create/edit/delete)
+                               getAllowedFeaturesForDept(user, deptId) → string[]
+FeatureAssignmentService.php — isFeatureEnabled(dept, slug)    → bool (Level 1)
+                               getAvailableFeatures(dept)      → array (DEFAULT DENY)
+```
+
+### Permission System — MAC V2 (Unified, Single-Source)
+```
+SuperAdmin → bypass all (is_superadmin = true)
+    ↓
+Level 1: feature_departments  (block config — FeatureAssignmentService)
+    DEFAULT DENY: feature chưa config → không ai dùng được
+    ↓
+Level 2: user_department_features  (user override — PortalService)
+    is_enabled = false                         → DENY
+    is_enabled = true + access_level = 'view'  → canAccess() = true
+    is_enabled = true + access_level = 'manage'→ canManage() = true
+    no record                                  → inherit Level 1
+    ↓
+Controller:
+    $this->authorizeFeature('slug')   → xem
+    $this->authorizeManage('slug')    → tạo/sửa/xóa
+```
+
+### Fresh Deployment (Server Mới / DB Trống)
+```bash
+# 1. Setup
+cp .env.example .env && php artisan key:generate
+
+# 2. Migrate + seed foundation
+php artisan migrate --seed
+# Tạo: Church, Roles, 17 Features, 20 Departments,
+#       OrgRoles, Level 1 MAC config, SuperAdmin account
+
+# 3. Optional: tài khoản đại diện các ban
+php artisan db:seed --class=OrgStructureSeeder
+
+# Login: superadmin@{SYSTEM_DOMAIN} / Abc.1234
+```
+
+### .env Keys
+```
+SYSTEM_DOMAIN=httlthanhmyloi.com
+CHURCH_NAME="Hội Thánh Tin Lành"
+CHURCH_EMAIL=contact@httlthanhmyloi.com
+CHURCH_ADDRESS="..."
+CHURCH_PHONE=0123456789
+SUPERADMIN_PASSWORD=Abc.1234
 ```
 
 ### Stats

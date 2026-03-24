@@ -8,7 +8,6 @@ use Inertia\Inertia;
 use App\Models\Department;
 use App\Models\Member;
 use App\Models\Visitation;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
 use App\Services\ScopeResolver;
 
@@ -16,15 +15,7 @@ class VisitationController extends Controller
 {
     public function index(Request $request)
     {
-        Gate::authorize('viewAny', Visitation::class);
-
-        $user = auth()->user();
-        $departmentId = session('active_ministry_dept_id');
-        
-        if ($departmentId) {
-            $department = Department::findOrFail($departmentId);
-            Gate::authorize('access_portal', [Department::class, $department]);
-        }
+        $this->authorizeFeature('visitation');
 
         // Filter by activity department (for church-wide visitation view)
         // 'other' = members with no activity dept membership
@@ -231,7 +222,8 @@ class VisitationController extends Controller
 
     public function store(Request $request)
     {
-        Gate::authorize('create', Visitation::class);
+        $this->authorizeManage('visitation');
+
 
         $validated = $request->validate([
             'member_ids' => 'required|array|min:1',
@@ -277,7 +269,8 @@ class VisitationController extends Controller
 
     public function update(Request $request, Visitation $visitation)
     {
-        Gate::authorize('update', $visitation);
+        $this->authorizeManage('visitation');
+
 
         $validated = $request->validate([
             'member_id' => 'required|exists:members,id',
@@ -319,7 +312,8 @@ class VisitationController extends Controller
 
     public function destroy(Visitation $visitation)
     {
-        Gate::authorize('delete', $visitation);
+        $this->authorizeManage('visitation');
+
         
         $visitation->delete();
 
