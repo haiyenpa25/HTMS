@@ -44,7 +44,7 @@ class EducationController extends Controller
     public function dashboard(Request $request)
     {
         $user = $request->user();
-        Gate::authorize('viewAny', EduClass::class);
+        $this->authorizeFeature('education-classes');
 
         $departmentId = (int)session('active_ministry_dept_id');
         $department   = $departmentId ? Department::find($departmentId) : null;
@@ -104,7 +104,7 @@ class EducationController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        Gate::authorize('viewAny', EduClass::class);
+        $this->authorizeFeature('education-classes');
 
         $departmentId = (int)session('active_ministry_dept_id');
         $department   = $departmentId ? Department::find($departmentId) : null;
@@ -148,8 +148,8 @@ class EducationController extends Controller
                 'lesson_number' => $c->sessions->first()->lesson_number,
                 'topic'         => $c->sessions->first()->topic,
             ] : null,
-            'can_mark_attendance' => Gate::allows('markAttendance', $c),
-            'can_record_offering' => Gate::allows('recordOffering', $c),
+            'can_mark_attendance' => $this->canManageFeature('education-classes'),
+            'can_record_offering' => $this->canManageFeature('education-classes'),
         ]);
 
         $allMembers = Member::select('id', 'full_name', 'phone', 'member_type')
@@ -202,7 +202,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function sessions(Request $request, EduClass $eduClass)
     {
-        Gate::authorize('view', $eduClass);
+        $this->authorizeFeature('education-classes');
 
         $sessions = EduSession::where('edu_class_id', $eduClass->id)
             ->orderBy('session_date', 'desc')
@@ -243,7 +243,7 @@ class EducationController extends Controller
                 'class_type' => $eduClass->class_type,
             ],
             'sessions'   => $sessions,
-            'canManage'  => Gate::allows('markAttendance', $eduClass),
+            'canManage'  => $this->canManageFeature('education-classes'),
             'portalType' => 'ministry',
             'routePrefix' => $this->getRoutePrefix(),
         ]);
@@ -255,7 +255,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function storeMember(Request $request, EduClass $eduClass)
     {
-        Gate::authorize('markAttendance', $eduClass);
+        $this->authorizeManage('education-classes');
 
         $data = $request->validate([
             'member_id' => 'required|integer|exists:members,id',
@@ -282,7 +282,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function bulkStoreMember(Request $request, EduClass $eduClass)
     {
-        Gate::authorize('markAttendance', $eduClass);
+        $this->authorizeManage('education-classes');
 
         $data = $request->validate([
             'member_ids'   => 'required|array|min:1',
@@ -316,7 +316,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function destroyMember(EduClass $eduClass, Member $member)
     {
-        Gate::authorize('markAttendance', $eduClass);
+        $this->authorizeManage('education-classes');
 
         \App\Models\EduClassMember::where('edu_class_id', $eduClass->id)
             ->where('member_id', $member->id)
@@ -330,7 +330,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function createSession(Request $request, EduClass $eduClass)
     {
-        Gate::authorize('markAttendance', $eduClass);
+        $this->authorizeManage('education-classes');
 
         $validated = $request->validate([
             'session_date'   => 'required|date',
@@ -362,7 +362,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function destroySession(EduClass $eduClass, EduSession $eduSession)
     {
-        Gate::authorize('markAttendance', $eduClass);
+        $this->authorizeManage('education-classes');
         $eduSession->delete(); // cascade via DB constraint
         return back()->with('success', 'Đã xóa buổi học.');
     }
@@ -372,7 +372,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function bulkDestroySession(Request $request, EduClass $eduClass)
     {
-        Gate::authorize('markAttendance', $eduClass);
+        $this->authorizeManage('education-classes');
 
         $validated = $request->validate([
             'ids'   => 'required|array|min:1',
@@ -393,10 +393,10 @@ class EducationController extends Controller
 
     public function session(Request $request, EduClass $eduClass)
     {
-        Gate::authorize('view', $eduClass);
+        $this->authorizeFeature('education-classes');
 
-        $canMarkAttendance = Gate::allows('markAttendance', $eduClass);
-        $canRecordOffering = Gate::allows('recordOffering', $eduClass);
+        $canMarkAttendance = $this->canManageFeature('education-classes');
+        $canRecordOffering = $this->canManageFeature('education-classes');
 
         // ── Auto-resolve Sunday date ────────────────────────────────
         // Lớp CN thường: tìm CN gần nhất (đã qua hoặc hôm nay)
@@ -511,10 +511,10 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function sessionById(Request $request, EduClass $eduClass, EduSession $eduSession)
     {
-        Gate::authorize('view', $eduClass);
+        $this->authorizeFeature('education-classes');
 
-        $canMarkAttendance = Gate::allows('markAttendance', $eduClass);
-        $canRecordOffering = Gate::allows('recordOffering', $eduClass);
+        $canMarkAttendance = $this->canManageFeature('education-classes');
+        $canRecordOffering = $this->canManageFeature('education-classes');
 
         // Load students with their records for THIS session
         $students = $eduClass->classMembers()
@@ -614,7 +614,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function updateSession(Request $request, EduClass $eduClass, EduSession $eduSession)
     {
-        Gate::authorize('markAttendance', $eduClass);
+        $this->authorizeManage('education-classes');
 
         $validated = $request->validate([
             'lesson_number'  => 'nullable|integer|min:0',
@@ -647,7 +647,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function saveAttendance(Request $request, EduClass $eduClass, EduSession $eduSession)
     {
-        Gate::authorize('markAttendance', $eduClass);
+        $this->authorizeManage('education-classes');
 
         $mode = $request->input('mode', 'checkin');
 
@@ -710,7 +710,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function storeOffering(Request $request, EduClass $eduClass, EduSession $eduSession)
     {
-        Gate::authorize('recordOffering', $eduClass);
+        $this->authorizeManage('education-classes');
 
         $validated = $request->validate([
             'edu_class_fund_id' => 'required|exists:edu_class_funds,id',
@@ -744,7 +744,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function destroyOffering(EduClass $eduClass, EduSession $eduSession, EduClassTransaction $transaction)
     {
-        Gate::authorize('recordOffering', $eduClass);
+        $this->authorizeManage('education-classes');
         $transaction->delete();
         return back()->with('success', 'Đã xóa giao dịch.');
     }
@@ -754,7 +754,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function store(Request $request)
     {
-        Gate::authorize('create', EduClass::class);
+        $this->authorizeManage('education-classes');
 
         $departmentId = session('active_ministry_dept_id');
         if (!$departmentId) abort(400, 'Chưa chọn ban CĐGD.');
@@ -786,7 +786,7 @@ class EducationController extends Controller
 
     public function update(Request $request, EduClass $eduClass)
     {
-        Gate::authorize('update', $eduClass);
+        $this->authorizeManage('education-classes');
 
         $validated = $request->validate([
             'name'        => 'required|string|max:255',
@@ -804,7 +804,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function destroy(Request $request, EduClass $eduClass)
     {
-        Gate::authorize('markAttendance', $eduClass);
+        $this->authorizeManage('education-classes');
 
         // Xóa tất cả records liên quan
         $sessionIds = EduSession::where('edu_class_id', $eduClass->id)->pluck('id');
@@ -824,7 +824,7 @@ class EducationController extends Controller
     public function report(Request $request)
     {
         $user = $request->user();
-        Gate::authorize('viewAny', EduClass::class);
+        $this->authorizeFeature('education-classes');
 
         $departmentId = session('active_ministry_dept_id');
         $department   = $departmentId ? Department::find($departmentId) : null;
@@ -981,7 +981,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function saveReport(Request $request)
     {
-        Gate::authorize('viewAny', EduClass::class);
+        $this->authorizeFeature('education-classes');
 
         $validated = $request->validate([
             'report_month'     => 'required|integer|min:1|max:12',
@@ -1009,7 +1009,7 @@ class EducationController extends Controller
     // ══════════════════════════════════════════════════════════════
     public function approveReport(Request $request, \App\Models\EduReport $eduReport)
     {
-        Gate::authorize('viewAny', EduClass::class);
+        $this->authorizeFeature('education-classes');
         $user = $request->user();
         if (!$user->isSuperAdmin()) {
             abort(403, 'Chỉ Quản lý / Mục sư mới được duyệt báo cáo.');

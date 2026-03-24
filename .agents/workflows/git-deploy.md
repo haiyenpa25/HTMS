@@ -26,7 +26,17 @@ git push origin main
 ```
 
 5. Pull về server (chạy thủ công trên server qua SSH)
-_Lưu ý: Các lệnh dành cho server (Linux) có thể sử dụng `&&` để chạy chuỗi liên tục. Các lệnh phía Windows ở trên đã được tách riêng lẻ vì Windows PowerShell/CMD xử lý `&&` không phải lúc nào cũng mượt mà._
+
+_Server: ConasiHosting / CyberPanel. PHP CLI = `/usr/local/lsws/lsphp83/bin/php` (không phải `/usr/bin/php`)._
+_`git checkout -- index/` để discard auto-generated index files tránh conflict._
 ```bash
-cd /var/www/html/cms && git pull origin main && composer install --no-dev --optimize-autoloader && php artisan db:backup && php artisan migrate --force && php artisan mac:sync-features && php artisan config:cache && php artisan route:cache && php artisan view:cache
+cd ~/public_html \
+  && mkdir -p ~/bin && ln -sf /usr/local/lsws/lsphp83/bin/php ~/bin/php && export PATH="$HOME/bin:$PATH" \
+  && git checkout -- index/ \
+  && git pull origin main \
+  && composer install --no-dev --optimize-autoloader --ignore-platform-reqs \
+  && php artisan migrate --force \
+  && php artisan config:cache \
+  && php artisan route:cache \
+  && php artisan view:cache
 ```

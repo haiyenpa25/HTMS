@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Gate;
 use App\Models\FinanceTransaction;
 use App\Models\FinanceFund;
 use App\Models\Department;
@@ -16,7 +15,8 @@ class FinanceReportController extends Controller
 {
     public function index(Request $request)
     {
-        Gate::authorize('viewAny', \App\Models\FinanceTransaction::class);
+        $this->authorizeFeature('finance');
+
 
         $user = $request->user();
         $isGlobalAdmin = $user->isSuperAdmin();

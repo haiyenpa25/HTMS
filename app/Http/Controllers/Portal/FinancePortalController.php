@@ -16,7 +16,7 @@ class FinancePortalController extends Controller
 {
     public function index(Request $request)
     {
-        Gate::authorize('viewAny', FinanceTransaction::class);
+        $this->authorizeFeature('finance');
 
         $user = $request->user();
         $isGlobalAdmin = $user->isSuperAdmin();
@@ -130,7 +130,7 @@ class FinancePortalController extends Controller
 
     public function switchContext(Request $request)
     {
-        Gate::authorize('viewAny', FinanceTransaction::class);
+        $this->authorizeFeature('finance');
 
         $request->validate([
             'department_id' => 'required|exists:departments,id'

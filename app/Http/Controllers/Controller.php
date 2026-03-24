@@ -50,6 +50,32 @@ abstract class Controller
     }
 
     /**
+     * Bool check: có quyền quản lý (không abort, dùng cho Inertia props).
+     */
+    protected function canManageFeature(string $featureSlug): bool
+    {
+        $user = auth()->user();
+        if (!$user) return false;
+        if ($user->isSuperAdmin()) return true;
+        $deptId = $this->activeDeptId();
+        if (!$deptId) return false;
+        return app(PortalService::class)->canManage($user, $deptId, $featureSlug);
+    }
+
+    /**
+     * Bool check: có quyền xem (không abort, dùng cho Inertia props).
+     */
+    protected function canAccessFeature(string $featureSlug): bool
+    {
+        $user = auth()->user();
+        if (!$user) return false;
+        if ($user->isSuperAdmin()) return true;
+        $deptId = $this->activeDeptId();
+        if (!$deptId) return false;
+        return app(PortalService::class)->canAccess($user, $deptId, $featureSlug);
+    }
+
+    /**
      * Lấy active department ID từ session (theo ngữ cảnh portal/ministry/deacon).
      */
     protected function activeDeptId(): ?int

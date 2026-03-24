@@ -9,7 +9,6 @@ use App\Models\Department;
 use App\Models\Meeting;
 use App\Models\MeetingAttendance;
 use App\Models\MeetingAttendanceSummary;
-use Illuminate\Support\Facades\Gate;
 use App\Exports\AttendanceTemplateExport;
 use App\Imports\AttendanceImport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -24,7 +23,8 @@ class AttendanceController extends Controller
         }
 
         $department = Department::findOrFail($departmentId);
-        Gate::authorize('access_portal', [Department::class, $department]);
+        $this->authorizeFeature('attendance');
+
         
         // Let's get generic portal info for layout
         $availableDepartments = $this->getAvailableDepartments();
@@ -76,7 +76,8 @@ class AttendanceController extends Controller
         }
 
         $department = Department::findOrFail($departmentId);
-        Gate::authorize('view_attendance', [Meeting::class, $meeting]);
+        $this->authorizeFeature('attendance');
+
 
         $availableDepartments = $this->getAvailableDepartments();
 
@@ -136,7 +137,8 @@ class AttendanceController extends Controller
         $departmentId = session('active_portal_dept_id');
         if (!$departmentId) return redirect()->route('portal.index');
         
-        Gate::authorize('mark_attendance', [Meeting::class, $meeting]);
+        $this->authorizeManage('attendance');
+
 
         $validated = $request->validate([
             'manual_count' => 'required|integer|min:0',
@@ -186,7 +188,8 @@ class AttendanceController extends Controller
             return redirect()->route('portal.index');
         }
 
-        Gate::authorize('view_attendance', [Meeting::class, $meeting]);
+        $this->authorizeFeature('attendance');
+
 
         $deptName = Department::find($departmentId)?->name ?? 'ban-nganh';
         $dateStr  = is_string($meeting->date) ? $meeting->date : $meeting->date->format('Y-m-d');
@@ -214,7 +217,8 @@ class AttendanceController extends Controller
         ]);
 
         $meeting = Meeting::findOrFail($request->meeting_id);
-        Gate::authorize('mark_attendance', [Meeting::class, $meeting]);
+        $this->authorizeManage('attendance');
+
 
         try {
             $import = new AttendanceImport($meeting->id, $departmentId);
