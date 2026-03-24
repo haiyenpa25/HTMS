@@ -56,32 +56,43 @@ class PortalService
     }
 
     /**
-     * Get an array of allowed feature slugs for the user in a department.
+     * Lấy danh sách feature slugs user có quyền trong 1 department.
+     * MAC V2: Kế thừa Level 1 (dept features) mặc định, user record là override.
      */
     public function getAllowedFeaturesForDept(User $user, int $deptId): array
     {
-        if ($user->isSuperAdmin()) {
-            $department = Department::find($deptId);
-            if (!$department) return [];
+        $department = Department::find($deptId);
+        if (!$department) return [];
 
-            // Level 1 Map defines what features are actually valid to show on UI for this dept
-            $service = app(\App\Services\FeatureAssignmentService::class);
-            $level1Map = $service->getAvailableFeaturesForDepartment($department);
-            
-            // Return only the slugs that are truly available for this department according to Level 1
-            $allSlugs = \App\Models\Feature::pluck('slug')->toArray();
-            return array_values(array_filter($allSlugs, function($slug) use ($level1Map) {
-                return $level1Map[$slug] ?? false; 
-            }));
+        $service = app(\App\Services\FeatureAssignmentService::class);
+        $level1Map = $service->getAvailableFeaturesForDepartment($department);
+
+        if ($user->isSuperAdmin()) {
+            // SuperAdmin gets all features that are enabled at Level 1
+            return array_keys(array_filter($level1Map, fn($v) => $v !== false));
         }
 
-        return UserDepartmentFeature::where('user_id', $user->id)
+        // Start with Level 1 defaults (all features dept is configured for)
+        $allowed = array_keys(array_filter($level1Map, fn($v) => $v !== false));
+        $allowed = array_flip($allowed); // slug => true map for fast lookup
+
+        // Apply user-level overrides (explicit records)
+        $overrides = UserDepartmentFeature::where('user_id', $user->id)
             ->where('department_id', $deptId)
-            ->where('is_enabled', true)
             ->with('feature')
-            ->get()
-            ->pluck('feature.slug')
-            ->toArray();
+            ->get();
+
+        foreach ($overrides as $override) {
+            if (!$override->feature) continue;
+            $slug = $override->feature->slug;
+            if ($override->is_enabled) {
+                $allowed[$slug] = true; // Grant explicitly
+            } else {
+                unset($allowed[$slug]); // Revoke explicitly
+            }
+        }
+
+        return array_keys($allowed);
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -90,11 +101,13 @@ class PortalService
 
     /**
      * Kiểm tra user có thể truy cập feature cụ thể trong department.
-     * Dùng trong PortalAccessMiddleware per-request.
+     * MAC V2: Level 1 (dept config) &rarr; Level 2 (user override override).
+     * - Nếu không có user record: kế thừa từ Level 1 (dept cấp thì user có).
+     * - Nếu có user record: override với giá trị tường minh (có thể true hoặc false).
      */
     public function canAccess(User $user, int $deptId, string $featureSlug): bool
     {
-        // God Mode: Super_Admin, Pastor bypass tất cả
+        // God Mode: Super_Admin bypass tất cả
         if ($user->isSuperAdmin()) {
             return true;
         }
@@ -107,20 +120,26 @@ class PortalService
             ->isFeatureEnabledForDepartment($department, $featureSlug);
             
         if (!$systemAccess) {
-            return false;
+            return false; // Dept không có feature này → không ai có quyền
         }
 
-        // Level 2: Check User Permission (user_department_features)
-        // Cache slugToId để tránh lookup DB mỗi request
+        // Level 2: Check User-level override (user_department_features)
         $featureId = $this->resolveFeatureId($featureSlug);
-        if (!$featureId) return false;
+        if (!$featureId) return true; // Feature exists in Level 1 but no ID? Still allow.
 
-        return UserDepartmentFeature::where([
+        $userRecord = UserDepartmentFeature::where([
             'user_id'       => $user->id,
             'department_id' => $deptId,
             'feature_id'    => $featureId,
-            'is_enabled'    => true,
-        ])->exists();
+        ])->first();
+
+        // No explicit record → inherit Level 1 (ALLOW by default since dept has it)
+        if ($userRecord === null) {
+            return true;
+        }
+
+        // Explicit record exists → respect the override
+        return (bool) $userRecord->is_enabled;
     }
 
     /**
