@@ -40,3 +40,37 @@ cd ~/public_html \
   && php artisan route:cache \
   && php artisan view:cache
 ```
+
+6. (Tuỳ chọn) Cập nhật tất cả Hội Thánh cùng lúc — nếu đã có nhiều site
+
+_Chỉnh `SITES` theo danh sách thư mục của từng HT trên server._
+```bash
+SITES=("$HOME/public_html" "/home/httlthanhtuyen/public_html")
+PHP=/usr/local/lsws/lsphp83/bin/php
+for DIR in "${SITES[@]}"; do
+  echo "=== Deploying: $DIR ==="
+  cd "$DIR"
+  git checkout -- index/ 2>/dev/null || true
+  git pull origin main
+  $PHP artisan migrate --force
+  $PHP artisan config:cache
+  $PHP artisan route:cache
+  $PHP artisan view:cache
+  echo "✅ Done: $DIR"
+done
+```
+
+---
+
+## 🆕 Triển Khai Hội Thánh Mới
+
+Xem hướng dẫn đầy đủ trong thư mục `deploy/`:
+
+- `deploy/INSTALL.html` — Hướng dẫn HTML từng bước
+- `deploy/deploy-new-church.sh` — Script tự động cài đặt
+- `deploy/.env.church.example` — Mẫu cấu hình .env cho HT mới
+
+```bash
+# Chạy trên server của HT mới (trong ~/public_html rỗng)
+bash <(curl -s https://raw.githubusercontent.com/haiyenpa25/HTMS/main/deploy/deploy-new-church.sh)
+```
