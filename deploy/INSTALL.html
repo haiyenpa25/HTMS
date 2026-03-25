@@ -5,197 +5,205 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HTMS — Hướng Dẫn Cài Đặt Hội Thánh Mới</title>
 <style>
-  :root { --green:#16a34a; --amber:#d97706; --blue:#2563eb; --gray:#6b7280; }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Segoe UI',Arial,sans-serif; background:#f8fafc; color:#1e293b; line-height:1.7; }
-  .hero { background:linear-gradient(135deg,#1e3a5f,#16a34a); color:#fff; padding:48px 24px; text-align:center; }
-  .hero h1 { font-size:2rem; font-weight:800; letter-spacing:-0.5px; }
-  .hero p  { opacity:.85; margin-top:8px; font-size:1.05rem; }
-  .container { max-width:860px; margin:0 auto; padding:32px 16px 64px; }
-  .card { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:28px 32px; margin-bottom:24px; }
-  .card h2 { font-size:1.15rem; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:10px; margin-bottom:16px; }
-  .badge { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:var(--green); color:#fff; font-size:.8rem; font-weight:800; flex-shrink:0; }
-  pre { background:#0f172a; color:#e2e8f0; border-radius:10px; padding:16px 20px; font-size:.88rem; overflow-x:auto; margin:12px 0; }
-  code { font-family:'Consolas','Courier New',monospace; }
-  .env-table { width:100%; border-collapse:collapse; margin:12px 0; font-size:.9rem; }
-  .env-table th { background:#f1f5f9; text-align:left; padding:8px 12px; font-weight:700; }
-  .env-table td { padding:8px 12px; border-top:1px solid #e2e8f0; vertical-align:top; }
-  .env-table tr:hover td { background:#f8fafc; }
-  .required { color:#dc2626; font-weight:700; }
-  .note { background:#fefce8; border:1px solid #fde68a; border-radius:10px; padding:12px 16px; font-size:.9rem; margin:12px 0; }
-  .success { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:16px 20px; margin-top:24px; }
-  .success h3 { color:#15803d; font-weight:700; }
-  .tag { display:inline-block; padding:2px 8px; border-radius:999px; font-size:.78rem; font-weight:600; }
-  .tag-required { background:#fee2e2; color:#dc2626; }
-  .tag-optional { background:#dbeafe; color:#2563eb; }
-  a { color:var(--blue); text-decoration:none; }
-  a:hover { text-decoration:underline; }
-  .step-num { color:var(--gray); font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
-  hr { border:none; border-top:1px solid #e2e8f0; margin:8px 0; }
+  :root{--green:#16a34a;--amber:#d97706;--red:#dc2626;--blue:#2563eb}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#f8fafc;color:#1e293b;line-height:1.7}
+  .hero{background:linear-gradient(135deg,#1e3a5f,#16a34a);color:#fff;padding:48px 24px;text-align:center}
+  .hero h1{font-size:2rem;font-weight:800}
+  .hero p{opacity:.85;margin-top:8px}
+  .container{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+  .card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px 28px;margin-bottom:20px}
+  .card h2{font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .badge{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;border-radius:50%;background:var(--green);color:#fff;font-size:.8rem;font-weight:800;padding:0 6px;flex-shrink:0}
+  .badge.warn{background:var(--amber)}
+  pre{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:14px 18px;font-size:.86rem;overflow-x:auto;margin:10px 0}
+  code{font-family:'Consolas','Courier New',monospace}
+  .note{background:#fefce8;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;font-size:.9rem;margin:10px 0}
+  .warn-box{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 16px;font-size:.9rem;margin:10px 0;color:#92400e}
+  .err-box{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 16px;font-size:.9rem;margin:10px 0;color:#991b1b}
+  .success{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px 20px;margin-top:20px}
+  .env-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.88rem}
+  .env-table th{background:#f1f5f9;text-align:left;padding:8px 10px;font-weight:700}
+  .env-table td{padding:8px 10px;border-top:1px solid #e2e8f0;vertical-align:top}
+  .tag{display:inline-block;padding:1px 7px;border-radius:999px;font-size:.75rem;font-weight:600}
+  .tag-r{background:#fee2e2;color:#dc2626}
+  .tag-o{background:#dbeafe;color:#2563eb}
+  a{color:var(--blue)}
+  ol,ul{padding-left:20px}
+  li{margin-bottom:4px}
 </style>
 </head>
 <body>
 
 <div class="hero">
   <h1>🏛️ HTMS — Cài Đặt Hội Thánh Mới</h1>
-  <p>Hệ Thống Quản Lý Hội Thánh · Church Management System</p>
+  <p>Hệ Thống Quản Lý Hội Thánh · Đã cập nhật từ thực tế triển khai</p>
 </div>
 
 <div class="container">
 
-  <!-- Yêu cầu hệ thống -->
+  <!-- YÊU CẦU -->
   <div class="card">
     <h2><span class="badge">📋</span> Yêu Cầu Hệ Thống</h2>
-    <ul style="padding-left:20px; color:#374151;">
-      <li>Ubuntu 22.04 + CyberPanel (OpenLiteSpeed)</li>
-      <li>PHP <strong>8.3</strong> (CLI: <code>/usr/local/lsws/lsphp83/bin/php</code>)</li>
-      <li>MySQL 8.0+</li>
-      <li>Composer 2.x</li>
-      <li>Git</li>
+    <ul>
+      <li>Ubuntu 22.04 + <strong>CyberPanel</strong> (OpenLiteSpeed)</li>
+      <li>PHP <strong>8.3</strong> — CLI path: <code>/usr/local/lsws/lsphp83/bin/php</code></li>
+      <li>Composer 2.x (thường ở <code>/usr/local/bin/composer</code>)</li>
+      <li>MariaDB/MySQL 8+, Git</li>
     </ul>
+    <div class="warn-box">⚠️ <strong>Lưu ý:</strong> Trên CyberPanel, <code>php</code> không có trong PATH mặc định. Luôn dùng đường dẫn đầy đủ hoặc thiết lập alias trước.</div>
   </div>
 
-  <!-- Bước 1: CyberPanel -->
+  <!-- BƯỚC 1 -->
   <div class="card">
-    <h2><span class="badge">1</span> Tạo Website Mới Trong CyberPanel</h2>
-    <div class="step-num">CyberPanel &rarr; Websites &rarr; Create Website</div>
-    <ol style="padding-left:20px; margin-top:8px; color:#374151; line-height:2;">
-      <li>Domain Name: <code>quanly.ten-mien.com</code></li>
-      <li>PHP: chọn <strong>PHP 8.3</strong></li>
-      <li>Tích: <em>Create Mail Domain</em> (tuỳ chọn)</li>
+    <h2><span class="badge">1</span> Tạo Website Trong CyberPanel</h2>
+    <ol>
+      <li><strong>Websites → Create Website</strong></li>
+      <li>Domain: <code>quanly.ten-mien.com</code></li>
+      <li>PHP: chọn <strong>PHP 8.3</strong> (quan trọng!)</li>
       <li>Nhấn <strong>Create Website</strong></li>
     </ol>
-    <div class="note">💡 CyberPanel sẽ tạo thư mục <code>/home/[user]/public_html</code> và tự cấu hình virtual host. Không cần IP mới — dùng chung IP server.</div>
+    <div class="note">💡 CyberPanel sẽ tự tạo virtual host và trỏ document root vào <code>public_html/public</code> (đúng cho Laravel). Không cần IP mới — dùng chung IP server.</div>
   </div>
 
-  <!-- Bước 2: Database -->
+  <!-- BƯỚC 2 -->
   <div class="card">
     <h2><span class="badge">2</span> Tạo Database MySQL</h2>
-    <div class="step-num">CyberPanel &rarr; Databases &rarr; Create Database</div>
-    <ol style="padding-left:20px; margin-top:8px; color:#374151; line-height:2;">
-      <li>Database Name: <code>htms_thanhtuyen</code></li>
-      <li>Database User: <code>htms_ttuyen_user</code></li>
-      <li>Password: (tạo mật khẩu mạnh)</li>
-      <li>Ghi lại 3 thông tin này — dùng ở Bước 4</li>
+    <ol>
+      <li><strong>Databases → Create Database</strong></li>
+      <li>Điền Database Name, Username, Password</li>
+      <li><strong>Ghi lại cả 3 thông tin này</strong> — dùng ở Bước 5</li>
     </ol>
+    <div class="err-box">🔴 <strong>Lỗi thường gặp:</strong> CyberPanel tạo DB và User nhưng chưa cấp quyền. Nếu gặp <em>"Access denied"</em> khi migrate → xem Bước Xử Lý Lỗi bên dưới.</div>
   </div>
 
-  <!-- Bước 3: SSH + Clone -->
+  <!-- BƯỚC 3 -->
   <div class="card">
-    <h2><span class="badge">3</span> SSH Vào Server</h2>
+    <h2><span class="badge">3</span> SSH + Fix PHP Path (Làm Trước Tiên)</h2>
+    <p style="margin-bottom:10px;color:#374151">CyberPanel không có <code>php</code> trong PATH. Thiết lập trước khi làm bất cứ điều gì:</p>
     <pre><code>ssh [user]@[server-ip]
-# Di chuyển vào thư mục website vừa tạo
-cd ~/public_html</code></pre>
-    <div class="note">💡 Nếu thư mục <code>public_html</code> đã có file, xoá hết trước:<br><code>rm -rf ~/public_html/*</code></div>
+cd ~/public_html
+
+# Thiết lập PHP path — LUÔN chạy dòng này trước
+mkdir -p ~/bin && ln -sf /usr/local/lsws/lsphp83/bin/php ~/bin/php
+export PATH="$HOME/bin:/usr/local/lsws/lsphp83/bin:$PATH"
+
+# Kiểm tra
+php -v   # Phải ra PHP 8.3</code></pre>
   </div>
 
-  <!-- Bước 4: Deploy script -->
+  <!-- BƯỚC 4 -->
   <div class="card">
-    <h2><span class="badge">4</span> Chạy Script Cài Đặt Tự Động</h2>
-    <p style="color:#374151; margin-bottom:12px;">Chạy 1 lệnh dưới đây — script sẽ clone code, hướng dẫn cấu hình .env, và cài đặt tất cả:</p>
-    <pre><code># Cách 1: Chạy trực tiếp từ GitHub (khuyến nghị)
-bash &lt;(curl -s https://raw.githubusercontent.com/haiyenpa25/HTMS/main/deploy/deploy-new-church.sh)
+    <h2><span class="badge">4</span> Clone Code + Chạy Script</h2>
+    <pre><code># Xoá file mặc định CyberPanel (nếu có)
+rm -rf ~/public_html/* ~/public_html/.*  2>/dev/null || true
 
-# Cách 2: Nếu đã clone repo
-bash deploy/deploy-new-church.sh</code></pre>
-    <div class="note">⏳ Quá trình cài đặt khoảng 3-5 phút. Script sẽ dừng lại để bạn điền thông tin .env trước khi tiếp tục.</div>
+# Chạy script cài đặt tự động
+bash &lt;(curl -s https://raw.githubusercontent.com/haiyenpa25/HTMS/main/deploy/deploy-new-church.sh)</code></pre>
+    <div class="note">⏳ Script sẽ dừng ở Bước 2/7 để bạn điền .env. Sau đó nhấn Enter để tiếp tục.</div>
   </div>
 
-  <!-- Bước 5: Cấu hình .env -->
+  <!-- BƯỚC 5 -->
   <div class="card">
-    <h2><span class="badge">5</span> Các Biến .env Quan Trọng</h2>
-    <p style="color:#374151; margin-bottom:12px;">Script sẽ tự copy file mẫu. Bạn cần điền các giá trị sau:</p>
+    <h2><span class="badge">5</span> Cấu Hình File .env</h2>
+    <p style="margin-bottom:10px;color:#374151">Khi script dừng lại:</p>
+    <pre><code>nano .env</code></pre>
     <table class="env-table">
-      <tr><th>Biến</th><th>Giá trị ví dụ</th><th>Ghi chú</th></tr>
-      <tr>
-        <td><code>APP_URL</code> <span class="tag tag-required">bắt buộc</span></td>
-        <td><code>https://quanly.httlthanhtuyen.com</code></td>
-        <td>URL đầy đủ với https://</td>
-      </tr>
-      <tr>
-        <td><code>DB_DATABASE</code> <span class="tag tag-required">bắt buộc</span></td>
-        <td><code>htms_thanhtuyen</code></td>
-        <td>Tên DB đã tạo ở Bước 2</td>
-      </tr>
-      <tr>
-        <td><code>DB_USERNAME</code> <span class="tag tag-required">bắt buộc</span></td>
-        <td><code>htms_ttuyen_user</code></td>
-        <td>User DB đã tạo ở Bước 2</td>
-      </tr>
-      <tr>
-        <td><code>DB_PASSWORD</code> <span class="tag tag-required">bắt buộc</span></td>
-        <td><code>Mat_khau_manh!</code></td>
-        <td>Password DB</td>
-      </tr>
-      <tr>
-        <td><code>CHURCH_NAME</code> <span class="tag tag-required">bắt buộc</span></td>
-        <td><code>Hội Thánh Tin Lành Thanh Tuyền</code></td>
-        <td>Tên hiển thị trên hệ thống</td>
-      </tr>
-      <tr>
-        <td><code>SYSTEM_DOMAIN</code> <span class="tag tag-required">bắt buộc</span></td>
-        <td><code>httlthanhtuyen.com</code></td>
-        <td>Tạo email: superadmin@[domain]</td>
-      </tr>
-      <tr>
-        <td><code>SUPERADMIN_PASSWORD</code> <span class="tag tag-required">bắt buộc</span></td>
-        <td><code>Abc.1234@HoiThanh</code></td>
-        <td>Mật khẩu tài khoản quản trị đầu tiên</td>
-      </tr>
-      <tr>
-        <td><code>CHURCH_ADDRESS</code> <span class="tag tag-optional">tuỳ chọn</span></td>
-        <td><code>123 Đường ABC, Quận 1, TP.HCM</code></td>
-        <td>Địa chỉ Hội Thánh</td>
-      </tr>
-      <tr>
-        <td><code>CHURCH_PHONE</code> <span class="tag tag-optional">tuỳ chọn</span></td>
-        <td><code>0901 234 567</code></td>
-        <td>Điện thoại liên hệ</td>
-      </tr>
-      <tr>
-        <td><code>CHURCH_EMAIL</code> <span class="tag tag-optional">tuỳ chọn</span></td>
-        <td><code>contact@httlthanhtuyen.com</code></td>
-        <td>Email chính thức</td>
-      </tr>
+      <tr><th>Biến</th><th>Ví dụ</th><th></th></tr>
+      <tr><td><code>APP_URL</code></td><td><code>https://quanly.ten-mien.com</code></td><td><span class="tag tag-r">bắt buộc</span></td></tr>
+      <tr><td><code>DB_DATABASE</code></td><td><code>tên_database</code></td><td><span class="tag tag-r">bắt buộc</span></td></tr>
+      <tr><td><code>DB_USERNAME</code></td><td><code>tên_user_db</code></td><td><span class="tag tag-r">bắt buộc</span></td></tr>
+      <tr><td><code>DB_PASSWORD</code></td><td><code>mat_khau_manh!</code></td><td><span class="tag tag-r">bắt buộc</span></td></tr>
+      <tr><td><code>CHURCH_NAME</code></td><td><code>Hội Thánh Tin Lành XYZ</code></td><td><span class="tag tag-r">bắt buộc</span></td></tr>
+      <tr><td><code>SYSTEM_DOMAIN</code></td><td><code>ten-mien.com</code></td><td><span class="tag tag-r">bắt buộc</span></td></tr>
+      <tr><td><code>SUPERADMIN_PASSWORD</code></td><td><code>Abc.1234@HoiThanh</code></td><td><span class="tag tag-r">bắt buộc</span></td></tr>
+      <tr><td><code>CHURCH_ADDRESS</code></td><td><code>123 Đường ABC</code></td><td><span class="tag tag-o">tuỳ chọn</span></td></tr>
+      <tr><td><code>CHURCH_PHONE</code></td><td><code>0901234567</code></td><td><span class="tag tag-o">tuỳ chọn</span></td></tr>
     </table>
+    <div class="warn-box">⚠️ Lưu file: <strong>Ctrl+X → Y → Enter</strong>. Sau đó nhấn Enter để script tiếp tục.</div>
   </div>
 
-  <!-- Bước 6: Sau cài đặt -->
+  <!-- BƯỚC 6 -->
   <div class="card">
-    <h2><span class="badge">6</span> Các Bước Tiếp Theo Sau Cài Đặt</h2>
-    <p style="color:#374151; margin-bottom:12px;">Sau khi script chạy xong, login bằng tài khoản SuperAdmin để:</p>
-    <ol style="padding-left:20px; color:#374151; line-height:2.2;">
-      <li>Đăng nhập: <code>superadmin@[SYSTEM_DOMAIN]</code> / mật khẩu trong .env</li>
-      <li>Vào <strong>Admin → Hội Thánh</strong> để thêm logo, cập nhật thông tin</li>
-      <li>Vào <strong>Admin → Người Dùng</strong> để tạo tài khoản Mục Sư / Trưởng Ban</li>
-      <li>Vào <strong>Admin → Tính Năng & Quyền</strong> để phân quyền cho từng ban ngành</li>
-    </ol>
+    <h2><span class="badge">6</span> Sau Khi Script Hoàn Tất — Fix Quyền & Reload</h2>
+    <pre><code># Fix quyền thư mục
+chmod -R 755 ~/public_html/storage ~/public_html/bootstrap/cache
+chown -R $(whoami):$(whoami) ~/public_html/
 
-    <hr>
-    <p style="color:#374151; margin-top:12px;"><strong>Lệnh tùy chọn thêm (chạy sau khi đã login kiểm tra):</strong></p>
-    <pre><code># Tạo tài khoản đại diện mặc định cho các ban ngành (Trưởng Ban, Thư Ký,...)
-/usr/local/lsws/lsphp83/bin/php artisan db:seed --class=OrgStructureSeeder</code></pre>
+# Tạo storage symlink
+php ~/public_html/artisan storage:link
+
+# Reload OpenLiteSpeed để nhận config mới
+sudo systemctl reload lsws
+# Hoặc nếu không dùng được sudo:
+sudo /usr/local/lsws/bin/lswsctrl restart</code></pre>
+    <div class="note">💡 Bước reload OpenLiteSpeed thường bị bỏ qua — đây là nguyên nhân phổ biến khiến website không lên dù đã cài xong.</div>
   </div>
 
-  <!-- Cập nhật code -->
+  <!-- BƯỚC 7 -->
+  <div class="card">
+    <h2><span class="badge">7</span> Cấu Hình DNS + SSL</h2>
+    <ol>
+      <li>Thêm A record: <code>quanly.ten-mien.com → [IP server]</code></li>
+      <li>Đợi DNS propagate (~5-30 phút)</li>
+      <li>CyberPanel → <strong>SSL → Issue SSL</strong> cho domain này</li>
+    </ol>
+  </div>
+
+  <!-- XỬ LÝ LỖI -->
+  <div class="card">
+    <h2><span class="badge warn">⚠️</span> Xử Lý Lỗi Thường Gặp</h2>
+
+    <p><strong>🔴 "No such file or directory: php" khi chạy composer</strong></p>
+    <pre><code>mkdir -p ~/bin && ln -sf /usr/local/lsws/lsphp83/bin/php ~/bin/php
+export PATH="$HOME/bin:/usr/local/lsws/lsphp83/bin:$PATH"
+php /usr/local/bin/composer install --no-dev --optimize-autoloader --ignore-platform-reqs</code></pre>
+
+    <p style="margin-top:16px"><strong>🔴 "Access denied for user" khi migrate</strong></p>
+    <p style="color:#374151;font-size:.9rem">User DB chưa có quyền. Chạy lệnh sau (thay bằng thông tin thật):</p>
+    <pre><code>mysql -u root -p$(cat /etc/cyberpanel/mysqlPassword)
+
+-- Trong MySQL prompt (thay đúng tên DB, user, password từ .env):
+GRANT ALL PRIVILEGES ON `ten_database`.* TO 'ten_user'@'localhost' IDENTIFIED BY 'mat_khau_that_trong_env';
+FLUSH PRIVILEGES;
+EXIT;</code></pre>
+    <div class="err-box">❗ <strong>Quan trọng:</strong> Điền đúng password từ <code>.env DB_PASSWORD</code> vào IDENTIFIED BY — không được điền password khác, sẽ bị mismatch.</div>
+
+    <p style="margin-top:16px"><strong>🔴 Website không load dù đã cài xong</strong></p>
+    <pre><code># Xem log lỗi
+tail -50 ~/logs/[domain].error_log
+
+# Reload OpenLiteSpeed
+sudo systemctl reload lsws
+
+# Kiểm tra .htaccess
+cat ~/public_html/public/.htaccess</code></pre>
+  </div>
+
+  <!-- CẬP NHẬT CODE -->
   <div class="card">
     <h2><span class="badge">🔄</span> Cập Nhật Code Khi Có Version Mới</h2>
-    <p style="color:#374151; margin-bottom:12px;">Chạy lệnh này trên server để cập nhật hệ thống:</p>
     <pre><code>cd ~/public_html \
   && mkdir -p ~/bin && ln -sf /usr/local/lsws/lsphp83/bin/php ~/bin/php && export PATH="$HOME/bin:$PATH" \
   && git checkout -- index/ \
   && git pull origin main \
-  && composer install --no-dev --optimize-autoloader --ignore-platform-reqs \
+  && php /usr/local/bin/composer install --no-dev --optimize-autoloader --ignore-platform-reqs \
   && php artisan migrate --force \
   && php artisan config:cache \
   && php artisan route:cache \
-  && php artisan view:cache</code></pre>
+  && php artisan view:cache \
+  && sudo systemctl reload lsws</code></pre>
   </div>
 
+  <!-- ĐĂNG NHẬP -->
   <div class="success">
-    <h3>✅ Hoàn Tất!</h3>
-    <p style="margin-top:8px; color:#374151;">Hệ thống HTMS đã sẵn sàng phục vụ Hội Thánh. Liên hệ hỗ trợ kỹ thuật nếu gặp vấn đề.</p>
-    <p style="margin-top:8px;"><a href="https://github.com/haiyenpa25/HTMS" target="_blank">📦 GitHub: haiyenpa25/HTMS</a></p>
+    <h3>✅ Cài Đặt Hoàn Tất</h3>
+    <p style="margin-top:8px;color:#374151">Đăng nhập tại: <strong>[APP_URL]/login</strong></p>
+    <ul style="margin-top:8px;color:#374151">
+      <li>Email: <code>superadmin@[SYSTEM_DOMAIN]</code></li>
+      <li>Mật khẩu: giá trị <code>SUPERADMIN_PASSWORD</code> trong .env</li>
+    </ul>
+    <p style="margin-top:12px"><a href="https://github.com/haiyenpa25/HTMS" target="_blank">📦 GitHub: haiyenpa25/HTMS</a></p>
   </div>
 
 </div>
