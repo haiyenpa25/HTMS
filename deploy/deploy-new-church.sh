@@ -14,7 +14,24 @@
 set -e
 
 PHP=/usr/local/lsws/lsphp83/bin/php
-REPO=https://github.com/haiyenpa25/HTMS.git
+
+# Đảm bảo php và composer có thể gọi được (CyberPanel không có php trong PATH mặc định)
+mkdir -p ~/bin
+ln -sf "$PHP" ~/bin/php
+export PATH="$HOME/bin:/usr/local/lsws/lsphp83/bin:$PATH"
+
+# Tìm composer
+if command -v composer &>/dev/null; then
+    COMPOSER="composer"
+elif [ -f "/usr/local/bin/composer" ]; then
+    COMPOSER="$PHP /usr/local/bin/composer"
+elif [ -f "$HOME/composer.phar" ]; then
+    COMPOSER="$PHP $HOME/composer.phar"
+else
+    echo "❌ Không tìm thấy composer. Đang tải về..."
+    curl -sS https://getcomposer.org/installer | $PHP -- --install-dir="$HOME/bin" --filename=composer
+    COMPOSER="$HOME/bin/composer"
+fi
 
 echo ""
 echo "════════════════════════════════════════════════════════════"
@@ -64,7 +81,7 @@ fi
 # ── Bước 3: Composer install ─────────────────────────────────────────────────
 echo ""
 echo "📦 [3/7] Cài đặt PHP packages (composer)..."
-composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+$COMPOSER install --no-dev --optimize-autoloader --ignore-platform-reqs
 echo "✅ Composer xong."
 
 # ── Bước 4: Application key ──────────────────────────────────────────────────
