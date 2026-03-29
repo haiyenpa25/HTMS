@@ -1,15 +1,23 @@
 <template>
     <PortalLayout :department="department" :available-departments="availableDepartments" :is-global-admin="isGlobalAdmin" :hide-nav="true">
         <!-- Sticky Header for Back Navigation -->
-        <div class="bg-white border-b border-gray-100 sticky top-0 z-10 px-4 py-3 sm:px-6 lg:px-8 w-full w-full flex items-center justify-between">
-            <button @click="goBack" class="flex items-center text-gray-500 hover:text-gray-900 font-bold text-sm transition-colors">
+        <div class="bg-white border-b border-gray-100 sticky top-0 z-10 px-4 py-3 sm:px-6 lg:px-8 w-full flex items-center justify-between gap-3">
+            <button @click="goBack" class="flex items-center text-gray-500 hover:text-gray-900 font-bold text-sm transition-colors shrink-0">
                 <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 Quay lại
             </button>
-            <div class="text-right">
-                <h2 class="text-sm font-black text-gray-900 truncate max-w-[150px] sm:max-w-xs">{{ meeting.topic || 'Buổi nhóm định kỳ' }}</h2>
+            <div class="text-right flex-1 min-w-0">
+                <h2 class="text-sm font-black text-gray-900 truncate">{{ meeting.topic || 'Buổi nhóm định kỳ' }}</h2>
                 <p class="text-[10px] sm:text-xs text-gray-500 font-medium">{{ formattedDate }}</p>
             </div>
+            <!-- Nhánh thêm khách mới nhanh -->
+            <button @click="isAddPendingOpen = true"
+                title="Thêm khách mới chờ duyệt"
+                class="shrink-0 w-9 h-9 flex items-center justify-center rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200 active:scale-95 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                </svg>
+            </button>
         </div>
 
         <div class="pb-24 w-full mt-4 px-0 sm:px-4 lg:px-8">
@@ -245,6 +253,47 @@
                 </button>
             </div>
         </div>
+        <!-- SlideOver: Thêm Khách Mới (Nhanh) -->
+        <SlideOver v-model="isAddPendingOpen" title="Thêm Khách Mới" size="sm">
+            <template #default>
+                <div class="p-6 space-y-5">
+                    <div class="bg-amber-50 border border-amber-100 rounded-xl p-3">
+                        <p class="text-sm text-amber-800 font-medium">Ghi nhận khách mới gặp buổi này. Thông tin sẽ được gửi cho Mục Sư / Trưởng Ban duyệt sau.</p>
+                    </div>
+                    <form @submit.prevent="submitPending" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-900 mb-1.5">Họ và tên <span class="text-red-500">*</span></label>
+                            <input v-model="pendingForm.full_name" type="text" required placeholder="Nguyễn Văn A"
+                                class="block w-full border-gray-200 rounded-xl text-[15px] font-medium focus:ring-amber-500 focus:border-amber-500 py-3 bg-gray-50 transition-colors"
+                                :class="{ 'border-red-300': pendingForm.errors.full_name }">
+                            <p v-if="pendingForm.errors.full_name" class="text-red-500 text-sm mt-1">{{ pendingForm.errors.full_name }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-900 mb-1.5">Số điện thoại</label>
+                            <input v-model="pendingForm.phone" type="tel" placeholder="0901 234 567"
+                                class="block w-full border-gray-200 rounded-xl text-[15px] font-medium focus:ring-amber-500 focus:border-amber-500 py-3 bg-gray-50 transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-900 mb-1.5">Ghi chú</label>
+                            <textarea v-model="pendingForm.general_notes" rows="3" placeholder="Người quen của ai, được mời lần đầu..."
+                                class="block w-full border-gray-200 rounded-xl text-[15px] font-medium focus:ring-amber-500 focus:border-amber-500 py-2.5 bg-gray-50 transition-colors resize-none">
+                            </textarea>
+                        </div>
+                        <div class="pt-2 flex gap-3">
+                            <button type="button" @click="isAddPendingOpen = false"
+                                class="flex-1 py-3 border border-gray-200 rounded-xl text-[15px] font-bold text-gray-600 hover:bg-gray-50 transition-colors">
+                                Hủy
+                            </button>
+                            <button type="submit" :disabled="pendingForm.processing || !pendingForm.full_name"
+                                class="flex-1 py-3 bg-amber-500 text-white rounded-xl text-[15px] font-bold hover:bg-amber-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
+                                <svg v-if="pendingForm.processing" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                                Gửi lên duyệt
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </template>
+        </SlideOver>
     </PortalLayout>
 </template>
 
@@ -252,6 +301,7 @@
 import { ref, computed, watch } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import PortalLayout from '@/Layouts/PortalLayout.vue';
+import SlideOver from '@/Components/SlideOver.vue';
 
 const props = defineProps({
     department: Object,
@@ -264,6 +314,23 @@ const props = defineProps({
 });
 
 const activeTab = ref('manual');
+const isAddPendingOpen = ref(false);
+
+const pendingForm = useForm({
+    full_name: '',
+    phone: '',
+    general_notes: '',
+});
+
+const submitPending = () => {
+    pendingForm.post(route('portal.members.store-pending'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            isAddPendingOpen.value = false;
+            pendingForm.reset();
+        },
+    });
+};
 
 const goBack = () => {
     if (window.history.length > 2) {

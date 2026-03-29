@@ -114,19 +114,32 @@ class DeptReportController extends Controller
         $churchWeekly = $this->weeklyFromRows($churchRows);
         $deptWeekly   = $this->weeklyFromRows($deptRows);
 
-        // ── Attendance averages ───────────────────────────────────
-        $avgChurch = count($churchRows) > 0 ? round(array_sum(array_column($churchRows, 'attendance')) / count($churchRows), 1) : 0;
-        $avgDept   = count($deptRows)   > 0 ? round(array_sum(array_column($deptRows,   'attendance')) / count($deptRows),   1) : 0;
+        // ── Attendance averages (based on weeks WITH data, not total meetings) ──
+        // Weeks with attendance > 0 are counted; weeks with no activity are excluded
+        $churchWeeksWithData = count(array_filter($churchWeekly, fn($w) => $w['attendance'] > 0));
+        $deptWeeksWithData   = count(array_filter($deptWeekly,   fn($w) => $w['attendance'] > 0));
+        $avgChurch = $churchWeeksWithData > 0
+            ? (int) round(array_sum(array_column($churchWeekly, 'attendance')) / $churchWeeksWithData)
+            : 0;
+        $avgDept = $deptWeeksWithData > 0
+            ? (int) round(array_sum(array_column($deptWeekly, 'attendance')) / $deptWeeksWithData)
+            : 0;
 
         $prevChurch     = $this->getMeetings('church',     $deptId, $prevStart->toDateString(), $prevEnd->toDateString());
         $prevDept       = $this->getMeetings('department', $deptId, $prevStart->toDateString(), $prevEnd->toDateString());
         $prevChurchRows = $prevChurch->map(fn($m) => $this->mapMeetingRow($m, $deptId))->toArray();
         $prevDeptRows   = $prevDept->map(fn($m)   => $this->mapMeetingRow($m, $deptId))->toArray();
-        $prevAvgChurch  = count($prevChurchRows) > 0 ? round(array_sum(array_column($prevChurchRows, 'attendance')) / count($prevChurchRows), 1) : 0;
-        $prevAvgDept    = count($prevDeptRows)   > 0 ? round(array_sum(array_column($prevDeptRows,   'attendance')) / count($prevDeptRows),   1) : 0;
-        
+        // Must build weekly arrays BEFORE calculating averages
         $prevChurchWeekly = $this->weeklyFromRows($prevChurchRows);
         $prevDeptWeekly   = $this->weeklyFromRows($prevDeptRows);
+        $prevChurchWeeksWithData = count(array_filter($prevChurchWeekly, fn($w) => $w['attendance'] > 0));
+        $prevDeptWeeksWithData   = count(array_filter($prevDeptWeekly,   fn($w) => $w['attendance'] > 0));
+        $prevAvgChurch = $prevChurchWeeksWithData > 0
+            ? (int) round(array_sum(array_column($prevChurchWeekly, 'attendance')) / $prevChurchWeeksWithData)
+            : 0;
+        $prevAvgDept = $prevDeptWeeksWithData > 0
+            ? (int) round(array_sum(array_column($prevDeptWeekly, 'attendance')) / $prevDeptWeeksWithData)
+            : 0;
 
         $calcChange = fn($c, $p) => $p > 0 ? round((($c - $p) / $p) * 100, 1) : ($c > 0 ? 100.0 : 0.0);
 
@@ -247,21 +260,24 @@ class DeptReportController extends Controller
             'next_month_label'     => $nextStart->locale('vi')->isoFormat('MMMM YYYY'),
 
             'summary' => [
-                'month_income'    => $monthIncome,
-                'month_expense'   => $monthExpense,
-                'opening_balance' => $openingBal,
-                'closing_balance' => $openingBal + $monthIncome - $monthExpense,
-                'avg_church'      => $avgChurch,
-                'avg_dept'        => $avgDept,
-                'prev_avg_church' => $prevAvgChurch,
-                'prev_avg_dept'   => $prevAvgDept,
-                'church_change'   => $calcChange($avgChurch, $prevAvgChurch),
-                'dept_change'     => $calcChange($avgDept, $prevAvgDept),
-                'church_count'    => count($churchRows),
-                'dept_count'      => count($deptRows),
-                'visit_planned'   => $visitPlanned,
-                'visit_completed' => $visitCompleted,
-                'visit_pct'       => $visitPct,
+                'month_income'        => $monthIncome,
+                'month_expense'       => $monthExpense,
+                'opening_balance'     => $openingBal,
+                'closing_balance'     => $openingBal + $monthIncome - $monthExpense,
+                'avg_church'          => $avgChurch,
+                'avg_dept'            => $avgDept,
+                'prev_avg_church'     => $prevAvgChurch,
+                'prev_avg_dept'       => $prevAvgDept,
+                'church_change'       => $calcChange($avgChurch, $prevAvgChurch),
+                'dept_change'         => $calcChange($avgDept, $prevAvgDept),
+                'church_count'        => count($churchRows),
+                'dept_count'          => count($deptRows),
+                // Count of meetings with memory_verse filled in
+                'memory_verse_church' => count(array_filter($churchRows, fn($r) => !empty($r['memory_verse']))),
+                'memory_verse_dept'   => count(array_filter($deptRows,   fn($r) => !empty($r['memory_verse']))),
+                'visit_planned'       => $visitPlanned,
+                'visit_completed'     => $visitCompleted,
+                'visit_pct'           => $visitPct,
             ],
             'fund_balances' => $fundBalances,
             'report'        => $report,

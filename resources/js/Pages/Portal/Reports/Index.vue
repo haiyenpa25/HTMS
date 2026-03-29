@@ -78,7 +78,7 @@
                         <h3 class="text-[15px] font-black text-white flex items-center gap-2"><span class="text-slate-400">A.</span> BUỔI NHÓM HỘI THÁNH</h3>
                         <p class="text-[11px] text-slate-300 mt-0.5">Số lượng hiện diện từng tuần trong tháng</p>
                     </div>
-                    <span class="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full">{{ church_meetings.length }} buổi · TB {{ summary.avg_church }}</span>
+                    <span class="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full">{{ church_meetings.length }} buổi · TB {{ summary.avg_church }} · <span class="text-amber-300" title="Số buổi có câu gốc">📖 {{ summary.memory_verse_church ?? 0 }}/{{ church_meetings.length }}</span></span>
                 </div>
                 <div class="grid grid-cols-1 xl:grid-cols-2 divide-y xl:divide-y-0 xl:divide-x divide-gray-100">
                     <!-- Table -->
@@ -186,7 +186,7 @@
                         <h3 class="text-[15px] font-black text-white flex items-center gap-2"><span class="text-slate-400">B.</span> BUỔI NHÓM SINH HOẠT BAN NGÀNH</h3>
                         <p class="text-[11px] text-slate-300 mt-0.5">Số lượng hiện diện từng tuần trong tháng</p>
                     </div>
-                    <span class="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full">{{ dept_meetings.length }} buổi · TB {{ summary.avg_dept }}</span>
+                    <span class="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full">{{ dept_meetings.length }} buổi · TB {{ summary.avg_dept }} · <span class="text-indigo-300" title="Số buổi có câu gốc">📖 {{ summary.memory_verse_dept ?? 0 }}/{{ dept_meetings.length }}</span></span>
                 </div>
                 <div class="grid grid-cols-1 xl:grid-cols-2 divide-y xl:divide-y-0 xl:divide-x divide-gray-100">
                     <!-- Table -->
