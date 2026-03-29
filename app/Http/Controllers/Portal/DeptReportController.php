@@ -22,24 +22,26 @@ class DeptReportController extends Controller
     {
         $summary    = $m->attendanceSummaries->first();
         $attendance = $summary?->manual_count ?? 0;
+        $memVerse   = $summary?->memory_verse_count ?? 0;
         $income     = $m->finances->where('type', 'thu')->sum('amount');
         $expense    = $m->finances->where('type', 'chi')->sum('amount');
         $dt         = Carbon::parse($m->date);
         return [
-            'id'          => $m->id,
-            'date'        => $dt->format('d/m/Y'),
-            'day'         => $dt->locale('vi')->isoFormat('dddd'),
-            'week_no'     => (int) ceil($dt->day / 7),   // week within month (1-5)
-            'type'        => $m->type,
-            'topic'       => $m->topic ?? '',
-            'memory_verse'=> $m->memory_verse ?? '',
-            'scripture'   => $m->scripture ?? '',
-            'speaker'     => $m->speaker?->name ?? $m->preacher ?? '',
-            'attendance'  => $attendance,
-            'income'      => $income,
-            'expense'     => $expense,
-            'balance'     => $income - $expense,
-            'note'        => $summary?->notes ?? '',
+            'id'                  => $m->id,
+            'date'                => $dt->format('d/m/Y'),
+            'day'                 => $dt->locale('vi')->isoFormat('dddd'),
+            'week_no'             => (int) ceil($dt->day / 7),   // week within month (1-5)
+            'type'                => $m->type,
+            'topic'               => $m->topic ?? '',
+            'memory_verse'        => $m->memory_verse ?? '',
+            'scripture'           => $m->scripture ?? '',
+            'speaker'             => $m->speaker?->name ?? $m->preacher ?? '',
+            'attendance'          => $attendance,
+            'memory_verse_count'  => $memVerse,
+            'income'              => $income,
+            'expense'             => $expense,
+            'balance'             => $income - $expense,
+            'note'                => $summary?->notes ?? '',
         ];
     }
 
@@ -275,6 +277,9 @@ class DeptReportController extends Controller
                 // Count of meetings with memory_verse filled in
                 'memory_verse_church' => count(array_filter($churchRows, fn($r) => !empty($r['memory_verse']))),
                 'memory_verse_dept'   => count(array_filter($deptRows,   fn($r) => !empty($r['memory_verse']))),
+                // Total people who memorized verse across all meetings this month
+                'total_memory_verse_church' => array_sum(array_column($churchRows, 'memory_verse_count')),
+                'total_memory_verse_dept'   => array_sum(array_column($deptRows,   'memory_verse_count')),
                 'visit_planned'       => $visitPlanned,
                 'visit_completed'     => $visitCompleted,
                 'visit_pct'           => $visitPct,

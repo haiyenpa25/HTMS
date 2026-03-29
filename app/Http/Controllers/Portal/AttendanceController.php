@@ -87,6 +87,7 @@ class AttendanceController extends Controller
             'department_id' => $department->id,
         ], [
             'manual_count' => 0,
+            'memory_verse_count' => 0,
             'notes' => ''
         ]);
 
@@ -142,6 +143,7 @@ class AttendanceController extends Controller
 
         $validated = $request->validate([
             'manual_count' => 'required|integer|min:0',
+            'memory_verse_count' => 'nullable|integer|min:0',
             'notes' => 'nullable|string|max:255',
             'attendances' => 'required|array',
             'attendances.*.id' => 'required|exists:members,id',
@@ -151,10 +153,24 @@ class AttendanceController extends Controller
         ]);
 
         \DB::transaction(function () use ($meeting, $departmentId, $validated) {
+            // Count memorized_verse from named attendances
+            $autoVerseCount = collect($validated['attendances'])
+                ->where('status', 'present')
+                ->where('memorized_verse', true)
+                ->count();
+            // Use explicit value if provided (manual mode), otherwise use auto-count from named
+            $verseCount = isset($validated['memory_verse_count']) && $validated['memory_verse_count'] !== null
+                ? (int) $validated['memory_verse_count']
+                : $autoVerseCount;
+
             // Update Summary
             MeetingAttendanceSummary::updateOrCreate(
                 ['meeting_id' => $meeting->id, 'department_id' => $departmentId],
-                ['manual_count' => $validated['manual_count'], 'notes' => $validated['notes']]
+                [
+                    'manual_count' => $validated['manual_count'],
+                    'memory_verse_count' => $verseCount,
+                    'notes' => $validated['notes'],
+                ]
             );
 
             // Update Individual Check-ins

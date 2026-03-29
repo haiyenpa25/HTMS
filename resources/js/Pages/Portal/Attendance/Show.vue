@@ -89,6 +89,25 @@
                             <div v-if="form.errors.manual_count" class="text-red-500 text-xs mt-2 font-medium">{{ form.errors.manual_count }}</div>
                         </div>
 
+                        <!-- Memory Verse Count -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-900 mb-2">📖 Số người thuộc câu gốc</label>
+                            <p class="text-xs text-gray-500 mb-4">Số người đọc/đọc thuộc câu gốc trong buổi nhóm.</p>
+                            <div class="relative max-w-sm mx-auto sm:mx-0">
+                                <input 
+                                    type="number" 
+                                    v-model="form.memory_verse_count" 
+                                    min="0"
+                                    class="block w-full text-center text-4xl sm:text-5xl font-black text-indigo-600 border-2 border-gray-200 rounded-[2rem] py-6 focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all placeholder:text-gray-300"
+                                    placeholder="0"
+                                >
+                                <div class="absolute inset-y-0 right-6 flex items-center pointer-events-none">
+                                    <span class="text-gray-400 font-bold">Người</span>
+                                </div>
+                            </div>
+                            <div v-if="form.errors.memory_verse_count" class="text-red-500 text-xs mt-2 font-medium">{{ form.errors.memory_verse_count }}</div>
+                        </div>
+
                         <div>
                             <label class="block text-sm font-bold text-gray-900 mb-2">Ghi chú (Tùy chọn)</label>
                             <textarea 
@@ -343,6 +362,7 @@ const goBack = () => {
 // Initialize form
 const form = useForm({
     manual_count: props.summary.manual_count ?? '',
+    memory_verse_count: props.summary.memory_verse_count ?? '',
     notes: props.summary.notes || '',
     attendances: JSON.parse(JSON.stringify(props.members)) // deep copy
 });
@@ -355,6 +375,7 @@ watch(() => props.members, (newMembers) => {
 // Watch for summary updates (e.g. after successful save)
 watch(() => props.summary, (newSummary) => {
     form.manual_count = newSummary.manual_count ?? '';
+    form.memory_verse_count = newSummary.memory_verse_count ?? '';
     form.notes = newSummary.notes || '';
 }, { deep: true });
 

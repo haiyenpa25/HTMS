@@ -10,6 +10,7 @@ class MeetingAttendanceSummary extends Model
         'meeting_id',
         'department_id',
         'manual_count',
+        'memory_verse_count',
         'notes',
     ];
 
