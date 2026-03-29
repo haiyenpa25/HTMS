@@ -36,6 +36,7 @@ cd ~/public_html \
   && git pull origin main \
   && composer install --no-dev --optimize-autoloader --ignore-platform-reqs \
   && php artisan migrate --force \
+  && php artisan backfill:memory-verse-count \
   && php artisan config:cache \
   && php artisan route:cache \
   && php artisan view:cache

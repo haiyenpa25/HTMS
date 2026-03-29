@@ -17,3 +17,19 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Junk files / temp scripts (never commit these)
+*.zip
+build.log
+build_error.log
+tests_output.txt
+vite.config.js.timestamp-*.mjs
+/test*.php
+/check*.php
+/fix*.php
+/create_*.php
+/verify_*.php
+/grant_*.php
+/replace_*.cjs
+/replace_*.py
+C:\tmp\*
