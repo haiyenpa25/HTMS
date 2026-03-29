@@ -498,32 +498,6 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    // Old Duty Roster (To be removed later if obsolete)
-    Route::prefix('duty-rooster')->middleware(\App\Http\Middleware\EnsureSuperAdmin::class)->group(function () {
-        Route::get('/', [\App\Http\Controllers\DutyRosterController::class, 'index'])->name('duty-rooster.index');
-        Route::post('/assignments', [\App\Http\Controllers\DutyRosterController::class, 'storeAssignment'])->name('duty-rooster.assignments.store');
-        Route::post('/copy-week', [\App\Http\Controllers\DutyRosterController::class, 'copyWeek'])->name('duty-rooster.copy-week');
-        Route::post('/departments/{department}/roles', [\App\Http\Controllers\DutyRosterController::class, 'storeRole'])->name('duty-rooster.roles.store');
-        Route::delete('/roles/{role}', [\App\Http\Controllers\DutyRosterController::class, 'destroyRole'])->name('duty-rooster.roles.destroy');
-
-        // Templates (CRUD)
-        Route::get('/templates', [\App\Http\Controllers\DutyRosterController::class, 'templatesIndex'])->name('duty-rooster.templates.index');
-        Route::get('/templates/create', [\App\Http\Controllers\DutyRosterController::class, 'templateCreate'])->name('duty-rooster.templates.create');
-        Route::get('/templates/{template}', [\App\Http\Controllers\DutyRosterController::class, 'templateShow'])->name('duty-rooster.templates.show');
-        Route::post('/templates', [\App\Http\Controllers\DutyRosterController::class, 'storeTemplate'])->name('duty-rooster.templates.store');
-        Route::put('/templates/{template}', [\App\Http\Controllers\DutyRosterController::class, 'updateTemplate'])->name('duty-rooster.templates.update');
-        Route::post('/templates/apply', [\App\Http\Controllers\DutyRosterController::class, 'applyTemplate'])->name('duty-rooster.templates.apply');
-        Route::delete('/templates/{template}', [\App\Http\Controllers\DutyRosterController::class, 'deleteTemplate'])->name('duty-rooster.templates.destroy');
-        // Template role toggles
-        Route::post('/templates/{template}/roles', [\App\Http\Controllers\DutyRosterController::class, 'addTemplateRole'])->name('duty-rooster.templates.roles.add');
-        Route::delete('/templates/{template}/roles/{role}', [\App\Http\Controllers\DutyRosterController::class, 'removeTemplateRole'])->name('duty-rooster.templates.roles.remove');
-
-        // Meeting show (MUST be last to avoid conflict with /templates)
-        Route::get('/{meeting}/export', [\App\Http\Controllers\DutyRosterController::class, 'exportMeeting'])->name('duty-rooster.export');
-        Route::get('/{meeting}', [\App\Http\Controllers\DutyRosterController::class, 'show'])->name('duty-rooster.show');
-    });
-
-
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 });
 
