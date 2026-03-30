@@ -204,6 +204,7 @@ Route::middleware('auth')->group(function () {
     require __DIR__.'/portal.php';
     require __DIR__.'/ministry.php';
 
+    Route::post('logout', [\App\Http\Controllers\Auth\AuthController::class, 'logout'])->name('logout');
 });
 
 // Help / Documentation (Publicly accessible)
