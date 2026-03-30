@@ -165,23 +165,34 @@ class AttendanceController extends Controller
         ]);
 
         \DB::transaction(function () use ($meeting, $departmentId, $validated) {
-            // Count memorized_verse from named attendances
+            // Count checked-in members (named attendances)
+            $checkedInCount = collect($validated['attendances'])
+                ->where('status', 'present')
+                ->count();
+
+            // ── RULE 1: manual_count >= checkedInCount ────────────────────────
+            // manual_count bao gồm cả khách vãng lai không tên trong list,
+            // nên phải luôn >= số người đã check-in đích danh.
+            $manualCount = max((int) $validated['manual_count'], $checkedInCount);
+
+            // ── Câu gốc: auto-count từ named + guard ─────────────────────────
             $autoVerseCount = collect($validated['attendances'])
                 ->where('status', 'present')
                 ->where('memorized_verse', true)
                 ->count();
-            // Use explicit value if provided (manual mode), otherwise use auto-count from named
-            $verseCount = isset($validated['memory_verse_count']) && $validated['memory_verse_count'] !== null
+            $rawVerseCount = isset($validated['memory_verse_count']) && $validated['memory_verse_count'] !== null
                 ? (int) $validated['memory_verse_count']
                 : $autoVerseCount;
+            // ── RULE 2: memory_verse_count <= manual_count ────────────────────
+            $verseCount = min($rawVerseCount, $manualCount);
 
             // Update Summary
             MeetingAttendanceSummary::updateOrCreate(
                 ['meeting_id' => $meeting->id, 'department_id' => $departmentId],
                 [
-                    'manual_count' => $validated['manual_count'],
+                    'manual_count'       => $manualCount,
                     'memory_verse_count' => $verseCount,
-                    'notes' => $validated['notes'],
+                    'notes'              => $validated['notes'],
                 ]
             );
 
@@ -190,13 +201,14 @@ class AttendanceController extends Controller
                 MeetingAttendance::updateOrCreate(
                     ['meeting_id' => $meeting->id, 'member_id' => $att['id']],
                     [
-                        'status' => $att['status'],
+                        'status'          => $att['status'],
                         'memorized_verse' => $att['memorized_verse'] ?? false,
-                        'quiz_score' => $att['quiz_score'] ?? null,
+                        'quiz_score'      => $att['quiz_score'] ?? null,
                     ]
                 );
             }
         });
+
 
         return back()->with('success', 'Đã lưu điểm danh thành công!');
     }

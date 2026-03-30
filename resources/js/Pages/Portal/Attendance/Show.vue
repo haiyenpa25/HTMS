@@ -429,11 +429,11 @@ const formattedDate = computed(() => {
 });
 
 const submit = () => {
-    const finalManualCount = parseInt(form.manual_count);
-    // Chỉ tự fill nếu không nhập gì (trống hoàn toàn)
-    if (form.manual_count === '' || form.manual_count === null) {
-        form.manual_count = checkedInCount.value;
-    }
+    // Guard: manual_count phải >= checkedInCount
+    // (manual bao gồm khách vãng lai, nên phải >= số người check-in đích danh)
+    const inputManual = parseInt(form.manual_count) || 0;
+    form.manual_count = Math.max(inputManual, checkedInCount.value);
+
     form.post(route('portal.attendance.store', props.meeting.id), {
         preserveScroll: true,
         preserveState: false, // reload để lấy summary mới từ server

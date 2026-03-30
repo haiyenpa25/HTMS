@@ -712,7 +712,7 @@ class PortalMemberController extends Controller
             403, 'Bạn không có quyền duyệt.'
         );
 
-        $member->update(['status' => 'Chính thức']);
+        $member->update(['status' => 'active', 'pending_dept_id' => null]);
 
         ApprovalRequest::where('requester_id', $member->id)
             ->where('requester_type', Member::class)

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <form @submit.prevent="submit" class="flex flex-col h-full bg-white relative">
     
     <!-- Progress Bar (Only show when Creating) -->
@@ -405,7 +405,26 @@ watch(() => form.type, (newVal) => {
 });
 
 onMounted(() => {
-   if (!isEditing.value && !form.date) autoSuggestDate('church');
+   if (!isEditing.value) {
+       const now = new Date();
+       const hour = now.getHours();
+       const isSunday = now.getDay() === 0; // 0 = Chủ nhật
+
+       // Chủ nhật 6:00 – 12:59 → Hội Thánh chung (thờ phượng sáng)
+       if (isSunday && hour >= 6 && hour < 13) {
+           form.type = 'church';
+           autoSuggestDate('church');
+           form.time = '08:30';
+       // 13:00 – 19:59 (bất kỳ ngày) → Ban Ngành (sinh hoạt chiều/tối)
+       } else if (hour >= 13 && hour < 20) {
+           form.type = 'department';
+           autoSuggestDate('department');
+           form.time = '19:30';
+       } else {
+           // Fallback: để nguyên 'church' mặc định
+           if (!form.date) autoSuggestDate('church');
+       }
+   }
 });
 
 const nextStep = () => {
