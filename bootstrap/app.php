@@ -15,8 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
         ]);
         $middleware->alias([
-            // MAC — Matrix Access Control middleware (thay thế feature.access + portal.access cũ)
-            'portal.access'  => \App\Http\Middleware\PortalAccessMiddleware::class,
+            // MAC — Matrix Access Control
+            // CheckPortalAccess  = block-gate (vào portal được không?)
+            // CheckFeatureAccess = feature-gate (dùng tính năng cụ thể được không?)
+            'portal.access'  => \App\Http\Middleware\CheckFeatureAccess::class,
         ]);
 
 

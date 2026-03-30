@@ -2,84 +2,94 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\UserDepartmentFeature;
+use App\Services\PortalService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\OrgMembership;
-use App\Models\Department;
 
 /**
- * CheckFeatureAccess — Kiểm tra user có quyền truy cập vào tính năng cụ thể
- * Ví dụ: portal.attendance.index → cần permission 'attendance'
+ * PortalAccessMiddleware — Kiểm tra quyền tính năng cụ thể.
  *
- * Dùng sau CheckPortalAccess (đã xác nhận user có membership trong block)
+ * God Mode: Super_Admin → luôn pass.
+ * Normal user: Kiểm tra xem user có ít nhất 1 dept trong block này
+ * có quyền truy cập tính năng đó không.
+ *
+ * Usage:
+ *   Route::middleware('portal.access:attendance,activities')
  */
 class CheckFeatureAccess
 {
-    const SUPER_ADMIN_EMAIL = 'superadmin@httlthanhmyloi.com';
+    const SESSION_DEPT_KEY = [
+        'activities' => 'active_portal_dept_id',
+        'ministry'   => 'active_ministry_dept_id',
+        'deacon'     => 'active_deacon_dept_id',
+        'education'  => 'active_ministry_dept_id',
+    ];
 
     const BLOCK_MAP = [
         'activities' => 'activities',
         'ministry'   => 'ministry',
         'deacon'     => 'leadership',
+        'education'  => 'ministry',
     ];
 
-    const SESSION_DEPT_KEY = [
-        'activities' => 'active_portal_dept_id',
-        'ministry'   => 'active_ministry_dept_id',
-        'deacon'     => 'active_deacon_dept_id',
-    ];
+    public function __construct(private PortalService $service) {}
 
-    /**
-     * @param string $featureKey  e.g. 'attendance', 'finance', 'reports'
-     * @param string $portalType  e.g. 'activities', 'ministry', 'deacon'
-     */
-    public function handle(Request $request, Closure $next, string $featureKey, string $portalType = 'activities'): Response
+    public function handle(Request $request, Closure $next, string $featureSlug, string $portalType = 'activities'): Response
     {
         $user = $request->user();
-        if (!$user) return redirect()->route('login');
+        if (!$user) {
+            return redirect()->route('login');
+        }
 
-        // Super Admin bypass
-        if ($user->email === self::SUPER_ADMIN_EMAIL || $user->isSuperAdmin()) {
+        // God Mode bypass
+        if ($user->isSuperAdmin()) {
             return $next($request);
         }
 
-        // Lấy active department từ session
+        $block       = self::BLOCK_MAP[$portalType] ?? $portalType;
         $sessionKey  = self::SESSION_DEPT_KEY[$portalType] ?? 'active_portal_dept_id';
         $activeDeptId = session($sessionKey);
 
-        if (!$activeDeptId) {
-            abort(403, 'Chưa có ban ngành được chọn.');
-        }
-
-        // Lấy membership của user trong department đó
-        $member = $user->member;
-        if (!$member) {
-            abort(403, 'Tài khoản chưa liên kết với tín hữu.');
-        }
-
-        $membership = OrgMembership::where('member_id', $member->id)
-            ->where('model_type', Department::class)
-            ->where('model_id', $activeDeptId)
-            ->where('is_active', true)
-            ->first();
-
-        if (!$membership) {
-            abort(403, 'Không tìm thấy tư cách thành viên.');
-        }
-
-        // Kiểm tra permission key trong membership.permissions JSON
-        $permissions = $membership->permissions ?? [];
-
-        // Nếu permissions chưa được cấu hình → mặc định cho qua (backward compat)
-        if (empty($permissions)) {
+        // Strategy: try the active dept first, then scan all user depts in this block
+        if ($activeDeptId && $this->service->canAccess($user, (int) $activeDeptId, $featureSlug)) {
             return $next($request);
         }
 
-        if (empty($permissions[$featureKey])) {
-            abort(403, "Bạn chưa được cấp quyền truy cập tính năng này.");
+        // Fallback: look for ANY department the user has this feature enabled in
+        $hasAccessInAnyDept = UserDepartmentFeature::where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->whereHas('feature', fn ($q) => $q->where('slug', $featureSlug))
+            ->whereHas('department', fn ($q) => $q->where('block', $block))
+            ->exists();
+
+        if ($hasAccessInAnyDept) {
+            // Update the active dept to one where user has this feature (so they can actually use it)
+            $validDeptId = UserDepartmentFeature::where('user_id', $user->id)
+                ->where('is_enabled', true)
+                ->whereHas('feature', fn ($q) => $q->where('slug', $featureSlug))
+                ->whereHas('department', fn ($q) => $q->where('block', $block))
+                ->value('department_id');
+
+            if ($validDeptId) {
+                session([$sessionKey => $validDeptId]);
+            }
+
+            return $next($request);
         }
 
-        return $next($request);
+        $indexRoute = match($portalType) {
+            'activities' => 'portal.index',
+            'ministry'   => 'ministry.index',
+            'deacon'     => 'deacon.index',
+            'education'  => 'education.index',
+            default      => 'dashboard'
+        };
+
+        return redirect()->route($indexRoute)->with('error', sprintf(
+            'Bạn chưa được cấp quyền truy cập tính năng "%s". Vui lòng liên hệ quản trị viên.',
+            $featureSlug
+        ));
     }
 }
