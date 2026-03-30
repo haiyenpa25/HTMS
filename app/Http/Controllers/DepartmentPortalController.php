@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Department;
 use App\Models\Feature;
+use App\Models\Meeting;
+use App\Models\MeetingAttendanceSummary;
 use App\Models\UserDepartmentFeature;
 use App\Services\FeatureAssignmentService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -75,27 +78,49 @@ class DepartmentPortalController extends Controller
 
         $activeDepartment = $request->attributes->get('activeDepartment') ?? Department::find($activeDeptId);
 
-        // ── Dashboard stats ─────────────────────────────────────────────
-        $nextMeeting     = null;
-        $recentAttendance = null;
+        // ── Dashboard quick stats ─────────────────────────────────────────
+        $quickStats = null;
 
         if ($activeDeptId) {
-            $nextMeeting = \App\Models\Meeting::where('department_id', $activeDeptId)
-                ->where('date', '>=', now()->toDateString())
-                ->orderBy('date')->first();
+            $now  = Carbon::now();
+            $from = $now->copy()->startOfMonth()->toDateString();
+            $to   = $now->copy()->endOfMonth()->toDateString();
 
-            $recentAttendance = \App\Models\Meeting::where('department_id', $activeDeptId)
-                ->where('date', '<=', now()->toDateString())
-                ->orderByDesc('date')->first();
+            // Meetings this month visible to this dept (church + own dept meetings)
+            $monthMeetings = Meeting::where(function ($q) use ($activeDeptId) {
+                    $q->where('department_id', $activeDeptId)->orWhereNull('department_id');
+                })
+                ->whereBetween('date', [$from, $to])
+                ->pluck('id');
+
+            $totalMeetings = $monthMeetings->count();
+
+            // Summaries for this dept in those meetings
+            $summaries = MeetingAttendanceSummary::where('department_id', $activeDeptId)
+                ->whereIn('meeting_id', $monthMeetings)
+                ->get();
+
+            $countedMeetings  = $summaries->where('manual_count', '>', 0)->count();
+            $avgAttendance    = $summaries->where('manual_count', '>', 0)->avg('manual_count') ?? 0;
+            $avgMemoryVerse   = $summaries->where('memory_verse_count', '>', 0)->avg('memory_verse_count') ?? 0;
+
+            $quickStats = [
+                'total_meetings'    => $totalMeetings,
+                'counted_meetings'  => $countedMeetings,
+                'avg_attendance'    => (int) round($avgAttendance),
+                'avg_memory_verse'  => (int) round($avgMemoryVerse),
+                'month'             => $now->month,
+                'year'              => $now->year,
+            ];
         }
 
         return Inertia::render('Portal/Dashboard', [
             'activeDepartment'     => $activeDepartment,
             'availableDepartments' => $availableDepartments,
             'isGlobalAdmin'        => $isSuperAdmin,
-            'nextMeeting'          => $nextMeeting,
-            'recentAttendance'     => $recentAttendance,
+            'quickStats'           => $quickStats,
         ]);
+
     }
 
     public function switchContext(Request $request)

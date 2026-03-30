@@ -260,6 +260,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/reports', [\App\Http\Controllers\Portal\DeptReportController::class, 'index'])->name('portal.reports.index');
             Route::post('/reports/save', [\App\Http\Controllers\Portal\DeptReportController::class, 'saveReport'])->name('portal.reports.save');
             Route::post('/reports/{report}/approve', [\App\Http\Controllers\Portal\DeptReportController::class, 'approveReport'])->name('portal.reports.approve');
+            Route::get('/reports/export-pdf', [\App\Http\Controllers\Portal\DeptReportController::class, 'exportPdf'])->name('portal.reports.export-pdf');
         });
 
         // Tài chính

@@ -13,6 +13,8 @@ use App\Models\MeetingAttendanceSummary;
 use App\Models\MeetingFinance;
 use App\Models\DepartmentFund;
 use App\Models\Visitation;
+use App\Notifications\ReportApprovedNotification;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
 class DeptReportController extends Controller
@@ -322,11 +324,88 @@ class DeptReportController extends Controller
         $this->authorizeManage('reports');
 
         $report->update(['status' => 'approved']);
+
+        // Notify the submitter (user who created or is linked to the department)
+        $department  = Department::find($report->department_id);
+        $periodLabel = 'Tháng ' . $report->report_month . '/' . $report->report_year;
+
+        // Find users linked to this department via UserDepartmentFeature
+        $deptUserIds = \App\Models\UserDepartmentFeature::where('department_id', $report->department_id)
+            ->where('is_enabled', true)
+            ->pluck('user_id')
+            ->unique();
+        $recipients = \App\Models\User::whereIn('id', $deptUserIds)->get();
+
+        if ($recipients->isNotEmpty()) {
+            \Illuminate\Support\Facades\Notification::send(
+                $recipients,
+                new ReportApprovedNotification($report, $department->name ?? '', $periodLabel)
+            );
+        }
+
         return back()->with('message', 'Báo cáo đã được duyệt.');
     }
 
     private function getAvailableDepartments($user): \Illuminate\Support\Collection
     {
         return app(\App\Services\PortalService::class)->getAvailableDepartments($user, 'activities');
+    }
+
+    // ============================================================
+    // EXPORT PDF
+    // ============================================================
+    public function exportPdf(Request $request)
+    {
+        $deptId = session('active_portal_dept_id');
+        if (!$deptId) abort(403);
+        $this->authorizeFeature('reports');
+
+        $department = Department::findOrFail($deptId);
+        $month = (int) $request->input('month', now()->month);
+        $year  = (int) $request->input('year',  now()->year);
+
+        $start = Carbon::create($year, $month, 1)->startOfMonth();
+        $end   = $start->copy()->endOfMonth();
+
+        $churchMeetings = $this->getMeetings('church',     $deptId, $start->toDateString(), $end->toDateString());
+        $deptMeetings   = $this->getMeetings('department', $deptId, $start->toDateString(), $end->toDateString());
+
+        $churchRows = $churchMeetings->map(fn($m) => $this->mapMeetingRow($m, $deptId))->values()->toArray();
+        $deptRows   = $deptMeetings->map(fn($m)   => $this->mapMeetingRow($m, $deptId))->values()->toArray();
+
+        $churchWeekly = $this->weeklyFromRows($churchRows);
+        $deptWeekly   = $this->weeklyFromRows($deptRows);
+
+        $churchWeeksWithData = count(array_filter($churchWeekly, fn($w) => $w['attendance'] > 0));
+        $deptWeeksWithData   = count(array_filter($deptWeekly,   fn($w) => $w['attendance'] > 0));
+        $avgChurch = $churchWeeksWithData > 0 ? (int) round(array_sum(array_column($churchWeekly, 'attendance')) / $churchWeeksWithData) : 0;
+        $avgDept   = $deptWeeksWithData   > 0 ? (int) round(array_sum(array_column($deptWeekly,   'attendance')) / $deptWeeksWithData)   : 0;
+
+        // Memory verse averages
+        $churchVerseWeeks = count(array_filter($churchRows, fn($r) => $r['memory_verse_count'] > 0));
+        $deptVerseWeeks   = count(array_filter($deptRows,   fn($r) => $r['memory_verse_count'] > 0));
+        $avgVerseChurch = $churchVerseWeeks > 0 ? (int) round(array_sum(array_column($churchRows, 'memory_verse_count')) / $churchVerseWeeks) : 0;
+        $avgVerseDept   = $deptVerseWeeks   > 0 ? (int) round(array_sum(array_column($deptRows,   'memory_verse_count')) / $deptVerseWeeks)   : 0;
+
+        $totalIncomeChurch = array_sum(array_column($churchRows, 'income'));
+        $totalIncomeDept   = array_sum(array_column($deptRows,   'income'));
+
+        $pdf = Pdf::loadView('pdf.dept-report', [
+            'department'        => $department,
+            'month'             => $month,
+            'year'              => $year,
+            'churchMeetings'    => $churchRows,
+            'deptMeetings'      => $deptRows,
+            'avgChurch'         => $avgChurch,
+            'avgDept'           => $avgDept,
+            'avgVerseChurch'    => $avgVerseChurch,
+            'avgVerseDept'      => $avgVerseDept,
+            'totalIncomeChurch' => $totalIncomeChurch,
+            'totalIncomeDept'   => $totalIncomeDept,
+            'generatedAt'       => now()->format('d/m/Y H:i'),
+        ])->setPaper('a4', 'landscape');
+
+        $filename = "bao-cao-{$department->name}-thang{$month}-{$year}.pdf";
+        return $pdf->download($filename);
     }
 }

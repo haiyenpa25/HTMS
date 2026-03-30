@@ -11,8 +11,7 @@ const props = defineProps({
     activeDepartment: Object,
     availableDepartments: Array,
     isGlobalAdmin: Boolean,
-    nextMeeting: Object,
-    recentAttendance: Object,
+    quickStats: Object,
 });
 
 // Redundant switcher state removed (handled in PortalLayout)
@@ -138,6 +137,63 @@ const colorMap = {
 
       <!-- Dashboard Content -->
       <div v-else class="w-full space-y-6">
+
+          <!-- Quick Stats Row -->
+          <div v-if="quickStats" class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <!-- Buoi nhom thang nay -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center">
+                  <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Tháng {{ quickStats.month }}</span>
+              </div>
+              <div class="mt-auto">
+                <span class="text-3xl font-black text-gray-900">{{ quickStats.total_meetings }}</span>
+                <p class="text-xs text-gray-400 mt-0.5">buổi nhóm</p>
+              </div>
+            </div>
+            <!-- Da diem danh -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+                  <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Đã ghi</span>
+              </div>
+              <div class="mt-auto">
+                <span class="text-3xl font-black text-gray-900">{{ quickStats.counted_meetings }}</span>
+                <span class="text-lg font-bold text-gray-400">/{{ quickStats.total_meetings }}</span>
+                <p class="text-xs text-gray-400 mt-0.5">buổi có số liệu</p>
+              </div>
+            </div>
+            <!-- TB Tham du -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center">
+                  <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">TB Tham dự</span>
+              </div>
+              <div class="mt-auto">
+                <span class="text-3xl font-black text-gray-900">{{ quickStats.avg_attendance }}</span>
+                <p class="text-xs text-gray-400 mt-0.5">người / buổi</p>
+              </div>
+            </div>
+            <!-- TB Thuoc cau goc -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center">
+                  <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                </div>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">TB Câu gốc</span>
+              </div>
+              <div class="mt-auto">
+                <span class="text-3xl font-black text-gray-900">{{ quickStats.avg_memory_verse }}</span>
+                <p class="text-xs text-gray-400 mt-0.5">người thuộc / buổi</p>
+              </div>
+            </div>
+          </div>
 
           <!-- Feature Cards Grid -->
           <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">

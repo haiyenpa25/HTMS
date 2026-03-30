@@ -165,8 +165,22 @@
                                     <span v-else-if="meeting.type === 'department'" class="flex items-center text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md font-bold text-[13px] shrink-0 border border-emerald-100">Ban Ngành</span>
                                     <span v-else-if="meeting.type === 'holiday'" class="flex items-center text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-md font-bold text-[13px] shrink-0 border border-amber-100">Sự kiện / Lễ</span>
                                     <span v-if="meeting.memory_verse" class="flex items-center text-gray-500 italic truncate max-w-[180px] sm:max-w-xs shrink-0"><span class="mr-1">📖</span> {{ meeting.memory_verse }}</span>
+                                    <!-- Badge trang thai diem danh -->
+                                    <span
+                                        v-if="meeting.attendance_summary && meeting.attendance_summary.manual_count > 0"
+                                        class="flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md font-bold text-[13px] shrink-0 border border-emerald-200">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                        {{ meeting.attendance_summary.manual_count }} người
+                                    </span>
+                                    <span
+                                        v-else
+                                        class="flex items-center gap-1 text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-md font-bold text-[13px] shrink-0 border border-orange-200">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        Chưa ghi
+                                    </span>
                                 </div>
                             </div>
+
                         </div>
                         
                         <!-- Actions Container: Edit Button + Export + Arrow -->

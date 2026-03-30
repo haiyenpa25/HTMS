@@ -48,10 +48,21 @@ class AttendanceController extends Controller
                    ->orWhere('memory_verse', 'like', "%{$search}%")
                    ->orWhere('scripture', 'like', "%{$search}%");
             }))
+            ->with(['attendanceSummaries' => fn($q) => $q->where('department_id', $departmentId)->select('meeting_id', 'department_id', 'manual_count', 'memory_verse_count')])
             ->orderBy('date', 'desc')
             ->orderBy('time', 'desc')
             ->paginate(15)
-            ->withQueryString();
+            ->withQueryString()
+            ->through(function ($meeting) {
+                $summary = $meeting->attendanceSummaries->first();
+                $data = $meeting->toArray();
+                unset($data['attendance_summaries']); // remove nested from toArray
+                $data['attendance_summary'] = $summary ? [
+                    'manual_count'       => $summary->manual_count,
+                    'memory_verse_count' => $summary->memory_verse_count,
+                ] : null;
+                return $data;
+            });
 
         return Inertia::render('Portal/Attendance/Index', [
             'department'           => $department,
@@ -66,6 +77,7 @@ class AttendanceController extends Controller
                 'search' => $search,
             ],
         ]);
+
     }
 
     public function show(Request $request, Meeting $meeting)
