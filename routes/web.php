@@ -115,6 +115,7 @@ Route::middleware('auth')->group(function () {
     // Meetings — export/import MUST be before resource() to avoid {meeting} route conflict
     Route::get('meetings/export', [\App\Http\Controllers\MeetingController::class, 'export'])->name('meetings.export');
     Route::post('meetings/import', [\App\Http\Controllers\MeetingController::class, 'import'])->name('meetings.import');
+    Route::post('meetings/{meeting}/toggle-cancel', [\App\Http\Controllers\MeetingController::class, 'toggleCancel'])->name('meetings.toggle-cancel');
     Route::resource('meetings', \App\Http\Controllers\MeetingController::class);
 
     // Lịch sử Dâng Hiến Cá Nhân (Tithe & Offering)

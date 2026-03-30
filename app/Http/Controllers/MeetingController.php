@@ -146,6 +146,27 @@ class MeetingController extends Controller
     }
 
     /**
+     * Toggle trạng thái nghỉ/hủy buổi nhóm.
+     * Buổi bị cancel sẽ không được tính vào TB điểm danh.
+     */
+    public function toggleCancel(Request $request, Meeting $meeting)
+    {
+        Gate::authorize('update', $meeting);
+
+        $validated = $request->validate([
+            'cancelled_note' => 'nullable|string|max:255',
+        ]);
+
+        $meeting->update([
+            'is_cancelled'   => !$meeting->is_cancelled,
+            'cancelled_note' => $meeting->is_cancelled ? null : ($validated['cancelled_note'] ?? null),
+        ]);
+
+        $state = $meeting->fresh()->is_cancelled ? 'nghỉ' : 'hoạt động';
+        return back()->with('success', "Buổi nhóm đã được đánh dấu là \"{$state}\".");
+    }
+
+    /**
      * Export meeting list to Excel.
      */
     public function export(Request $request)

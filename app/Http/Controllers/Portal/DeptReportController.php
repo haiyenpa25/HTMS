@@ -32,7 +32,7 @@ class DeptReportController extends Controller
             'id'                  => $m->id,
             'date'                => $dt->format('d/m/Y'),
             'day'                 => $dt->locale('vi')->isoFormat('dddd'),
-            'week_no'             => (int) ceil($dt->day / 7),   // week within month (1-5)
+            'week_no'             => (int) ceil($dt->day / 7),
             'type'                => $m->type,
             'topic'               => $m->topic ?? '',
             'memory_verse'        => $m->memory_verse ?? '',
@@ -44,11 +44,15 @@ class DeptReportController extends Controller
             'expense'             => $expense,
             'balance'             => $income - $expense,
             'note'                => $summary?->notes ?? '',
+            'is_cancelled'        => (bool) $m->is_cancelled,
+            'cancelled_note'      => $m->cancelled_note ?? '',
         ];
     }
 
-    // ─── Fetch meetings for a type/dept/period ────────────────────
-    private function getMeetings(string $type, int $deptId, string $from, string $to): \Illuminate\Support\Collection
+    // ─── Fetch meetings for a type/dept/period ────────────────────────────
+    // includeCancelled: true khi cần hiện lịch sử đầy đủ (trong bảng)
+    //                   false khi tính TB (loại buổi nghỉ ra)
+    private function getMeetings(string $type, int $deptId, string $from, string $to, bool $includeCancelled = false): \Illuminate\Support\Collection
     {
         $q = Meeting::where('type', $type)
             ->whereBetween('date', [$from, $to])
@@ -60,10 +64,13 @@ class DeptReportController extends Controller
             ]);
 
         if ($type === 'church') {
-            // This dept's attendance at church meetings (dept_id = null for general or = deptId if dept-specific church)
             $q->where(fn($q2) => $q2->where('department_id', $deptId)->orWhereNull('department_id'));
         } else {
             $q->where('department_id', $deptId);
+        }
+        // Loại buổi nghỉ khi tính TB (includeCancelled = false)
+        if (!$includeCancelled) {
+            $q->where('is_cancelled', false);
         }
         return $q->get();
     }
@@ -108,32 +115,41 @@ class DeptReportController extends Controller
         $nextEnd   = $nextStart->copy()->endOfMonth();
 
         // ── Current month meetings ────────────────────────────────
-        $churchMeetings = $this->getMeetings('church',     $deptId, $start->toDateString(), $end->toDateString());
-        $deptMeetings   = $this->getMeetings('department', $deptId, $start->toDateString(), $end->toDateString());
+        // includeCancelled=true: hiển thị toàn bộ (kể cả buổi nghỉ) trong bảng
+        // includeCancelled=false: chỉ lấy buổi thực để tính TB
+        $churchMeetings    = $this->getMeetings('church',     $deptId, $start->toDateString(), $end->toDateString(), true);
+        $deptMeetings      = $this->getMeetings('department', $deptId, $start->toDateString(), $end->toDateString(), true);
+        $churchMeetingCalc = $this->getMeetings('church',     $deptId, $start->toDateString(), $end->toDateString(), false);
+        $deptMeetingCalc   = $this->getMeetings('department', $deptId, $start->toDateString(), $end->toDateString(), false);
 
-        $churchRows = $churchMeetings->map(fn($m) => $this->mapMeetingRow($m, $deptId))->values()->toArray();
-        $deptRows   = $deptMeetings->map(fn($m)   => $this->mapMeetingRow($m, $deptId))->values()->toArray();
+        $churchRows     = $churchMeetings->map(fn($m) => $this->mapMeetingRow($m, $deptId))->values()->toArray();
+        $deptRows       = $deptMeetings->map(fn($m)   => $this->mapMeetingRow($m, $deptId))->values()->toArray();
+        $churchRowsCalc = $churchMeetingCalc->map(fn($m) => $this->mapMeetingRow($m, $deptId))->values()->toArray();
+        $deptRowsCalc   = $deptMeetingCalc->map(fn($m)   => $this->mapMeetingRow($m, $deptId))->values()->toArray();
 
         // ── Weekly breakdowns ─────────────────────────────────────
-        $churchWeekly = $this->weeklyFromRows($churchRows);
-        $deptWeekly   = $this->weeklyFromRows($deptRows);
+        // churchRows / deptRows: đầy đủ (kể cả nghỉ) → hiển thị bảng
+        // *Calc: loại buổi nghỉ → tính TB chính xác
+        $churchWeekly     = $this->weeklyFromRows($churchRows);
+        $deptWeekly       = $this->weeklyFromRows($deptRows);
+        $churchWeeklyCalc = $this->weeklyFromRows($churchRowsCalc);
+        $deptWeeklyCalc   = $this->weeklyFromRows($deptRowsCalc);
 
-        // ── Attendance averages (based on weeks WITH data, not total meetings) ──
-        // Weeks with attendance > 0 are counted; weeks with no activity are excluded
-        $churchWeeksWithData = count(array_filter($churchWeekly, fn($w) => $w['attendance'] > 0));
-        $deptWeeksWithData   = count(array_filter($deptWeekly,   fn($w) => $w['attendance'] > 0));
+        // ── Attendance averages — CHỈ từ buổi có tổ chức (loại buổi nghỉ) ──
+        $churchWeeksWithData = count(array_filter($churchWeeklyCalc, fn($w) => $w['attendance'] > 0));
+        $deptWeeksWithData   = count(array_filter($deptWeeklyCalc,   fn($w) => $w['attendance'] > 0));
         $avgChurch = $churchWeeksWithData > 0
-            ? (int) round(array_sum(array_column($churchWeekly, 'attendance')) / $churchWeeksWithData)
+            ? (int) round(array_sum(array_column($churchWeeklyCalc, 'attendance')) / $churchWeeksWithData)
             : 0;
         $avgDept = $deptWeeksWithData > 0
-            ? (int) round(array_sum(array_column($deptWeekly, 'attendance')) / $deptWeeksWithData)
+            ? (int) round(array_sum(array_column($deptWeeklyCalc, 'attendance')) / $deptWeeksWithData)
             : 0;
 
-        $prevChurch     = $this->getMeetings('church',     $deptId, $prevStart->toDateString(), $prevEnd->toDateString());
-        $prevDept       = $this->getMeetings('department', $deptId, $prevStart->toDateString(), $prevEnd->toDateString());
+        // Tháng trước — cũng loại buổi nghỉ
+        $prevChurch     = $this->getMeetings('church',     $deptId, $prevStart->toDateString(), $prevEnd->toDateString(), false);
+        $prevDept       = $this->getMeetings('department', $deptId, $prevStart->toDateString(), $prevEnd->toDateString(), false);
         $prevChurchRows = $prevChurch->map(fn($m) => $this->mapMeetingRow($m, $deptId))->toArray();
         $prevDeptRows   = $prevDept->map(fn($m)   => $this->mapMeetingRow($m, $deptId))->toArray();
-        // Must build weekly arrays BEFORE calculating averages
         $prevChurchWeekly = $this->weeklyFromRows($prevChurchRows);
         $prevDeptWeekly   = $this->weeklyFromRows($prevDeptRows);
         $prevChurchWeeksWithData = count(array_filter($prevChurchWeekly, fn($w) => $w['attendance'] > 0));

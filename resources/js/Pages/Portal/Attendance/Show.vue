@@ -7,17 +7,39 @@
                 Quay lại
             </button>
             <div class="text-right flex-1 min-w-0">
-                <h2 class="text-sm font-black text-gray-900 truncate">{{ meeting.topic || 'Buổi nhóm định kỳ' }}</h2>
-                <p class="text-[10px] sm:text-xs text-gray-500 font-medium">{{ formattedDate }}</p>
+                <h2 class="text-sm font-black truncate" :class="meeting.is_cancelled ? 'text-red-700 line-through' : 'text-gray-900'">{{ meeting.topic || 'Buổi nhóm định kỳ' }}</h2>
+                <p class="text-[10px] sm:text-xs font-medium" :class="meeting.is_cancelled ? 'text-red-500' : 'text-gray-500'">
+                    <span v-if="meeting.is_cancelled" class="mr-1 font-bold">[NGHỈ]</span>{{ formattedDate }}
+                </p>
             </div>
-            <!-- Nhánh thêm khách mới nhanh -->
-            <button @click="isAddPendingOpen = true"
-                title="Thêm khách mới chờ duyệt"
-                class="shrink-0 w-9 h-9 flex items-center justify-center rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200 active:scale-95 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                </svg>
-            </button>
+            <div class="shrink-0 flex items-center gap-2">
+                <!-- Toggle buổi nghỉ -->
+                <button @click="toggleCancel"
+                    :title="meeting.is_cancelled ? 'Khôi phục buổi nhóm' : 'Đánh dấu buổi nghỉ (không tính TB)'"
+                    :class="meeting.is_cancelled
+                        ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
+                        : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'"
+                    class="shrink-0 w-9 h-9 flex items-center justify-center rounded-xl border active:scale-95 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636L5.636 18.364M5.636 5.636l12.728 12.728"/></svg>
+                </button>
+                <!-- Thêm khách mới -->
+                <button @click="isAddPendingOpen = true"
+                    title="Thêm khách mới chờ duyệt"
+                    class="shrink-0 w-9 h-9 flex items-center justify-center rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200 active:scale-95 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Banner cảnh báo buổi nghỉ -->
+        <div v-if="meeting.is_cancelled" class="bg-red-50 border-b border-red-200 px-4 py-3 flex items-center gap-3">
+            <svg class="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div class="flex-1">
+                <p class="text-sm font-bold text-red-800">Buổi nhóm này đã được đánh dấu là <strong>Nghỉ</strong> — không tính vào trung bình tham dự.</p>
+                <p v-if="meeting.cancelled_note" class="text-xs text-red-600 mt-0.5">Lý do: {{ meeting.cancelled_note }}</p>
+            </div>
+            <button @click="toggleCancel" class="text-xs font-bold text-red-700 hover:underline shrink-0">Khôi phục</button>
         </div>
 
         <div class="pb-24 w-full mt-4 px-0 sm:px-4 lg:px-8">
@@ -292,6 +314,16 @@
                             <input v-model="pendingForm.phone" type="tel" placeholder="0901 234 567"
                                 class="block w-full border-gray-200 rounded-xl text-[15px] font-medium focus:ring-amber-500 focus:border-amber-500 py-3 bg-gray-50 transition-colors">
                         </div>
+                        <!-- Tổ tạm thời (nếu có) -->
+                        <div v-if="teams && teams.length > 0">
+                            <label class="block text-sm font-bold text-gray-900 mb-1.5">Phân Tổ tạm thời (Tùy chọn)</label>
+                            <select v-model="pendingForm.temp_team_id"
+                                class="block w-full border-gray-200 rounded-xl text-[15px] font-medium focus:ring-amber-500 focus:border-amber-500 py-3 bg-gray-50 transition-colors">
+                                <option :value="null">Chưa phân tổ</option>
+                                <option v-for="t in teams" :key="t.id" :value="t.id">{{ t.name }}</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">Sau khi được duyệt, sẽ được gán vào Tổ này.</p>
+                        </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-900 mb-1.5">Ghi chú</label>
                             <textarea v-model="pendingForm.general_notes" rows="3" placeholder="Người quen của ai, được mời lần đầu..."
@@ -339,6 +371,7 @@ const pendingForm = useForm({
     full_name: '',
     phone: '',
     general_notes: '',
+    temp_team_id: null,
 });
 
 const submitPending = () => {
@@ -348,6 +381,14 @@ const submitPending = () => {
             isAddPendingOpen.value = false;
             pendingForm.reset();
         },
+    });
+};
+
+// Toggle trạng thái nghỉ buổi nhóm (gọi API meetings.toggle-cancel)
+const toggleCancel = () => {
+    router.post(route('meetings.toggle-cancel', props.meeting.id), {}, {
+        preserveScroll: true,
+        preserveState: false, // reload để cập nhật is_cancelled mới
     });
 };
 

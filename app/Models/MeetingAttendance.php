@@ -11,7 +11,10 @@ class MeetingAttendance extends Model
         'member_id',
         'status', // 'present', 'absent', 'excused'
         'memorized_verse',
-        'quiz_score'
+        'quiz_score',
+        'is_guest',
+        'guest_name',
+        'guest_phone',
     ];
 
     public function meeting()

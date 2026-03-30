@@ -656,6 +656,7 @@ class PortalMemberController extends Controller
             'full_name'     => 'required|string|max:255',
             'phone'         => 'nullable|string|max:20',
             'general_notes' => 'nullable|string|max:500',
+            'temp_team_id'  => 'nullable|integer|exists:teams,id',
         ]);
 
         $member = Member::create([
@@ -681,6 +682,23 @@ class PortalMemberController extends Controller
             ]),
             'status' => 'pending',
         ]);
+
+        // Gán tổ tạm nếu được chọn
+        if (!empty($validated['temp_team_id'])) {
+            try {
+                $teamRoleId = OrgRole::where('code', 'bv')->value('id');
+                if ($teamRoleId) {
+                    OrgMembership::create([
+                        'model_type'   => \App\Models\Team::class,
+                        'model_id'     => $validated['temp_team_id'],
+                        'member_id'    => $member->id,
+                        'org_role_id'  => $teamRoleId,
+                    ]);
+                }
+            } catch (\Exception $e) {
+                \Log::warning('storePending temp_team assignment failed: ' . $e->getMessage());
+            }
+        }
 
         // Notify SuperAdmins + TruongBan
         try {
