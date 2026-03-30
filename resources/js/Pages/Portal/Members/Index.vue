@@ -21,6 +21,12 @@
                 </div>
                 <!-- Global Actions -->
                 <div class="flex items-center gap-2 shrink-0">
+                    <button @click="isAddPendingOpen = true" class="p-2 sm:px-4 sm:py-2.5 bg-amber-50 border border-amber-200 text-amber-600 hover:bg-amber-100 font-bold text-sm rounded-xl transition-colors shadow-sm flex items-center justify-center shrink-0" title="Thêm Khách Mới">
+                        <svg class="w-5 h-5 sm:w-4 sm:h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                        </svg>
+                        <span class="hidden sm:inline">Thêm Khách</span>
+                    </button>
                     <button @click="exportMembers" class="p-2 sm:px-4 sm:py-2.5 bg-white text-gray-700 font-bold text-sm rounded-xl border border-gray-200 hover:bg-gray-50 hover:text-blue-600 transition-colors shadow-sm flex items-center" title="Xuất Excel">
                         <svg class="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         <span class="hidden sm:inline">Xuất Excel</span>
@@ -386,14 +392,6 @@
                 </div>
             </div>
 
-            <!-- Mobile FAB: Thêm Khách Mới (luôn hiển thị trên mobile) -->
-            <div class="sm:hidden fixed bottom-6 right-6 z-50">
-                <button @click="isAddPendingOpen = true"
-                    class="flex items-center gap-2 px-5 py-3.5 bg-amber-500 text-white font-black text-[15px] rounded-2xl shadow-lg hover:bg-amber-600 active:scale-95 transition-all">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                    Khách Mới
-                </button>
-            </div>
 
         </div>
 
