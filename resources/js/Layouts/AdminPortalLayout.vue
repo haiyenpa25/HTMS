@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import { Head } from '@inertiajs/vue3';
+import MobileLayout from '@/Layouts/MobileLayout.vue';
 
 const props = defineProps({
     title:     { type: String, default: 'Quản trị Hệ thống' },
@@ -18,7 +19,16 @@ const defaultTabs = [
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
+  <!-- Mobile: Use MobileLayout with bottom nav -->
+  <MobileLayout class="sm:hidden">
+    <template #header>{{ title }}</template>
+    <div class="pb-4">
+      <slot />
+    </div>
+  </MobileLayout>
+
+  <!-- Desktop: Use full AdminPortalLayout -->
+  <div class="min-h-screen bg-gray-50 flex-col font-sans text-gray-900 hidden sm:flex">
     <Head :title="title" />
 
     <!-- ── Header ── -->
