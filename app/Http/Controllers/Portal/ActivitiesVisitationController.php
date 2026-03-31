@@ -286,6 +286,17 @@ class ActivitiesVisitationController extends Controller
         return redirect()->back()->with('message', 'Đã cập nhật báo cáo thăm viếng ban ngành!');
     }
 
+    public function quickComplete(Visitation $visitation)
+    {
+        if ($visitation->department_id !== session('active_portal_dept_id')) {
+            abort(403, 'Không có quyền cập nhật mục này.');
+        }
+
+        $visitation->update(['status' => 'completed']);
+
+        return redirect()->back()->with('message', 'Đã hoàn thành chuyến thăm viếng!');
+    }
+
     public function destroy(Visitation $visitation)
     {
         if ($visitation->department_id !== session('active_portal_dept_id')) {

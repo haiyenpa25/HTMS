@@ -63,7 +63,8 @@
                             class="relative font-bold px-3 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl shadow-sm hover:bg-amber-100 transition-colors flex items-center text-sm">
                             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                             Đề Xuất Thăm Viếng
-                            <span v-if="suggCount > 0" class="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-black leading-none text-white bg-red-500 rounded-full min-w-[18px]">{{ suggCount }}</span>
+                            <span v-if="highCount > 0" class="ml-1.5 inline-flex items-center px-1.5 py-0.5 text-[10px] font-black leading-none text-white bg-red-500 rounded-full min-w-[18px]">{{ highCount }} Khẩn</span>
+                            <span v-if="mediumCount > 0" class="ml-1 inline-flex items-center px-1.5 py-0.5 text-[10px] font-black leading-none text-white bg-amber-500 rounded-full min-w-[18px]">{{ mediumCount }}</span>
                         </button>
                         <button v-if="canManage" @click="openEmergencyForm" class="font-bold px-3 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl shadow-sm hover:bg-red-100 transition-colors flex items-center text-sm">
                             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
@@ -78,6 +79,22 @@
             </DataToolbar>
 
             <!-- Suggestions inline section removed, now in slide-over -->
+
+        <!-- Summary Stats Bar -->
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col items-center">
+                    <span class="text-2xl font-black text-blue-600">{{ stats.planned }}</span>
+                    <span class="text-[11px] font-bold text-gray-500 mt-1">Kế hoạch</span>
+                </div>
+                <div class="bg-white rounded-2xl border border-emerald-100 shadow-sm p-4 flex flex-col items-center">
+                    <span class="text-2xl font-black text-emerald-600">{{ stats.completed }}</span>
+                    <span class="text-[11px] font-bold text-gray-500 mt-1">Hoàn thành</span>
+                </div>
+                <div class="bg-white rounded-2xl border border-red-100 shadow-sm p-4 flex flex-col items-center">
+                    <span class="text-2xl font-black text-red-500">{{ stats.high }}</span>
+                    <span class="text-[11px] font-bold text-gray-500 mt-1">Khẩn cấp</span>
+                </div>
+            </div>
 
             <!-- Main list -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -157,11 +174,16 @@
                                     </span>
                                 </td>
                                 <td class="px-5 py-4 text-center">
-                                    <div class="flex justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button v-if="canManage" @click="editForm(visitation)" class="text-xs font-bold px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg shadow-sm transition-colors">
+                                    <div class="flex justify-center gap-1.5">
+                                        <button v-if="canManage && visitation.status === 'planned'" @click="quickComplete(visitation)" 
+                                            title="Đánh dấu hoàn thành"
+                                            class="text-xs font-bold w-8 h-8 flex items-center justify-center bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 rounded-lg shadow-sm transition-colors">
+                                            ✓
+                                        </button>
+                                        <button v-if="canManage" @click="editForm(visitation)" class="text-xs font-bold px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg shadow-sm transition-colors opacity-0 group-hover:opacity-100 transition-opacity">
                                             Sửa
                                         </button>
-                                        <button v-if="canManage || isGlobalAdmin" @click="confirmDelete(visitation)" class="text-xs font-bold px-3 py-1.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 rounded-lg shadow-sm transition-colors">
+                                        <button v-if="canManage || isGlobalAdmin" @click="confirmDelete(visitation)" class="text-xs font-bold px-3 py-1.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 rounded-lg shadow-sm transition-colors opacity-0 group-hover:opacity-100 transition-opacity">
                                             Xóa
                                         </button>
                                     </div>
@@ -229,6 +251,10 @@
                         </div>
                         <p class="text-sm text-gray-600 mb-3.5 leading-relaxed"><span class="font-medium text-gray-800">Thăm:</span> {{ visitation.visitors.map(v => v.full_name).join(', ') }}</p>
                         <div class="flex gap-2">
+                             <button v-if="canManage && visitation.status === 'planned'" @click="quickComplete(visitation)"
+                                class="text-[13px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-2 rounded-xl border border-emerald-100 transition-colors flex items-center gap-1">
+                                ✓ Hoàn thành
+                            </button>
                             <button v-if="canManage" @click="editForm(visitation)" class="text-[13px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl border border-blue-100 flex-1 transition-colors">Cập nhật</button>
                             <button v-if="canManage || isGlobalAdmin" @click="confirmDelete(visitation)" class="text-[13px] font-bold text-red-600 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-xl border border-red-100 transition-colors">Xóa</button>
                         </div>
@@ -586,6 +612,15 @@ const filteredSuggestions = computed(() => {
 });
 
 const suggCount = computed(() => localSuggestions.value.length);
+const highCount = computed(() => localSuggestions.value.filter(s => s.priority === 'high').length);
+const mediumCount = computed(() => localSuggestions.value.filter(s => s.priority === 'medium').length);
+
+// Summary stats from current page (paginated)
+const stats = computed(() => ({
+    planned: props.visitations.data.filter(v => v.status === 'planned').length,
+    completed: props.visitations.data.filter(v => v.status === 'completed').length,
+    high: props.visitations.data.filter(v => v.priority === 'high' && v.status !== 'completed').length,
+}));
 
 const fetchSuggestions = () => {
     router.get(route(getRoutePrefix() + '.index'), {
@@ -792,6 +827,12 @@ const submitForm = () => {
             onSuccess: () => isFormOpen.value = false,
         });
     }
+};
+
+const quickComplete = (visitation) => {
+    router.patch(route(getRoutePrefix() + '.quick-complete', visitation.id), {}, {
+        preserveScroll: true,
+    });
 };
 
 const confirmDelete = (visitation) => {

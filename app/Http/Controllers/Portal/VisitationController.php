@@ -9,6 +9,7 @@ use App\Models\Department;
 use App\Models\Member;
 use App\Models\Visitation;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use App\Services\ScopeResolver;
 
 class VisitationController extends Controller
@@ -16,6 +17,9 @@ class VisitationController extends Controller
     public function index(Request $request)
     {
         $this->authorizeFeature('visitation');
+
+        $user = auth()->user();
+        $departmentId = session('active_ministry_dept_id');
 
         // Filter by activity department (for church-wide visitation view)
         // 'other' = members with no activity dept membership
@@ -26,7 +30,9 @@ class VisitationController extends Controller
         // Data Isolation via MAC V2 ScopeResolver
         if (!$user->isSuperAdmin()) {
             $userScope = request()->attributes->get('userPermissions')['visitation'] ?? 'dept';
-            $query = ScopeResolver::apply($query, $userScope, $departmentId, $user->id, 'department_id', 'created_by');
+            if ($departmentId) {
+                $query = ScopeResolver::apply($query, $userScope, $departmentId, $user->id, 'department_id', 'created_by');
+            }
         }
 
         // Apply filters
@@ -225,12 +231,21 @@ class VisitationController extends Controller
         $this->authorizeManage('visitation');
 
 
+        // Build dynamic allowed reasons from DB + defaults
+        $deptId = session('active_ministry_dept_id');
+        $allowedReasons = \App\Models\VisitationReason::whereNull('department_id')
+            ->when($deptId, fn($q) => $q->orWhere('department_id', $deptId))
+            ->pluck('name')->toArray();
+        if (empty($allowedReasons)) {
+            $allowedReasons = ['ốm đau', 'mới tin Chúa', 'khích lệ', 'khác'];
+        }
+
         $validated = $request->validate([
             'member_ids' => 'required|array|min:1',
             'member_ids.*' => 'exists:members,id',
             'visitation_type' => 'required|in:church,department',
             'visit_date' => 'required|date',
-            'reason' => 'required|in:ốm đau,mới tin Chúa,khích lệ,khác',
+            'reason' => ['required', 'string', \Illuminate\Validation\Rule::in($allowedReasons)],
             'content' => 'nullable|string',
             'prayer_points' => 'nullable|string',
             'gifts' => 'nullable|string',
@@ -272,11 +287,20 @@ class VisitationController extends Controller
         $this->authorizeManage('visitation');
 
 
+        // Build dynamic allowed reasons from DB + defaults
+        $deptIdUpd = session('active_ministry_dept_id');
+        $allowedReasonsUpd = \App\Models\VisitationReason::whereNull('department_id')
+            ->when($deptIdUpd, fn($q) => $q->orWhere('department_id', $deptIdUpd))
+            ->pluck('name')->toArray();
+        if (empty($allowedReasonsUpd)) {
+            $allowedReasonsUpd = ['ốm đau', 'mới tin Chúa', 'khích lệ', 'khác'];
+        }
+
         $validated = $request->validate([
             'member_id' => 'required|exists:members,id',
             'visitation_type' => 'required|in:church,department',
             'visit_date' => 'required|date',
-            'reason' => 'required|in:ốm đau,mới tin Chúa,khích lệ,khác',
+            'reason' => ['required', 'string', \Illuminate\Validation\Rule::in($allowedReasonsUpd)],
             'content' => 'nullable|string',
             'prayer_points' => 'nullable|string',
             'gifts' => 'nullable|string',
@@ -318,6 +342,15 @@ class VisitationController extends Controller
         $visitation->delete();
 
         return redirect()->back()->with('success', 'Đã xoá thông tin thăm viếng.');
+    }
+
+    public function quickComplete(Visitation $visitation)
+    {
+        $this->authorizeManage('visitation');
+
+        $visitation->update(['status' => 'completed']);
+
+        return redirect()->back()->with('success', 'Đã đánh dấu hoàn thành chuyến thăm viếng.');
     }
 
     public function storeReason(Request $request)

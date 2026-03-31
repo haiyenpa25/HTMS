@@ -85,6 +85,7 @@ Route::prefix('portal')
         Route::get('/visitation', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'index'])->name('portal.visitation.index');
         Route::post('/visitation', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'store'])->name('portal.visitation.store');
         Route::put('/visitation/{visitation}', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'update'])->name('portal.visitation.update');
+        Route::patch('/visitation/{visitation}/complete', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'quickComplete'])->name('portal.visitation.quick-complete');
         Route::delete('/visitation/{visitation}', [\App\Http\Controllers\Portal\ActivitiesVisitationController::class, 'destroy'])->name('portal.visitation.destroy');
     });
 

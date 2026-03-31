@@ -22,6 +22,7 @@ Route::prefix('ministry')
     Route::get('/visitation', [\App\Http\Controllers\Portal\VisitationController::class, 'index'])->name('ministry.visitation.index');
     Route::post('/visitation', [\App\Http\Controllers\Portal\VisitationController::class, 'store'])->name('ministry.visitation.store');
     Route::put('/visitation/{visitation}', [\App\Http\Controllers\Portal\VisitationController::class, 'update'])->name('ministry.visitation.update');
+    Route::patch('/visitation/{visitation}/complete', [\App\Http\Controllers\Portal\VisitationController::class, 'quickComplete'])->name('ministry.visitation.quick-complete');
     Route::delete('/visitation/{visitation}', [\App\Http\Controllers\Portal\VisitationController::class, 'destroy'])->name('ministry.visitation.destroy');
 
     Route::get('/members', [\App\Http\Controllers\Portal\PortalMemberController::class, 'index'])->name('ministry.members.index');
