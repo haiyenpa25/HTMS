@@ -86,13 +86,33 @@
                 </button>
             </div>
             
-            <!-- Mobile Tab Dropdown -->
-            <div class="sm:hidden mb-4">
-                <select v-model="activeTab" class="w-full border-gray-200 rounded-xl font-bold focus:ring-blue-500 focus:border-blue-500 bg-white py-3 pl-4 pr-8 text-blue-900 shadow-sm">
-                    <option value="board">Nhân sự Ban Điều Hành</option>
-                    <option value="all">Danh sách Toàn Ban</option>
-                    <option value="pending">Khách Mới {{ pendingCount > 0 ? `(${pendingCount})` : '' }}</option>
-                </select>
+            <!-- Mobile Tab Scroll Bar -->
+            <div class="sm:hidden mb-4 bg-white rounded-2xl shadow-sm border border-gray-100 flex overflow-x-auto">
+                <button
+                    @click="activeTab = 'board'"
+                    class="flex-1 min-w-[7rem] py-3.5 text-center font-bold text-[13px] transition-colors relative whitespace-nowrap px-4"
+                    :class="activeTab === 'board' ? 'text-blue-600 bg-blue-50/50' : 'text-gray-500'"
+                >
+                    Ban ĐH
+                    <div v-if="activeTab === 'board'" class="absolute bottom-0 left-0 w-full h-[3px] bg-blue-600"></div>
+                </button>
+                <button
+                    @click="activeTab = 'all'"
+                    class="flex-1 min-w-[7rem] py-3.5 text-center font-bold text-[13px] transition-colors relative whitespace-nowrap px-4"
+                    :class="activeTab === 'all' ? 'text-blue-600 bg-blue-50/50' : 'text-gray-500'"
+                >
+                    Toàn Ban
+                    <div v-if="activeTab === 'all'" class="absolute bottom-0 left-0 w-full h-[3px] bg-blue-600"></div>
+                </button>
+                <button
+                    @click="activeTab = 'pending'"
+                    class="flex-1 min-w-[7rem] py-3.5 text-center font-bold text-[13px] transition-colors relative whitespace-nowrap px-4"
+                    :class="activeTab === 'pending' ? 'text-amber-600 bg-amber-50/50' : 'text-gray-500'"
+                >
+                    Khách Mới
+                    <span v-if="pendingCount > 0" class="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] font-black">{{ pendingCount }}</span>
+                    <div v-if="activeTab === 'pending'" class="absolute bottom-0 left-0 w-full h-[3px] bg-amber-500"></div>
+                </button>
             </div>
 
             <!-- Board Tab -->

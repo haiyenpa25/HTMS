@@ -181,15 +181,26 @@
                                 <label class="block text-xs font-bold text-gray-500 mb-1.5 tracking-wide">PHÂN LOẠI</label>
                                 <select v-model="row.category" class="block w-full rounded-xl border-gray-300 text-[13px] font-medium focus:ring-blue-500 py-2">
                                     <option value="">-- Chọn --</option>
-                                    <option v-if="row.type === 'thu'" value="Tiền hộp tuần">Tiền hộp tuần</option>
-                                    <option v-if="row.type === 'thu'" value="Tiền dâng lạc quyên">Tiền dâng lạc quyên</option>
-                                    <option v-if="row.type === 'thu'" value="Tiền phần mười (1/10)">Tiền phần mười (1/10)</option>
-                                    <option v-if="row.type === 'thu'" value="Tồn đầu tháng">Tồn đầu tháng</option>
-                                    <option v-if="row.type === 'chi'" value="Chi hoạt động">Chi hoạt động</option>
-                                    <option v-if="row.type === 'chi'" value="Thăm viếng">Thăm viếng</option>
-                                    <option v-if="row.type === 'chi'" value="Chi sinh hoạt">Chi sinh hoạt</option>
-                                    <option v-if="row.type === 'chi'" value="Chi bất thường">Chi bất thường</option>
+                                    <optgroup v-if="row.type === 'thu'" label="Thu">
+                                        <option value="Tiền hộp tuần">Tiền hộp tuần</option>
+                                        <option value="Tiền dâng lạc quyên">Tiền dâng lạc quyên</option>
+                                        <option value="Tiền phần mười (1/10)">Tiền phần mười (1/10)</option>
+                                        <option value="Tồn đầu tháng">Tồn đầu tháng</option>
+                                        <option value="__custom">Tùy chỉnh...</option>
+                                    </optgroup>
+                                    <optgroup v-if="row.type === 'chi'" label="Chi">
+                                        <option value="Chi hoạt động">Chi hoạt động</option>
+                                        <option value="Thăm viếng">Thăm viếng</option>
+                                        <option value="Chi sinh hoạt">Chi sinh hoạt</option>
+                                        <option value="Chi bất thường">Chi bất thường</option>
+                                        <option value="__custom">Tùy chỉnh...</option>
+                                    </optgroup>
                                 </select>
+                                <input v-if="row.category === '__custom' || (row.category && !defaultCategories.includes(row.category))"
+                                    v-model="row.customCategory"
+                                    @input="row.category = row.customCategory || '__custom'"
+                                    type="text" placeholder="Nhập danh mục..."
+                                    class="mt-2 block w-full rounded-xl border-gray-300 text-[13px] font-medium focus:ring-blue-500 py-2" />
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
@@ -294,7 +305,8 @@ const selectedMeeting = ref(null);
 const financeRows     = ref([]);
 const formLoading     = ref(false);
 
-const makeBlankRow = () => ({ type: 'thu', amount: 0, category: '' });
+const defaultCategories = ['Tiền hộp tuần', 'Tiền dâng lạc quyên', 'Tiền phần mười (1/10)', 'Tồn đầu tháng', 'Chi hoạt động', 'Thăm viếng', 'Chi sinh hoạt', 'Chi bất thường'];
+const makeBlankRow = () => ({ type: 'thu', amount: 0, category: '', customCategory: '' });
 
 const openFinanceForm = (meeting) => {
     selectedMeeting.value = meeting;

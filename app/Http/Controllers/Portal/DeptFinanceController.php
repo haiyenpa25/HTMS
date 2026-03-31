@@ -133,7 +133,11 @@ class DeptFinanceController extends Controller
             'department'           => $department,
             'availableDepartments' => $availableDepts,
             'isGlobalAdmin'        => $request->user()->isSuperAdmin(),
-            'canManage'            => $request->user()->isSuperAdmin(),
+            'canManage'            => $request->user()->isSuperAdmin() || \App\Models\UserDepartmentFeature::where('user_id', $request->user()->id)
+                                        ->where('department_id', $department->id)
+                                        ->where('is_enabled', true)
+                                        ->whereHas('feature', fn($q) => $q->where('slug', 'finance'))
+                                        ->exists(),
             'meetings'             => $meetings,
             'funds'                => $funds,
             'filters'              => ['month' => $month, 'year' => $year],

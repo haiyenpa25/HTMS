@@ -259,7 +259,7 @@ class DeptReportController extends Controller
             'canCreate' => app(\App\Services\PortalService::class)->canManage($request->user(), (int)$deptId, 'reports'),
             'canApprove' => $request->user()->isSuperAdmin(),
             'filters'              => ['month' => $month, 'year' => $year],
-
+            'churchName'           => env('CHURCH_NAME', config('app.name')),
             // Meeting tables
             'church_meetings'      => $churchRows,
             'dept_meetings'        => $deptRows,
