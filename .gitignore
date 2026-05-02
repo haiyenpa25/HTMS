@@ -33,3 +33,6 @@ vite.config.js.timestamp-*.mjs
 /replace_*.cjs
 /replace_*.py
 C:\tmp\*
+/.venv
+/.vibecode
+/.superpowers
