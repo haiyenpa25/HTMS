@@ -118,6 +118,12 @@ Route::middleware('auth')->group(function () {
     Route::post('meetings/{meeting}/toggle-cancel', [\App\Http\Controllers\MeetingController::class, 'toggleCancel'])->name('meetings.toggle-cancel');
     Route::resource('meetings', \App\Http\Controllers\MeetingController::class);
 
+    // Global Duty Roster routes
+    Route::prefix('duty-rooster')->name('duty-rooster.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\DutyRosterController::class, 'index'])->name('index');
+        Route::get('/{meeting}', [\App\Http\Controllers\DutyRosterController::class, 'show'])->name('show');
+    });
+
     // Lịch sử Dâng Hiến Cá Nhân (Tithe & Offering)
     Route::get('my-giving', [\App\Http\Controllers\User\DonationController::class, 'myGiving'])->name('user.donations.index');
     
