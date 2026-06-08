@@ -266,8 +266,9 @@ class PortalService
         $deptIds = $deptIds->merge($macDeptIds);
 
         // 2. Legacy Membership path
-        if ($user->member_id) {
-            $memberDeptIds = \App\Models\OrgMembership::where('member_id', $user->member_id)
+        $memberId = $user->member?->id ?? null;
+        if ($memberId) {
+            $memberDeptIds = \App\Models\OrgMembership::where('member_id', $memberId)
                 ->where('model_type', Department::class)
                 ->whereHasMorph('model', [Department::class], fn($q) => $q->where('block', $block))
                 ->pluck('model_id');

@@ -225,18 +225,29 @@ class AccountController extends Controller
             return response()->json(['roles' => [], 'departments' => []]);
         }
 
-        $memberships = OrgMembership::with(['orgRole', 'department'])
+        $memberships = OrgMembership::with(['orgRole'])
             ->where('member_id', $member->id)
             ->where('is_active', true)
             ->get()
-            ->map(fn ($m) => [
-                'role_name'   => $m->orgRole?->name,
-                'role_code'   => $m->orgRole?->code,
-                'dept_name'   => optional($m->department())->name ?? '—',
-                'model_type'  => $m->model_type,
-                'model_id'    => $m->model_id,
-                'join_date'   => $m->join_date?->format('d/m/Y'),
-            ]);
+            ->map(function ($m) {
+                // Resolve department name via polymorphic model_type / model_id
+                $deptName = '—';
+                if ($m->model_type && $m->model_id) {
+                    $modelClass = $m->model_type;
+                    if (class_exists($modelClass)) {
+                        $deptName = $modelClass::find($m->model_id)?->name ?? '—';
+                    }
+                }
+
+                return [
+                    'role_name'  => $m->orgRole?->name,
+                    'role_code'  => $m->orgRole?->code,
+                    'dept_name'  => $deptName,
+                    'model_type' => class_basename($m->model_type ?? ''),
+                    'model_id'   => $m->model_id,
+                    'join_date'  => $m->join_date?->format('d/m/Y'),
+                ];
+            });
 
         return response()->json([
             'member' => ['id' => $member->id, 'full_name' => $member->full_name],

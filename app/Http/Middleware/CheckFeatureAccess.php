@@ -2,36 +2,45 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\UserDepartmentFeature;
 use App\Services\PortalService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * PortalAccessMiddleware — Kiểm tra quyền tính năng cụ thể.
+ * CheckFeatureAccess — Kiểm tra quyền tính năng cụ thể trong portal.
  *
- * God Mode: Super_Admin → luôn pass.
- * Normal user: Kiểm tra xem user có ít nhất 1 dept trong block này
- * có quyền truy cập tính năng đó không.
+ * God Mode: isSuperAdmin() → luôn pass.
+ * Normal user: Kiểm tra user có quyền feature trong active dept của portal đó không.
  *
- * Usage:
- *   Route::middleware('portal.access:attendance,activities')
+ * Usage: Route::middleware('feature.access:attendance,activities')
+ *
+ * SESSION_KEYS được import từ AbstractPortalMiddleware (single source of truth).
  */
 class CheckFeatureAccess
 {
-    const SESSION_DEPT_KEY = [
-        'activities' => 'active_portal_dept_id',
-        'ministry'   => 'active_ministry_dept_id',
-        'deacon'     => 'active_deacon_dept_id',
-        'education'  => 'active_ministry_dept_id',
-    ];
-
-    const BLOCK_MAP = [
+    /**
+     * Block map: portalType → department block
+     */
+    private const BLOCK_MAP = [
         'activities' => 'activities',
         'ministry'   => 'ministry',
         'deacon'     => 'leadership',
         'education'  => 'ministry',
+        'secretary'  => 'leadership',
+        'finance'    => 'activities',
+    ];
+
+    /**
+     * Route index khi redirect (thiếu quyền feature).
+     */
+    private const INDEX_ROUTES = [
+        'activities' => 'portal.index',
+        'ministry'   => 'ministry.index',
+        'deacon'     => 'deacon.index',
+        'education'  => 'education.index',
+        'secretary'  => 'secretary.dashboard',
+        'finance'    => 'finance.index',
     ];
 
     public function __construct(private PortalService $service) {}
@@ -48,48 +57,34 @@ class CheckFeatureAccess
             return $next($request);
         }
 
-        $block       = self::BLOCK_MAP[$portalType] ?? $portalType;
-        $sessionKey  = self::SESSION_DEPT_KEY[$portalType] ?? 'active_portal_dept_id';
+        $block      = self::BLOCK_MAP[$portalType]  ?? $portalType;
+        $sessionKey = AbstractPortalMiddleware::SESSION_KEYS[$portalType] ?? 'active_portal_dept_id';
         $activeDeptId = session($sessionKey);
 
-        // Strategy: try the active dept first, then scan all user depts in this block
+        // Check active dept first (fast path)
         if ($activeDeptId && $this->service->canAccess($user, (int) $activeDeptId, $featureSlug)) {
             return $next($request);
         }
 
-        // Fallback: look for ANY department the user has this feature enabled in
-        $hasAccessInAnyDept = UserDepartmentFeature::where('user_id', $user->id)
+        // Fallback: scan any dept in this block where user has this feature
+        // (Single query — gộp exists + value thành 1)
+        $validDeptId = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
             ->where('is_enabled', true)
             ->whereHas('feature', fn ($q) => $q->where('slug', $featureSlug))
             ->whereHas('department', fn ($q) => $q->where('block', $block))
-            ->exists();
+            ->value('department_id');
 
-        if ($hasAccessInAnyDept) {
-            // Update the active dept to one where user has this feature (so they can actually use it)
-            $validDeptId = UserDepartmentFeature::where('user_id', $user->id)
-                ->where('is_enabled', true)
-                ->whereHas('feature', fn ($q) => $q->where('slug', $featureSlug))
-                ->whereHas('department', fn ($q) => $q->where('block', $block))
-                ->value('department_id');
-
-            if ($validDeptId) {
-                session([$sessionKey => $validDeptId]);
-            }
-
+        if ($validDeptId) {
+            session([$sessionKey => $validDeptId]);
             return $next($request);
         }
 
-        $indexRoute = match($portalType) {
-            'activities' => 'portal.index',
-            'ministry'   => 'ministry.index',
-            'deacon'     => 'deacon.index',
-            'education'  => 'education.index',
-            default      => 'dashboard'
-        };
+        // No access anywhere
+        $indexRoute = self::INDEX_ROUTES[$portalType] ?? 'dashboard';
 
-        return redirect()->route($indexRoute)->with('error', sprintf(
-            'Bạn chưa được cấp quyền truy cập tính năng "%s". Vui lòng liên hệ quản trị viên.',
-            $featureSlug
-        ));
+        return redirect()->route($indexRoute)->with(
+            'error',
+            "Bạn chưa được cấp quyền truy cập tính năng \"{$featureSlug}\". Vui lòng liên hệ quản trị viên."
+        );
     }
 }
