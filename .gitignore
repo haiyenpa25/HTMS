@@ -36,3 +36,11 @@ C:\tmp\*
 /.venv
 /.vibecode
 /.superpowers
+
+# ── Bảo mật — Deploy scripts chứa mật khẩu (KHÔNG commit) ──
+deploy/*.bat
+deploy/*.sh
+deploy/.env.*
+deploy/config.*
+# Giữ lại file tài liệu cần thiết
+!deploy/INSTALL.html
