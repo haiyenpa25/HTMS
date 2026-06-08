@@ -8,7 +8,9 @@ use Inertia\Inertia;
 use App\Models\Department;
 use App\Models\Member;
 use App\Models\Visitation;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class ActivitiesVisitationController extends Controller
 {
@@ -71,70 +73,6 @@ class ActivitiesVisitationController extends Controller
               ->where('model_type', Department::class)
               ->with('role');
         }])->orderBy('full_name')->get(['id', 'full_name', 'phone', 'address', 'latitude', 'longitude', 'visit_location']);
-
-        // Suggestions Logic
-        $last3Meetings = \App\Models\Meeting::where('department_id', $departmentId)
-            ->orderBy('date', 'desc')
-            ->take(3)
-            ->pluck('id');
-            
-        $suggestions = collect();
-        if ($last3Meetings->count() > 0) {
-            $suggestedMembers = Member::whereHas('memberships', function($q) use ($departmentId) {
-                $q->where('model_id', $departmentId)->where('model_type', Department::class);
-            })->with(['visitations' => function($q) use ($departmentId) {
-                $q->where('department_id', $departmentId)->orderBy('visit_date', 'desc');
-            }, 'attendances' => function($q) use ($last3Meetings) {
-                $q->whereIn('meeting_id', $last3Meetings);
-            }])->get();
-
-            foreach ($suggestedMembers as $m) {
-                $lastVisit = $m->visitations->first();
-                $lastVisitDate = $lastVisit ? \Carbon\Carbon::parse($lastVisit->visit_date) : null;
-                $monthsSinceLastVisit = $lastVisitDate ? $lastVisitDate->diffInMonths(now()) : 999;
-                
-                $absentCount = 0;
-                foreach ($last3Meetings as $mId) {
-                    $att = $m->attendances->firstWhere('meeting_id', $mId);
-                    if ($att && $att->status === 'absent') {
-                        $absentCount++;
-                    } elseif (!$att) {
-                        $absentCount++;
-                    }
-                }
-                
-                $priority = 'normal';
-                $reasons = [];
-                
-                if ($absentCount >= 3) {
-                    $reasons[] = 'Vắng mặt 3 lần liên tiếp';
-                }
-                if ($monthsSinceLastVisit >= 6) {
-                    $reasons[] = 'Chưa được thăm > 6 tháng';
-                }
-                
-                if ($absentCount >= 3 && $monthsSinceLastVisit >= 6) {
-                    $priority = 'high'; // Red
-                } elseif (count($reasons) > 0) {
-                    $priority = 'medium'; // Yellow
-                }
-                
-                if ($priority !== 'normal') {
-                    $suggestions->push([
-                        'id' => $m->id,
-                        'full_name' => $m->full_name,
-                        'phone' => $m->phone,
-                        'priority' => $priority,
-                        'reasons' => $reasons,
-                    ]);
-                }
-            }
-        }
-        
-        // Sort suggestions: high first, then medium
-        $suggestions = $suggestions->sortBy(function($s) {
-            return $s['priority'] === 'high' ? 0 : 1;
-        })->values();
 
         // Suggestions for this specific department only (last 3 meetings absences + not visited 6mo)
         $recentMeetingIds = \App\Models\Meeting::where('department_id', $departmentId)
@@ -214,12 +152,20 @@ class ActivitiesVisitationController extends Controller
         $departmentId = session('active_portal_dept_id');
         if (!$departmentId) abort(403);
 
+        // Build allowed reasons dynamically (same as VisitationController pattern)
+        $allowedReasons = \App\Models\VisitationReason::whereNull('department_id')
+            ->when($departmentId, fn($q) => $q->orWhere('department_id', $departmentId))
+            ->pluck('name')->toArray();
+        if (empty($allowedReasons)) {
+            $allowedReasons = ['ốm đau', 'mới tin Chúa', 'khích lệ', 'khác'];
+        }
+
         $validated = $request->validate([
             'visitation_type' => 'required|in:department',
             'member_ids' => 'required|array|min:1',
             'member_ids.*' => 'exists:members,id',
             'visit_date' => 'required|date',
-            'reason' => 'required|string',
+            'reason' => ['required', 'string', Rule::in($allowedReasons)],
             'prayer_points' => 'nullable|string',
             'content' => 'nullable|string',
             'gifts' => 'nullable|string',
@@ -232,36 +178,47 @@ class ActivitiesVisitationController extends Controller
         ]);
         
         $validated['department_id'] = $departmentId;
-
         $baseData = \Illuminate\Support\Arr::except($validated, ['latitude', 'longitude', 'member_ids']);
         
-        foreach ($request->member_ids as $memberId) {
-            $data = $baseData;
-            $data['member_id'] = $memberId;
-            $visitation = Visitation::create($data);
-            $visitation->visitors()->sync($request->visitors);
-            
-            if ($request->filled('latitude') && $request->filled('longitude')) {
-                Member::where('id', $memberId)->update([
-                    'latitude' => $validated['latitude'],
-                    'longitude' => $validated['longitude'],
-                ]);
+        // Wrapped in transaction for atomicity when creating multiple visitations
+        DB::transaction(function () use ($request, $validated, $baseData) {
+            foreach ($request->member_ids as $memberId) {
+                $data = $baseData;
+                $data['member_id'] = $memberId;
+                $visitation = Visitation::create($data);
+                $visitation->visitors()->sync($request->visitors);
+
+                if ($request->filled('latitude') && $request->filled('longitude')) {
+                    Member::where('id', $memberId)->update([
+                        'latitude' => $validated['latitude'],
+                        'longitude' => $validated['longitude'],
+                    ]);
+                }
             }
-        }
+        });
 
         return redirect()->back()->with('message', 'Đã thêm báo cáo thăm viếng ban ngành thành công!');
     }
 
     public function update(Request $request, Visitation $visitation)
     {
-        if ($visitation->department_id !== session('active_portal_dept_id')) {
+        $departmentId = session('active_portal_dept_id');
+        if ($visitation->department_id !== $departmentId) {
             abort(403, 'Không có quyền chỉnh sửa mục này.');
+        }
+
+        // Build allowed reasons dynamically
+        $allowedReasons = \App\Models\VisitationReason::whereNull('department_id')
+            ->when($departmentId, fn($q) => $q->orWhere('department_id', $departmentId))
+            ->pluck('name')->toArray();
+        if (empty($allowedReasons)) {
+            $allowedReasons = ['ốm đau', 'mới tin Chúa', 'khích lệ', 'khác'];
         }
 
         $validated = $request->validate([
             'member_id' => 'required|exists:members,id',
             'visit_date' => 'required|date',
-            'reason' => 'required|string',
+            'reason' => ['required', 'string', Rule::in($allowedReasons)],
             'prayer_points' => 'nullable|string',
             'content' => 'nullable|string',
             'gifts' => 'nullable|string',

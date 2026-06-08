@@ -307,6 +307,12 @@ abstract class AbstractPortalMiddleware
         $request->attributes->set('activeDept', $dept);
         $request->attributes->set('isGlobalAdmin', $isAdmin);
 
+        // ✨ Feature Scope Pipeline: forward departmentFeatures (chứa data_scope string)
+        // để Controller dùng ScopeResolver::apply() với đúng data scope.
+        // VD: BTV (ministry) có visitation='global' → query toàn hệ thống
+        //     BTTR (activities) có visitation='dept' → query nội bộ ban
+        $request->attributes->set('featureScopes', $macProps['departmentFeatures'] ?? []);
+
         return $next($request);
     }
 }

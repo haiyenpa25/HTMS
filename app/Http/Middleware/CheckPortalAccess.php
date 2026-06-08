@@ -101,6 +101,11 @@ class CheckPortalAccess
     /**
      * Share Level 1 dept feature config với frontend.
      * auth.allowed_features (Level 1 + Level 2 merged) được tính riêng trong HandleInertiaRequests.
+     *
+     * ✨ Feature Scope Pipeline:
+     * departmentFeatures chứa data_scope string (e.g. 'global', 'dept', 'self')
+     * thay vì chỉ true/false. Được forward vào request attributes 'featureScopes'
+     * để các Controller dùng ScopeResolver::apply() với đúng scope.
      */
     private function shareDeptContext(?Department $dept): void
     {
@@ -112,6 +117,11 @@ class CheckPortalAccess
 
         \Inertia\Inertia::share('departmentFeatures', $departmentFeatures);
         \Inertia\Inertia::share('activeDepartment', $dept);
+
+        // ✨ Forward featureScopes để Controller resolve data scope qua ScopeResolver.
+        // Keys = feature slugs, Values = data_scope string ('global'|'dept'|'self'|false).
+        // Controllers nên đọc: request()->attributes->get('featureScopes', [])
+        request()->attributes->set('featureScopes', $departmentFeatures);
 
         // KHÔNG share userPermissions riêng nữa — dùng auth.allowed_features từ HandleInertiaRequests
         // Điều này đảm bảo 1 nguồn sự thật duy nhất cho tất cả frontend permission checks.

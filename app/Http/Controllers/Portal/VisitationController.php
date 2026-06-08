@@ -28,10 +28,21 @@ class VisitationController extends Controller
         $query = Visitation::with(['member', 'visitors', 'department']);
 
         // Data Isolation via MAC V2 ScopeResolver
+        // Đọc data_scope từ featureScopes (forwarded bởi CheckPortalAccess middleware).
+        // data_scope có thể là: 'global' (BTV — toàn hội thánh), 'dept' (nội bộ ban), hoặc false (bị từ chối).
         if (!$user->isSuperAdmin()) {
-            $userScope = request()->attributes->get('userPermissions')['visitation'] ?? 'dept';
+            $featureScopes = request()->attributes->get('featureScopes', []);
+            $rawScope = $featureScopes['visitation'] ?? 'dept';
+            // Guard: nếu value là boolean (legacy fallback), convert sang string scope
+            if ($rawScope === false) {
+                $dataScope = 'none';
+            } elseif ($rawScope === true) {
+                $dataScope = 'dept';
+            } else {
+                $dataScope = is_string($rawScope) ? $rawScope : 'dept';
+            }
             if ($departmentId) {
-                $query = ScopeResolver::apply($query, $userScope, $departmentId, $user->id, 'department_id', 'created_by');
+                $query = ScopeResolver::apply($query, $dataScope, $departmentId, $user->id, 'department_id', 'created_by');
             }
         }
 

@@ -164,14 +164,17 @@ Route::prefix('deacon')
     Route::post('/report/incidents', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportIncidentStore'])->name('deacon.incident.store');
     Route::put('/report/incidents/{incident}', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportIncidentUpdate'])->name('deacon.incident.update');
     Route::delete('/report/incidents/{incident}', [\App\Http\Controllers\Portal\DeaconPortalController::class, 'reportIncidentDestroy'])->name('deacon.incident.destroy');
-    Route::get('/members', [\App\Http\Controllers\Portal\PortalMemberController::class, 'index'])->name('deacon.members.index');
-    Route::get('/members/export', [\App\Http\Controllers\Portal\PortalMemberController::class, 'exportTemplate'])->name('deacon.members.export');
-    Route::post('/members/import', [\App\Http\Controllers\Portal\PortalMemberController::class, 'import'])->name('deacon.members.import');
-    Route::put('/members/{member}/role', [\App\Http\Controllers\Portal\PortalMemberController::class, 'updateRole'])->name('deacon.members.update-role');
-    Route::post('/members/{member}/generate-account', [\App\Http\Controllers\Portal\PortalMemberController::class, 'createUserAccount'])->name('deacon.members.generate-account');
-    Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('deacon.members.remove');
-    Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('deacon.members.bulk-assign-team');
-    Route::post('/members/bulk-remove', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkRemove'])->name('deacon.members.bulk-remove');
+    // ── Thành viên (Deacon — MAC V2) ─────────────────────────────────
+    Route::middleware('portal.access:members,leadership')->group(function () {
+        Route::get('/members', [\App\Http\Controllers\Portal\PortalMemberController::class, 'index'])->name('deacon.members.index');
+        Route::get('/members/export', [\App\Http\Controllers\Portal\PortalMemberController::class, 'exportTemplate'])->name('deacon.members.export');
+        Route::post('/members/import', [\App\Http\Controllers\Portal\PortalMemberController::class, 'import'])->name('deacon.members.import');
+        Route::put('/members/{member}/role', [\App\Http\Controllers\Portal\PortalMemberController::class, 'updateRole'])->name('deacon.members.update-role');
+        Route::post('/members/{member}/generate-account', [\App\Http\Controllers\Portal\PortalMemberController::class, 'createUserAccount'])->name('deacon.members.generate-account');
+        Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('deacon.members.remove');
+        Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('deacon.members.bulk-assign-team');
+        Route::post('/members/bulk-remove', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkRemove'])->name('deacon.members.bulk-remove');
+    });
 
     Route::middleware('portal.access:assignments,leadership')->group(function () {
         Route::prefix('duty-rooster')->name('deacon.duty-rooster.')->group(function () {

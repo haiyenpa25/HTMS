@@ -1,10 +1,10 @@
 # HTMS Knowledge Graph Index
-> Tạo tự động bởi vibecode/enricher.py — 2026-06-08 09:03
+> Tạo tự động bởi vibecode/enricher.py — 2026-06-08 15:56
 > Đây là bộ nhớ nén toàn hệ thống. AI agents đọc file này thay vì scan codebase.
 
 ## Tóm Tắt Nhanh
 
-- **Tổng files:** 593
+- **Tổng files:** 624
 - **Số layers:** 22
 - **Số domains:** 17
 
@@ -62,13 +62,13 @@
 - `database/migrations/2026_03_04_100000_add_lesson_series_to_edu_sessions.php` [Migration] — Migration DB: 2026 03 04 100000 add lesson series to edu sessions
 - `database/migrations/2026_03_04_114000_add_teacher_to_edu_sessions.php` [Migration] — Migration DB: 2026 03 04 114000 add teacher to edu sessions
 - `database/migrations/2026_03_05_040000_add_bible_quiz_fields_to_edu_sessions.php` [Migration] — Migration DB: 2026 03 05 040000 add bible quiz fields to edu sessions
-- `public/build/assets/Auth-DMlBpIDd.js` [JavaScript] — JavaScript: Auth DMl Bp IDd
-- `public/build/assets/AuthenticatedLayout-D0KeaYO_.js` [JavaScript] — JavaScript: Authenticated Layout D0Kea YO 
-- `public/build/assets/ForgotPassword-BNO6Tb_A.js` [JavaScript] — JavaScript: Forgot Password BNO6Tb A
-- `public/build/assets/Login-DcAVPomB.js` [JavaScript] — JavaScript: Login Dc AVPom B
-- `public/build/assets/ResetPassword-CCapvyxD.js` [JavaScript] — JavaScript: Reset Password CCapvyx D
-- `public/build/assets/Session-0m3FEyb2.js` [JavaScript] — JavaScript: Session 0m3FEyb2
-- `public/build/assets/SessionList-BFhE43Sa.js` [JavaScript] — JavaScript: Session List BFh E43Sa
+- `public/build/assets/Auth-BDkLgNno.js` [JavaScript] — JavaScript: Auth BDk Lg Nno
+- `public/build/assets/AuthenticatedLayout-DXLFdqPi.js` [JavaScript] — JavaScript: Authenticated Layout DXLFdq Pi
+- `public/build/assets/ForgotPassword-B2K-aVIE.js` [JavaScript] — JavaScript: Forgot Password B2K a VIE
+- `public/build/assets/Login-CLy6nnF1.js` [JavaScript] — JavaScript: Login CLy6nn F1
+- `public/build/assets/ResetPassword-jdrMsUtG.js` [JavaScript] — JavaScript: Reset Password jdr Ms Ut G
+- `public/build/assets/Session-QB4egH7N.js` [JavaScript] — JavaScript: Session QB4eg H7N
+- `public/build/assets/SessionList-D5xIlu83.js` [JavaScript] — JavaScript: Session List D5x Ilu83
 - `resources/js/Layouts/AuthenticatedLayout.vue` [VueLayout] — Layout Vue: Authenticated Layout
 - `resources/js/Pages/Auth/ForgotPassword.vue` [VuePage] — Trang Vue: Forgot Password
 - `resources/js/Pages/Auth/Login.vue` [VuePage] — Trang Vue: Login
@@ -77,9 +77,10 @@
 - `resources/js/Pages/Portal/Education/Session.vue` [VuePage-Portal] — Trang Vue (Portal): Session
 - `resources/js/Pages/Portal/Education/SessionList.vue` [VuePage-Portal] — Trang Vue (Portal): Session List
 
-### 👥 MEMBERS (59 files)
+### 👥 MEMBERS (63 files)
 
 - `app/Exports/PortalMemberExport.php` [PHP-Other] — PHP-Other: Portal Member Export
+- `app/Http/Controllers/Admin/AccountController.php` [AdminController] — Controller quản lý người dùng (Admin)
 - `app/Http/Controllers/Admin/UserPermissionController.php` [AdminController] — Controller quản lý người dùng (Admin)
 - `app/Http/Controllers/MemberController.php` [Controller] — Controller: Member Controller
 - `app/Http/Controllers/MemberPortalController.php` [Controller] — Controller: Member Portal Controller
@@ -108,15 +109,15 @@
 - `database/migrations/2026_02_27_040349_create_member_modules_tables.php` [Migration] — Migration DB: 2026 02 27 040349 create member modules tables
 - `database/migrations/2026_03_01_125619_add_portal_member_permissions.php` [Migration] — Migration DB: 2026 03 01 125619 add portal member permissions
 - `database/migrations/2026_03_06_092438_add_permissions_to_org_memberships_table.php` [Migration] — Migration DB: 2026 03 06 092438 add permissions to org memberships table
-- `database/migrations/2026_03_06_171215_create_user_department_features_table.php` [Migration] — Migration DB: 2026 03 06 171215 create user department features table
-- *(... và 29 files khác)*
+- *(... và 33 files khác)*
 
-### 📋 ATTENDANCE (49 files)
+### 📋 ATTENDANCE (53 files)
 
 - `app/Console/Commands/BackfillAttendanceCount.php` [PHP-Other] — PHP-Other: Backfill Attendance Count
 - `app/Exports/AttendanceTemplateExport.php` [PHP-Other] — PHP-Other: Attendance Template Export
 - `app/Exports/MeetingExport.php` [PHP-Other] — PHP-Other: Meeting Export
 - `app/Exports/MeetingsExport.php` [PHP-Other] — PHP-Other: Meetings Export
+- `app/Http/Controllers/Deacon/ChurchAttendanceController.php` [Controller] — Controller: Church Attendance Controller
 - `app/Http/Controllers/MeetingController.php` [Controller] — Controller: Meeting Controller
 - `app/Http/Controllers/Portal/AttendanceController.php` [PortalController] — Controller điểm danh sinh hoạt
 - `app/Imports/AttendanceImport.php` [PHP-Other] — PHP-Other: Attendance Import
@@ -142,12 +143,13 @@
 - `database/migrations/2026_03_01_123002_add_department_attendance_fields_to_meeting_attendances_table.php` [Migration] — Migration DB: 2026 03 01 123002 add department attendance fields to meeting attendances table
 - `database/migrations/2026_03_05_155150_add_attendance_marked_to_meetings_table.php` [Migration] — Migration DB: 2026 03 05 155150 add attendance marked to meetings table
 - `database/migrations/2026_03_05_200001_create_deacon_attendance_records_table.php` [Migration] — Migration DB: 2026 03 05 200001 create deacon attendance records table
-- `database/migrations/2026_03_09_014336_add_quiz_passage_to_meetings_table.php` [Migration] — Migration DB: 2026 03 09 014336 add quiz passage to meetings table
-- *(... và 19 files khác)*
+- *(... và 23 files khác)*
 
-### 📅 ASSIGNMENTS (25 files)
+### 📅 ASSIGNMENTS (30 files)
 
+- `app/Http/Controllers/Admin/DeaconAssignmentController.php` [AdminController] — Controller Admin: Deacon Assignment Controller
 - `app/Http/Controllers/DutyRosterController.php` [Controller] — Controller: Duty Roster Controller
+- `app/Models/DeaconTermAssignment.php` [Model] — Model: Deacon Term Assignment
 - `app/Models/DutyAssignment.php` [Model] — Model: Duty Assignment
 - `app/Models/FeatureAssignment.php` [Model] — Model: Feature Assignment
 - `app/Models/RosterTemplate.php` [Model] — Model: Roster Template
@@ -161,10 +163,13 @@
 - `database/migrations/2026_03_12_113516_add_type_to_roster_templates_table.php` [Migration] — Migration DB: 2026 03 12 113516 add type to roster templates table
 - `database/migrations/2026_03_15_083604_add_status_and_reason_to_duty_assignments_table.php` [Migration] — Migration DB: 2026 03 15 083604 add status and reason to duty assignments table
 - `database/migrations/2026_03_16_025646_add_scope_to_feature_assignment_tables.php` [Migration] — Migration DB: 2026 03 16 025646 add scope to feature assignment tables
+- `database/migrations/2026_06_08_000001_create_deacon_term_assignments_table.php` [Migration] — Migration DB: 2026 06 08 000001 create deacon term assignments table
 - `database/seeders/DutyRosterSeeder.php` [Seeder] — Seeder dữ liệu: Duty Roster Seeder
-- `public/build/assets/Assignments-Bee3vHkc.js` [JavaScript] — JavaScript: Assignments Bee3v Hkc
-- `public/build/assets/DutyRoster-Dmoqs8IV.js` [JavaScript] — JavaScript: Duty Roster Dmoqs8IV
+- `public/build/assets/Assignments-D8oUeXOP.js` [JavaScript] — JavaScript: Assignments D8o Ue XOP
+- `public/build/assets/DeaconAssignments-DVawg6q6.js` [JavaScript] — JavaScript: Deacon Assignments DVawg6q6
+- `public/build/assets/DutyRoster-CmqJglDo.js` [JavaScript] — JavaScript: Duty Roster Cmq Jgl Do
 - `resources/js/Layouts/DutyRosterLayout.vue` [VueLayout] — Layout Vue: Duty Roster Layout
+- `resources/js/Pages/Admin/DeaconAssignments.vue` [VuePage-Admin] — Trang Vue (Admin): Deacon Assignments
 - `resources/js/Pages/Docs/Departments/Assignments.vue` [VuePage] — Trang Vue: Assignments
 - `resources/js/Pages/Docs/DutyRoster.vue` [VuePage] — Trang Vue: Duty Roster
 - `resources/js/Pages/DutyRoster/HolisticView.vue` [VuePage] — Trang Vue: Holistic View
@@ -173,7 +178,7 @@
 - `resources/js/Pages/DutyRoster/Templates/Index.vue` [VuePage] — Trang Vue: Index
 - `resources/js/Pages/DutyRoster/Templates/Show.vue` [VuePage] — Trang Vue: Show
 
-### 💰 FINANCE (42 files)
+### 💰 FINANCE (43 files)
 
 - `app/Http/Controllers/Admin/DonationController.php` [AdminController] — Controller quản lý tài chính (Admin)
 - `app/Http/Controllers/Portal/DeptFinanceController.php` [PortalController] — Controller tài chính phòng ban
@@ -204,10 +209,10 @@
 - `database/migrations/2026_03_02_210001_create_department_finance_tables.php` [Migration] — Migration DB: 2026 03 02 210001 create department finance tables
 - `database/migrations/2026_03_10_161132_create_funds_table.php` [Migration] — Migration DB: 2026 03 10 161132 create funds table
 - `database/migrations/2026_03_10_161133_create_donations_table.php` [Migration] — Migration DB: 2026 03 10 161133 create donations table
-- `database/seeders/ThanhTrangDeptFinanceSeeder.php` [Seeder] — Seeder dữ liệu: Thanh Trang Dept Finance Seeder
-- *(... và 12 files khác)*
+- `database/migrations/2026_06_08_000007_add_target_fields_to_donations.php` [Migration] — Migration DB: 2026 06 08 000007 add target fields to donations
+- *(... và 13 files khác)*
 
-### ✝️ MINISTRY (16 files)
+### ✝️ MINISTRY (18 files)
 
 - `app/Console/Commands/DeleteEducationFeatures.php` [PHP-Other] — PHP-Other: Delete Education Features
 - `app/Http/Controllers/MinistryPortalController.php` [Controller] — Controller: Ministry Portal Controller
@@ -216,12 +221,14 @@
 - `app/Models/EduClass.php` [Model] — Model: Edu Class
 - `app/Policies/EduClassPolicy.php` [Policy] — Policy phân quyền: Edu Class Policy
 - `database/migrations/2026_03_03_222600_add_class_type_to_edu_classes.php` [Migration] — Migration DB: 2026 03 03 222600 add class type to edu classes
-- `public/build/assets/Education-C6FxebPf.js` [JavaScript] — JavaScript: Education C6Fxeb Pf
+- `database/migrations/2026_06_08_000005_add_seasonal_and_category_to_edu_classes.php` [Migration] — Migration DB: 2026 06 08 000005 add seasonal and category to edu classes
+- `public/build/assets/Education-DBUCS-JQ.js` [JavaScript] — JavaScript: Education DBUCS JQ
 - `resources/js/Pages/Docs/Education.vue` [VuePage] — Trang Vue: Education
 - `resources/js/Pages/Ministry/Dashboard.vue` [VuePage-Ministry] — Trang Vue (Mục Vụ): Dashboard
 - `resources/js/Pages/Ministry/Visitation/Index.vue` [VuePage-Ministry] — Trang Vue (Mục Vụ): Index
 - `resources/js/Pages/Portal/Education/Dashboard.vue` [VuePage-Portal] — Trang Vue (Portal): Dashboard
 - `resources/js/Pages/Portal/Education/Index.vue` [VuePage-Portal] — Trang Vue (Portal): Index
+- `resources/js/Pages/Portal/Education/Ranking.vue` [VuePage-Portal] — Trang Vue (Portal): Ranking
 - `resources/js/Pages/Portal/Education/Report.vue` [VuePage-Portal] — Trang Vue (Portal): Report
 - `routes/ministry.php` [Routes] — Định nghĩa Routes: ministry
 - `tests/Feature/Ministry/VisitationTest.php` [PHP-Other] — PHP-Other: Visitation Test
@@ -240,8 +247,8 @@
 - `database/migrations/2026_02_26_050110_add_batch_uuid_column_to_activity_log_table.php` [Migration] — Migration DB: 2026 02 26 050110 add batch uuid column to activity log table
 - `database/migrations/2026_03_16_103921_create_chronicle_entries_table.php` [Migration] — Migration DB: 2026 03 16 103921 create chronicle entries table
 - `database/migrations/2026_03_16_140208_add_department_id_to_chronicles.php` [Migration] — Migration DB: 2026 03 16 140208 add department id to chronicles
-- `public/build/assets/ActivityLogItem-D8UmSp-M.js` [JavaScript] — JavaScript: Activity Log Item D8Um Sp M
-- `public/build/assets/ActivityLogs-BqMbUhsW.js` [JavaScript] — JavaScript: Activity Logs Bq Mb Uhs W
+- `public/build/assets/ActivityLogItem-DiV9iQEP.js` [JavaScript] — JavaScript: Activity Log Item Di V9i QEP
+- `public/build/assets/ActivityLogs-bvD1EjZB.js` [JavaScript] — JavaScript: Activity Logs bv D1Ej ZB
 - `resources/js/Components/ActivityLogItem.vue` [VueComponent] — Component Vue: Activity Log Item
 - `resources/js/Pages/Admin/ActivityLogs/Index.vue` [VuePage-Admin] — Trang Vue (Admin): Index
 - `resources/js/Pages/Admin/Chronicles/Index.vue` [VuePage-Admin] — Trang Vue (Admin): Index
@@ -273,7 +280,7 @@
 - `resources/js/Pages/Docs/Departments/Visitation.vue` [VuePage] — Trang Vue: Visitation
 - `resources/js/Pages/Portal/Visitation/Index.vue` [VuePage-Portal] — Trang Vue (Portal): Index
 
-### 📄 DOCUMENTS (104 files)
+### 📄 DOCUMENTS (107 files)
 
 - `app/Http/Controllers/Admin/AssetController.php` [AdminController] — Controller quản lý tài liệu (Admin)
 - `app/Http/Controllers/DocumentController.php` [Controller] — Controller: Document Controller
@@ -283,29 +290,29 @@
 - `config/filesystems.php` [Config] — Config: filesystems
 - `database/migrations/2026_03_10_152735_create_documents_table.php` [Migration] — Migration DB: 2026 03 10 152735 create documents table
 - `database/migrations/2026_03_10_155906_create_assets_table.php` [Migration] — Migration DB: 2026 03 10 155906 create assets table
-- `public/build/assets/AdminPortalLayout-zrp31gtw.js` [JavaScript] — JavaScript: Admin Portal Layout zrp31gtw
-- `public/build/assets/AppCard-CPbP9tOB.js` [JavaScript] — JavaScript: App Card CPb P9t OB
-- `public/build/assets/BatchEntry-lFCC_pYd.js` [JavaScript] — JavaScript: Batch Entry l FCC p Yd
-- `public/build/assets/Create-C5d-GhEf.js` [JavaScript] — JavaScript: Create C5d Gh Ef
-- `public/build/assets/Dashboard-CAUPQg60.js` [JavaScript] — JavaScript: Dashboard CAUPQg60
-- `public/build/assets/Dashboard-CPRcEjfb.js` [JavaScript] — JavaScript: Dashboard CPRc Ejfb
-- `public/build/assets/Dashboard-CUQLBTey.js` [JavaScript] — JavaScript: Dashboard CUQLBTey
-- `public/build/assets/Dashboard-gfTVYx3o.js` [JavaScript] — JavaScript: Dashboard gf TVYx3o
-- `public/build/assets/Dashboard-mUOntCD0.js` [JavaScript] — JavaScript: Dashboard m UOnt CD0
-- `public/build/assets/DataToolbar-D0oadrXa.js` [JavaScript] — JavaScript: Data Toolbar D0oadr Xa
-- `public/build/assets/DepartmentForm-BITbpBHw.js` [JavaScript] — JavaScript: Department Form BITbp BHw
-- `public/build/assets/DocsLayout-DK5iTiRh.js` [JavaScript] — JavaScript: Docs Layout DK5i Ti Rh
-- `public/build/assets/Dropdown-D5uUIwiD.js` [JavaScript] — JavaScript: Dropdown D5u UIwi D
-- `public/build/assets/FaithJourneyTimeline-DqvwzFOp.js` [JavaScript] — JavaScript: Faith Journey Timeline Dqvwz FOp
-- `public/build/assets/Features-B28VT9dK.js` [JavaScript] — JavaScript: Features B28VT9d K
-- `public/build/assets/FeaturesTab-Ct-30h7G.js` [JavaScript] — JavaScript: Features Tab Ct 30h7G
-- `public/build/assets/FormModal-DkowqYLk.js` [JavaScript] — JavaScript: Form Modal Dkowq YLk
-- `public/build/assets/HolisticView-CR3Fjuro.js` [JavaScript] — JavaScript: Holistic View CR3Fjuro
-- `public/build/assets/Index-0k7guybI.js` [JavaScript] — JavaScript: Index 0k7guyb I
-- `public/build/assets/Index-40cv_aQv.js` [JavaScript] — JavaScript: Index 40cv a Qv
-- `public/build/assets/Index-B5GR8VyL.js` [JavaScript] — JavaScript: Index B5GR8Vy L
-- `public/build/assets/Index-B9RrXo_O.js` [JavaScript] — JavaScript: Index B9Rr Xo O
-- *(... và 74 files khác)*
+- `public/build/assets/AdminPortalLayout-CBlqwVu2.js` [JavaScript] — JavaScript: Admin Portal Layout CBlqw Vu2
+- `public/build/assets/AppCard-OC4L-qgO.js` [JavaScript] — JavaScript: App Card OC4L qg O
+- `public/build/assets/BatchEntry-Bb5up8Ro.js` [JavaScript] — JavaScript: Batch Entry Bb5up8Ro
+- `public/build/assets/Create-B4MjPxW4.js` [JavaScript] — JavaScript: Create B4Mj Px W4
+- `public/build/assets/Dashboard-Bdw89Dh8.js` [JavaScript] — JavaScript: Dashboard Bdw89Dh8
+- `public/build/assets/Dashboard-CFSBpe1_.js` [JavaScript] — JavaScript: Dashboard CFSBpe1 
+- `public/build/assets/Dashboard-D9qx6gRK.js` [JavaScript] — JavaScript: Dashboard D9qx6g RK
+- `public/build/assets/Dashboard-DRGgiE8L.js` [JavaScript] — JavaScript: Dashboard DRGgi E8L
+- `public/build/assets/Dashboard-DWUfMOdT.js` [JavaScript] — JavaScript: Dashboard DWUf MOd T
+- `public/build/assets/Dashboard-D_UHAB9o.js` [JavaScript] — JavaScript: Dashboard D UHAB9o
+- `public/build/assets/Dashboard-qa1wMycs.js` [JavaScript] — JavaScript: Dashboard qa1w Mycs
+- `public/build/assets/DataToolbar-CkPnM4QH.js` [JavaScript] — JavaScript: Data Toolbar Ck Pn M4QH
+- `public/build/assets/DepartmentForm-BKgPcvFF.js` [JavaScript] — JavaScript: Department Form BKg Pcv FF
+- `public/build/assets/DocsLayout-DxReaTQx.js` [JavaScript] — JavaScript: Docs Layout Dx Rea TQx
+- `public/build/assets/Dropdown-CKeWUtTH.js` [JavaScript] — JavaScript: Dropdown CKe WUt TH
+- `public/build/assets/FaithJourneyTimeline-CBDLotV8.js` [JavaScript] — JavaScript: Faith Journey Timeline CBDLot V8
+- `public/build/assets/Features-ByiIlgXH.js` [JavaScript] — JavaScript: Features Byi Ilg XH
+- `public/build/assets/FeaturesTab-DvGEKypf.js` [JavaScript] — JavaScript: Features Tab Dv GEKypf
+- `public/build/assets/FormModal-CBJopSTB.js` [JavaScript] — JavaScript: Form Modal CBJop STB
+- `public/build/assets/HolisticView-CXdaiQ0S.js` [JavaScript] — JavaScript: Holistic View CXdai Q0S
+- `public/build/assets/Index-7N1zi4J-.js` [JavaScript] — JavaScript: Index 7N1zi4J 
+- `public/build/assets/Index-B7ODL2Z6.js` [JavaScript] — JavaScript: Index B7ODL2Z6
+- *(... và 77 files khác)*
 
 ### 📊 REPORTS (19 files)
 
@@ -361,41 +368,52 @@
 - `resources/js/Pages/Departments/Tabs/TeamsTab.vue` [VuePage] — Trang Vue: Teams Tab
 - `resources/js/Pages/Docs/Departments/Intro.vue` [VuePage] — Trang Vue: Intro
 
-### 📝 FORMS (6 files)
+### 📝 FORMS (8 files)
 
 - `app/Http/Controllers/Admin/FormTemplateController.php` [AdminController] — Controller Admin: Form Template Controller
 - `app/Models/FormTemplate.php` [Model] — Model: Form Template
+- `app/Models/SocialPlatformStat.php` [Model] — Model: Social Platform Stat
 - `database/migrations/2026_03_17_071204_create_form_templates_table.php` [Migration] — Migration DB: 2026 03 17 071204 create form templates table
 - `database/migrations/2026_03_29_161346_add_performance_indexes_to_core_tables.php` [Migration] — Migration DB: 2026 03 29 161346 add performance indexes to core tables
+- `database/migrations/2026_06_08_000004_create_social_platform_stats_table.php` [Migration] — Migration DB: 2026 06 08 000004 create social platform stats table
 - `resources/js/Pages/Admin/Forms/Index.vue` [VuePage-Admin] — Trang Vue (Admin): Index
 - `resources/js/Pages/Speakers/Partials/SpeakerForm.vue` [VuePage] — Trang Vue: Speaker Form
 
-### 🏠 PORTAL (13 files)
+### 🏠 PORTAL (20 files)
 
 - `app/Console/Commands/SeedPortalTestData.php` [PHP-Other] — PHP-Other: Seed Portal Test Data
 - `app/Http/Controllers/DashboardController.php` [Controller] — Controller: Dashboard Controller
+- `app/Http/Controllers/Deacon/DeaconDashboardController.php` [Controller] — Controller: Deacon Dashboard Controller
 - `app/Http/Controllers/Portal/DeaconPortalController.php` [PortalController] — Controller Portal: Deacon Portal Controller
+- `app/Http/Controllers/Portal/EduRankingController.php` [PortalController] — Controller Portal: Edu Ranking Controller
+- `app/Http/Controllers/Secretary/SecretaryPortalController.php` [Controller] — Controller: Secretary Portal Controller
+- `app/Http/Middleware/AbstractPortalMiddleware.php` [Middleware] — Middleware: Abstract Portal Middleware
 - `app/Services/PortalService.php` [Service] — Service: Portal Service
+- `resources/js/Components/PortalLinks.vue` [VueComponent] — Component Vue: Portal Links
 - `resources/js/Layouts/AdminPortalLayout.vue` [VueLayout] — Layout Vue: Admin Portal Layout
 - `resources/js/Layouts/DocsLayout.vue` [VueLayout] — Layout Vue: Docs Layout
 - `resources/js/Layouts/MobileLayout.vue` [VueLayout] — Layout Vue: Mobile Layout
 - `resources/js/Layouts/PortalLayout.vue` [VueLayout] — Layout Vue: Portal Layout
 - `resources/js/Pages/Dashboard.vue` [VuePage] — Trang Vue: Dashboard
+- `resources/js/Pages/Deacon/Dashboard.vue` [VuePage] — Trang Vue: Dashboard
 - `resources/js/Pages/Docs/Portals.vue` [VuePage] — Trang Vue: Portals
 - `resources/js/Pages/Docs/Portals/Intro.vue` [VuePage] — Trang Vue: Intro
 - `resources/js/Pages/Portal/Dashboard.vue` [VuePage-Portal] — Trang Vue (Portal): Dashboard
+- `resources/js/Pages/Secretary/Dashboard.vue` [VuePage] — Trang Vue: Dashboard
 - `routes/portal.php` [Routes] — Định nghĩa Routes: portal
 
-### ⚙️ ADMIN (14 files)
+### ⚙️ ADMIN (16 files)
 
 - `app/Http/Controllers/Admin/AnnouncementController.php` [AdminController] — Controller Admin: Announcement Controller
 - `app/Http/Middleware/EnsureSuperAdmin.php` [Middleware] — Middleware: Ensure Super Admin
+- `app/Models/ChurchSetting.php` [Model] — Model: Church Setting
 - `config/app.php` [Config] — Config: app
 - `config/cache.php` [Config] — Config: cache
 - `config/database.php` [Config] — Config: database
 - `config/mail.php` [Config] — Config: mail
 - `config/queue.php` [Config] — Config: queue
 - `config/services.php` [Config] — Config: services
+- `database/migrations/2026_06_08_000002_create_church_settings_table.php` [Migration] — Migration DB: 2026 06 08 000002 create church settings table
 - `database/seeders/SystemSkeletonSeeder.php` [Seeder] — Seeder dữ liệu: System Skeleton Seeder
 - `postcss.config.js` [JavaScript] — JavaScript: postcss.config
 - `resources/js/Pages/Admin/Announcements/Index.vue` [VuePage-Admin] — Trang Vue (Admin): Index
@@ -403,7 +421,7 @@
 - `tailwind.config.js` [JavaScript] — JavaScript: tailwind.config
 - `vite.config.js` [JavaScript] — JavaScript: vite.config
 
-### 📁 GENERAL (109 files)
+### 📁 GENERAL (110 files)
 
 - `app/Console/Commands/BackfillMemoryVerseCount.php` [PHP-Other] — PHP-Other: Backfill Memory Verse Count
 - `app/Console/Commands/BackupDatabase.php` [PHP-Other] — PHP-Other: Backup Database
@@ -418,6 +436,7 @@
 - `app/Http/Controllers/SpeakerController.php` [Controller] — Controller: Speaker Controller
 - `app/Http/Controllers/WelcomeController.php` [Controller] — Controller: Welcome Controller
 - `app/Http/Middleware/EnsureDeaconContext.php` [Middleware] — Middleware: Ensure Deacon Context
+- `app/Http/Middleware/EnsureSecretaryContext.php` [Middleware] — Middleware: Ensure Secretary Context
 - `app/Http/Middleware/HandleInertiaRequests.php` [Middleware] — Middleware: Handle Inertia Requests
 - `app/Mail/NewsletterEmail.php` [PHP-Other] — PHP-Other: Newsletter Email
 - `app/Models/Announcement.php` [Model] — Model: Announcement
@@ -434,21 +453,22 @@
 - `app/Providers/AppServiceProvider.php` [PHP-Other] — PHP-Other: App Service Provider
 - `app/Services/ScopeResolver.php` [Service] — Service: Scope Resolver
 - `app/Traits/HasDataScope.php` [PHP-Other] — PHP-Other: Has Data Scope
-- `bootstrap/app.php` [PHP-Other] — PHP-Other: app
-- *(... và 79 files khác)*
+- *(... và 80 files khác)*
 
 ---
 
 ## Index Theo Layer (Architecture)
 
-### Middleware (9 files)
+### Middleware (11 files)
 
+- `app/Http/Middleware/AbstractPortalMiddleware.php`
 - `app/Http/Middleware/CheckFeatureAccess.php`
 - `app/Http/Middleware/CheckPortalAccess.php`
 - `app/Http/Middleware/EnsureDeaconContext.php`
 - `app/Http/Middleware/EnsureFinanceContext.php`
 - `app/Http/Middleware/EnsureMinistryContext.php`
 - `app/Http/Middleware/EnsurePortalContext.php`
+- `app/Http/Middleware/EnsureSecretaryContext.php`
 - `app/Http/Middleware/EnsureSuperAdmin.php`
 - `app/Http/Middleware/HandleInertiaRequests.php`
 - `app/Http/Middleware/PortalAccessMiddleware.php`
@@ -460,20 +480,22 @@
 - `routes/portal.php`
 - `routes/web.php`
 
-### AdminController (10 files)
+### AdminController (12 files)
 
+- `app/Http/Controllers/Admin/AccountController.php`
 - `app/Http/Controllers/Admin/ActivityLogController.php`
 - `app/Http/Controllers/Admin/AnnouncementController.php`
 - `app/Http/Controllers/Admin/AssetController.php`
 - `app/Http/Controllers/Admin/BroadcastController.php`
 - `app/Http/Controllers/Admin/ChronicleController.php`
+- `app/Http/Controllers/Admin/DeaconAssignmentController.php`
 - `app/Http/Controllers/Admin/DonationController.php`
 - `app/Http/Controllers/Admin/FormTemplateController.php`
 - `app/Http/Controllers/Admin/SystemFeatureController.php`
 - `app/Http/Controllers/Admin/UserPermissionController.php`
 - `app/Http/Controllers/Admin/VisitorController.php`
 
-### PortalController (14 files)
+### PortalController (15 files)
 
 - `app/Http/Controllers/Portal/ActivitiesVisitationController.php`
 - `app/Http/Controllers/Portal/AttendanceController.php`
@@ -481,6 +503,7 @@
 - `app/Http/Controllers/Portal/DeaconPortalController.php`
 - `app/Http/Controllers/Portal/DeptFinanceController.php`
 - `app/Http/Controllers/Portal/DeptReportController.php`
+- `app/Http/Controllers/Portal/EduRankingController.php`
 - `app/Http/Controllers/Portal/EducationController.php`
 - `app/Http/Controllers/Portal/FinanceFundController.php`
 - `app/Http/Controllers/Portal/FinanceFundTransferController.php`
@@ -496,12 +519,14 @@
 - `app/Http/Controllers/Auth/NewPasswordController.php`
 - `app/Http/Controllers/Auth/PasswordResetLinkController.php`
 
-### Controller (22 files)
+### Controller (25 files)
 
 - `app/Http/Controllers/CalendarController.php`
 - `app/Http/Controllers/CareController.php`
 - `app/Http/Controllers/Controller.php`
 - `app/Http/Controllers/DashboardController.php`
+- `app/Http/Controllers/Deacon/ChurchAttendanceController.php`
+- `app/Http/Controllers/Deacon/DeaconDashboardController.php`
 - `app/Http/Controllers/DepartmentController.php`
 - `app/Http/Controllers/DepartmentPortalController.php`
 - `app/Http/Controllers/DocsController.php`
@@ -516,9 +541,7 @@
 - `app/Http/Controllers/NotificationController.php`
 - `app/Http/Controllers/RoleController.php`
 - `app/Http/Controllers/SearchController.php`
-- `app/Http/Controllers/SpeakerController.php`
-- `app/Http/Controllers/User/DonationController.php`
-- *(... và 2 files khác)*
+- *(... và 5 files khác)*
 
 ### Service (4 files)
 
@@ -527,7 +550,7 @@
 - `app/Services/PortalService.php`
 - `app/Services/ScopeResolver.php`
 
-### Model (66 files)
+### Model (69 files)
 
 - `app/Models/Announcement.php`
 - `app/Models/ApprovalRequest.php`
@@ -537,19 +560,19 @@
 - `app/Models/CareRequest.php`
 - `app/Models/ChronicleEntry.php`
 - `app/Models/Church.php`
+- `app/Models/ChurchSetting.php`
 - `app/Models/Course.php`
 - `app/Models/DeaconAttendanceRecord.php`
 - `app/Models/DeaconMonthlyReport.php`
 - `app/Models/DeaconReportIncident.php`
+- `app/Models/DeaconTermAssignment.php`
 - `app/Models/Department.php`
 - `app/Models/DepartmentFund.php`
 - `app/Models/DepartmentMeeting.php`
 - `app/Models/DepartmentReport.php`
 - `app/Models/DepartmentRole.php`
 - `app/Models/DepartmentSupervisor.php`
-- `app/Models/DepartmentTransaction.php`
-- `app/Models/Document.php`
-- *(... và 46 files khác)*
+- *(... và 49 files khác)*
 
 ### Policy (10 files)
 
@@ -564,13 +587,15 @@
 - `app/Policies/PortalMemberPolicy.php`
 - `app/Policies/VisitationPolicy.php`
 
-### VuePage-Admin (11 files)
+### VuePage-Admin (13 files)
 
+- `resources/js/Pages/Admin/Accounts.vue`
 - `resources/js/Pages/Admin/ActivityLogs/Index.vue`
 - `resources/js/Pages/Admin/Announcements/Index.vue`
 - `resources/js/Pages/Admin/Assets/Index.vue`
 - `resources/js/Pages/Admin/Broadcasts/Index.vue`
 - `resources/js/Pages/Admin/Chronicles/Index.vue`
+- `resources/js/Pages/Admin/DeaconAssignments.vue`
 - `resources/js/Pages/Admin/Finance/Donations/BatchEntry.vue`
 - `resources/js/Pages/Admin/Finance/Donations/Index.vue`
 - `resources/js/Pages/Admin/Forms/Index.vue`
@@ -578,7 +603,7 @@
 - `resources/js/Pages/Admin/UserPermissions.vue`
 - `resources/js/Pages/Admin/Visitors/Index.vue`
 
-### VuePage-Portal (13 files)
+### VuePage-Portal (14 files)
 
 - `resources/js/Pages/Portal/ActivityLogs.vue`
 - `resources/js/Pages/Portal/Attendance/Index.vue`
@@ -586,6 +611,7 @@
 - `resources/js/Pages/Portal/Dashboard.vue`
 - `resources/js/Pages/Portal/Education/Dashboard.vue`
 - `resources/js/Pages/Portal/Education/Index.vue`
+- `resources/js/Pages/Portal/Education/Ranking.vue`
 - `resources/js/Pages/Portal/Education/Report.vue`
 - `resources/js/Pages/Portal/Education/Session.vue`
 - `resources/js/Pages/Portal/Education/SessionList.vue`
@@ -599,7 +625,7 @@
 - `resources/js/Pages/Ministry/Dashboard.vue`
 - `resources/js/Pages/Ministry/Visitation/Index.vue`
 
-### VuePage (64 files)
+### VuePage (67 files)
 
 - `resources/js/Pages/Auth/ForgotPassword.vue`
 - `resources/js/Pages/Auth/Login.vue`
@@ -609,6 +635,8 @@
 - `resources/js/Pages/Dashboard.vue`
 - `resources/js/Pages/Deacon/Attendance.vue`
 - `resources/js/Pages/Deacon/AttendanceShow.vue`
+- `resources/js/Pages/Deacon/ChurchAttendance.vue`
+- `resources/js/Pages/Deacon/Dashboard.vue`
 - `resources/js/Pages/Deacon/Index.vue`
 - `resources/js/Pages/Deacon/Report.vue`
 - `resources/js/Pages/Departments/Index.vue`
@@ -619,9 +647,7 @@
 - `resources/js/Pages/Departments/Tabs/TeamsTab.vue`
 - `resources/js/Pages/Docs/Admin/Features.vue`
 - `resources/js/Pages/Docs/Admin/Permissions.vue`
-- `resources/js/Pages/Docs/Admin/Users.vue`
-- `resources/js/Pages/Docs/Auth.vue`
-- *(... và 44 files khác)*
+- *(... và 47 files khác)*
 
 ### VueLayout (6 files)
 
@@ -632,7 +658,7 @@
 - `resources/js/Layouts/MobileLayout.vue`
 - `resources/js/Layouts/PortalLayout.vue`
 
-### VueComponent (21 files)
+### VueComponent (22 files)
 
 - `resources/js/Components/ActivityLogItem.vue`
 - `resources/js/Components/AppCard.vue`
@@ -649,14 +675,14 @@
 - `resources/js/Components/Modal.vue`
 - `resources/js/Components/NotificationDropdown.vue`
 - `resources/js/Components/Pagination.vue`
+- `resources/js/Components/PortalLinks.vue`
 - `resources/js/Components/PrimaryButton.vue`
 - `resources/js/Components/SearchableSelect.vue`
 - `resources/js/Components/SecondaryButton.vue`
 - `resources/js/Components/SlideOver.vue`
-- `resources/js/Components/StatusBadge.vue`
-- *(... và 1 files khác)*
+- *(... và 2 files khác)*
 
-### Migration (106 files)
+### Migration (113 files)
 
 - `database/migrations/0001_01_01_000000_create_users_table.php`
 - `database/migrations/0001_01_01_000001_create_cache_table.php`
@@ -678,7 +704,7 @@
 - `database/migrations/2026_02_27_032559_add_parent_id_to_departments_table.php`
 - `database/migrations/2026_02_27_040333_expand_members_and_sensitives_tables.php`
 - `database/migrations/2026_02_27_040349_create_member_modules_tables.php`
-- *(... và 86 files khác)*
+- *(... và 93 files khác)*
 
 ### Seeder (22 files)
 
@@ -761,29 +787,29 @@
 - `app/Notifications/MemberApprovalResultNotification.php`
 - *(... và 32 files khác)*
 
-### JavaScript (130 files)
+### JavaScript (136 files)
 
 - `postcss.config.js`
-- `public/build/assets/ActivityLogItem-D8UmSp-M.js`
-- `public/build/assets/ActivityLogs-BqMbUhsW.js`
-- `public/build/assets/AdminPortalLayout-zrp31gtw.js`
-- `public/build/assets/AppCard-CPbP9tOB.js`
-- `public/build/assets/Assignments-Bee3vHkc.js`
-- `public/build/assets/Attendance-7xaMKc1g.js`
-- `public/build/assets/Attendance-DHgjOPva.js`
-- `public/build/assets/AttendanceShow-DITRPlhy.js`
-- `public/build/assets/Auth-DMlBpIDd.js`
-- `public/build/assets/AuthenticatedLayout-D0KeaYO_.js`
-- `public/build/assets/BatchEntry-lFCC_pYd.js`
-- `public/build/assets/Create-C5d-GhEf.js`
-- `public/build/assets/CreateMemberForm-9z61-OFq.js`
-- `public/build/assets/Dashboard-CAUPQg60.js`
-- `public/build/assets/Dashboard-CPRcEjfb.js`
-- `public/build/assets/Dashboard-CUQLBTey.js`
-- `public/build/assets/Dashboard-gfTVYx3o.js`
-- `public/build/assets/Dashboard-mUOntCD0.js`
-- `public/build/assets/DataToolbar-D0oadrXa.js`
-- *(... và 110 files khác)*
+- `public/build/assets/Accounts-CpZYk6WE.js`
+- `public/build/assets/ActivityLogItem-DiV9iQEP.js`
+- `public/build/assets/ActivityLogs-bvD1EjZB.js`
+- `public/build/assets/AdminPortalLayout-CBlqwVu2.js`
+- `public/build/assets/AppCard-OC4L-qgO.js`
+- `public/build/assets/Assignments-D8oUeXOP.js`
+- `public/build/assets/Attendance-CAlxqkyU.js`
+- `public/build/assets/Attendance-DiInqYgn.js`
+- `public/build/assets/AttendanceShow-Bpo3ew-m.js`
+- `public/build/assets/Auth-BDkLgNno.js`
+- `public/build/assets/AuthenticatedLayout-DXLFdqPi.js`
+- `public/build/assets/BatchEntry-Bb5up8Ro.js`
+- `public/build/assets/ChurchAttendance-CqqSPEe7.js`
+- `public/build/assets/Create-B4MjPxW4.js`
+- `public/build/assets/CreateMemberForm-CZcI1HWY.js`
+- `public/build/assets/Dashboard-Bdw89Dh8.js`
+- `public/build/assets/Dashboard-CFSBpe1_.js`
+- `public/build/assets/Dashboard-D9qx6gRK.js`
+- `public/build/assets/Dashboard-DRGgiE8L.js`
+- *(... và 116 files khác)*
 
 ---
 

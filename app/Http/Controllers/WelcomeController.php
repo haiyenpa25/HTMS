@@ -59,7 +59,7 @@ class WelcomeController extends Controller
         $departments = Department::where('is_active', true)
             ->whereNull('parent_id') // Chỉ lấy cấp 1 (Ban Ngành gốc)
             ->select('id', 'name', 'block', 'description')
-            ->orderByRaw("FIELD(block, 'leadership', 'ministry', 'activities', 'finance') ASC")
+            ->orderByRaw("CASE block WHEN 'leadership' THEN 1 WHEN 'ministry' THEN 2 WHEN 'activities' THEN 3 WHEN 'finance' THEN 4 ELSE 5 END ASC")
             ->get()
             ->map(function ($dept) {
                 $icons = [

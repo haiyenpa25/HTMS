@@ -360,7 +360,7 @@
         "http",
         "portal"
       ],
-      "size_bytes": 26595
+      "size_bytes": 29039
     },
     "app/Http/Controllers/DepartmentController.php": {
       "layer": "Controller",
@@ -394,7 +394,7 @@
         "http",
         "organization"
       ],
-      "size_bytes": 12442
+      "size_bytes": 12566
     },
     "app/Http/Controllers/DocsController.php": {
       "layer": "Controller",
@@ -565,7 +565,7 @@
         "ministryportalcontroller",
         "muc_vu"
       ],
-      "size_bytes": 10534
+      "size_bytes": 10658
     },
     "app/Http/Controllers/NotificationController.php": {
       "layer": "Controller",
@@ -678,6 +678,28 @@
       ],
       "size_bytes": 7598
     },
+    "app/Http/Controllers/Admin/AccountController.php": {
+      "layer": "AdminController",
+      "layer_color": "#ef4444",
+      "domain": "members",
+      "domain_emoji": "👥",
+      "portal": "admin",
+      "summary_vi": "Controller quản lý người dùng (Admin)",
+      "keywords": [
+        "accountcontroller",
+        "admin",
+        "admincontroller",
+        "app",
+        "controllers",
+        "http",
+        "member",
+        "members",
+        "nguoi_dung",
+        "thanh_vien",
+        "user"
+      ],
+      "size_bytes": 11766
+    },
     "app/Http/Controllers/Admin/ActivityLogController.php": {
       "layer": "AdminController",
       "layer_color": "#ef4444",
@@ -774,6 +796,28 @@
         "so_tay"
       ],
       "size_bytes": 7953
+    },
+    "app/Http/Controllers/Admin/DeaconAssignmentController.php": {
+      "layer": "AdminController",
+      "layer_color": "#ef4444",
+      "domain": "assignments",
+      "domain_emoji": "📅",
+      "portal": "admin",
+      "summary_vi": "Controller Admin: Deacon Assignment Controller",
+      "keywords": [
+        "admin",
+        "admincontroller",
+        "app",
+        "assignment",
+        "assignments",
+        "controllers",
+        "deaconassignmentcontroller",
+        "duty",
+        "http",
+        "lich_truc",
+        "phan_cong"
+      ],
+      "size_bytes": 7969
     },
     "app/Http/Controllers/Admin/DonationController.php": {
       "layer": "AdminController",
@@ -947,6 +991,45 @@
       ],
       "size_bytes": 975
     },
+    "app/Http/Controllers/Deacon/ChurchAttendanceController.php": {
+      "layer": "Controller",
+      "layer_color": "#f59e0b",
+      "domain": "attendance",
+      "domain_emoji": "📋",
+      "portal": "deacon",
+      "summary_vi": "Controller: Church Attendance Controller",
+      "keywords": [
+        "app",
+        "attendance",
+        "churchattendancecontroller",
+        "controller",
+        "controllers",
+        "deacon",
+        "diem_danh",
+        "http",
+        "meeting",
+        "sinh_hoat"
+      ],
+      "size_bytes": 7586
+    },
+    "app/Http/Controllers/Deacon/DeaconDashboardController.php": {
+      "layer": "Controller",
+      "layer_color": "#f59e0b",
+      "domain": "portal",
+      "domain_emoji": "🏠",
+      "portal": "deacon",
+      "summary_vi": "Controller: Deacon Dashboard Controller",
+      "keywords": [
+        "app",
+        "controller",
+        "controllers",
+        "deacon",
+        "deacondashboardcontroller",
+        "http",
+        "portal"
+      ],
+      "size_bytes": 6232
+    },
     "app/Http/Controllers/Portal/ActivitiesVisitationController.php": {
       "layer": "PortalController",
       "layer_color": "#f97316",
@@ -1027,7 +1110,7 @@
         "portal",
         "portalcontroller"
       ],
-      "size_bytes": 26177
+      "size_bytes": 26776
     },
     "app/Http/Controllers/Portal/DeptFinanceController.php": {
       "layer": "PortalController",
@@ -1088,7 +1171,24 @@
         "portal",
         "portalcontroller"
       ],
-      "size_bytes": 50405
+      "size_bytes": 51691
+    },
+    "app/Http/Controllers/Portal/EduRankingController.php": {
+      "layer": "PortalController",
+      "layer_color": "#f97316",
+      "domain": "portal",
+      "domain_emoji": "🏠",
+      "portal": "activities",
+      "summary_vi": "Controller Portal: Edu Ranking Controller",
+      "keywords": [
+        "app",
+        "controllers",
+        "edurankingcontroller",
+        "http",
+        "portal",
+        "portalcontroller"
+      ],
+      "size_bytes": 6431
     },
     "app/Http/Controllers/Portal/FinanceFundController.php": {
       "layer": "PortalController",
@@ -1242,7 +1342,25 @@
         "visitation",
         "visitationcontroller"
       ],
-      "size_bytes": 16503
+      "size_bytes": 17134
+    },
+    "app/Http/Controllers/Secretary/SecretaryPortalController.php": {
+      "layer": "Controller",
+      "layer_color": "#f59e0b",
+      "domain": "portal",
+      "domain_emoji": "🏠",
+      "portal": "global",
+      "summary_vi": "Controller: Secretary Portal Controller",
+      "keywords": [
+        "app",
+        "controller",
+        "controllers",
+        "http",
+        "portal",
+        "secretary",
+        "secretaryportalcontroller"
+      ],
+      "size_bytes": 11498
     },
     "app/Http/Controllers/User/DonationController.php": {
       "layer": "Controller",
@@ -1265,6 +1383,22 @@
       ],
       "size_bytes": 1780
     },
+    "app/Http/Middleware/AbstractPortalMiddleware.php": {
+      "layer": "Middleware",
+      "layer_color": "#8b5cf6",
+      "domain": "portal",
+      "domain_emoji": "🏠",
+      "portal": "global",
+      "summary_vi": "Middleware: Abstract Portal Middleware",
+      "keywords": [
+        "abstractportalmiddleware",
+        "app",
+        "http",
+        "middleware",
+        "portal"
+      ],
+      "size_bytes": 12574
+    },
     "app/Http/Middleware/CheckFeatureAccess.php": {
       "layer": "Middleware",
       "layer_color": "#8b5cf6",
@@ -1284,7 +1418,7 @@
         "permissions",
         "phan_quyen"
       ],
-      "size_bytes": 3435
+      "size_bytes": 3030
     },
     "app/Http/Middleware/CheckPortalAccess.php": {
       "layer": "Middleware",
@@ -1305,7 +1439,7 @@
         "permissions",
         "phan_quyen"
       ],
-      "size_bytes": 4792
+      "size_bytes": 5531
     },
     "app/Http/Middleware/EnsureDeaconContext.php": {
       "layer": "Middleware",
@@ -1321,7 +1455,7 @@
         "http",
         "middleware"
       ],
-      "size_bytes": 4168
+      "size_bytes": 1598
     },
     "app/Http/Middleware/EnsureFinanceContext.php": {
       "layer": "Middleware",
@@ -1341,7 +1475,7 @@
         "middleware",
         "tai_chinh"
       ],
-      "size_bytes": 1798
+      "size_bytes": 2173
     },
     "app/Http/Middleware/EnsureMinistryContext.php": {
       "layer": "Middleware",
@@ -1360,7 +1494,7 @@
         "ministry",
         "muc_vu"
       ],
-      "size_bytes": 4588
+      "size_bytes": 615
     },
     "app/Http/Middleware/EnsurePortalContext.php": {
       "layer": "Middleware",
@@ -1376,7 +1510,23 @@
         "middleware",
         "reports"
       ],
-      "size_bytes": 2664
+      "size_bytes": 717
+    },
+    "app/Http/Middleware/EnsureSecretaryContext.php": {
+      "layer": "Middleware",
+      "layer_color": "#8b5cf6",
+      "domain": "general",
+      "domain_emoji": "📁",
+      "portal": "global",
+      "summary_vi": "Middleware: Ensure Secretary Context",
+      "keywords": [
+        "app",
+        "ensuresecretarycontext",
+        "general",
+        "http",
+        "middleware"
+      ],
+      "size_bytes": 1094
     },
     "app/Http/Middleware/EnsureSuperAdmin.php": {
       "layer": "Middleware",
@@ -1408,7 +1558,7 @@
         "http",
         "middleware"
       ],
-      "size_bytes": 6182
+      "size_bytes": 7880
     },
     "app/Http/Middleware/PortalAccessMiddleware.php": {
       "layer": "Middleware",
@@ -1661,6 +1811,22 @@
       ],
       "size_bytes": 339
     },
+    "app/Models/ChurchSetting.php": {
+      "layer": "Model",
+      "layer_color": "#06b6d4",
+      "domain": "admin",
+      "domain_emoji": "⚙️",
+      "portal": "global",
+      "summary_vi": "Model: Church Setting",
+      "keywords": [
+        "admin",
+        "app",
+        "churchsetting",
+        "model",
+        "models"
+      ],
+      "size_bytes": 1199
+    },
     "app/Models/Course.php": {
       "layer": "Model",
       "layer_color": "#06b6d4",
@@ -1694,7 +1860,7 @@
         "models",
         "sinh_hoat"
       ],
-      "size_bytes": 505
+      "size_bytes": 1384
     },
     "app/Models/DeaconMonthlyReport.php": {
       "layer": "Model",
@@ -1727,6 +1893,26 @@
         "reports"
       ],
       "size_bytes": 403
+    },
+    "app/Models/DeaconTermAssignment.php": {
+      "layer": "Model",
+      "layer_color": "#06b6d4",
+      "domain": "assignments",
+      "domain_emoji": "📅",
+      "portal": "global",
+      "summary_vi": "Model: Deacon Term Assignment",
+      "keywords": [
+        "app",
+        "assignment",
+        "assignments",
+        "deacontermassignment",
+        "duty",
+        "lich_truc",
+        "model",
+        "models",
+        "phan_cong"
+      ],
+      "size_bytes": 2283
     },
     "app/Models/Department.php": {
       "layer": "Model",
@@ -1928,7 +2114,7 @@
         "models",
         "muc_vu"
       ],
-      "size_bytes": 1557
+      "size_bytes": 4143
     },
     "app/Models/EduClassFund.php": {
       "layer": "Model",
@@ -2574,6 +2760,22 @@
       ],
       "size_bytes": 436
     },
+    "app/Models/SocialPlatformStat.php": {
+      "layer": "Model",
+      "layer_color": "#06b6d4",
+      "domain": "forms",
+      "domain_emoji": "📝",
+      "portal": "global",
+      "summary_vi": "Model: Social Platform Stat",
+      "keywords": [
+        "app",
+        "forms",
+        "model",
+        "models",
+        "socialplatformstat"
+      ],
+      "size_bytes": 1879
+    },
     "app/Models/Speaker.php": {
       "layer": "Model",
       "layer_color": "#06b6d4",
@@ -2639,7 +2841,7 @@
         "thanh_vien",
         "user"
       ],
-      "size_bytes": 3374
+      "size_bytes": 3329
     },
     "app/Models/UserDepartmentFeature.php": {
       "layer": "Model",
@@ -3131,7 +3333,7 @@
         "service",
         "services"
       ],
-      "size_bytes": 11970
+      "size_bytes": 12004
     },
     "app/Services/ScopeResolver.php": {
       "layer": "Service",
@@ -3194,7 +3396,7 @@
         "general",
         "php_other"
       ],
-      "size_bytes": 955
+      "size_bytes": 1045
     },
     "bootstrap/providers.php": {
       "layer": "PHP-Other",
@@ -5996,6 +6198,174 @@
       ],
       "size_bytes": 753
     },
+    "database/migrations/2026_06_08_000001_create_deacon_term_assignments_table.php": {
+      "layer": "Migration",
+      "layer_color": "#475569",
+      "domain": "assignments",
+      "domain_emoji": "📅",
+      "portal": "global",
+      "summary_vi": "Migration DB: 2026 06 08 000001 create deacon term assignments table",
+      "keywords": [
+        "000001",
+        "2026",
+        "assignment",
+        "assignments",
+        "create",
+        "database",
+        "deacon",
+        "duty",
+        "lich_truc",
+        "migration",
+        "migrations",
+        "phan_cong",
+        "table",
+        "term"
+      ],
+      "size_bytes": 1457
+    },
+    "database/migrations/2026_06_08_000002_create_church_settings_table.php": {
+      "layer": "Migration",
+      "layer_color": "#475569",
+      "domain": "admin",
+      "domain_emoji": "⚙️",
+      "portal": "global",
+      "summary_vi": "Migration DB: 2026 06 08 000002 create church settings table",
+      "keywords": [
+        "000002",
+        "2026",
+        "admin",
+        "church",
+        "create",
+        "database",
+        "migration",
+        "migrations",
+        "settings",
+        "table"
+      ],
+      "size_bytes": 1733
+    },
+    "database/migrations/2026_06_08_000003_add_columns_to_deacon_attendance_records.php": {
+      "layer": "Migration",
+      "layer_color": "#475569",
+      "domain": "attendance",
+      "domain_emoji": "📋",
+      "portal": "global",
+      "summary_vi": "Migration DB: 2026 06 08 000003 add columns to deacon attendance records",
+      "keywords": [
+        "000003",
+        "2026",
+        "add",
+        "attendance",
+        "columns",
+        "database",
+        "deacon",
+        "diem_danh",
+        "meeting",
+        "migration",
+        "migrations",
+        "records",
+        "sinh_hoat"
+      ],
+      "size_bytes": 1264
+    },
+    "database/migrations/2026_06_08_000004_create_social_platform_stats_table.php": {
+      "layer": "Migration",
+      "layer_color": "#475569",
+      "domain": "forms",
+      "domain_emoji": "📝",
+      "portal": "global",
+      "summary_vi": "Migration DB: 2026 06 08 000004 create social platform stats table",
+      "keywords": [
+        "000004",
+        "2026",
+        "create",
+        "database",
+        "forms",
+        "migration",
+        "migrations",
+        "platform",
+        "social",
+        "stats",
+        "table"
+      ],
+      "size_bytes": 1204
+    },
+    "database/migrations/2026_06_08_000005_add_seasonal_and_category_to_edu_classes.php": {
+      "layer": "Migration",
+      "layer_color": "#475569",
+      "domain": "ministry",
+      "domain_emoji": "✝️",
+      "portal": "global",
+      "summary_vi": "Migration DB: 2026 06 08 000005 add seasonal and category to edu classes",
+      "keywords": [
+        "000005",
+        "2026",
+        "add",
+        "category",
+        "classes",
+        "database",
+        "edu",
+        "education",
+        "giao_duc",
+        "migration",
+        "migrations",
+        "ministry",
+        "muc_vu",
+        "seasonal"
+      ],
+      "size_bytes": 1275
+    },
+    "database/migrations/2026_06_08_000006_add_treasurer_role_to_edu_class_members.php": {
+      "layer": "Migration",
+      "layer_color": "#475569",
+      "domain": "members",
+      "domain_emoji": "👥",
+      "portal": "global",
+      "summary_vi": "Migration DB: 2026 06 08 000006 add treasurer role to edu class members",
+      "keywords": [
+        "000006",
+        "2026",
+        "add",
+        "class",
+        "database",
+        "edu",
+        "member",
+        "members",
+        "migration",
+        "migrations",
+        "nguoi_dung",
+        "role",
+        "thanh_vien",
+        "treasurer",
+        "user"
+      ],
+      "size_bytes": 707
+    },
+    "database/migrations/2026_06_08_000007_add_target_fields_to_donations.php": {
+      "layer": "Migration",
+      "layer_color": "#475569",
+      "domain": "finance",
+      "domain_emoji": "💰",
+      "portal": "global",
+      "summary_vi": "Migration DB: 2026 06 08 000007 add target fields to donations",
+      "keywords": [
+        "000007",
+        "2026",
+        "add",
+        "dang_hien",
+        "database",
+        "donation",
+        "donations",
+        "fields",
+        "finance",
+        "fund",
+        "migration",
+        "migrations",
+        "tai_chinh",
+        "target"
+      ],
+      "size_bytes": 1075
+    },
     "database/seeders/AnalyticsDataSeeder.php": {
       "layer": "Seeder",
       "layer_color": "#64748b",
@@ -6434,7 +6804,7 @@
         "javascript",
         "public"
       ],
-      "size_bytes": 17137
+      "size_bytes": 18299
     },
     "public/workbox-8c29f6e4.js": {
       "layer": "JavaScript",
@@ -6484,21 +6854,43 @@
       ],
       "size_bytes": 134
     },
-    "public/build/assets/ActivityLogItem-D8UmSp-M.js": {
+    "public/build/assets/Accounts-CpZYk6WE.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "members",
+      "domain_emoji": "👥",
+      "portal": "global",
+      "summary_vi": "JavaScript: Accounts Cp ZYk6WE",
+      "keywords": [
+        "accounts",
+        "assets",
+        "build",
+        "cpzyk6we",
+        "javascript",
+        "member",
+        "members",
+        "nguoi_dung",
+        "public",
+        "thanh_vien",
+        "user"
+      ],
+      "size_bytes": 12314
+    },
+    "public/build/assets/ActivityLogItem-DiV9iQEP.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "chronicles",
       "domain_emoji": "📖",
       "portal": "global",
-      "summary_vi": "JavaScript: Activity Log Item D8Um Sp M",
+      "summary_vi": "JavaScript: Activity Log Item Di V9i QEP",
       "keywords": [
         "activitylogitem",
         "assets",
         "build",
         "chronicle",
         "chronicles",
-        "d8umsp",
         "diary",
+        "div9iqep",
         "javascript",
         "nhat_ky",
         "public",
@@ -6506,18 +6898,18 @@
       ],
       "size_bytes": 4723
     },
-    "public/build/assets/ActivityLogs-BqMbUhsW.js": {
+    "public/build/assets/ActivityLogs-bvD1EjZB.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "chronicles",
       "domain_emoji": "📖",
       "portal": "global",
-      "summary_vi": "JavaScript: Activity Logs Bq Mb Uhs W",
+      "summary_vi": "JavaScript: Activity Logs bv D1Ej ZB",
       "keywords": [
         "activitylogs",
         "assets",
-        "bqmbuhsw",
         "build",
+        "bvd1ejzb",
         "chronicle",
         "chronicles",
         "diary",
@@ -6528,73 +6920,74 @@
       ],
       "size_bytes": 2691
     },
-    "public/build/assets/AdminPortalLayout-zrp31gtw.js": {
+    "public/build/assets/AdminPortalLayout-CBlqwVu2.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Admin Portal Layout zrp31gtw",
+      "summary_vi": "JavaScript: Admin Portal Layout CBlqw Vu2",
       "keywords": [
         "adminportallayout",
         "assets",
         "build",
+        "cblqwvu2",
         "documents",
         "javascript",
-        "public",
-        "zrp31gtw"
+        "public"
       ],
       "size_bytes": 4118
     },
-    "public/build/assets/app-BZtu6jaF.js": {
+    "public/build/assets/app-Doz3wErI.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: app BZtu6ja F",
+      "summary_vi": "JavaScript: app Doz3w Er I",
       "keywords": [
         "app",
         "assets",
         "build",
-        "bztu6jaf",
         "documents",
+        "doz3weri",
         "javascript",
         "public"
       ],
-      "size_bytes": 276326
+      "size_bytes": 277355
     },
-    "public/build/assets/AppCard-CPbP9tOB.js": {
+    "public/build/assets/AppCard-OC4L-qgO.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: App Card CPb P9t OB",
+      "summary_vi": "JavaScript: App Card OC4L qg O",
       "keywords": [
         "appcard",
         "assets",
         "build",
-        "cpbp9tob",
         "documents",
         "javascript",
-        "public"
+        "oc4l",
+        "public",
+        "qgo"
       ],
       "size_bytes": 652
     },
-    "public/build/assets/Assignments-Bee3vHkc.js": {
+    "public/build/assets/Assignments-D8oUeXOP.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "assignments",
       "domain_emoji": "📅",
       "portal": "global",
-      "summary_vi": "JavaScript: Assignments Bee3v Hkc",
+      "summary_vi": "JavaScript: Assignments D8o Ue XOP",
       "keywords": [
         "assets",
         "assignment",
         "assignments",
-        "bee3vhkc",
         "build",
+        "d8ouexop",
         "duty",
         "javascript",
         "lich_truc",
@@ -6603,39 +6996,39 @@
       ],
       "size_bytes": 3612
     },
-    "public/build/assets/Attendance-7xaMKc1g.js": {
+    "public/build/assets/Attendance-CAlxqkyU.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "attendance",
       "domain_emoji": "📋",
       "portal": "global",
-      "summary_vi": "JavaScript: Attendance 7xa MKc1g",
+      "summary_vi": "JavaScript: Attendance CAlxqky U",
       "keywords": [
-        "7xamkc1g",
         "assets",
         "attendance",
         "build",
+        "calxqkyu",
         "diem_danh",
         "javascript",
         "meeting",
         "public",
         "sinh_hoat"
       ],
-      "size_bytes": 10023
+      "size_bytes": 10028
     },
-    "public/build/assets/Attendance-DHgjOPva.js": {
+    "public/build/assets/Attendance-DiInqYgn.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "attendance",
       "domain_emoji": "📋",
       "portal": "global",
-      "summary_vi": "JavaScript: Attendance DHgj OPva",
+      "summary_vi": "JavaScript: Attendance Di Inq Ygn",
       "keywords": [
         "assets",
         "attendance",
         "build",
-        "dhgjopva",
         "diem_danh",
+        "diinqygn",
         "javascript",
         "meeting",
         "public",
@@ -6643,20 +7036,20 @@
       ],
       "size_bytes": 3742
     },
-    "public/build/assets/AttendanceShow-DITRPlhy.js": {
+    "public/build/assets/AttendanceShow-Bpo3ew-m.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "attendance",
       "domain_emoji": "📋",
       "portal": "global",
-      "summary_vi": "JavaScript: Attendance Show DITRPlhy",
+      "summary_vi": "JavaScript: Attendance Show Bpo3ew m",
       "keywords": [
         "assets",
         "attendance",
         "attendanceshow",
+        "bpo3ew",
         "build",
         "diem_danh",
-        "ditrplhy",
         "javascript",
         "meeting",
         "public",
@@ -6664,18 +7057,18 @@
       ],
       "size_bytes": 9528
     },
-    "public/build/assets/Auth-DMlBpIDd.js": {
+    "public/build/assets/Auth-BDkLgNno.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "auth",
       "domain_emoji": "🔐",
       "portal": "global",
-      "summary_vi": "JavaScript: Auth DMl Bp IDd",
+      "summary_vi": "JavaScript: Auth BDk Lg Nno",
       "keywords": [
         "assets",
         "auth",
+        "bdklgnno",
         "build",
-        "dmlbpidd",
         "javascript",
         "login",
         "logout",
@@ -6686,19 +7079,19 @@
       ],
       "size_bytes": 2715
     },
-    "public/build/assets/AuthenticatedLayout-D0KeaYO_.js": {
+    "public/build/assets/AuthenticatedLayout-DXLFdqPi.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "auth",
       "domain_emoji": "🔐",
       "portal": "global",
-      "summary_vi": "JavaScript: Authenticated Layout D0Kea YO ",
+      "summary_vi": "JavaScript: Authenticated Layout DXLFdq Pi",
       "keywords": [
         "assets",
         "auth",
         "authenticatedlayout",
         "build",
-        "d0keayo",
+        "dxlfdqpi",
         "javascript",
         "login",
         "logout",
@@ -6707,188 +7100,242 @@
         "session",
         "xac_thuc"
       ],
-      "size_bytes": 56059
+      "size_bytes": 56391
     },
-    "public/build/assets/BatchEntry-lFCC_pYd.js": {
+    "public/build/assets/BatchEntry-Bb5up8Ro.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Batch Entry l FCC p Yd",
+      "summary_vi": "JavaScript: Batch Entry Bb5up8Ro",
       "keywords": [
         "assets",
         "batchentry",
+        "bb5up8ro",
         "build",
         "documents",
-        "javascript",
-        "lfcc",
-        "public",
-        "pyd"
-      ],
-      "size_bytes": 12107
-    },
-    "public/build/assets/Create-C5d-GhEf.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Create C5d Gh Ef",
-      "keywords": [
-        "assets",
-        "build",
-        "c5d",
-        "create",
-        "documents",
-        "ghef",
         "javascript",
         "public"
       ],
-      "size_bytes": 4460
+      "size_bytes": 12107
     },
-    "public/build/assets/createLucideIcon-DYOTV15C.js": {
+    "public/build/assets/ChurchAttendance-CqqSPEe7.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "attendance",
+      "domain_emoji": "📋",
+      "portal": "global",
+      "summary_vi": "JavaScript: Church Attendance Cqq SPEe7",
+      "keywords": [
+        "assets",
+        "attendance",
+        "build",
+        "churchattendance",
+        "cqqspee7",
+        "diem_danh",
+        "javascript",
+        "meeting",
+        "public",
+        "sinh_hoat"
+      ],
+      "size_bytes": 6419
+    },
+    "public/build/assets/Create-B4MjPxW4.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: create Lucide Icon DYOTV15C",
+      "summary_vi": "JavaScript: Create B4Mj Px W4",
       "keywords": [
         "assets",
+        "b4mjpxw4",
+        "build",
+        "create",
+        "documents",
+        "javascript",
+        "public"
+      ],
+      "size_bytes": 4470
+    },
+    "public/build/assets/createLucideIcon-BS91qTi5.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: create Lucide Icon BS91q Ti5",
+      "keywords": [
+        "assets",
+        "bs91qti5",
         "build",
         "createlucideicon",
         "documents",
-        "dyotv15c",
         "javascript",
         "public"
       ],
       "size_bytes": 2821
     },
-    "public/build/assets/CreateMemberForm-9z61-OFq.js": {
+    "public/build/assets/CreateMemberForm-CZcI1HWY.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "members",
       "domain_emoji": "👥",
       "portal": "global",
-      "summary_vi": "JavaScript: Create Member Form 9z61 OFq",
+      "summary_vi": "JavaScript: Create Member Form CZc I1HWY",
       "keywords": [
-        "9z61",
         "assets",
         "build",
         "creatememberform",
+        "czci1hwy",
         "javascript",
         "member",
         "members",
         "nguoi_dung",
-        "ofq",
         "public",
         "thanh_vien",
         "user"
       ],
-      "size_bytes": 7967
+      "size_bytes": 7962
     },
-    "public/build/assets/Dashboard-CAUPQg60.js": {
+    "public/build/assets/Dashboard-Bdw89Dh8.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Dashboard CAUPQg60",
+      "summary_vi": "JavaScript: Dashboard Bdw89Dh8",
       "keywords": [
         "assets",
+        "bdw89dh8",
         "build",
-        "caupqg60",
         "dashboard",
         "documents",
         "javascript",
         "public"
       ],
-      "size_bytes": 9101
+      "size_bytes": 5038
     },
-    "public/build/assets/Dashboard-CPRcEjfb.js": {
+    "public/build/assets/Dashboard-CFSBpe1_.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Dashboard CPRc Ejfb",
+      "summary_vi": "JavaScript: Dashboard CFSBpe1 ",
       "keywords": [
         "assets",
         "build",
-        "cprcejfb",
+        "cfsbpe1",
         "dashboard",
         "documents",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 13714
-    },
-    "public/build/assets/Dashboard-CUQLBTey.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Dashboard CUQLBTey",
-      "keywords": [
-        "assets",
-        "build",
-        "cuqlbtey",
-        "dashboard",
-        "documents",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 13517
-    },
-    "public/build/assets/Dashboard-gfTVYx3o.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Dashboard gf TVYx3o",
-      "keywords": [
-        "assets",
-        "build",
-        "dashboard",
-        "documents",
-        "gftvyx3o",
         "javascript",
         "public"
       ],
       "size_bytes": 10558
     },
-    "public/build/assets/Dashboard-mUOntCD0.js": {
+    "public/build/assets/Dashboard-D9qx6gRK.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Dashboard m UOnt CD0",
+      "summary_vi": "JavaScript: Dashboard D9qx6g RK",
+      "keywords": [
+        "assets",
+        "build",
+        "d9qx6grk",
+        "dashboard",
+        "documents",
+        "javascript",
+        "public"
+      ],
+      "size_bytes": 21907
+    },
+    "public/build/assets/Dashboard-DRGgiE8L.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Dashboard DRGgi E8L",
+      "keywords": [
+        "assets",
+        "build",
+        "dashboard",
+        "documents",
+        "drggie8l",
+        "javascript",
+        "public"
+      ],
+      "size_bytes": 13527
+    },
+    "public/build/assets/Dashboard-DWUfMOdT.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Dashboard DWUf MOd T",
+      "keywords": [
+        "assets",
+        "build",
+        "dashboard",
+        "documents",
+        "dwufmodt",
+        "javascript",
+        "public"
+      ],
+      "size_bytes": 13714
+    },
+    "public/build/assets/Dashboard-D_UHAB9o.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Dashboard D UHAB9o",
       "keywords": [
         "assets",
         "build",
         "dashboard",
         "documents",
         "javascript",
-        "muontcd0",
-        "public"
+        "public",
+        "uhab9o"
       ],
-      "size_bytes": 35503
+      "size_bytes": 9101
     },
-    "public/build/assets/DataToolbar-D0oadrXa.js": {
+    "public/build/assets/Dashboard-qa1wMycs.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Data Toolbar D0oadr Xa",
+      "summary_vi": "JavaScript: Dashboard qa1w Mycs",
       "keywords": [
         "assets",
         "build",
-        "d0oadrxa",
+        "dashboard",
+        "documents",
+        "javascript",
+        "public",
+        "qa1wmycs"
+      ],
+      "size_bytes": 36621
+    },
+    "public/build/assets/DataToolbar-CkPnM4QH.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Data Toolbar Ck Pn M4QH",
+      "keywords": [
+        "assets",
+        "build",
+        "ckpnm4qh",
         "datatoolbar",
         "documents",
         "javascript",
@@ -6896,91 +7343,113 @@
       ],
       "size_bytes": 3231
     },
-    "public/build/assets/debounce-D5eINvPt.js": {
+    "public/build/assets/DeaconAssignments-DVawg6q6.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "assignments",
+      "domain_emoji": "📅",
+      "portal": "global",
+      "summary_vi": "JavaScript: Deacon Assignments DVawg6q6",
+      "keywords": [
+        "assets",
+        "assignment",
+        "assignments",
+        "build",
+        "deaconassignments",
+        "duty",
+        "dvawg6q6",
+        "javascript",
+        "lich_truc",
+        "phan_cong",
+        "public"
+      ],
+      "size_bytes": 7410
+    },
+    "public/build/assets/debounce-LrEh2TNJ.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: debounce D5e INv Pt",
+      "summary_vi": "JavaScript: debounce Lr Eh2TNJ",
       "keywords": [
         "assets",
         "build",
-        "d5einvpt",
         "debounce",
         "documents",
         "javascript",
+        "lreh2tnj",
         "public"
       ],
       "size_bytes": 2478
     },
-    "public/build/assets/DepartmentForm-BITbpBHw.js": {
+    "public/build/assets/DepartmentForm-BKgPcvFF.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Department Form BITbp BHw",
+      "summary_vi": "JavaScript: Department Form BKg Pcv FF",
       "keywords": [
         "assets",
-        "bitbpbhw",
+        "bkgpcvff",
         "build",
         "departmentform",
         "documents",
         "javascript",
         "public"
       ],
-      "size_bytes": 7053
+      "size_bytes": 7058
     },
-    "public/build/assets/DocsLayout-DK5iTiRh.js": {
+    "public/build/assets/DocsLayout-DxReaTQx.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Docs Layout DK5i Ti Rh",
+      "summary_vi": "JavaScript: Docs Layout Dx Rea TQx",
       "keywords": [
         "assets",
         "build",
-        "dk5itirh",
         "docslayout",
         "documents",
+        "dxreatqx",
         "javascript",
         "public"
       ],
       "size_bytes": 6668
     },
-    "public/build/assets/Dropdown-D5uUIwiD.js": {
+    "public/build/assets/Dropdown-CKeWUtTH.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Dropdown D5u UIwi D",
+      "summary_vi": "JavaScript: Dropdown CKe WUt TH",
       "keywords": [
         "assets",
         "build",
-        "d5uuiwid",
+        "ckewutth",
         "documents",
         "dropdown",
         "javascript",
         "public"
       ],
-      "size_bytes": 1473
+      "size_bytes": 1468
     },
-    "public/build/assets/DutyRoster-Dmoqs8IV.js": {
+    "public/build/assets/DutyRoster-CmqJglDo.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "assignments",
       "domain_emoji": "📅",
       "portal": "global",
-      "summary_vi": "JavaScript: Duty Roster Dmoqs8IV",
+      "summary_vi": "JavaScript: Duty Roster Cmq Jgl Do",
       "keywords": [
         "assets",
         "assignment",
         "assignments",
         "build",
-        "dmoqs8iv",
+        "cmqjgldo",
         "duty",
         "dutyroster",
         "javascript",
@@ -6990,17 +7459,17 @@
       ],
       "size_bytes": 7718
     },
-    "public/build/assets/Education-C6FxebPf.js": {
+    "public/build/assets/Education-DBUCS-JQ.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "ministry",
       "domain_emoji": "✝️",
       "portal": "global",
-      "summary_vi": "JavaScript: Education C6Fxeb Pf",
+      "summary_vi": "JavaScript: Education DBUCS JQ",
       "keywords": [
         "assets",
         "build",
-        "c6fxebpf",
+        "dbucs",
         "education",
         "giao_duc",
         "javascript",
@@ -7010,35 +7479,35 @@
       ],
       "size_bytes": 6283
     },
-    "public/build/assets/FaithJourneyTimeline-DqvwzFOp.js": {
+    "public/build/assets/FaithJourneyTimeline-CBDLotV8.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Faith Journey Timeline Dqvwz FOp",
+      "summary_vi": "JavaScript: Faith Journey Timeline CBDLot V8",
       "keywords": [
         "assets",
         "build",
+        "cbdlotv8",
         "documents",
-        "dqvwzfop",
         "faithjourneytimeline",
         "javascript",
         "public"
       ],
-      "size_bytes": 38952
+      "size_bytes": 38947
     },
-    "public/build/assets/Features-B28VT9dK.js": {
+    "public/build/assets/Features-ByiIlgXH.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Features B28VT9d K",
+      "summary_vi": "JavaScript: Features Byi Ilg XH",
       "keywords": [
         "assets",
-        "b28vt9dk",
         "build",
+        "byiilgxh",
         "documents",
         "features",
         "javascript",
@@ -7046,33 +7515,32 @@
       ],
       "size_bytes": 1331
     },
-    "public/build/assets/FeaturesTab-Ct-30h7G.js": {
+    "public/build/assets/FeaturesTab-DvGEKypf.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Features Tab Ct 30h7G",
+      "summary_vi": "JavaScript: Features Tab Dv GEKypf",
       "keywords": [
-        "30h7g",
         "assets",
         "build",
         "documents",
+        "dvgekypf",
         "featurestab",
         "javascript",
         "public"
       ],
       "size_bytes": 5100
     },
-    "public/build/assets/Finance-27UNGfR4.js": {
+    "public/build/assets/Finance--SJz3n_-.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "finance",
       "domain_emoji": "💰",
       "portal": "global",
-      "summary_vi": "JavaScript: Finance 27UNGf R4",
+      "summary_vi": "JavaScript: Finance  SJz3n  ",
       "keywords": [
-        "27ungfr4",
         "assets",
         "build",
         "dang_hien",
@@ -7081,23 +7549,24 @@
         "fund",
         "javascript",
         "public",
+        "sjz3n",
         "tai_chinh"
       ],
       "size_bytes": 5724
     },
-    "public/build/assets/Finance-BP0arcxu.js": {
+    "public/build/assets/Finance-B_DyfOqh.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "finance",
       "domain_emoji": "💰",
       "portal": "global",
-      "summary_vi": "JavaScript: Finance BP0arcxu",
+      "summary_vi": "JavaScript: Finance B Dyf Oqh",
       "keywords": [
         "assets",
-        "bp0arcxu",
         "build",
         "dang_hien",
         "donation",
+        "dyfoqh",
         "finance",
         "fund",
         "javascript",
@@ -7106,17 +7575,18 @@
       ],
       "size_bytes": 3891
     },
-    "public/build/assets/ForgotPassword-BNO6Tb_A.js": {
+    "public/build/assets/ForgotPassword-B2K-aVIE.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "auth",
       "domain_emoji": "🔐",
       "portal": "global",
-      "summary_vi": "JavaScript: Forgot Password BNO6Tb A",
+      "summary_vi": "JavaScript: Forgot Password B2K a VIE",
       "keywords": [
         "assets",
         "auth",
-        "bno6tb",
+        "avie",
+        "b2k",
         "build",
         "forgotpassword",
         "javascript",
@@ -7127,19 +7597,19 @@
         "session",
         "xac_thuc"
       ],
-      "size_bytes": 3619
+      "size_bytes": 3614
     },
-    "public/build/assets/FormModal-DkowqYLk.js": {
+    "public/build/assets/FormModal-CBJopSTB.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Form Modal Dkowq YLk",
+      "summary_vi": "JavaScript: Form Modal CBJop STB",
       "keywords": [
         "assets",
         "build",
-        "dkowqylk",
+        "cbjopstb",
         "documents",
         "formmodal",
         "javascript",
@@ -7147,270 +7617,35 @@
       ],
       "size_bytes": 16325
     },
-    "public/build/assets/HolisticView-CR3Fjuro.js": {
+    "public/build/assets/HolisticView-CXdaiQ0S.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Holistic View CR3Fjuro",
+      "summary_vi": "JavaScript: Holistic View CXdai Q0S",
       "keywords": [
         "assets",
         "build",
-        "cr3fjuro",
+        "cxdaiq0s",
         "documents",
         "holisticview",
         "javascript",
         "public"
       ],
-      "size_bytes": 30130
+      "size_bytes": 30125
     },
-    "public/build/assets/Index-0k7guybI.js": {
+    "public/build/assets/Index-7N1zi4J-.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index 0k7guyb I",
+      "summary_vi": "JavaScript: Index 7N1zi4J ",
       "keywords": [
-        "0k7guybi",
+        "7n1zi4j",
         "assets",
         "build",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 69880
-    },
-    "public/build/assets/Index-40cv_aQv.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index 40cv a Qv",
-      "keywords": [
-        "40cv",
-        "aqv",
-        "assets",
-        "build",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 20931
-    },
-    "public/build/assets/Index-B5GR8VyL.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index B5GR8Vy L",
-      "keywords": [
-        "assets",
-        "b5gr8vyl",
-        "build",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 5262
-    },
-    "public/build/assets/Index-B9RrXo_O.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index B9Rr Xo O",
-      "keywords": [
-        "assets",
-        "b9rrxo",
-        "build",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 8590
-    },
-    "public/build/assets/Index-BbdqXnFq.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index Bbdq Xn Fq",
-      "keywords": [
-        "assets",
-        "bbdqxnfq",
-        "build",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 25889
-    },
-    "public/build/assets/Index-BL_pYsZ4.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index BL p Ys Z4",
-      "keywords": [
-        "assets",
-        "build",
-        "documents",
-        "index",
-        "javascript",
-        "public",
-        "pysz4"
-      ],
-      "size_bytes": 20571
-    },
-    "public/build/assets/Index-BmSPLxoA.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index Bm SPLxo A",
-      "keywords": [
-        "assets",
-        "bmsplxoa",
-        "build",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 17315
-    },
-    "public/build/assets/Index-BNikdj83.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index BNikdj83",
-      "keywords": [
-        "assets",
-        "bnikdj83",
-        "build",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 23045
-    },
-    "public/build/assets/Index-BOCQRd-W.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index BOCQRd W",
-      "keywords": [
-        "assets",
-        "bocqrd",
-        "build",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 22139
-    },
-    "public/build/assets/Index-Bt8yOO2e.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index Bt8y OO2e",
-      "keywords": [
-        "assets",
-        "bt8yoo2e",
-        "build",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 13531
-    },
-    "public/build/assets/Index-BvtZFe43.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index Bvt ZFe43",
-      "keywords": [
-        "assets",
-        "build",
-        "bvtzfe43",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 13689
-    },
-    "public/build/assets/Index-BzKRsFKZ.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index Bz KRs FKZ",
-      "keywords": [
-        "assets",
-        "build",
-        "bzkrsfkz",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 17421
-    },
-    "public/build/assets/Index-C3MPgg8t.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index C3MPgg8t",
-      "keywords": [
-        "assets",
-        "build",
-        "c3mpgg8t",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 18980
-    },
-    "public/build/assets/Index-CgiVaJC7.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index Cgi Va JC7",
-      "keywords": [
-        "assets",
-        "build",
-        "cgivajc7",
         "documents",
         "index",
         "javascript",
@@ -7418,125 +7653,71 @@
       ],
       "size_bytes": 287029
     },
-    "public/build/assets/Index-CKFJPRez.js": {
+    "public/build/assets/Index-B7ODL2Z6.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index CKFJPRez",
+      "summary_vi": "JavaScript: Index B7ODL2Z6",
       "keywords": [
         "assets",
+        "b7odl2z6",
         "build",
-        "ckfjprez",
         "documents",
         "index",
         "javascript",
         "public"
       ],
-      "size_bytes": 265071
+      "size_bytes": 22144
     },
-    "public/build/assets/Index-CPRdRvzu.js": {
+    "public/build/assets/Index-B7Sm64FR.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index CPRd Rvzu",
+      "summary_vi": "JavaScript: Index B7Sm64FR",
       "keywords": [
         "assets",
+        "b7sm64fr",
         "build",
-        "cprdrvzu",
         "documents",
         "index",
         "javascript",
         "public"
       ],
-      "size_bytes": 44716
+      "size_bytes": 20571
     },
-    "public/build/assets/Index-CPv1h2Eb.js": {
+    "public/build/assets/Index-BaYZOj6T.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index CPv1h2Eb",
+      "summary_vi": "JavaScript: Index Ba YZOj6T",
       "keywords": [
         "assets",
+        "bayzoj6t",
         "build",
-        "cpv1h2eb",
         "documents",
         "index",
         "javascript",
         "public"
       ],
-      "size_bytes": 50352
+      "size_bytes": 13689
     },
-    "public/build/assets/Index-Cr6dvAFs.js": {
+    "public/build/assets/Index-BENLROd1.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index Cr6dv AFs",
+      "summary_vi": "JavaScript: Index BENLROd1",
       "keywords": [
         "assets",
+        "benlrod1",
         "build",
-        "cr6dvafs",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 14298
-    },
-    "public/build/assets/Index-CWfzQRBO.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index CWfz QRBO",
-      "keywords": [
-        "assets",
-        "build",
-        "cwfzqrbo",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 12633
-    },
-    "public/build/assets/Index-D3fU38PM.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index D3f U38PM",
-      "keywords": [
-        "assets",
-        "build",
-        "d3fu38pm",
-        "documents",
-        "index",
-        "javascript",
-        "public"
-      ],
-      "size_bytes": 4340
-    },
-    "public/build/assets/Index-D7A6b2lB.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Index D7A6b2l B",
-      "keywords": [
-        "assets",
-        "build",
-        "d7a6b2lb",
         "documents",
         "index",
         "javascript",
@@ -7544,53 +7725,215 @@
       ],
       "size_bytes": 14369
     },
-    "public/build/assets/Index-DAeWSa48.js": {
+    "public/build/assets/Index-BiTkDJwE.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index DAe WSa48",
+      "summary_vi": "JavaScript: Index Bi Tk DJw E",
       "keywords": [
         "assets",
+        "bitkdjwe",
         "build",
-        "daewsa48",
         "documents",
         "index",
         "javascript",
         "public"
       ],
-      "size_bytes": 16810
+      "size_bytes": 44721
     },
-    "public/build/assets/Index-DANbx8wZ.js": {
+    "public/build/assets/Index-BP4sr0Wc.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index DANbx8w Z",
+      "summary_vi": "JavaScript: Index BP4sr0Wc",
       "keywords": [
         "assets",
+        "bp4sr0wc",
         "build",
-        "danbx8wz",
         "documents",
         "index",
         "javascript",
         "public"
       ],
-      "size_bytes": 31372
+      "size_bytes": 18980
     },
-    "public/build/assets/Index-DbcecYdD.js": {
+    "public/build/assets/Index-BP9Zp8Ny.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index Dbcec Yd D",
+      "summary_vi": "JavaScript: Index BP9Zp8Ny",
+      "keywords": [
+        "assets",
+        "bp9zp8ny",
+        "build",
+        "documents",
+        "index",
+        "javascript",
+        "public"
+      ],
+      "size_bytes": 4340
+    },
+    "public/build/assets/Index-BRy3Imkz.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Index BRy3Imkz",
+      "keywords": [
+        "assets",
+        "bry3imkz",
+        "build",
+        "documents",
+        "index",
+        "javascript",
+        "public"
+      ],
+      "size_bytes": 13521
+    },
+    "public/build/assets/Index-BS0cCu-k.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Index BS0c Cu k",
+      "keywords": [
+        "assets",
+        "bs0ccu",
+        "build",
+        "documents",
+        "index",
+        "javascript",
+        "public"
+      ],
+      "size_bytes": 69885
+    },
+    "public/build/assets/Index-Bx6fTMq7.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Index Bx6f TMq7",
       "keywords": [
         "assets",
         "build",
-        "dbcecydd",
+        "bx6ftmq7",
+        "documents",
+        "index",
+        "javascript",
+        "public"
+      ],
+      "size_bytes": 25592
+    },
+    "public/build/assets/Index-CDP77jUV.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Index CDP77j UV",
+      "keywords": [
+        "assets",
+        "build",
+        "cdp77juv",
+        "documents",
+        "index",
+        "javascript",
+        "public"
+      ],
+      "size_bytes": 31377
+    },
+    "public/build/assets/Index-CHytb84o.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Index CHytb84o",
+      "keywords": [
+        "assets",
+        "build",
+        "chytb84o",
+        "documents",
+        "index",
+        "javascript",
+        "public"
+      ],
+      "size_bytes": 16815
+    },
+    "public/build/assets/Index-CsDtwrIF.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Index Cs Dtwr IF",
+      "keywords": [
+        "assets",
+        "build",
+        "csdtwrif",
+        "documents",
+        "index",
+        "javascript",
+        "public"
+      ],
+      "size_bytes": 12633
+    },
+    "public/build/assets/Index-CWKQo2aQ.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Index CWKQo2a Q",
+      "keywords": [
+        "assets",
+        "build",
+        "cwkqo2aq",
+        "documents",
+        "index",
+        "javascript",
+        "public"
+      ],
+      "size_bytes": 25889
+    },
+    "public/build/assets/Index-D74NSNXh.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Index D74NSNXh",
+      "keywords": [
+        "assets",
+        "build",
+        "d74nsnxh",
+        "documents",
+        "index",
+        "javascript",
+        "public"
+      ],
+      "size_bytes": 8590
+    },
+    "public/build/assets/Index-D8b6TXDd.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Index D8b6TXDd",
+      "keywords": [
+        "assets",
+        "build",
+        "d8b6txdd",
         "documents",
         "index",
         "javascript",
@@ -7598,121 +7941,158 @@
       ],
       "size_bytes": 57103
     },
-    "public/build/assets/Index-DcUeNB3E.js": {
+    "public/build/assets/Index-DhovtMti.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index Dc Ue NB3E",
+      "summary_vi": "JavaScript: Index Dhovt Mti",
       "keywords": [
         "assets",
         "build",
-        "dcuenb3e",
+        "dhovtmti",
         "documents",
         "index",
         "javascript",
         "public"
       ],
-      "size_bytes": 25597
+      "size_bytes": 15360
     },
-    "public/build/assets/Index-DLUz2xpf.js": {
+    "public/build/assets/Index-DKI4M3Tj.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index DLUz2xpf",
+      "summary_vi": "JavaScript: Index DKI4M3Tj",
       "keywords": [
         "assets",
         "build",
-        "dluz2xpf",
+        "dki4m3tj",
         "documents",
         "index",
         "javascript",
         "public"
       ],
-      "size_bytes": 15355
+      "size_bytes": 5262
     },
-    "public/build/assets/Index-DqprdcpB.js": {
+    "public/build/assets/Index-DpH6_8Nr.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index Dqprdcp B",
+      "summary_vi": "JavaScript: Index Dp H6 8Nr",
       "keywords": [
+        "8nr",
         "assets",
         "build",
         "documents",
-        "dqprdcpb",
+        "dph6",
         "index",
         "javascript",
         "public"
       ],
-      "size_bytes": 15121
+      "size_bytes": 17315
     },
-    "public/build/assets/Index-Dwvg1G59.js": {
+    "public/build/assets/Index-DupL78LP.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index Dwvg1G59",
+      "summary_vi": "JavaScript: Index Dup L78LP",
       "keywords": [
         "assets",
         "build",
         "documents",
-        "dwvg1g59",
+        "dupl78lp",
         "index",
         "javascript",
         "public"
       ],
-      "size_bytes": 56626
+      "size_bytes": 17426
     },
-    "public/build/assets/Index-nGSCIQts.js": {
+    "public/build/assets/Index-fYcYWrcg.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index n GSCIQts",
+      "summary_vi": "JavaScript: Index f Yc YWrcg",
       "keywords": [
         "assets",
         "build",
         "documents",
+        "fycywrcg",
         "index",
         "javascript",
-        "ngsciqts",
         "public"
       ],
-      "size_bytes": 22648
+      "size_bytes": 4799
     },
-    "public/build/assets/Index-qXPiCIY9.js": {
+    "public/build/assets/Index-Hvgu2qm1.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index q XPi CIY9",
+      "summary_vi": "JavaScript: Index Hvgu2qm1",
       "keywords": [
         "assets",
         "build",
         "documents",
+        "hvgu2qm1",
         "index",
         "javascript",
-        "public",
-        "qxpiciy9"
+        "public"
       ],
       "size_bytes": 7691
     },
-    "public/build/assets/Index-siK-pVBD.js": {
+    "public/build/assets/Index-lfw1UTrE.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Index si K p VBD",
+      "summary_vi": "JavaScript: Index lfw1UTr E",
+      "keywords": [
+        "assets",
+        "build",
+        "documents",
+        "index",
+        "javascript",
+        "lfw1utre",
+        "public"
+      ],
+      "size_bytes": 22643
+    },
+    "public/build/assets/Index-pKo8n4hs.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Index p Ko8n4hs",
+      "keywords": [
+        "assets",
+        "build",
+        "documents",
+        "index",
+        "javascript",
+        "pko8n4hs",
+        "public"
+      ],
+      "size_bytes": 56631
+    },
+    "public/build/assets/Index-TL2o2yZ0.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Index TL2o2y Z0",
       "keywords": [
         "assets",
         "build",
@@ -7720,57 +8100,127 @@
         "index",
         "javascript",
         "public",
-        "pvbd",
-        "sik"
+        "tl2o2yz0"
       ],
-      "size_bytes": 4794
+      "size_bytes": 50352
     },
-    "public/build/assets/InputError-DtC-yXa2.js": {
+    "public/build/assets/Index-udQ7iihs.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Input Error Dt C y Xa2",
+      "summary_vi": "JavaScript: Index ud Q7iihs",
       "keywords": [
         "assets",
         "build",
         "documents",
-        "dtc",
-        "inputerror",
+        "index",
         "javascript",
         "public",
-        "yxa2"
+        "udq7iihs"
       ],
-      "size_bytes": 274
+      "size_bytes": 265071
     },
-    "public/build/assets/Intro-4rZXJi1E.js": {
+    "public/build/assets/Index-V8NyPlZK.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Intro 4r ZXJi1E",
+      "summary_vi": "JavaScript: Index V8Ny Pl ZK",
       "keywords": [
-        "4rzxji1e",
         "assets",
         "build",
         "documents",
-        "intro",
+        "index",
+        "javascript",
+        "public",
+        "v8nyplzk"
+      ],
+      "size_bytes": 23045
+    },
+    "public/build/assets/Index-Y99NUzx4.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Index Y99NUzx4",
+      "keywords": [
+        "assets",
+        "build",
+        "documents",
+        "index",
+        "javascript",
+        "public",
+        "y99nuzx4"
+      ],
+      "size_bytes": 14298
+    },
+    "public/build/assets/Index-YS2LNjM0.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Index YS2LNj M0",
+      "keywords": [
+        "assets",
+        "build",
+        "documents",
+        "index",
+        "javascript",
+        "public",
+        "ys2lnjm0"
+      ],
+      "size_bytes": 20926
+    },
+    "public/build/assets/Index-zh6WE1Jr.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Index zh6WE1Jr",
+      "keywords": [
+        "assets",
+        "build",
+        "documents",
+        "index",
+        "javascript",
+        "public",
+        "zh6we1jr"
+      ],
+      "size_bytes": 15121
+    },
+    "public/build/assets/InputError-DjqPe2X2.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Input Error Djq Pe2X2",
+      "keywords": [
+        "assets",
+        "build",
+        "djqpe2x2",
+        "documents",
+        "inputerror",
         "javascript",
         "public"
       ],
-      "size_bytes": 3692
+      "size_bytes": 274
     },
-    "public/build/assets/Intro-6JrO5VJU.js": {
+    "public/build/assets/Intro-aMTYi32w.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Intro 6Jr O5VJU",
+      "summary_vi": "JavaScript: Intro a MTYi32w",
       "keywords": [
-        "6jro5vju",
+        "amtyi32w",
         "assets",
         "build",
         "documents",
@@ -7780,17 +8230,35 @@
       ],
       "size_bytes": 3130
     },
-    "public/build/assets/Leadership-Dnhfl8S4.js": {
+    "public/build/assets/Intro-DbZPZl-9.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Leadership Dnhfl8S4",
+      "summary_vi": "JavaScript: Intro Db ZPZl 9",
       "keywords": [
         "assets",
         "build",
-        "dnhfl8s4",
+        "dbzpzl",
+        "documents",
+        "intro",
+        "javascript",
+        "public"
+      ],
+      "size_bytes": 3692
+    },
+    "public/build/assets/Leadership-BfLspXpr.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Leadership Bf Lsp Xpr",
+      "keywords": [
+        "assets",
+        "bflspxpr",
+        "build",
         "documents",
         "javascript",
         "leadership",
@@ -7798,17 +8266,17 @@
       ],
       "size_bytes": 7054
     },
-    "public/build/assets/leaflet-src-Do985xP0.js": {
+    "public/build/assets/leaflet-src-DE2te-ia.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: leaflet src Do985x P0",
+      "summary_vi": "JavaScript: leaflet src DE2te ia",
       "keywords": [
         "assets",
         "build",
-        "do985xp0",
+        "de2te",
         "documents",
         "javascript",
         "leaflet",
@@ -7837,17 +8305,17 @@
       ],
       "size_bytes": 149387
     },
-    "public/build/assets/lodash-CERrMzgF.js": {
+    "public/build/assets/lodash-dCRvUlcs.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: lodash CERr Mzg F",
+      "summary_vi": "JavaScript: lodash d CRv Ulcs",
       "keywords": [
         "assets",
         "build",
-        "cerrmzgf",
+        "dcrvulcs",
         "documents",
         "javascript",
         "lodash",
@@ -7855,18 +8323,18 @@
       ],
       "size_bytes": 72280
     },
-    "public/build/assets/Login-DcAVPomB.js": {
+    "public/build/assets/Login-CLy6nnF1.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "auth",
       "domain_emoji": "🔐",
       "portal": "global",
-      "summary_vi": "JavaScript: Login Dc AVPom B",
+      "summary_vi": "JavaScript: Login CLy6nn F1",
       "keywords": [
         "assets",
         "auth",
         "build",
-        "dcavpomb",
+        "cly6nnf1",
         "javascript",
         "login",
         "logout",
@@ -7935,18 +8403,18 @@
       ],
       "size_bytes": 73
     },
-    "public/build/assets/MeetingForm-B6Va7x6I.js": {
+    "public/build/assets/MeetingForm-cCPP8vNW.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "attendance",
       "domain_emoji": "📋",
       "portal": "global",
-      "summary_vi": "JavaScript: Meeting Form B6Va7x6I",
+      "summary_vi": "JavaScript: Meeting Form c CPP8v NW",
       "keywords": [
         "assets",
         "attendance",
-        "b6va7x6i",
         "build",
+        "ccpp8vnw",
         "diem_danh",
         "javascript",
         "meeting",
@@ -7954,21 +8422,21 @@
         "public",
         "sinh_hoat"
       ],
-      "size_bytes": 17740
+      "size_bytes": 17745
     },
-    "public/build/assets/Meetings-CJOgOId4.js": {
+    "public/build/assets/Meetings-Dqymamjw.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "attendance",
       "domain_emoji": "📋",
       "portal": "global",
-      "summary_vi": "JavaScript: Meetings CJOg OId4",
+      "summary_vi": "JavaScript: Meetings Dqymamjw",
       "keywords": [
         "assets",
         "attendance",
         "build",
-        "cjogoid4",
         "diem_danh",
+        "dqymamjw",
         "javascript",
         "meeting",
         "meetings",
@@ -7977,60 +8445,61 @@
       ],
       "size_bytes": 5621
     },
-    "public/build/assets/Members-C0HzXhe2.js": {
+    "public/build/assets/Members-CTe_qcJN.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "members",
       "domain_emoji": "👥",
       "portal": "global",
-      "summary_vi": "JavaScript: Members C0Hz Xhe2",
+      "summary_vi": "JavaScript: Members CTe qc JN",
       "keywords": [
         "assets",
         "build",
-        "c0hzxhe2",
+        "cte",
         "javascript",
         "member",
         "members",
         "nguoi_dung",
         "public",
+        "qcjn",
         "thanh_vien",
         "user"
       ],
       "size_bytes": 3398
     },
-    "public/build/assets/Members-C3rgSSxw.js": {
+    "public/build/assets/Members-tP2PoZyt.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "members",
       "domain_emoji": "👥",
       "portal": "global",
-      "summary_vi": "JavaScript: Members C3rg SSxw",
+      "summary_vi": "JavaScript: Members t P2Po Zyt",
       "keywords": [
         "assets",
         "build",
-        "c3rgssxw",
         "javascript",
         "member",
         "members",
         "nguoi_dung",
         "public",
         "thanh_vien",
+        "tp2pozyt",
         "user"
       ],
       "size_bytes": 5079
     },
-    "public/build/assets/MembersTab-h1KO3tks.js": {
+    "public/build/assets/MembersTab-md8n3mPm.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "members",
       "domain_emoji": "👥",
       "portal": "global",
-      "summary_vi": "JavaScript: Members Tab h1KO3tks",
+      "summary_vi": "JavaScript: Members Tab md8n3m Pm",
       "keywords": [
         "assets",
         "build",
-        "h1ko3tks",
         "javascript",
+        "md8n3mpm",
         "member",
         "members",
         "memberstab",
@@ -8041,34 +8510,34 @@
       ],
       "size_bytes": 11777
     },
-    "public/build/assets/MobileLayout-B6f7lWVB.js": {
+    "public/build/assets/MobileLayout-YxHXhXja.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Mobile Layout B6f7l WVB",
+      "summary_vi": "JavaScript: Mobile Layout Yx HXh Xja",
       "keywords": [
         "assets",
-        "b6f7lwvb",
         "build",
         "documents",
         "javascript",
         "mobilelayout",
-        "public"
+        "public",
+        "yxhxhxja"
       ],
-      "size_bytes": 34404
+      "size_bytes": 34508
     },
-    "public/build/assets/Offline-BRmhtbS_.js": {
+    "public/build/assets/Offline-BTtmoct_.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Offline BRmhtb S ",
+      "summary_vi": "JavaScript: Offline BTtmoct ",
       "keywords": [
         "assets",
-        "brmhtbs",
+        "bttmoct",
         "build",
         "documents",
         "javascript",
@@ -8077,35 +8546,35 @@
       ],
       "size_bytes": 1764
     },
-    "public/build/assets/Overview-kB36RDpd.js": {
+    "public/build/assets/Overview-UKRYbJKW.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Overview k B36RDpd",
+      "summary_vi": "JavaScript: Overview UKRYb JKW",
       "keywords": [
         "assets",
         "build",
         "documents",
         "javascript",
-        "kb36rdpd",
         "overview",
-        "public"
+        "public",
+        "ukrybjkw"
       ],
       "size_bytes": 5672
     },
-    "public/build/assets/Pagination-Bupjzddy.js": {
+    "public/build/assets/Pagination-BmwvsFrc.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Pagination Bupjzddy",
+      "summary_vi": "JavaScript: Pagination Bmwvs Frc",
       "keywords": [
         "assets",
+        "bmwvsfrc",
         "build",
-        "bupjzddy",
         "documents",
         "javascript",
         "pagination",
@@ -8113,17 +8582,17 @@
       ],
       "size_bytes": 796
     },
-    "public/build/assets/Permissions-DHKENHsA.js": {
+    "public/build/assets/Permissions-8l3ycYZ3.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Permissions DHKENHs A",
+      "summary_vi": "JavaScript: Permissions 8l3yc YZ3",
       "keywords": [
+        "8l3ycyz3",
         "assets",
         "build",
-        "dhkenhsa",
         "documents",
         "javascript",
         "permissions",
@@ -8131,53 +8600,54 @@
       ],
       "size_bytes": 1009
     },
-    "public/build/assets/PortalLayout-9IjZfj3X.js": {
+    "public/build/assets/PortalLayout-Did0-xjs.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Portal Layout 9Ij Zfj3X",
+      "summary_vi": "JavaScript: Portal Layout Did0 xjs",
       "keywords": [
-        "9ijzfj3x",
         "assets",
         "build",
+        "did0",
         "documents",
         "javascript",
         "portallayout",
-        "public"
+        "public",
+        "xjs"
       ],
-      "size_bytes": 23944
+      "size_bytes": 24232
     },
-    "public/build/assets/Portals-uzegyiS0.js": {
+    "public/build/assets/Portals-DJY1SYD7.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Portals uzegyi S0",
+      "summary_vi": "JavaScript: Portals DJY1SYD7",
       "keywords": [
         "assets",
         "build",
+        "djy1syd7",
         "documents",
         "javascript",
         "portals",
-        "public",
-        "uzegyis0"
+        "public"
       ],
       "size_bytes": 4355
     },
-    "public/build/assets/PrimaryButton-DjmUaFmz.js": {
+    "public/build/assets/PrimaryButton-Bp6LHQ09.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Primary Button Djm Ua Fmz",
+      "summary_vi": "JavaScript: Primary Button Bp6LHQ09",
       "keywords": [
         "assets",
+        "bp6lhq09",
         "build",
-        "djmuafmz",
         "documents",
         "javascript",
         "primarybutton",
@@ -8185,73 +8655,92 @@
       ],
       "size_bytes": 553
     },
-    "public/build/assets/Report-CNMKNr2h.js": {
+    "public/build/assets/Ranking-BoMXbhVx.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Report CNMKNr2h",
+      "summary_vi": "JavaScript: Ranking Bo MXbh Vx",
       "keywords": [
         "assets",
+        "bomxbhvx",
         "build",
-        "cnmknr2h",
         "documents",
         "javascript",
         "public",
-        "report"
+        "ranking"
       ],
-      "size_bytes": 31630
+      "size_bytes": 5367
     },
-    "public/build/assets/Report-fwdwSviY.js": {
+    "public/build/assets/Report-1GJSP7Vd.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Report fwdw Svi Y",
+      "summary_vi": "JavaScript: Report 1GJSP7Vd",
       "keywords": [
+        "1gjsp7vd",
         "assets",
         "build",
         "documents",
-        "fwdwsviy",
         "javascript",
         "public",
         "report"
       ],
       "size_bytes": 244571
     },
-    "public/build/assets/Reports-YB7jmV0C.js": {
+    "public/build/assets/Report-CJH-jWt9.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Reports YB7jm V0C",
+      "summary_vi": "JavaScript: Report CJH j Wt9",
       "keywords": [
         "assets",
         "build",
+        "cjh",
+        "documents",
+        "javascript",
+        "jwt9",
+        "public",
+        "report"
+      ],
+      "size_bytes": 31635
+    },
+    "public/build/assets/Reports-CcvfKa-8.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Reports Ccvf Ka 8",
+      "keywords": [
+        "assets",
+        "build",
+        "ccvfka",
         "documents",
         "javascript",
         "public",
-        "reports",
-        "yb7jmv0c"
+        "reports"
       ],
       "size_bytes": 3950
     },
-    "public/build/assets/ResetPassword-CCapvyxD.js": {
+    "public/build/assets/ResetPassword-jdrMsUtG.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "auth",
       "domain_emoji": "🔐",
       "portal": "global",
-      "summary_vi": "JavaScript: Reset Password CCapvyx D",
+      "summary_vi": "JavaScript: Reset Password jdr Ms Ut G",
       "keywords": [
         "assets",
         "auth",
         "build",
-        "ccapvyxd",
         "javascript",
+        "jdrmsutg",
         "login",
         "logout",
         "password",
@@ -8280,33 +8769,32 @@
       ],
       "size_bytes": 330
     },
-    "public/build/assets/SecondaryButton-Y0IMsMKs.js": {
+    "public/build/assets/SecondaryButton-BwsR5jZI.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Secondary Button Y0IMs MKs",
+      "summary_vi": "JavaScript: Secondary Button Bws R5j ZI",
       "keywords": [
         "assets",
         "build",
+        "bwsr5jzi",
         "documents",
         "javascript",
         "public",
-        "secondarybutton",
-        "y0imsmks"
+        "secondarybutton"
       ],
       "size_bytes": 546
     },
-    "public/build/assets/Session-0m3FEyb2.js": {
+    "public/build/assets/Session-QB4egH7N.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "auth",
       "domain_emoji": "🔐",
       "portal": "global",
-      "summary_vi": "JavaScript: Session 0m3FEyb2",
+      "summary_vi": "JavaScript: Session QB4eg H7N",
       "keywords": [
-        "0m3feyb2",
         "assets",
         "auth",
         "build",
@@ -8315,23 +8803,24 @@
         "logout",
         "password",
         "public",
+        "qb4egh7n",
         "session",
         "xac_thuc"
       ],
       "size_bytes": 45933
     },
-    "public/build/assets/SessionList-BFhE43Sa.js": {
+    "public/build/assets/SessionList-D5xIlu83.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "auth",
       "domain_emoji": "🔐",
       "portal": "global",
-      "summary_vi": "JavaScript: Session List BFh E43Sa",
+      "summary_vi": "JavaScript: Session List D5x Ilu83",
       "keywords": [
         "assets",
         "auth",
-        "bfhe43sa",
         "build",
+        "d5xilu83",
         "javascript",
         "login",
         "logout",
@@ -8341,19 +8830,19 @@
         "sessionlist",
         "xac_thuc"
       ],
-      "size_bytes": 14948
+      "size_bytes": 14943
     },
-    "public/build/assets/Setup-BPENV45X.js": {
+    "public/build/assets/Setup-DHaOT9HC.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Setup BPENV45X",
+      "summary_vi": "JavaScript: Setup DHa OT9HC",
       "keywords": [
         "assets",
-        "bpenv45x",
         "build",
+        "dhaot9hc",
         "documents",
         "javascript",
         "public",
@@ -8361,35 +8850,53 @@
       ],
       "size_bytes": 14880
     },
-    "public/build/assets/Show-7NWwBLXh.js": {
+    "public/build/assets/Show-C3vtrVBq.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Show 7NWw BLXh",
+      "summary_vi": "JavaScript: Show C3vtr VBq",
       "keywords": [
-        "7nwwblxh",
         "assets",
         "build",
+        "c3vtrvbq",
         "documents",
         "javascript",
         "public",
         "show"
       ],
-      "size_bytes": 23488
+      "size_bytes": 21984
     },
-    "public/build/assets/Show-BgiNutrl.js": {
+    "public/build/assets/Show-Coj2fsye.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Show Bgi Nutrl",
+      "summary_vi": "JavaScript: Show Coj2fsye",
       "keywords": [
         "assets",
-        "bginutrl",
         "build",
+        "coj2fsye",
+        "documents",
+        "javascript",
+        "public",
+        "show"
+      ],
+      "size_bytes": 26319
+    },
+    "public/build/assets/Show-Dj0Plycr.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Show Dj0Plycr",
+      "keywords": [
+        "assets",
+        "build",
+        "dj0plycr",
         "documents",
         "javascript",
         "public",
@@ -8397,86 +8904,67 @@
       ],
       "size_bytes": 29873
     },
-    "public/build/assets/Show-CPEcpQlg.js": {
+    "public/build/assets/Show-DqQZLzup.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Show CPEcp Qlg",
+      "summary_vi": "JavaScript: Show Dq QZLzup",
       "keywords": [
         "assets",
         "build",
-        "cpecpqlg",
         "documents",
+        "dqqzlzup",
         "javascript",
         "public",
         "show"
       ],
       "size_bytes": 6370
     },
-    "public/build/assets/Show-D9lEHXmN.js": {
+    "public/build/assets/Show-KNZqqrAQ.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Show D9l EHXm N",
-      "keywords": [
-        "assets",
-        "build",
-        "d9lehxmn",
-        "documents",
-        "javascript",
-        "public",
-        "show"
-      ],
-      "size_bytes": 26324
-    },
-    "public/build/assets/Show-Dgi_dsZ8.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Show Dgi ds Z8",
-      "keywords": [
-        "assets",
-        "build",
-        "dgi",
-        "documents",
-        "dsz8",
-        "javascript",
-        "public",
-        "show"
-      ],
-      "size_bytes": 21989
-    },
-    "public/build/assets/Show-DU2i07oI.js": {
-      "layer": "JavaScript",
-      "layer_color": "#fbbf24",
-      "domain": "documents",
-      "domain_emoji": "📄",
-      "portal": "global",
-      "summary_vi": "JavaScript: Show DU2i07o I",
+      "summary_vi": "JavaScript: Show KNZqqr AQ",
       "keywords": [
         "assets",
         "build",
         "documents",
-        "du2i07oi",
         "javascript",
+        "knzqqraq",
         "public",
         "show"
       ],
       "size_bytes": 7239
     },
-    "public/build/assets/Show-Wzd6o3CT.js": {
+    "public/build/assets/Show-OqgyXbDm.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Show Wzd6o3CT",
+      "summary_vi": "JavaScript: Show Oqgy Xb Dm",
+      "keywords": [
+        "assets",
+        "build",
+        "documents",
+        "javascript",
+        "oqgyxbdm",
+        "public",
+        "show"
+      ],
+      "size_bytes": 23488
+    },
+    "public/build/assets/Show-T3sCamZc.js": {
+      "layer": "JavaScript",
+      "layer_color": "#fbbf24",
+      "domain": "documents",
+      "domain_emoji": "📄",
+      "portal": "global",
+      "summary_vi": "JavaScript: Show T3s Cam Zc",
       "keywords": [
         "assets",
         "build",
@@ -8484,21 +8972,21 @@
         "javascript",
         "public",
         "show",
-        "wzd6o3ct"
+        "t3scamzc"
       ],
-      "size_bytes": 10141
+      "size_bytes": 10146
     },
-    "public/build/assets/SlideOver-CAd7aaGi.js": {
+    "public/build/assets/SlideOver-D2TwFAce.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Slide Over CAd7aa Gi",
+      "summary_vi": "JavaScript: Slide Over D2Tw FAce",
       "keywords": [
         "assets",
         "build",
-        "cad7aagi",
+        "d2twface",
         "documents",
         "javascript",
         "public",
@@ -8506,72 +8994,71 @@
       ],
       "size_bytes": 3182
     },
-    "public/build/assets/SpeakerForm-sX1wkt6C.js": {
+    "public/build/assets/SpeakerForm-BLei2UST.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Speaker Form s X1wkt6C",
+      "summary_vi": "JavaScript: Speaker Form BLei2UST",
       "keywords": [
         "assets",
+        "blei2ust",
         "build",
         "documents",
         "javascript",
         "public",
-        "speakerform",
-        "sx1wkt6c"
+        "speakerform"
       ],
-      "size_bytes": 6651
+      "size_bytes": 6656
     },
-    "public/build/assets/SysAdmin-DJN0_IvO.js": {
+    "public/build/assets/SysAdmin-C2j9gkR8.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Sys Admin DJN0 Iv O",
+      "summary_vi": "JavaScript: Sys Admin C2j9gk R8",
       "keywords": [
         "assets",
         "build",
-        "djn0",
+        "c2j9gkr8",
         "documents",
-        "ivo",
         "javascript",
         "public",
         "sysadmin"
       ],
       "size_bytes": 10245
     },
-    "public/build/assets/SystemFeaturesTab-C5N1uCqG.js": {
+    "public/build/assets/SystemFeaturesTab-DQ12eC3B.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: System Features Tab C5N1u Cq G",
+      "summary_vi": "JavaScript: System Features Tab DQ12e C3B",
       "keywords": [
         "assets",
         "build",
-        "c5n1ucqg",
         "documents",
+        "dq12ec3b",
         "javascript",
         "public",
         "systemfeaturestab"
       ],
       "size_bytes": 39713
     },
-    "public/build/assets/TeamsTab-Btkx9FgE.js": {
+    "public/build/assets/TeamsTab-CTFid7wE.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Teams Tab Btkx9Fg E",
+      "summary_vi": "JavaScript: Teams Tab CTFid7w E",
       "keywords": [
         "assets",
-        "btkx9fge",
         "build",
+        "ctfid7we",
         "documents",
         "javascript",
         "public",
@@ -8579,17 +9066,17 @@
       ],
       "size_bytes": 6736
     },
-    "public/build/assets/TextInput-2mZVq1pA.js": {
+    "public/build/assets/TextInput-DjycztNL.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Text Input 2m ZVq1p A",
+      "summary_vi": "JavaScript: Text Input Djyczt NL",
       "keywords": [
-        "2mzvq1pa",
         "assets",
         "build",
+        "djycztnl",
         "documents",
         "javascript",
         "public",
@@ -8597,17 +9084,17 @@
       ],
       "size_bytes": 849
     },
-    "public/build/assets/transition-B3Li1ydC.js": {
+    "public/build/assets/transition-Dk2lrXOy.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: transition B3Li1yd C",
+      "summary_vi": "JavaScript: transition Dk2lr XOy",
       "keywords": [
         "assets",
-        "b3li1ydc",
         "build",
+        "dk2lrxoy",
         "documents",
         "javascript",
         "public",
@@ -8615,35 +9102,35 @@
       ],
       "size_bytes": 32540
     },
-    "public/build/assets/usePermissions-Dabn2f2E.js": {
+    "public/build/assets/usePermissions-DRSGZ9vP.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: use Permissions Dabn2f2E",
+      "summary_vi": "JavaScript: use Permissions DRSGZ9v P",
       "keywords": [
         "assets",
         "build",
-        "dabn2f2e",
         "documents",
+        "drsgz9vp",
         "javascript",
         "public",
         "usepermissions"
       ],
       "size_bytes": 343
     },
-    "public/build/assets/UserPermissions-DtgJ4ke6.js": {
+    "public/build/assets/UserPermissions-D5msbhwy.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "members",
       "domain_emoji": "👥",
       "portal": "global",
-      "summary_vi": "JavaScript: User Permissions Dtg J4ke6",
+      "summary_vi": "JavaScript: User Permissions D5msbhwy",
       "keywords": [
         "assets",
         "build",
-        "dtgj4ke6",
+        "d5msbhwy",
         "javascript",
         "member",
         "members",
@@ -8653,41 +9140,42 @@
         "user",
         "userpermissions"
       ],
-      "size_bytes": 16050
+      "size_bytes": 16040
     },
-    "public/build/assets/Users-jSbIDoNI.js": {
+    "public/build/assets/Users-CVh_vN5w.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "members",
       "domain_emoji": "👥",
       "portal": "global",
-      "summary_vi": "JavaScript: Users j Sb IDo NI",
+      "summary_vi": "JavaScript: Users CVh v N5w",
       "keywords": [
         "assets",
         "build",
+        "cvh",
         "javascript",
-        "jsbidoni",
         "member",
         "members",
         "nguoi_dung",
         "public",
         "thanh_vien",
         "user",
-        "users"
+        "users",
+        "vn5w"
       ],
       "size_bytes": 1583
     },
-    "public/build/assets/Visitation-DC08IBDt.js": {
+    "public/build/assets/Visitation-BhtyCAtX.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Visitation DC08IBDt",
+      "summary_vi": "JavaScript: Visitation Bhty CAt X",
       "keywords": [
         "assets",
+        "bhtycatx",
         "build",
-        "dc08ibdt",
         "documents",
         "javascript",
         "public",
@@ -8695,24 +9183,23 @@
       ],
       "size_bytes": 3462
     },
-    "public/build/assets/Welcome-D8LG_3rn.js": {
+    "public/build/assets/Welcome-D07VWIb7.js": {
       "layer": "JavaScript",
       "layer_color": "#fbbf24",
       "domain": "documents",
       "domain_emoji": "📄",
       "portal": "global",
-      "summary_vi": "JavaScript: Welcome D8LG 3rn",
+      "summary_vi": "JavaScript: Welcome D07VWIb7",
       "keywords": [
-        "3rn",
         "assets",
         "build",
-        "d8lg",
+        "d07vwib7",
         "documents",
         "javascript",
         "public",
         "welcome"
       ],
-      "size_bytes": 8859
+      "size_bytes": 8854
     },
     "public/build/assets/_plugin-vue_export-helper-DlAUqK2U.js": {
       "layer": "JavaScript",
@@ -8976,6 +9463,22 @@
       ],
       "size_bytes": 955
     },
+    "resources/js/Components/PortalLinks.vue": {
+      "layer": "VueComponent",
+      "layer_color": "#bfdbfe",
+      "domain": "portal",
+      "domain_emoji": "🏠",
+      "portal": "global",
+      "summary_vi": "Component Vue: Portal Links",
+      "keywords": [
+        "components",
+        "portal",
+        "portallinks",
+        "resources",
+        "vuecomponent"
+      ],
+      "size_bytes": 3603
+    },
     "resources/js/Components/PrimaryButton.vue": {
       "layer": "VueComponent",
       "layer_color": "#bfdbfe",
@@ -9168,7 +9671,7 @@
         "vuelayout",
         "xac_thuc"
       ],
-      "size_bytes": 46881
+      "size_bytes": 47054
     },
     "resources/js/Layouts/DocsLayout.vue": {
       "layer": "VueLayout",
@@ -9220,7 +9723,7 @@
         "resources",
         "vuelayout"
       ],
-      "size_bytes": 37346
+      "size_bytes": 37390
     },
     "resources/js/Layouts/PortalLayout.vue": {
       "layer": "VueLayout",
@@ -9236,7 +9739,7 @@
         "resources",
         "vuelayout"
       ],
-      "size_bytes": 29948
+      "size_bytes": 30488
     },
     "resources/js/Pages/Dashboard.vue": {
       "layer": "VuePage",
@@ -9252,7 +9755,7 @@
         "resources",
         "vuepage"
       ],
-      "size_bytes": 43738
+      "size_bytes": 44005
     },
     "resources/js/Pages/Offline.vue": {
       "layer": "VuePage",
@@ -9285,6 +9788,48 @@
         "welcome"
       ],
       "size_bytes": 9888
+    },
+    "resources/js/Pages/Admin/Accounts.vue": {
+      "layer": "VuePage-Admin",
+      "layer_color": "#ec4899",
+      "domain": "members",
+      "domain_emoji": "👥",
+      "portal": "admin",
+      "summary_vi": "Vue page: quản lý tài khoản (Admin)",
+      "keywords": [
+        "accounts",
+        "admin",
+        "member",
+        "members",
+        "nguoi_dung",
+        "pages",
+        "resources",
+        "thanh_vien",
+        "user",
+        "vuepage_admin"
+      ],
+      "size_bytes": 23363
+    },
+    "resources/js/Pages/Admin/DeaconAssignments.vue": {
+      "layer": "VuePage-Admin",
+      "layer_color": "#ec4899",
+      "domain": "assignments",
+      "domain_emoji": "📅",
+      "portal": "admin",
+      "summary_vi": "Trang Vue (Admin): Deacon Assignments",
+      "keywords": [
+        "admin",
+        "assignment",
+        "assignments",
+        "deaconassignments",
+        "duty",
+        "lich_truc",
+        "pages",
+        "phan_cong",
+        "resources",
+        "vuepage_admin"
+      ],
+      "size_bytes": 13143
     },
     "resources/js/Pages/Admin/SystemFeaturesTab.vue": {
       "layer": "VuePage-Admin",
@@ -9645,6 +10190,43 @@
         "vuepage"
       ],
       "size_bytes": 10599
+    },
+    "resources/js/Pages/Deacon/ChurchAttendance.vue": {
+      "layer": "VuePage",
+      "layer_color": "#60a5fa",
+      "domain": "attendance",
+      "domain_emoji": "📋",
+      "portal": "deacon",
+      "summary_vi": "Trang Vue: Church Attendance",
+      "keywords": [
+        "attendance",
+        "churchattendance",
+        "deacon",
+        "diem_danh",
+        "meeting",
+        "pages",
+        "resources",
+        "sinh_hoat",
+        "vuepage"
+      ],
+      "size_bytes": 11474
+    },
+    "resources/js/Pages/Deacon/Dashboard.vue": {
+      "layer": "VuePage",
+      "layer_color": "#60a5fa",
+      "domain": "portal",
+      "domain_emoji": "🏠",
+      "portal": "deacon",
+      "summary_vi": "Trang Vue: Dashboard",
+      "keywords": [
+        "dashboard",
+        "deacon",
+        "pages",
+        "portal",
+        "resources",
+        "vuepage"
+      ],
+      "size_bytes": 11117
     },
     "resources/js/Pages/Deacon/Index.vue": {
       "layer": "VuePage",
@@ -10727,6 +11309,26 @@
       ],
       "size_bytes": 29969
     },
+    "resources/js/Pages/Portal/Education/Ranking.vue": {
+      "layer": "VuePage-Portal",
+      "layer_color": "#3b82f6",
+      "domain": "ministry",
+      "domain_emoji": "✝️",
+      "portal": "activities",
+      "summary_vi": "Trang Vue (Portal): Ranking",
+      "keywords": [
+        "education",
+        "giao_duc",
+        "ministry",
+        "muc_vu",
+        "pages",
+        "portal",
+        "ranking",
+        "resources",
+        "vuepage_portal"
+      ],
+      "size_bytes": 10588
+    },
     "resources/js/Pages/Portal/Education/Report.vue": {
       "layer": "VuePage-Portal",
       "layer_color": "#3b82f6",
@@ -10915,6 +11517,23 @@
         "vuepage"
       ],
       "size_bytes": 9927
+    },
+    "resources/js/Pages/Secretary/Dashboard.vue": {
+      "layer": "VuePage",
+      "layer_color": "#60a5fa",
+      "domain": "portal",
+      "domain_emoji": "🏠",
+      "portal": "global",
+      "summary_vi": "Trang Vue: Dashboard",
+      "keywords": [
+        "dashboard",
+        "pages",
+        "portal",
+        "resources",
+        "secretary",
+        "vuepage"
+      ],
+      "size_bytes": 10470
     },
     "resources/js/Pages/Speakers/Index.vue": {
       "layer": "VuePage",
@@ -11134,7 +11753,7 @@
         "muc_vu",
         "routes"
       ],
-      "size_bytes": 19166
+      "size_bytes": 19948
     },
     "routes/portal.php": {
       "layer": "Routes",
@@ -11161,7 +11780,7 @@
         "routes",
         "web"
       ],
-      "size_bytes": 21782
+      "size_bytes": 25670
     },
     "scripts/seed_deacon_attendance.php": {
       "layer": "PHP-Other",
@@ -11567,12 +12186,14 @@
       "vite.config.js",
       "app/Http/Controllers/Admin/AnnouncementController.php",
       "app/Http/Middleware/EnsureSuperAdmin.php",
+      "app/Models/ChurchSetting.php",
       "config/app.php",
       "config/cache.php",
       "config/database.php",
       "config/mail.php",
       "config/queue.php",
       "config/services.php",
+      "database/migrations/2026_06_08_000002_create_church_settings_table.php",
       "database/seeders/SystemSkeletonSeeder.php",
       "resources/js/Pages/Admin/Announcements/Index.vue",
       "resources/js/Pages/Docs/SysAdmin.vue"
@@ -11583,6 +12204,7 @@
       "app/Exports/MeetingExport.php",
       "app/Exports/MeetingsExport.php",
       "app/Http/Controllers/MeetingController.php",
+      "app/Http/Controllers/Deacon/ChurchAttendanceController.php",
       "app/Http/Controllers/Portal/AttendanceController.php",
       "app/Imports/AttendanceImport.php",
       "app/Imports/MeetingsImport.php",
@@ -11611,13 +12233,16 @@
       "database/migrations/2026_03_29_084555_add_memory_verse_count_to_meeting_attendance_summaries_table.php",
       "database/migrations/2026_03_30_021711_add_is_guest_to_meeting_attendances_table.php",
       "database/migrations/2026_03_30_021712_add_is_cancelled_to_meetings_table.php",
-      "public/build/assets/Attendance-7xaMKc1g.js",
-      "public/build/assets/Attendance-DHgjOPva.js",
-      "public/build/assets/AttendanceShow-DITRPlhy.js",
-      "public/build/assets/MeetingForm-B6Va7x6I.js",
-      "public/build/assets/Meetings-CJOgOId4.js",
+      "database/migrations/2026_06_08_000003_add_columns_to_deacon_attendance_records.php",
+      "public/build/assets/Attendance-CAlxqkyU.js",
+      "public/build/assets/Attendance-DiInqYgn.js",
+      "public/build/assets/AttendanceShow-Bpo3ew-m.js",
+      "public/build/assets/ChurchAttendance-CqqSPEe7.js",
+      "public/build/assets/MeetingForm-cCPP8vNW.js",
+      "public/build/assets/Meetings-Dqymamjw.js",
       "resources/js/Pages/Deacon/Attendance.vue",
       "resources/js/Pages/Deacon/AttendanceShow.vue",
+      "resources/js/Pages/Deacon/ChurchAttendance.vue",
       "resources/js/Pages/Docs/Meetings.vue",
       "resources/js/Pages/Docs/Departments/Attendance.vue",
       "resources/js/Pages/Meetings/Index.vue",
@@ -11642,6 +12267,7 @@
       "app/Http/Controllers/SpeakerController.php",
       "app/Http/Controllers/WelcomeController.php",
       "app/Http/Middleware/EnsureDeaconContext.php",
+      "app/Http/Middleware/EnsureSecretaryContext.php",
       "app/Http/Middleware/HandleInertiaRequests.php",
       "app/Mail/NewsletterEmail.php",
       "app/Models/Announcement.php",
@@ -11747,12 +12373,14 @@
       "app/Models/EduClass.php",
       "app/Policies/EduClassPolicy.php",
       "database/migrations/2026_03_03_222600_add_class_type_to_edu_classes.php",
-      "public/build/assets/Education-C6FxebPf.js",
+      "database/migrations/2026_06_08_000005_add_seasonal_and_category_to_edu_classes.php",
+      "public/build/assets/Education-DBUCS-JQ.js",
       "resources/js/Pages/Docs/Education.vue",
       "resources/js/Pages/Ministry/Dashboard.vue",
       "resources/js/Pages/Ministry/Visitation/Index.vue",
       "resources/js/Pages/Portal/Education/Dashboard.vue",
       "resources/js/Pages/Portal/Education/Index.vue",
+      "resources/js/Pages/Portal/Education/Ranking.vue",
       "resources/js/Pages/Portal/Education/Report.vue",
       "routes/ministry.php",
       "tests/Feature/Ministry/VisitationTest.php"
@@ -11760,16 +12388,23 @@
     "portal": [
       "app/Console/Commands/SeedPortalTestData.php",
       "app/Http/Controllers/DashboardController.php",
+      "app/Http/Controllers/Deacon/DeaconDashboardController.php",
       "app/Http/Controllers/Portal/DeaconPortalController.php",
+      "app/Http/Controllers/Portal/EduRankingController.php",
+      "app/Http/Controllers/Secretary/SecretaryPortalController.php",
+      "app/Http/Middleware/AbstractPortalMiddleware.php",
       "app/Services/PortalService.php",
+      "resources/js/Components/PortalLinks.vue",
       "resources/js/Layouts/AdminPortalLayout.vue",
       "resources/js/Layouts/DocsLayout.vue",
       "resources/js/Layouts/MobileLayout.vue",
       "resources/js/Layouts/PortalLayout.vue",
       "resources/js/Pages/Dashboard.vue",
+      "resources/js/Pages/Deacon/Dashboard.vue",
       "resources/js/Pages/Docs/Portals.vue",
       "resources/js/Pages/Docs/Portals/Intro.vue",
       "resources/js/Pages/Portal/Dashboard.vue",
+      "resources/js/Pages/Secretary/Dashboard.vue",
       "routes/portal.php"
     ],
     "permissions": [
@@ -11821,6 +12456,7 @@
       "app/Http/Controllers/MemberController.php",
       "app/Http/Controllers/MemberPortalController.php",
       "app/Http/Controllers/UserController.php",
+      "app/Http/Controllers/Admin/AccountController.php",
       "app/Http/Controllers/Admin/UserPermissionController.php",
       "app/Http/Controllers/Portal/PortalMemberController.php",
       "app/Http/Controllers/User/DonationController.php",
@@ -11850,18 +12486,21 @@
       "database/migrations/2026_03_14_013830_add_head_member_to_households_table.php",
       "database/migrations/2026_03_14_112222_add_is_superadmin_to_users_table.php",
       "database/migrations/2026_03_24_092333_add_pending_status_and_dept_to_members.php",
+      "database/migrations/2026_06_08_000006_add_treasurer_role_to_edu_class_members.php",
       "database/seeders/DepartmentUserSeeder.php",
       "database/seeders/MemberDataSeeder.php",
       "database/seeders/MemberSeeder.php",
       "database/seeders/ThanhTrangMemberSeeder.php",
-      "public/build/assets/CreateMemberForm-9z61-OFq.js",
-      "public/build/assets/Members-C0HzXhe2.js",
-      "public/build/assets/Members-C3rgSSxw.js",
-      "public/build/assets/MembersTab-h1KO3tks.js",
-      "public/build/assets/UserPermissions-DtgJ4ke6.js",
-      "public/build/assets/Users-jSbIDoNI.js",
+      "public/build/assets/Accounts-CpZYk6WE.js",
+      "public/build/assets/CreateMemberForm-CZcI1HWY.js",
+      "public/build/assets/Members-CTe_qcJN.js",
+      "public/build/assets/Members-tP2PoZyt.js",
+      "public/build/assets/MembersTab-md8n3mPm.js",
+      "public/build/assets/UserPermissions-D5msbhwy.js",
+      "public/build/assets/Users-CVh_vN5w.js",
       "resources/js/Components/Member/FaithJourneyTimeline.vue",
       "resources/js/Components/Member/FamilyTreeCard.vue",
+      "resources/js/Pages/Admin/Accounts.vue",
       "resources/js/Pages/Admin/UserPermissions.vue",
       "resources/js/Pages/Departments/Tabs/MembersTab.vue",
       "resources/js/Pages/Docs/Members.vue",
@@ -11930,105 +12569,110 @@
       "config/filesystems.php",
       "database/migrations/2026_03_10_152735_create_documents_table.php",
       "database/migrations/2026_03_10_155906_create_assets_table.php",
-      "public/build/assets/AdminPortalLayout-zrp31gtw.js",
-      "public/build/assets/app-BZtu6jaF.js",
-      "public/build/assets/AppCard-CPbP9tOB.js",
-      "public/build/assets/BatchEntry-lFCC_pYd.js",
-      "public/build/assets/Create-C5d-GhEf.js",
-      "public/build/assets/createLucideIcon-DYOTV15C.js",
-      "public/build/assets/Dashboard-CAUPQg60.js",
-      "public/build/assets/Dashboard-CPRcEjfb.js",
-      "public/build/assets/Dashboard-CUQLBTey.js",
-      "public/build/assets/Dashboard-gfTVYx3o.js",
-      "public/build/assets/Dashboard-mUOntCD0.js",
-      "public/build/assets/DataToolbar-D0oadrXa.js",
-      "public/build/assets/debounce-D5eINvPt.js",
-      "public/build/assets/DepartmentForm-BITbpBHw.js",
-      "public/build/assets/DocsLayout-DK5iTiRh.js",
-      "public/build/assets/Dropdown-D5uUIwiD.js",
-      "public/build/assets/FaithJourneyTimeline-DqvwzFOp.js",
-      "public/build/assets/Features-B28VT9dK.js",
-      "public/build/assets/FeaturesTab-Ct-30h7G.js",
-      "public/build/assets/FormModal-DkowqYLk.js",
-      "public/build/assets/HolisticView-CR3Fjuro.js",
-      "public/build/assets/Index-0k7guybI.js",
-      "public/build/assets/Index-40cv_aQv.js",
-      "public/build/assets/Index-B5GR8VyL.js",
-      "public/build/assets/Index-B9RrXo_O.js",
-      "public/build/assets/Index-BbdqXnFq.js",
-      "public/build/assets/Index-BL_pYsZ4.js",
-      "public/build/assets/Index-BmSPLxoA.js",
-      "public/build/assets/Index-BNikdj83.js",
-      "public/build/assets/Index-BOCQRd-W.js",
-      "public/build/assets/Index-Bt8yOO2e.js",
-      "public/build/assets/Index-BvtZFe43.js",
-      "public/build/assets/Index-BzKRsFKZ.js",
-      "public/build/assets/Index-C3MPgg8t.js",
-      "public/build/assets/Index-CgiVaJC7.js",
-      "public/build/assets/Index-CKFJPRez.js",
-      "public/build/assets/Index-CPRdRvzu.js",
-      "public/build/assets/Index-CPv1h2Eb.js",
-      "public/build/assets/Index-Cr6dvAFs.js",
-      "public/build/assets/Index-CWfzQRBO.js",
-      "public/build/assets/Index-D3fU38PM.js",
-      "public/build/assets/Index-D7A6b2lB.js",
-      "public/build/assets/Index-DAeWSa48.js",
-      "public/build/assets/Index-DANbx8wZ.js",
-      "public/build/assets/Index-DbcecYdD.js",
-      "public/build/assets/Index-DcUeNB3E.js",
-      "public/build/assets/Index-DLUz2xpf.js",
-      "public/build/assets/Index-DqprdcpB.js",
-      "public/build/assets/Index-Dwvg1G59.js",
-      "public/build/assets/Index-nGSCIQts.js",
-      "public/build/assets/Index-qXPiCIY9.js",
-      "public/build/assets/Index-siK-pVBD.js",
-      "public/build/assets/InputError-DtC-yXa2.js",
-      "public/build/assets/Intro-4rZXJi1E.js",
-      "public/build/assets/Intro-6JrO5VJU.js",
-      "public/build/assets/Leadership-Dnhfl8S4.js",
-      "public/build/assets/leaflet-src-Do985xP0.js",
+      "public/build/assets/AdminPortalLayout-CBlqwVu2.js",
+      "public/build/assets/app-Doz3wErI.js",
+      "public/build/assets/AppCard-OC4L-qgO.js",
+      "public/build/assets/BatchEntry-Bb5up8Ro.js",
+      "public/build/assets/Create-B4MjPxW4.js",
+      "public/build/assets/createLucideIcon-BS91qTi5.js",
+      "public/build/assets/Dashboard-Bdw89Dh8.js",
+      "public/build/assets/Dashboard-CFSBpe1_.js",
+      "public/build/assets/Dashboard-D9qx6gRK.js",
+      "public/build/assets/Dashboard-DRGgiE8L.js",
+      "public/build/assets/Dashboard-DWUfMOdT.js",
+      "public/build/assets/Dashboard-D_UHAB9o.js",
+      "public/build/assets/Dashboard-qa1wMycs.js",
+      "public/build/assets/DataToolbar-CkPnM4QH.js",
+      "public/build/assets/debounce-LrEh2TNJ.js",
+      "public/build/assets/DepartmentForm-BKgPcvFF.js",
+      "public/build/assets/DocsLayout-DxReaTQx.js",
+      "public/build/assets/Dropdown-CKeWUtTH.js",
+      "public/build/assets/FaithJourneyTimeline-CBDLotV8.js",
+      "public/build/assets/Features-ByiIlgXH.js",
+      "public/build/assets/FeaturesTab-DvGEKypf.js",
+      "public/build/assets/FormModal-CBJopSTB.js",
+      "public/build/assets/HolisticView-CXdaiQ0S.js",
+      "public/build/assets/Index-7N1zi4J-.js",
+      "public/build/assets/Index-B7ODL2Z6.js",
+      "public/build/assets/Index-B7Sm64FR.js",
+      "public/build/assets/Index-BaYZOj6T.js",
+      "public/build/assets/Index-BENLROd1.js",
+      "public/build/assets/Index-BiTkDJwE.js",
+      "public/build/assets/Index-BP4sr0Wc.js",
+      "public/build/assets/Index-BP9Zp8Ny.js",
+      "public/build/assets/Index-BRy3Imkz.js",
+      "public/build/assets/Index-BS0cCu-k.js",
+      "public/build/assets/Index-Bx6fTMq7.js",
+      "public/build/assets/Index-CDP77jUV.js",
+      "public/build/assets/Index-CHytb84o.js",
+      "public/build/assets/Index-CsDtwrIF.js",
+      "public/build/assets/Index-CWKQo2aQ.js",
+      "public/build/assets/Index-D74NSNXh.js",
+      "public/build/assets/Index-D8b6TXDd.js",
+      "public/build/assets/Index-DhovtMti.js",
+      "public/build/assets/Index-DKI4M3Tj.js",
+      "public/build/assets/Index-DpH6_8Nr.js",
+      "public/build/assets/Index-DupL78LP.js",
+      "public/build/assets/Index-fYcYWrcg.js",
+      "public/build/assets/Index-Hvgu2qm1.js",
+      "public/build/assets/Index-lfw1UTrE.js",
+      "public/build/assets/Index-pKo8n4hs.js",
+      "public/build/assets/Index-TL2o2yZ0.js",
+      "public/build/assets/Index-udQ7iihs.js",
+      "public/build/assets/Index-V8NyPlZK.js",
+      "public/build/assets/Index-Y99NUzx4.js",
+      "public/build/assets/Index-YS2LNjM0.js",
+      "public/build/assets/Index-zh6WE1Jr.js",
+      "public/build/assets/InputError-DjqPe2X2.js",
+      "public/build/assets/Intro-aMTYi32w.js",
+      "public/build/assets/Intro-DbZPZl-9.js",
+      "public/build/assets/Leadership-BfLspXpr.js",
+      "public/build/assets/leaflet-src-DE2te-ia.js",
       "public/build/assets/leaflet-src.esm-HdBnhJze.js",
-      "public/build/assets/lodash-CERrMzgF.js",
+      "public/build/assets/lodash-dCRvUlcs.js",
       "public/build/assets/marker-icon-2x-1TirABJh.js",
       "public/build/assets/marker-icon-B6h-nX3D.js",
       "public/build/assets/marker-shadow-B9CpECYs.js",
-      "public/build/assets/MobileLayout-B6f7lWVB.js",
-      "public/build/assets/Offline-BRmhtbS_.js",
-      "public/build/assets/Overview-kB36RDpd.js",
-      "public/build/assets/Pagination-Bupjzddy.js",
-      "public/build/assets/Permissions-DHKENHsA.js",
-      "public/build/assets/PortalLayout-9IjZfj3X.js",
-      "public/build/assets/Portals-uzegyiS0.js",
-      "public/build/assets/PrimaryButton-DjmUaFmz.js",
-      "public/build/assets/Report-CNMKNr2h.js",
-      "public/build/assets/Report-fwdwSviY.js",
-      "public/build/assets/Reports-YB7jmV0C.js",
+      "public/build/assets/MobileLayout-YxHXhXja.js",
+      "public/build/assets/Offline-BTtmoct_.js",
+      "public/build/assets/Overview-UKRYbJKW.js",
+      "public/build/assets/Pagination-BmwvsFrc.js",
+      "public/build/assets/Permissions-8l3ycYZ3.js",
+      "public/build/assets/PortalLayout-Did0-xjs.js",
+      "public/build/assets/Portals-DJY1SYD7.js",
+      "public/build/assets/PrimaryButton-Bp6LHQ09.js",
+      "public/build/assets/Ranking-BoMXbhVx.js",
+      "public/build/assets/Report-1GJSP7Vd.js",
+      "public/build/assets/Report-CJH-jWt9.js",
+      "public/build/assets/Reports-CcvfKa-8.js",
       "public/build/assets/roleHelper-CfYvVb96.js",
-      "public/build/assets/SecondaryButton-Y0IMsMKs.js",
-      "public/build/assets/Setup-BPENV45X.js",
-      "public/build/assets/Show-7NWwBLXh.js",
-      "public/build/assets/Show-BgiNutrl.js",
-      "public/build/assets/Show-CPEcpQlg.js",
-      "public/build/assets/Show-D9lEHXmN.js",
-      "public/build/assets/Show-Dgi_dsZ8.js",
-      "public/build/assets/Show-DU2i07oI.js",
-      "public/build/assets/Show-Wzd6o3CT.js",
-      "public/build/assets/SlideOver-CAd7aaGi.js",
-      "public/build/assets/SpeakerForm-sX1wkt6C.js",
-      "public/build/assets/SysAdmin-DJN0_IvO.js",
-      "public/build/assets/SystemFeaturesTab-C5N1uCqG.js",
-      "public/build/assets/TeamsTab-Btkx9FgE.js",
-      "public/build/assets/TextInput-2mZVq1pA.js",
-      "public/build/assets/transition-B3Li1ydC.js",
-      "public/build/assets/usePermissions-Dabn2f2E.js",
-      "public/build/assets/Visitation-DC08IBDt.js",
-      "public/build/assets/Welcome-D8LG_3rn.js",
+      "public/build/assets/SecondaryButton-BwsR5jZI.js",
+      "public/build/assets/Setup-DHaOT9HC.js",
+      "public/build/assets/Show-C3vtrVBq.js",
+      "public/build/assets/Show-Coj2fsye.js",
+      "public/build/assets/Show-Dj0Plycr.js",
+      "public/build/assets/Show-DqQZLzup.js",
+      "public/build/assets/Show-KNZqqrAQ.js",
+      "public/build/assets/Show-OqgyXbDm.js",
+      "public/build/assets/Show-T3sCamZc.js",
+      "public/build/assets/SlideOver-D2TwFAce.js",
+      "public/build/assets/SpeakerForm-BLei2UST.js",
+      "public/build/assets/SysAdmin-C2j9gkR8.js",
+      "public/build/assets/SystemFeaturesTab-DQ12eC3B.js",
+      "public/build/assets/TeamsTab-CTFid7wE.js",
+      "public/build/assets/TextInput-DjycztNL.js",
+      "public/build/assets/transition-Dk2lrXOy.js",
+      "public/build/assets/usePermissions-DRSGZ9vP.js",
+      "public/build/assets/Visitation-BhtyCAtX.js",
+      "public/build/assets/Welcome-D07VWIb7.js",
       "public/build/assets/_plugin-vue_export-helper-DlAUqK2U.js",
       "resources/js/Pages/Admin/Assets/Index.vue",
       "resources/js/Pages/Documents/Index.vue"
     ],
     "assignments": [
       "app/Http/Controllers/DutyRosterController.php",
+      "app/Http/Controllers/Admin/DeaconAssignmentController.php",
+      "app/Models/DeaconTermAssignment.php",
       "app/Models/DutyAssignment.php",
       "app/Models/FeatureAssignment.php",
       "app/Models/RosterTemplate.php",
@@ -12042,10 +12686,13 @@
       "database/migrations/2026_03_12_113516_add_type_to_roster_templates_table.php",
       "database/migrations/2026_03_15_083604_add_status_and_reason_to_duty_assignments_table.php",
       "database/migrations/2026_03_16_025646_add_scope_to_feature_assignment_tables.php",
+      "database/migrations/2026_06_08_000001_create_deacon_term_assignments_table.php",
       "database/seeders/DutyRosterSeeder.php",
-      "public/build/assets/Assignments-Bee3vHkc.js",
-      "public/build/assets/DutyRoster-Dmoqs8IV.js",
+      "public/build/assets/Assignments-D8oUeXOP.js",
+      "public/build/assets/DeaconAssignments-DVawg6q6.js",
+      "public/build/assets/DutyRoster-CmqJglDo.js",
       "resources/js/Layouts/DutyRosterLayout.vue",
+      "resources/js/Pages/Admin/DeaconAssignments.vue",
       "resources/js/Pages/Docs/DutyRoster.vue",
       "resources/js/Pages/Docs/Departments/Assignments.vue",
       "resources/js/Pages/DutyRoster/HolisticView.vue",
@@ -12078,8 +12725,8 @@
       "database/migrations/2026_02_26_050110_add_batch_uuid_column_to_activity_log_table.php",
       "database/migrations/2026_03_16_103921_create_chronicle_entries_table.php",
       "database/migrations/2026_03_16_140208_add_department_id_to_chronicles.php",
-      "public/build/assets/ActivityLogItem-D8UmSp-M.js",
-      "public/build/assets/ActivityLogs-BqMbUhsW.js",
+      "public/build/assets/ActivityLogItem-DiV9iQEP.js",
+      "public/build/assets/ActivityLogs-bvD1EjZB.js",
       "resources/js/Components/ActivityLogItem.vue",
       "resources/js/Pages/Admin/ActivityLogs/Index.vue",
       "resources/js/Pages/Admin/Chronicles/Index.vue",
@@ -12115,9 +12762,10 @@
       "database/migrations/2026_03_02_210001_create_department_finance_tables.php",
       "database/migrations/2026_03_10_161132_create_funds_table.php",
       "database/migrations/2026_03_10_161133_create_donations_table.php",
+      "database/migrations/2026_06_08_000007_add_target_fields_to_donations.php",
       "database/seeders/ThanhTrangDeptFinanceSeeder.php",
-      "public/build/assets/Finance-27UNGfR4.js",
-      "public/build/assets/Finance-BP0arcxu.js",
+      "public/build/assets/Finance--SJz3n_-.js",
+      "public/build/assets/Finance-B_DyfOqh.js",
       "resources/js/Pages/Admin/Finance/Donations/BatchEntry.vue",
       "resources/js/Pages/Admin/Finance/Donations/Index.vue",
       "resources/js/Pages/Docs/Finance.vue",
@@ -12132,8 +12780,10 @@
     "forms": [
       "app/Http/Controllers/Admin/FormTemplateController.php",
       "app/Models/FormTemplate.php",
+      "app/Models/SocialPlatformStat.php",
       "database/migrations/2026_03_17_071204_create_form_templates_table.php",
       "database/migrations/2026_03_29_161346_add_performance_indexes_to_core_tables.php",
+      "database/migrations/2026_06_08_000004_create_social_platform_stats_table.php",
       "resources/js/Pages/Admin/Forms/Index.vue",
       "resources/js/Pages/Speakers/Partials/SpeakerForm.vue"
     ],
@@ -12152,13 +12802,13 @@
       "database/migrations/2026_03_04_100000_add_lesson_series_to_edu_sessions.php",
       "database/migrations/2026_03_04_114000_add_teacher_to_edu_sessions.php",
       "database/migrations/2026_03_05_040000_add_bible_quiz_fields_to_edu_sessions.php",
-      "public/build/assets/Auth-DMlBpIDd.js",
-      "public/build/assets/AuthenticatedLayout-D0KeaYO_.js",
-      "public/build/assets/ForgotPassword-BNO6Tb_A.js",
-      "public/build/assets/Login-DcAVPomB.js",
-      "public/build/assets/ResetPassword-CCapvyxD.js",
-      "public/build/assets/Session-0m3FEyb2.js",
-      "public/build/assets/SessionList-BFhE43Sa.js",
+      "public/build/assets/Auth-BDkLgNno.js",
+      "public/build/assets/AuthenticatedLayout-DXLFdqPi.js",
+      "public/build/assets/ForgotPassword-B2K-aVIE.js",
+      "public/build/assets/Login-CLy6nnF1.js",
+      "public/build/assets/ResetPassword-jdrMsUtG.js",
+      "public/build/assets/Session-QB4egH7N.js",
+      "public/build/assets/SessionList-D5xIlu83.js",
       "resources/js/Layouts/AuthenticatedLayout.vue",
       "resources/js/Pages/Auth/ForgotPassword.vue",
       "resources/js/Pages/Auth/Login.vue",
@@ -12198,124 +12848,130 @@
       "public/workbox-8c29f6e4.js",
       "public/workbox-f171de04.js",
       "public/build/registerSW.js",
-      "public/build/assets/ActivityLogItem-D8UmSp-M.js",
-      "public/build/assets/ActivityLogs-BqMbUhsW.js",
-      "public/build/assets/AdminPortalLayout-zrp31gtw.js",
-      "public/build/assets/app-BZtu6jaF.js",
-      "public/build/assets/AppCard-CPbP9tOB.js",
-      "public/build/assets/Assignments-Bee3vHkc.js",
-      "public/build/assets/Attendance-7xaMKc1g.js",
-      "public/build/assets/Attendance-DHgjOPva.js",
-      "public/build/assets/AttendanceShow-DITRPlhy.js",
-      "public/build/assets/Auth-DMlBpIDd.js",
-      "public/build/assets/AuthenticatedLayout-D0KeaYO_.js",
-      "public/build/assets/BatchEntry-lFCC_pYd.js",
-      "public/build/assets/Create-C5d-GhEf.js",
-      "public/build/assets/createLucideIcon-DYOTV15C.js",
-      "public/build/assets/CreateMemberForm-9z61-OFq.js",
-      "public/build/assets/Dashboard-CAUPQg60.js",
-      "public/build/assets/Dashboard-CPRcEjfb.js",
-      "public/build/assets/Dashboard-CUQLBTey.js",
-      "public/build/assets/Dashboard-gfTVYx3o.js",
-      "public/build/assets/Dashboard-mUOntCD0.js",
-      "public/build/assets/DataToolbar-D0oadrXa.js",
-      "public/build/assets/debounce-D5eINvPt.js",
-      "public/build/assets/DepartmentForm-BITbpBHw.js",
-      "public/build/assets/DocsLayout-DK5iTiRh.js",
-      "public/build/assets/Dropdown-D5uUIwiD.js",
-      "public/build/assets/DutyRoster-Dmoqs8IV.js",
-      "public/build/assets/Education-C6FxebPf.js",
-      "public/build/assets/FaithJourneyTimeline-DqvwzFOp.js",
-      "public/build/assets/Features-B28VT9dK.js",
-      "public/build/assets/FeaturesTab-Ct-30h7G.js",
-      "public/build/assets/Finance-27UNGfR4.js",
-      "public/build/assets/Finance-BP0arcxu.js",
-      "public/build/assets/ForgotPassword-BNO6Tb_A.js",
-      "public/build/assets/FormModal-DkowqYLk.js",
-      "public/build/assets/HolisticView-CR3Fjuro.js",
-      "public/build/assets/Index-0k7guybI.js",
-      "public/build/assets/Index-40cv_aQv.js",
-      "public/build/assets/Index-B5GR8VyL.js",
-      "public/build/assets/Index-B9RrXo_O.js",
-      "public/build/assets/Index-BbdqXnFq.js",
-      "public/build/assets/Index-BL_pYsZ4.js",
-      "public/build/assets/Index-BmSPLxoA.js",
-      "public/build/assets/Index-BNikdj83.js",
-      "public/build/assets/Index-BOCQRd-W.js",
-      "public/build/assets/Index-Bt8yOO2e.js",
-      "public/build/assets/Index-BvtZFe43.js",
-      "public/build/assets/Index-BzKRsFKZ.js",
-      "public/build/assets/Index-C3MPgg8t.js",
-      "public/build/assets/Index-CgiVaJC7.js",
-      "public/build/assets/Index-CKFJPRez.js",
-      "public/build/assets/Index-CPRdRvzu.js",
-      "public/build/assets/Index-CPv1h2Eb.js",
-      "public/build/assets/Index-Cr6dvAFs.js",
-      "public/build/assets/Index-CWfzQRBO.js",
-      "public/build/assets/Index-D3fU38PM.js",
-      "public/build/assets/Index-D7A6b2lB.js",
-      "public/build/assets/Index-DAeWSa48.js",
-      "public/build/assets/Index-DANbx8wZ.js",
-      "public/build/assets/Index-DbcecYdD.js",
-      "public/build/assets/Index-DcUeNB3E.js",
-      "public/build/assets/Index-DLUz2xpf.js",
-      "public/build/assets/Index-DqprdcpB.js",
-      "public/build/assets/Index-Dwvg1G59.js",
-      "public/build/assets/Index-nGSCIQts.js",
-      "public/build/assets/Index-qXPiCIY9.js",
-      "public/build/assets/Index-siK-pVBD.js",
-      "public/build/assets/InputError-DtC-yXa2.js",
-      "public/build/assets/Intro-4rZXJi1E.js",
-      "public/build/assets/Intro-6JrO5VJU.js",
-      "public/build/assets/Leadership-Dnhfl8S4.js",
-      "public/build/assets/leaflet-src-Do985xP0.js",
+      "public/build/assets/Accounts-CpZYk6WE.js",
+      "public/build/assets/ActivityLogItem-DiV9iQEP.js",
+      "public/build/assets/ActivityLogs-bvD1EjZB.js",
+      "public/build/assets/AdminPortalLayout-CBlqwVu2.js",
+      "public/build/assets/app-Doz3wErI.js",
+      "public/build/assets/AppCard-OC4L-qgO.js",
+      "public/build/assets/Assignments-D8oUeXOP.js",
+      "public/build/assets/Attendance-CAlxqkyU.js",
+      "public/build/assets/Attendance-DiInqYgn.js",
+      "public/build/assets/AttendanceShow-Bpo3ew-m.js",
+      "public/build/assets/Auth-BDkLgNno.js",
+      "public/build/assets/AuthenticatedLayout-DXLFdqPi.js",
+      "public/build/assets/BatchEntry-Bb5up8Ro.js",
+      "public/build/assets/ChurchAttendance-CqqSPEe7.js",
+      "public/build/assets/Create-B4MjPxW4.js",
+      "public/build/assets/createLucideIcon-BS91qTi5.js",
+      "public/build/assets/CreateMemberForm-CZcI1HWY.js",
+      "public/build/assets/Dashboard-Bdw89Dh8.js",
+      "public/build/assets/Dashboard-CFSBpe1_.js",
+      "public/build/assets/Dashboard-D9qx6gRK.js",
+      "public/build/assets/Dashboard-DRGgiE8L.js",
+      "public/build/assets/Dashboard-DWUfMOdT.js",
+      "public/build/assets/Dashboard-D_UHAB9o.js",
+      "public/build/assets/Dashboard-qa1wMycs.js",
+      "public/build/assets/DataToolbar-CkPnM4QH.js",
+      "public/build/assets/DeaconAssignments-DVawg6q6.js",
+      "public/build/assets/debounce-LrEh2TNJ.js",
+      "public/build/assets/DepartmentForm-BKgPcvFF.js",
+      "public/build/assets/DocsLayout-DxReaTQx.js",
+      "public/build/assets/Dropdown-CKeWUtTH.js",
+      "public/build/assets/DutyRoster-CmqJglDo.js",
+      "public/build/assets/Education-DBUCS-JQ.js",
+      "public/build/assets/FaithJourneyTimeline-CBDLotV8.js",
+      "public/build/assets/Features-ByiIlgXH.js",
+      "public/build/assets/FeaturesTab-DvGEKypf.js",
+      "public/build/assets/Finance--SJz3n_-.js",
+      "public/build/assets/Finance-B_DyfOqh.js",
+      "public/build/assets/ForgotPassword-B2K-aVIE.js",
+      "public/build/assets/FormModal-CBJopSTB.js",
+      "public/build/assets/HolisticView-CXdaiQ0S.js",
+      "public/build/assets/Index-7N1zi4J-.js",
+      "public/build/assets/Index-B7ODL2Z6.js",
+      "public/build/assets/Index-B7Sm64FR.js",
+      "public/build/assets/Index-BaYZOj6T.js",
+      "public/build/assets/Index-BENLROd1.js",
+      "public/build/assets/Index-BiTkDJwE.js",
+      "public/build/assets/Index-BP4sr0Wc.js",
+      "public/build/assets/Index-BP9Zp8Ny.js",
+      "public/build/assets/Index-BRy3Imkz.js",
+      "public/build/assets/Index-BS0cCu-k.js",
+      "public/build/assets/Index-Bx6fTMq7.js",
+      "public/build/assets/Index-CDP77jUV.js",
+      "public/build/assets/Index-CHytb84o.js",
+      "public/build/assets/Index-CsDtwrIF.js",
+      "public/build/assets/Index-CWKQo2aQ.js",
+      "public/build/assets/Index-D74NSNXh.js",
+      "public/build/assets/Index-D8b6TXDd.js",
+      "public/build/assets/Index-DhovtMti.js",
+      "public/build/assets/Index-DKI4M3Tj.js",
+      "public/build/assets/Index-DpH6_8Nr.js",
+      "public/build/assets/Index-DupL78LP.js",
+      "public/build/assets/Index-fYcYWrcg.js",
+      "public/build/assets/Index-Hvgu2qm1.js",
+      "public/build/assets/Index-lfw1UTrE.js",
+      "public/build/assets/Index-pKo8n4hs.js",
+      "public/build/assets/Index-TL2o2yZ0.js",
+      "public/build/assets/Index-udQ7iihs.js",
+      "public/build/assets/Index-V8NyPlZK.js",
+      "public/build/assets/Index-Y99NUzx4.js",
+      "public/build/assets/Index-YS2LNjM0.js",
+      "public/build/assets/Index-zh6WE1Jr.js",
+      "public/build/assets/InputError-DjqPe2X2.js",
+      "public/build/assets/Intro-aMTYi32w.js",
+      "public/build/assets/Intro-DbZPZl-9.js",
+      "public/build/assets/Leadership-BfLspXpr.js",
+      "public/build/assets/leaflet-src-DE2te-ia.js",
       "public/build/assets/leaflet-src.esm-HdBnhJze.js",
-      "public/build/assets/lodash-CERrMzgF.js",
-      "public/build/assets/Login-DcAVPomB.js",
+      "public/build/assets/lodash-dCRvUlcs.js",
+      "public/build/assets/Login-CLy6nnF1.js",
       "public/build/assets/marker-icon-2x-1TirABJh.js",
       "public/build/assets/marker-icon-B6h-nX3D.js",
       "public/build/assets/marker-shadow-B9CpECYs.js",
-      "public/build/assets/MeetingForm-B6Va7x6I.js",
-      "public/build/assets/Meetings-CJOgOId4.js",
-      "public/build/assets/Members-C0HzXhe2.js",
-      "public/build/assets/Members-C3rgSSxw.js",
-      "public/build/assets/MembersTab-h1KO3tks.js",
-      "public/build/assets/MobileLayout-B6f7lWVB.js",
-      "public/build/assets/Offline-BRmhtbS_.js",
-      "public/build/assets/Overview-kB36RDpd.js",
-      "public/build/assets/Pagination-Bupjzddy.js",
-      "public/build/assets/Permissions-DHKENHsA.js",
-      "public/build/assets/PortalLayout-9IjZfj3X.js",
-      "public/build/assets/Portals-uzegyiS0.js",
-      "public/build/assets/PrimaryButton-DjmUaFmz.js",
-      "public/build/assets/Report-CNMKNr2h.js",
-      "public/build/assets/Report-fwdwSviY.js",
-      "public/build/assets/Reports-YB7jmV0C.js",
-      "public/build/assets/ResetPassword-CCapvyxD.js",
+      "public/build/assets/MeetingForm-cCPP8vNW.js",
+      "public/build/assets/Meetings-Dqymamjw.js",
+      "public/build/assets/Members-CTe_qcJN.js",
+      "public/build/assets/Members-tP2PoZyt.js",
+      "public/build/assets/MembersTab-md8n3mPm.js",
+      "public/build/assets/MobileLayout-YxHXhXja.js",
+      "public/build/assets/Offline-BTtmoct_.js",
+      "public/build/assets/Overview-UKRYbJKW.js",
+      "public/build/assets/Pagination-BmwvsFrc.js",
+      "public/build/assets/Permissions-8l3ycYZ3.js",
+      "public/build/assets/PortalLayout-Did0-xjs.js",
+      "public/build/assets/Portals-DJY1SYD7.js",
+      "public/build/assets/PrimaryButton-Bp6LHQ09.js",
+      "public/build/assets/Ranking-BoMXbhVx.js",
+      "public/build/assets/Report-1GJSP7Vd.js",
+      "public/build/assets/Report-CJH-jWt9.js",
+      "public/build/assets/Reports-CcvfKa-8.js",
+      "public/build/assets/ResetPassword-jdrMsUtG.js",
       "public/build/assets/roleHelper-CfYvVb96.js",
-      "public/build/assets/SecondaryButton-Y0IMsMKs.js",
-      "public/build/assets/Session-0m3FEyb2.js",
-      "public/build/assets/SessionList-BFhE43Sa.js",
-      "public/build/assets/Setup-BPENV45X.js",
-      "public/build/assets/Show-7NWwBLXh.js",
-      "public/build/assets/Show-BgiNutrl.js",
-      "public/build/assets/Show-CPEcpQlg.js",
-      "public/build/assets/Show-D9lEHXmN.js",
-      "public/build/assets/Show-Dgi_dsZ8.js",
-      "public/build/assets/Show-DU2i07oI.js",
-      "public/build/assets/Show-Wzd6o3CT.js",
-      "public/build/assets/SlideOver-CAd7aaGi.js",
-      "public/build/assets/SpeakerForm-sX1wkt6C.js",
-      "public/build/assets/SysAdmin-DJN0_IvO.js",
-      "public/build/assets/SystemFeaturesTab-C5N1uCqG.js",
-      "public/build/assets/TeamsTab-Btkx9FgE.js",
-      "public/build/assets/TextInput-2mZVq1pA.js",
-      "public/build/assets/transition-B3Li1ydC.js",
-      "public/build/assets/usePermissions-Dabn2f2E.js",
-      "public/build/assets/UserPermissions-DtgJ4ke6.js",
-      "public/build/assets/Users-jSbIDoNI.js",
-      "public/build/assets/Visitation-DC08IBDt.js",
-      "public/build/assets/Welcome-D8LG_3rn.js",
+      "public/build/assets/SecondaryButton-BwsR5jZI.js",
+      "public/build/assets/Session-QB4egH7N.js",
+      "public/build/assets/SessionList-D5xIlu83.js",
+      "public/build/assets/Setup-DHaOT9HC.js",
+      "public/build/assets/Show-C3vtrVBq.js",
+      "public/build/assets/Show-Coj2fsye.js",
+      "public/build/assets/Show-Dj0Plycr.js",
+      "public/build/assets/Show-DqQZLzup.js",
+      "public/build/assets/Show-KNZqqrAQ.js",
+      "public/build/assets/Show-OqgyXbDm.js",
+      "public/build/assets/Show-T3sCamZc.js",
+      "public/build/assets/SlideOver-D2TwFAce.js",
+      "public/build/assets/SpeakerForm-BLei2UST.js",
+      "public/build/assets/SysAdmin-C2j9gkR8.js",
+      "public/build/assets/SystemFeaturesTab-DQ12eC3B.js",
+      "public/build/assets/TeamsTab-CTFid7wE.js",
+      "public/build/assets/TextInput-DjycztNL.js",
+      "public/build/assets/transition-Dk2lrXOy.js",
+      "public/build/assets/usePermissions-DRSGZ9vP.js",
+      "public/build/assets/UserPermissions-D5msbhwy.js",
+      "public/build/assets/Users-CVh_vN5w.js",
+      "public/build/assets/Visitation-BhtyCAtX.js",
+      "public/build/assets/Welcome-D07VWIb7.js",
       "public/build/assets/_plugin-vue_export-helper-DlAUqK2U.js",
       "resources/js/app.js",
       "resources/js/bootstrap.js",
@@ -12398,14 +13054,19 @@
       "app/Http/Controllers/SpeakerController.php",
       "app/Http/Controllers/UserController.php",
       "app/Http/Controllers/WelcomeController.php",
+      "app/Http/Controllers/Deacon/ChurchAttendanceController.php",
+      "app/Http/Controllers/Deacon/DeaconDashboardController.php",
+      "app/Http/Controllers/Secretary/SecretaryPortalController.php",
       "app/Http/Controllers/User/DonationController.php"
     ],
     "AdminController": [
+      "app/Http/Controllers/Admin/AccountController.php",
       "app/Http/Controllers/Admin/ActivityLogController.php",
       "app/Http/Controllers/Admin/AnnouncementController.php",
       "app/Http/Controllers/Admin/AssetController.php",
       "app/Http/Controllers/Admin/BroadcastController.php",
       "app/Http/Controllers/Admin/ChronicleController.php",
+      "app/Http/Controllers/Admin/DeaconAssignmentController.php",
       "app/Http/Controllers/Admin/DonationController.php",
       "app/Http/Controllers/Admin/FormTemplateController.php",
       "app/Http/Controllers/Admin/SystemFeatureController.php",
@@ -12425,6 +13086,7 @@
       "app/Http/Controllers/Portal/DeptFinanceController.php",
       "app/Http/Controllers/Portal/DeptReportController.php",
       "app/Http/Controllers/Portal/EducationController.php",
+      "app/Http/Controllers/Portal/EduRankingController.php",
       "app/Http/Controllers/Portal/FinanceFundController.php",
       "app/Http/Controllers/Portal/FinanceFundTransferController.php",
       "app/Http/Controllers/Portal/FinancePortalController.php",
@@ -12434,12 +13096,14 @@
       "app/Http/Controllers/Portal/VisitationController.php"
     ],
     "Middleware": [
+      "app/Http/Middleware/AbstractPortalMiddleware.php",
       "app/Http/Middleware/CheckFeatureAccess.php",
       "app/Http/Middleware/CheckPortalAccess.php",
       "app/Http/Middleware/EnsureDeaconContext.php",
       "app/Http/Middleware/EnsureFinanceContext.php",
       "app/Http/Middleware/EnsureMinistryContext.php",
       "app/Http/Middleware/EnsurePortalContext.php",
+      "app/Http/Middleware/EnsureSecretaryContext.php",
       "app/Http/Middleware/EnsureSuperAdmin.php",
       "app/Http/Middleware/HandleInertiaRequests.php",
       "app/Http/Middleware/PortalAccessMiddleware.php"
@@ -12456,10 +13120,12 @@
       "app/Models/CareRequest.php",
       "app/Models/ChronicleEntry.php",
       "app/Models/Church.php",
+      "app/Models/ChurchSetting.php",
       "app/Models/Course.php",
       "app/Models/DeaconAttendanceRecord.php",
       "app/Models/DeaconMonthlyReport.php",
       "app/Models/DeaconReportIncident.php",
+      "app/Models/DeaconTermAssignment.php",
       "app/Models/Department.php",
       "app/Models/DepartmentFund.php",
       "app/Models/DepartmentMeeting.php",
@@ -12505,6 +13171,7 @@
       "app/Models/Relationship.php",
       "app/Models/RosterTemplate.php",
       "app/Models/RosterTemplateRole.php",
+      "app/Models/SocialPlatformStat.php",
       "app/Models/Speaker.php",
       "app/Models/Talent.php",
       "app/Models/Team.php",
@@ -12653,7 +13320,14 @@
       "database/migrations/2026_03_29_084555_add_memory_verse_count_to_meeting_attendance_summaries_table.php",
       "database/migrations/2026_03_29_161346_add_performance_indexes_to_core_tables.php",
       "database/migrations/2026_03_30_021711_add_is_guest_to_meeting_attendances_table.php",
-      "database/migrations/2026_03_30_021712_add_is_cancelled_to_meetings_table.php"
+      "database/migrations/2026_03_30_021712_add_is_cancelled_to_meetings_table.php",
+      "database/migrations/2026_06_08_000001_create_deacon_term_assignments_table.php",
+      "database/migrations/2026_06_08_000002_create_church_settings_table.php",
+      "database/migrations/2026_06_08_000003_add_columns_to_deacon_attendance_records.php",
+      "database/migrations/2026_06_08_000004_create_social_platform_stats_table.php",
+      "database/migrations/2026_06_08_000005_add_seasonal_and_category_to_edu_classes.php",
+      "database/migrations/2026_06_08_000006_add_treasurer_role_to_edu_class_members.php",
+      "database/migrations/2026_06_08_000007_add_target_fields_to_donations.php"
     ],
     "Seeder": [
       "database/seeders/AnalyticsDataSeeder.php",
@@ -12693,6 +13367,7 @@
       "resources/js/Components/Modal.vue",
       "resources/js/Components/NotificationDropdown.vue",
       "resources/js/Components/Pagination.vue",
+      "resources/js/Components/PortalLinks.vue",
       "resources/js/Components/PrimaryButton.vue",
       "resources/js/Components/SearchableSelect.vue",
       "resources/js/Components/SecondaryButton.vue",
@@ -12721,6 +13396,8 @@
       "resources/js/Pages/Care/Index.vue",
       "resources/js/Pages/Deacon/Attendance.vue",
       "resources/js/Pages/Deacon/AttendanceShow.vue",
+      "resources/js/Pages/Deacon/ChurchAttendance.vue",
+      "resources/js/Pages/Deacon/Dashboard.vue",
       "resources/js/Pages/Deacon/Index.vue",
       "resources/js/Pages/Deacon/Report.vue",
       "resources/js/Pages/Departments/Index.vue",
@@ -12770,6 +13447,7 @@
       "resources/js/Pages/Notifications/Index.vue",
       "resources/js/Pages/Roles/Index.vue",
       "resources/js/Pages/Roles/Show.vue",
+      "resources/js/Pages/Secretary/Dashboard.vue",
       "resources/js/Pages/Speakers/Index.vue",
       "resources/js/Pages/Speakers/Partials/SpeakerForm.vue",
       "resources/js/Pages/User/Donations/Index.vue",
@@ -12777,6 +13455,8 @@
       "resources/js/Pages/Users/Index.vue"
     ],
     "VuePage-Admin": [
+      "resources/js/Pages/Admin/Accounts.vue",
+      "resources/js/Pages/Admin/DeaconAssignments.vue",
       "resources/js/Pages/Admin/SystemFeaturesTab.vue",
       "resources/js/Pages/Admin/UserPermissions.vue",
       "resources/js/Pages/Admin/ActivityLogs/Index.vue",
@@ -12800,6 +13480,7 @@
       "resources/js/Pages/Portal/Attendance/Show.vue",
       "resources/js/Pages/Portal/Education/Dashboard.vue",
       "resources/js/Pages/Portal/Education/Index.vue",
+      "resources/js/Pages/Portal/Education/Ranking.vue",
       "resources/js/Pages/Portal/Education/Report.vue",
       "resources/js/Pages/Portal/Education/Session.vue",
       "resources/js/Pages/Portal/Education/SessionList.vue",
@@ -12867,13 +13548,16 @@
       "app/Http/Controllers/SpeakerController.php",
       "app/Http/Controllers/UserController.php",
       "app/Http/Controllers/WelcomeController.php",
+      "app/Http/Controllers/Secretary/SecretaryPortalController.php",
       "app/Http/Controllers/User/DonationController.php",
+      "app/Http/Middleware/AbstractPortalMiddleware.php",
       "app/Http/Middleware/CheckFeatureAccess.php",
       "app/Http/Middleware/CheckPortalAccess.php",
       "app/Http/Middleware/EnsureDeaconContext.php",
       "app/Http/Middleware/EnsureFinanceContext.php",
       "app/Http/Middleware/EnsureMinistryContext.php",
       "app/Http/Middleware/EnsurePortalContext.php",
+      "app/Http/Middleware/EnsureSecretaryContext.php",
       "app/Http/Middleware/EnsureSuperAdmin.php",
       "app/Http/Middleware/HandleInertiaRequests.php",
       "app/Http/Middleware/PortalAccessMiddleware.php",
@@ -12890,10 +13574,12 @@
       "app/Models/CareRequest.php",
       "app/Models/ChronicleEntry.php",
       "app/Models/Church.php",
+      "app/Models/ChurchSetting.php",
       "app/Models/Course.php",
       "app/Models/DeaconAttendanceRecord.php",
       "app/Models/DeaconMonthlyReport.php",
       "app/Models/DeaconReportIncident.php",
+      "app/Models/DeaconTermAssignment.php",
       "app/Models/Department.php",
       "app/Models/DepartmentFund.php",
       "app/Models/DepartmentMeeting.php",
@@ -12939,6 +13625,7 @@
       "app/Models/Relationship.php",
       "app/Models/RosterTemplate.php",
       "app/Models/RosterTemplateRole.php",
+      "app/Models/SocialPlatformStat.php",
       "app/Models/Speaker.php",
       "app/Models/Talent.php",
       "app/Models/Team.php",
@@ -13097,6 +13784,13 @@
       "database/migrations/2026_03_29_161346_add_performance_indexes_to_core_tables.php",
       "database/migrations/2026_03_30_021711_add_is_guest_to_meeting_attendances_table.php",
       "database/migrations/2026_03_30_021712_add_is_cancelled_to_meetings_table.php",
+      "database/migrations/2026_06_08_000001_create_deacon_term_assignments_table.php",
+      "database/migrations/2026_06_08_000002_create_church_settings_table.php",
+      "database/migrations/2026_06_08_000003_add_columns_to_deacon_attendance_records.php",
+      "database/migrations/2026_06_08_000004_create_social_platform_stats_table.php",
+      "database/migrations/2026_06_08_000005_add_seasonal_and_category_to_edu_classes.php",
+      "database/migrations/2026_06_08_000006_add_treasurer_role_to_edu_class_members.php",
+      "database/migrations/2026_06_08_000007_add_target_fields_to_donations.php",
       "database/seeders/AnalyticsDataSeeder.php",
       "database/seeders/BanThanhTrangSeeder.php",
       "database/seeders/DatabaseSeeder.php",
@@ -13125,124 +13819,130 @@
       "public/workbox-8c29f6e4.js",
       "public/workbox-f171de04.js",
       "public/build/registerSW.js",
-      "public/build/assets/ActivityLogItem-D8UmSp-M.js",
-      "public/build/assets/ActivityLogs-BqMbUhsW.js",
-      "public/build/assets/AdminPortalLayout-zrp31gtw.js",
-      "public/build/assets/app-BZtu6jaF.js",
-      "public/build/assets/AppCard-CPbP9tOB.js",
-      "public/build/assets/Assignments-Bee3vHkc.js",
-      "public/build/assets/Attendance-7xaMKc1g.js",
-      "public/build/assets/Attendance-DHgjOPva.js",
-      "public/build/assets/AttendanceShow-DITRPlhy.js",
-      "public/build/assets/Auth-DMlBpIDd.js",
-      "public/build/assets/AuthenticatedLayout-D0KeaYO_.js",
-      "public/build/assets/BatchEntry-lFCC_pYd.js",
-      "public/build/assets/Create-C5d-GhEf.js",
-      "public/build/assets/createLucideIcon-DYOTV15C.js",
-      "public/build/assets/CreateMemberForm-9z61-OFq.js",
-      "public/build/assets/Dashboard-CAUPQg60.js",
-      "public/build/assets/Dashboard-CPRcEjfb.js",
-      "public/build/assets/Dashboard-CUQLBTey.js",
-      "public/build/assets/Dashboard-gfTVYx3o.js",
-      "public/build/assets/Dashboard-mUOntCD0.js",
-      "public/build/assets/DataToolbar-D0oadrXa.js",
-      "public/build/assets/debounce-D5eINvPt.js",
-      "public/build/assets/DepartmentForm-BITbpBHw.js",
-      "public/build/assets/DocsLayout-DK5iTiRh.js",
-      "public/build/assets/Dropdown-D5uUIwiD.js",
-      "public/build/assets/DutyRoster-Dmoqs8IV.js",
-      "public/build/assets/Education-C6FxebPf.js",
-      "public/build/assets/FaithJourneyTimeline-DqvwzFOp.js",
-      "public/build/assets/Features-B28VT9dK.js",
-      "public/build/assets/FeaturesTab-Ct-30h7G.js",
-      "public/build/assets/Finance-27UNGfR4.js",
-      "public/build/assets/Finance-BP0arcxu.js",
-      "public/build/assets/ForgotPassword-BNO6Tb_A.js",
-      "public/build/assets/FormModal-DkowqYLk.js",
-      "public/build/assets/HolisticView-CR3Fjuro.js",
-      "public/build/assets/Index-0k7guybI.js",
-      "public/build/assets/Index-40cv_aQv.js",
-      "public/build/assets/Index-B5GR8VyL.js",
-      "public/build/assets/Index-B9RrXo_O.js",
-      "public/build/assets/Index-BbdqXnFq.js",
-      "public/build/assets/Index-BL_pYsZ4.js",
-      "public/build/assets/Index-BmSPLxoA.js",
-      "public/build/assets/Index-BNikdj83.js",
-      "public/build/assets/Index-BOCQRd-W.js",
-      "public/build/assets/Index-Bt8yOO2e.js",
-      "public/build/assets/Index-BvtZFe43.js",
-      "public/build/assets/Index-BzKRsFKZ.js",
-      "public/build/assets/Index-C3MPgg8t.js",
-      "public/build/assets/Index-CgiVaJC7.js",
-      "public/build/assets/Index-CKFJPRez.js",
-      "public/build/assets/Index-CPRdRvzu.js",
-      "public/build/assets/Index-CPv1h2Eb.js",
-      "public/build/assets/Index-Cr6dvAFs.js",
-      "public/build/assets/Index-CWfzQRBO.js",
-      "public/build/assets/Index-D3fU38PM.js",
-      "public/build/assets/Index-D7A6b2lB.js",
-      "public/build/assets/Index-DAeWSa48.js",
-      "public/build/assets/Index-DANbx8wZ.js",
-      "public/build/assets/Index-DbcecYdD.js",
-      "public/build/assets/Index-DcUeNB3E.js",
-      "public/build/assets/Index-DLUz2xpf.js",
-      "public/build/assets/Index-DqprdcpB.js",
-      "public/build/assets/Index-Dwvg1G59.js",
-      "public/build/assets/Index-nGSCIQts.js",
-      "public/build/assets/Index-qXPiCIY9.js",
-      "public/build/assets/Index-siK-pVBD.js",
-      "public/build/assets/InputError-DtC-yXa2.js",
-      "public/build/assets/Intro-4rZXJi1E.js",
-      "public/build/assets/Intro-6JrO5VJU.js",
-      "public/build/assets/Leadership-Dnhfl8S4.js",
-      "public/build/assets/leaflet-src-Do985xP0.js",
+      "public/build/assets/Accounts-CpZYk6WE.js",
+      "public/build/assets/ActivityLogItem-DiV9iQEP.js",
+      "public/build/assets/ActivityLogs-bvD1EjZB.js",
+      "public/build/assets/AdminPortalLayout-CBlqwVu2.js",
+      "public/build/assets/app-Doz3wErI.js",
+      "public/build/assets/AppCard-OC4L-qgO.js",
+      "public/build/assets/Assignments-D8oUeXOP.js",
+      "public/build/assets/Attendance-CAlxqkyU.js",
+      "public/build/assets/Attendance-DiInqYgn.js",
+      "public/build/assets/AttendanceShow-Bpo3ew-m.js",
+      "public/build/assets/Auth-BDkLgNno.js",
+      "public/build/assets/AuthenticatedLayout-DXLFdqPi.js",
+      "public/build/assets/BatchEntry-Bb5up8Ro.js",
+      "public/build/assets/ChurchAttendance-CqqSPEe7.js",
+      "public/build/assets/Create-B4MjPxW4.js",
+      "public/build/assets/createLucideIcon-BS91qTi5.js",
+      "public/build/assets/CreateMemberForm-CZcI1HWY.js",
+      "public/build/assets/Dashboard-Bdw89Dh8.js",
+      "public/build/assets/Dashboard-CFSBpe1_.js",
+      "public/build/assets/Dashboard-D9qx6gRK.js",
+      "public/build/assets/Dashboard-DRGgiE8L.js",
+      "public/build/assets/Dashboard-DWUfMOdT.js",
+      "public/build/assets/Dashboard-D_UHAB9o.js",
+      "public/build/assets/Dashboard-qa1wMycs.js",
+      "public/build/assets/DataToolbar-CkPnM4QH.js",
+      "public/build/assets/DeaconAssignments-DVawg6q6.js",
+      "public/build/assets/debounce-LrEh2TNJ.js",
+      "public/build/assets/DepartmentForm-BKgPcvFF.js",
+      "public/build/assets/DocsLayout-DxReaTQx.js",
+      "public/build/assets/Dropdown-CKeWUtTH.js",
+      "public/build/assets/DutyRoster-CmqJglDo.js",
+      "public/build/assets/Education-DBUCS-JQ.js",
+      "public/build/assets/FaithJourneyTimeline-CBDLotV8.js",
+      "public/build/assets/Features-ByiIlgXH.js",
+      "public/build/assets/FeaturesTab-DvGEKypf.js",
+      "public/build/assets/Finance--SJz3n_-.js",
+      "public/build/assets/Finance-B_DyfOqh.js",
+      "public/build/assets/ForgotPassword-B2K-aVIE.js",
+      "public/build/assets/FormModal-CBJopSTB.js",
+      "public/build/assets/HolisticView-CXdaiQ0S.js",
+      "public/build/assets/Index-7N1zi4J-.js",
+      "public/build/assets/Index-B7ODL2Z6.js",
+      "public/build/assets/Index-B7Sm64FR.js",
+      "public/build/assets/Index-BaYZOj6T.js",
+      "public/build/assets/Index-BENLROd1.js",
+      "public/build/assets/Index-BiTkDJwE.js",
+      "public/build/assets/Index-BP4sr0Wc.js",
+      "public/build/assets/Index-BP9Zp8Ny.js",
+      "public/build/assets/Index-BRy3Imkz.js",
+      "public/build/assets/Index-BS0cCu-k.js",
+      "public/build/assets/Index-Bx6fTMq7.js",
+      "public/build/assets/Index-CDP77jUV.js",
+      "public/build/assets/Index-CHytb84o.js",
+      "public/build/assets/Index-CsDtwrIF.js",
+      "public/build/assets/Index-CWKQo2aQ.js",
+      "public/build/assets/Index-D74NSNXh.js",
+      "public/build/assets/Index-D8b6TXDd.js",
+      "public/build/assets/Index-DhovtMti.js",
+      "public/build/assets/Index-DKI4M3Tj.js",
+      "public/build/assets/Index-DpH6_8Nr.js",
+      "public/build/assets/Index-DupL78LP.js",
+      "public/build/assets/Index-fYcYWrcg.js",
+      "public/build/assets/Index-Hvgu2qm1.js",
+      "public/build/assets/Index-lfw1UTrE.js",
+      "public/build/assets/Index-pKo8n4hs.js",
+      "public/build/assets/Index-TL2o2yZ0.js",
+      "public/build/assets/Index-udQ7iihs.js",
+      "public/build/assets/Index-V8NyPlZK.js",
+      "public/build/assets/Index-Y99NUzx4.js",
+      "public/build/assets/Index-YS2LNjM0.js",
+      "public/build/assets/Index-zh6WE1Jr.js",
+      "public/build/assets/InputError-DjqPe2X2.js",
+      "public/build/assets/Intro-aMTYi32w.js",
+      "public/build/assets/Intro-DbZPZl-9.js",
+      "public/build/assets/Leadership-BfLspXpr.js",
+      "public/build/assets/leaflet-src-DE2te-ia.js",
       "public/build/assets/leaflet-src.esm-HdBnhJze.js",
-      "public/build/assets/lodash-CERrMzgF.js",
-      "public/build/assets/Login-DcAVPomB.js",
+      "public/build/assets/lodash-dCRvUlcs.js",
+      "public/build/assets/Login-CLy6nnF1.js",
       "public/build/assets/marker-icon-2x-1TirABJh.js",
       "public/build/assets/marker-icon-B6h-nX3D.js",
       "public/build/assets/marker-shadow-B9CpECYs.js",
-      "public/build/assets/MeetingForm-B6Va7x6I.js",
-      "public/build/assets/Meetings-CJOgOId4.js",
-      "public/build/assets/Members-C0HzXhe2.js",
-      "public/build/assets/Members-C3rgSSxw.js",
-      "public/build/assets/MembersTab-h1KO3tks.js",
-      "public/build/assets/MobileLayout-B6f7lWVB.js",
-      "public/build/assets/Offline-BRmhtbS_.js",
-      "public/build/assets/Overview-kB36RDpd.js",
-      "public/build/assets/Pagination-Bupjzddy.js",
-      "public/build/assets/Permissions-DHKENHsA.js",
-      "public/build/assets/PortalLayout-9IjZfj3X.js",
-      "public/build/assets/Portals-uzegyiS0.js",
-      "public/build/assets/PrimaryButton-DjmUaFmz.js",
-      "public/build/assets/Report-CNMKNr2h.js",
-      "public/build/assets/Report-fwdwSviY.js",
-      "public/build/assets/Reports-YB7jmV0C.js",
-      "public/build/assets/ResetPassword-CCapvyxD.js",
+      "public/build/assets/MeetingForm-cCPP8vNW.js",
+      "public/build/assets/Meetings-Dqymamjw.js",
+      "public/build/assets/Members-CTe_qcJN.js",
+      "public/build/assets/Members-tP2PoZyt.js",
+      "public/build/assets/MembersTab-md8n3mPm.js",
+      "public/build/assets/MobileLayout-YxHXhXja.js",
+      "public/build/assets/Offline-BTtmoct_.js",
+      "public/build/assets/Overview-UKRYbJKW.js",
+      "public/build/assets/Pagination-BmwvsFrc.js",
+      "public/build/assets/Permissions-8l3ycYZ3.js",
+      "public/build/assets/PortalLayout-Did0-xjs.js",
+      "public/build/assets/Portals-DJY1SYD7.js",
+      "public/build/assets/PrimaryButton-Bp6LHQ09.js",
+      "public/build/assets/Ranking-BoMXbhVx.js",
+      "public/build/assets/Report-1GJSP7Vd.js",
+      "public/build/assets/Report-CJH-jWt9.js",
+      "public/build/assets/Reports-CcvfKa-8.js",
+      "public/build/assets/ResetPassword-jdrMsUtG.js",
       "public/build/assets/roleHelper-CfYvVb96.js",
-      "public/build/assets/SecondaryButton-Y0IMsMKs.js",
-      "public/build/assets/Session-0m3FEyb2.js",
-      "public/build/assets/SessionList-BFhE43Sa.js",
-      "public/build/assets/Setup-BPENV45X.js",
-      "public/build/assets/Show-7NWwBLXh.js",
-      "public/build/assets/Show-BgiNutrl.js",
-      "public/build/assets/Show-CPEcpQlg.js",
-      "public/build/assets/Show-D9lEHXmN.js",
-      "public/build/assets/Show-Dgi_dsZ8.js",
-      "public/build/assets/Show-DU2i07oI.js",
-      "public/build/assets/Show-Wzd6o3CT.js",
-      "public/build/assets/SlideOver-CAd7aaGi.js",
-      "public/build/assets/SpeakerForm-sX1wkt6C.js",
-      "public/build/assets/SysAdmin-DJN0_IvO.js",
-      "public/build/assets/SystemFeaturesTab-C5N1uCqG.js",
-      "public/build/assets/TeamsTab-Btkx9FgE.js",
-      "public/build/assets/TextInput-2mZVq1pA.js",
-      "public/build/assets/transition-B3Li1ydC.js",
-      "public/build/assets/usePermissions-Dabn2f2E.js",
-      "public/build/assets/UserPermissions-DtgJ4ke6.js",
-      "public/build/assets/Users-jSbIDoNI.js",
-      "public/build/assets/Visitation-DC08IBDt.js",
-      "public/build/assets/Welcome-D8LG_3rn.js",
+      "public/build/assets/SecondaryButton-BwsR5jZI.js",
+      "public/build/assets/Session-QB4egH7N.js",
+      "public/build/assets/SessionList-D5xIlu83.js",
+      "public/build/assets/Setup-DHaOT9HC.js",
+      "public/build/assets/Show-C3vtrVBq.js",
+      "public/build/assets/Show-Coj2fsye.js",
+      "public/build/assets/Show-Dj0Plycr.js",
+      "public/build/assets/Show-DqQZLzup.js",
+      "public/build/assets/Show-KNZqqrAQ.js",
+      "public/build/assets/Show-OqgyXbDm.js",
+      "public/build/assets/Show-T3sCamZc.js",
+      "public/build/assets/SlideOver-D2TwFAce.js",
+      "public/build/assets/SpeakerForm-BLei2UST.js",
+      "public/build/assets/SysAdmin-C2j9gkR8.js",
+      "public/build/assets/SystemFeaturesTab-DQ12eC3B.js",
+      "public/build/assets/TeamsTab-CTFid7wE.js",
+      "public/build/assets/TextInput-DjycztNL.js",
+      "public/build/assets/transition-Dk2lrXOy.js",
+      "public/build/assets/usePermissions-DRSGZ9vP.js",
+      "public/build/assets/UserPermissions-D5msbhwy.js",
+      "public/build/assets/Users-CVh_vN5w.js",
+      "public/build/assets/Visitation-BhtyCAtX.js",
+      "public/build/assets/Welcome-D07VWIb7.js",
       "public/build/assets/_plugin-vue_export-helper-DlAUqK2U.js",
       "resources/js/app.js",
       "resources/js/bootstrap.js",
@@ -13259,6 +13959,7 @@
       "resources/js/Components/Modal.vue",
       "resources/js/Components/NotificationDropdown.vue",
       "resources/js/Components/Pagination.vue",
+      "resources/js/Components/PortalLinks.vue",
       "resources/js/Components/PrimaryButton.vue",
       "resources/js/Components/SearchableSelect.vue",
       "resources/js/Components/SecondaryButton.vue",
@@ -13318,6 +14019,7 @@
       "resources/js/Pages/Notifications/Index.vue",
       "resources/js/Pages/Roles/Index.vue",
       "resources/js/Pages/Roles/Show.vue",
+      "resources/js/Pages/Secretary/Dashboard.vue",
       "resources/js/Pages/Speakers/Index.vue",
       "resources/js/Pages/Speakers/Partials/SpeakerForm.vue",
       "resources/js/Pages/User/Donations/Index.vue",
@@ -13349,16 +14051,20 @@
       "vibecode/__main__.py"
     ],
     "admin": [
+      "app/Http/Controllers/Admin/AccountController.php",
       "app/Http/Controllers/Admin/ActivityLogController.php",
       "app/Http/Controllers/Admin/AnnouncementController.php",
       "app/Http/Controllers/Admin/AssetController.php",
       "app/Http/Controllers/Admin/BroadcastController.php",
       "app/Http/Controllers/Admin/ChronicleController.php",
+      "app/Http/Controllers/Admin/DeaconAssignmentController.php",
       "app/Http/Controllers/Admin/DonationController.php",
       "app/Http/Controllers/Admin/FormTemplateController.php",
       "app/Http/Controllers/Admin/SystemFeatureController.php",
       "app/Http/Controllers/Admin/UserPermissionController.php",
       "app/Http/Controllers/Admin/VisitorController.php",
+      "resources/js/Pages/Admin/Accounts.vue",
+      "resources/js/Pages/Admin/DeaconAssignments.vue",
       "resources/js/Pages/Admin/SystemFeaturesTab.vue",
       "resources/js/Pages/Admin/UserPermissions.vue",
       "resources/js/Pages/Admin/ActivityLogs/Index.vue",
@@ -13385,6 +14091,17 @@
       "resources/js/Pages/Auth/Login.vue",
       "resources/js/Pages/Auth/ResetPassword.vue"
     ],
+    "deacon": [
+      "app/Http/Controllers/Deacon/ChurchAttendanceController.php",
+      "app/Http/Controllers/Deacon/DeaconDashboardController.php",
+      "resources/js/Pages/Deacon/Attendance.vue",
+      "resources/js/Pages/Deacon/AttendanceShow.vue",
+      "resources/js/Pages/Deacon/ChurchAttendance.vue",
+      "resources/js/Pages/Deacon/Dashboard.vue",
+      "resources/js/Pages/Deacon/Index.vue",
+      "resources/js/Pages/Deacon/Report.vue",
+      "tests/Feature/Deacon/DeaconReportIsolationTest.php"
+    ],
     "activities": [
       "app/Http/Controllers/Portal/ActivitiesVisitationController.php",
       "app/Http/Controllers/Portal/AttendanceController.php",
@@ -13393,6 +14110,7 @@
       "app/Http/Controllers/Portal/DeptFinanceController.php",
       "app/Http/Controllers/Portal/DeptReportController.php",
       "app/Http/Controllers/Portal/EducationController.php",
+      "app/Http/Controllers/Portal/EduRankingController.php",
       "app/Http/Controllers/Portal/FinanceFundController.php",
       "app/Http/Controllers/Portal/FinanceFundTransferController.php",
       "app/Http/Controllers/Portal/FinancePortalController.php",
@@ -13406,6 +14124,7 @@
       "resources/js/Pages/Portal/Attendance/Show.vue",
       "resources/js/Pages/Portal/Education/Dashboard.vue",
       "resources/js/Pages/Portal/Education/Index.vue",
+      "resources/js/Pages/Portal/Education/Ranking.vue",
       "resources/js/Pages/Portal/Education/Report.vue",
       "resources/js/Pages/Portal/Education/Session.vue",
       "resources/js/Pages/Portal/Education/SessionList.vue",
@@ -13418,13 +14137,6 @@
       "resources/js/Components/Member/FaithJourneyTimeline.vue",
       "resources/js/Components/Member/FamilyTreeCard.vue",
       "tests/Feature/Member/DutyAssignmentTest.php"
-    ],
-    "deacon": [
-      "resources/js/Pages/Deacon/Attendance.vue",
-      "resources/js/Pages/Deacon/AttendanceShow.vue",
-      "resources/js/Pages/Deacon/Index.vue",
-      "resources/js/Pages/Deacon/Report.vue",
-      "tests/Feature/Deacon/DeaconReportIsolationTest.php"
     ],
     "finance": [
       "resources/js/Pages/Finance/Dashboard.vue",
@@ -13440,10 +14152,10 @@
     ]
   },
   "stats": {
-    "total_files": 593,
+    "total_files": 624,
     "total_layers": 22,
     "total_domains": 17,
     "total_portals": 8
   },
-  "generated_at": "2026-06-08T09:03:33.480969"
+  "generated_at": "2026-06-08T15:56:46.077174"
 }
