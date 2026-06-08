@@ -58,15 +58,33 @@ class DeaconAssignmentController extends Controller
             ->get()
             ->keyBy('department_id');
 
-        // Tất cả Chấp Sự (members với org_role = deacon hoặc chức danh tương ứng)
-        $deacons = Member::orderBy('full_name')
-            ->get(['id', 'full_name', 'phone', 'member_type'])
-            ->map(fn($m) => [
-                'id'          => $m->id,
-                'full_name'   => $m->full_name,
-                'phone'       => $m->phone,
-                'member_type' => $m->member_type,
-            ]);
+        // Tất cả Chấp Sự: lấy members có org_role code = 'cs' (Chấp Sự) qua OrgMembership
+        // Fallback: nếu chưa có OrgRole code 'cs', lấy tất cả members đang hoạt động
+        $deaconRoleId = \App\Models\OrgRole::where('code', 'cs')->value('id');
+        if ($deaconRoleId) {
+            $deaconMemberIds = \App\Models\OrgMembership::where('org_role_id', $deaconRoleId)
+                ->where('is_active', true)
+                ->pluck('member_id');
+            $deacons = Member::whereIn('id', $deaconMemberIds)
+                ->orderBy('full_name')
+                ->get(['id', 'full_name', 'phone', 'member_type'])
+                ->map(fn($m) => [
+                    'id'          => $m->id,
+                    'full_name'   => $m->full_name,
+                    'phone'       => $m->phone,
+                    'member_type' => $m->member_type,
+                ]);
+        } else {
+            // Fallback: tất cả members (dùng khi chưa setup OrgRole)
+            $deacons = Member::orderBy('full_name')
+                ->get(['id', 'full_name', 'phone', 'member_type'])
+                ->map(fn($m) => [
+                    'id'          => $m->id,
+                    'full_name'   => $m->full_name,
+                    'phone'       => $m->phone,
+                    'member_type' => $m->member_type,
+                ]);
+        }
 
         // Kết hợp dept + assignment hiện tại
         $deptAssignments = $departments->map(fn($dept) => [

@@ -86,11 +86,12 @@ Route::prefix('ministry')
         Route::delete('/care/{careRequest}', [\App\Http\Controllers\CareController::class, 'destroy'])->name('ministry.care.destroy');
     });
 
-    // ── Giáo Dục ─────────────────────────────────────────
+    // ── Giáo Dục ────────────────────────────────────
     Route::prefix('education')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Portal\EducationController::class, 'dashboard'])->name('ministry.education.index');
-
+        // Dashboard giáo dục: cần ít nhất quyền education-classes
         Route::middleware('portal.access:education-classes,ministry')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Portal\EducationController::class, 'dashboard'])->name('ministry.education.index');
+
             Route::get('/classes', [\App\Http\Controllers\Portal\EducationController::class, 'index'])->name('ministry.education.classes');
             Route::post('/', [\App\Http\Controllers\Portal\EducationController::class, 'store'])->name('ministry.education.store');
             Route::put('/{eduClass}', [\App\Http\Controllers\Portal\EducationController::class, 'update'])->name('ministry.education.update');
@@ -98,6 +99,9 @@ Route::prefix('ministry')
             Route::post('/{eduClass}/members', [\App\Http\Controllers\Portal\EducationController::class, 'storeMember'])->name('ministry.education.members.store');
             Route::post('/{eduClass}/members/bulk', [\App\Http\Controllers\Portal\EducationController::class, 'bulkStoreMember'])->name('ministry.education.members.bulk-store');
             Route::delete('/{eduClass}/members/{member}', [\App\Http\Controllers\Portal\EducationController::class, 'destroyMember'])->name('ministry.education.members.destroy');
+
+            // Ranking: cũng dùng education-classes
+            Route::get('/{eduClass}/ranking', [\App\Http\Controllers\Portal\EduRankingController::class, 'classRanking'])->name('ministry.education.ranking');
         });
 
         Route::middleware('portal.access:education-attendance,ministry')->group(function () {
@@ -119,11 +123,6 @@ Route::prefix('ministry')
             Route::get('/report', [\App\Http\Controllers\Portal\EducationController::class, 'report'])->name('ministry.education.report');
             Route::post('/report/save', [\App\Http\Controllers\Portal\EducationController::class, 'saveReport'])->name('ministry.education.report.save');
             Route::post('/report/{eduReport}/approve', [\App\Http\Controllers\Portal\EducationController::class, 'approveReport'])->name('ministry.education.report.approve');
-        });
-
-        // Bảng xếp hạng quiz trong lớp (xem: chỉ cần có education-classes access)
-        Route::middleware('portal.access:education-classes,ministry')->group(function () {
-            Route::get('/{eduClass}/ranking', [\App\Http\Controllers\Portal\EduRankingController::class, 'classRanking'])->name('ministry.education.ranking');
         });
     });
 });

@@ -496,7 +496,7 @@ class DashboardController extends Controller
                 'label'       => 'Cổng Chấp Sự',
                 'description' => 'Tổng quan ban ngành · Báo cáo · Phân công',
                 'icon'        => '⛪',
-                'route'       => route('deacon.dashboard'),
+                'route'       => route('deacon.index'),
                 'color'       => 'blue',
             ],
             [

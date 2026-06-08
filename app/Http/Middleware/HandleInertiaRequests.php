@@ -36,7 +36,15 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
-        
+
+        // Resolve member profile once — dùng cho name + member_code
+        $member = null;
+        if ($user) {
+            $member = \App\Models\Member::where('user_id', $user->id)
+                ->select(['id', 'full_name', 'member_code'])
+                ->first();
+        }
+
         $homePortal = '/dashboard'; // default
         if ($user) {
             // Cache homePortal in session to avoid 6-7 queries per request
@@ -46,20 +54,23 @@ class HandleInertiaRequests extends Middleware
                 $request->session()->put('cached_home_portal', $homePortal);
             }
         }
-        
+
         // Dynamically figure out which department session to check based on the URL path
         $activeDeptId = null;
         if ($request->is('ministry*')) {
             $activeDeptId = $request->session()->get('active_ministry_dept_id');
-        } elseif ($request->is('portal*')) {
-            $activeDeptId = $request->session()->get('active_portal_dept_id');
+        } elseif ($request->is('finance-portal*')) {
+            $activeDeptId = $request->session()->get('active_finance_dept_id');
         } elseif ($request->is('deacon*')) {
             $activeDeptId = $request->session()->get('active_deacon_dept_id');
+        } elseif ($request->is('portal*')) {
+            $activeDeptId = $request->session()->get('active_portal_dept_id');
         } else {
-            // Fallback for generic calls
-            $activeDeptId = $request->session()->get('active_portal_dept_id') 
-                         ?? $request->session()->get('active_ministry_dept_id') 
-                         ?? $request->session()->get('active_deacon_dept_id');
+            // Fallback for generic calls — cascade all portals
+            $activeDeptId = $request->session()->get('active_portal_dept_id')
+                         ?? $request->session()->get('active_ministry_dept_id')
+                         ?? $request->session()->get('active_deacon_dept_id')
+                         ?? $request->session()->get('active_finance_dept_id');
         }
 
         $allowedFeatures = [];
@@ -72,15 +83,16 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $user ? [
-                    'id' => $user->id,
-                    'name' => (isset($member) && $member) ? $member->full_name : $user->name,
-                    'email' => $user->email,
-                    'role' => $user->getRoleNames()->first() ?? 'Guest',
+                    'id'          => $user->id,
+                    'name'        => $member?->full_name ?? $user->name,
+                    'email'       => $user->email,
+                    'role'        => $user->getRoleNames()->first() ?? 'Guest',
                     'is_superadmin' => $user->isSuperAdmin(),
-                    'member_code' => (isset($member) && $member) ? $member->member_code : null,
+                    'member_id'   => $member?->id,
+                    'member_code' => $member?->member_code,
                     'permissions' => $user->getAllPermissions()->pluck('name'),
                     'home_portal' => $homePortal,
-                    'unread_notifications' => $user->unreadNotifications()->limit(10)->get(),
+                    'unread_notifications'       => $user->unreadNotifications()->limit(5)->get(),
                     'unread_notifications_count' => $user->unreadNotifications()->count(),
                 ] : null,
                 'allowed_features' => $allowedFeatures,
@@ -115,17 +127,31 @@ class HandleInertiaRequests extends Middleware
             return '/dashboard';
         }
 
-        if ($user->hasRole('Deacon') || $user->hasRole('Secretary')) {
-            return '/deacon';
+        // Kiểm tra OrgMembership với org_role có code 'cs' (Chấp Sự) trong block leadership
+        $memberId = \App\Models\Member::where('user_id', $user->id)->value('id');
+        if ($memberId) {
+            $leadershipDeptIds = \App\Models\Department::where('block', 'leadership')->pluck('id');
+            $isDeacon = \App\Models\OrgMembership::where('member_id', $memberId)
+                ->where('model_type', \App\Models\Department::class)
+                ->whereIn('model_id', $leadershipDeptIds)
+                ->exists();
+            if ($isDeacon) {
+                return '/deacon';
+            }
         }
 
-        $member = \App\Models\Member::where('user_id', $user->id)->value('id');
+        // Explicit feature grants cho leadership block (không có membership nhưng có quyền)
+        $hasLeadership = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->whereHas('department', fn($q) => $q->where('block', 'leadership'))
+            ->exists();
+        if ($hasLeadership) return '/deacon';
 
         // Check Ministry
         $hasMinistry = false;
-        if ($member) {
+        if ($memberId) {
             $ministryDeptIds = \App\Models\Department::where('block', 'ministry')->pluck('id');
-            $hasMinistry = \App\Models\OrgMembership::where('member_id', $member)
+            $hasMinistry = \App\Models\OrgMembership::where('member_id', $memberId)
                 ->where('model_type', \App\Models\Department::class)
                 ->whereIn('model_id', $ministryDeptIds)
                 ->exists();
@@ -140,9 +166,9 @@ class HandleInertiaRequests extends Middleware
 
         // Check Activities
         $hasActivities = false;
-        if ($member) {
+        if ($memberId) {
             $activitiesDeptIds = \App\Models\Department::where('block', 'activities')->pluck('id');
-            $hasActivities = \App\Models\OrgMembership::where('member_id', $member)
+            $hasActivities = \App\Models\OrgMembership::where('member_id', $memberId)
                 ->where('model_type', \App\Models\Department::class)
                 ->whereIn('model_id', $activitiesDeptIds)
                 ->exists();

@@ -23,15 +23,18 @@ class DeaconPortalController extends Controller
      */
     private function deaconMeta(Request $request): array
     {
-        $activeRole = session('active_deacon_role', 'secretary');
+        $activeRole = session('active_deacon_role', 'deacon');
         return [
             'activeRole'           => $activeRole,
             'department'           => [
                 'id'   => $activeRole,
-                'name' => $activeRole === 'secretary' ? 'Thư Ký Hội Thánh' : 'Thủ Quỹ Hội Thánh',
+                'name' => match($activeRole) {
+                    'treasurer' => 'Thủ Quỹ Hội Thánh',
+                    default     => 'Ban Chấp Sự',
+                },
             ],
             'availableDepartments' => [
-                ['id' => 'secretary', 'name' => 'Thư Ký Hội Thánh'],
+                ['id' => 'deacon',    'name' => 'Ban Chấp Sự'],
                 ['id' => 'treasurer', 'name' => 'Thủ Quỹ Hội Thánh'],
             ],
             'isGlobalAdmin' => $request->user()->isSuperAdmin(),
@@ -533,10 +536,21 @@ class DeaconPortalController extends Controller
      */
     public function reportStatusUpdate(Request $request, DeaconMonthlyReport $report)
     {
-        $action = $request->input('action'); 
-        $user = $request->user();
-        $role = session('active_deacon_role', 'secretary');
-        $isLeader = in_array($role, ['head', 'pastor']) || $user->isSuperAdmin();
+        $action = $request->input('action');
+        $user   = $request->user();
+
+        // Chỉ SuperAdmin hoặc thành viên leadership (block BCS) mới có quyền approve
+        $isLeader = $user->isSuperAdmin();
+        if (!$isLeader) {
+            $memberId = \App\Models\Member::where('user_id', $user->id)->value('id');
+            if ($memberId) {
+                $leadershipDeptIds = \App\Models\Department::where('block', 'leadership')->pluck('id');
+                $isLeader = \App\Models\OrgMembership::where('member_id', $memberId)
+                    ->where('model_type', \App\Models\Department::class)
+                    ->whereIn('model_id', $leadershipDeptIds)
+                    ->exists();
+            }
+        }
 
         switch ($action) {
             case 'submit':

@@ -228,8 +228,9 @@ Route::middleware('auth')->group(function () {
     require __DIR__.'/portal.php';
     require __DIR__.'/ministry.php';
 
-    // ── Deacon Portal (Ban Chấp Sự) ───────────────────────────────────────────
-    Route::prefix('deacon')->name('deacon.')->middleware('auth')->group(function () {
+    // ── Deacon My-Department Dashboard (Chấp Sự xem ban mình phụ trách) ────────
+    // Prefix riêng để không conflict với Deacon Portal /deacon/* trong ministry.php
+    Route::prefix('deacon-dashboard')->name('deacon.my.')->middleware('auth')->group(function () {
         // Dashboard — tổng quan ban mình phụ trách
         Route::get('/', [\App\Http\Controllers\Deacon\DeaconDashboardController::class, 'index'])->name('dashboard');
         // Nhận xét báo cáo ban

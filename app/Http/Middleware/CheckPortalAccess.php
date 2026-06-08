@@ -30,11 +30,12 @@ class CheckPortalAccess
         'deacon'     => 'leadership',
     ];
 
-    const SESSION_DEPT_KEY = [
-        'activities' => 'active_portal_dept_id',
-        'ministry'   => 'active_ministry_dept_id',
-        'deacon'     => 'active_deacon_dept_id',
-    ];
+    // Dùng lại SESSION_KEYS từ AbstractPortalMiddleware (single source of truth)
+    // Không tự định nghĩa riêng để tránh drift.
+    private function getSessionKey(string $portalType): string
+    {
+        return AbstractPortalMiddleware::SESSION_KEYS[$portalType] ?? 'active_portal_dept_id';
+    }
 
     public function handle(Request $request, Closure $next, string $portalType = 'activities'): Response
     {
@@ -42,7 +43,7 @@ class CheckPortalAccess
         if (!$user) return redirect()->route('login');
 
         $block      = self::BLOCK_MAP[$portalType] ?? 'activities';
-        $sessionKey = self::SESSION_DEPT_KEY[$portalType] ?? 'active_portal_dept_id';
+        $sessionKey = $this->getSessionKey($portalType);
 
         // ── SuperAdmin: bypass tất cả ─────────────────────────────────────────
         if ($user->isSuperAdmin()) {
