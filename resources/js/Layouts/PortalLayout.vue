@@ -134,79 +134,146 @@
 
   </div>
 
-  <!-- ── Mobile Bottom Tab Nav ────────────────────────────────────────────── -->
-  <nav class="lg:hidden bg-white border-t border-gray-100 fixed bottom-0 left-0 right-0 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]" style="padding-bottom: env(safe-area-inset-bottom)">
-    <div class="flex justify-around items-center h-14 max-w-lg mx-auto">
+  <!-- ── Mobile Bottom Tab Nav — 4 tabs + More ─────────────────────────── -->
+  <nav v-if="!hideNav" class="lg:hidden bg-white border-t border-gray-100 fixed bottom-0 left-0 right-0 z-20 shadow-[0_-2px_12px_rgba(0,0,0,0.06)]" style="padding-bottom: env(safe-area-inset-bottom)">
+    <div class="flex items-stretch h-[58px] max-w-lg mx-auto">
 
-      <!-- Dynamic nav from mobileNavItems (max 6) -->
-      <template v-for="item in mobileNavItems" :key="item.key">
-        <Link v-if="!item.disabled" :href="item.href"
-          class="flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors"
-          :class="item.active
-            ? (portalType === 'activities' ? 'text-blue-600' : portalType === 'ministry' ? 'text-emerald-600' : 'text-amber-500')
-            : 'text-gray-500'">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" :d="item.icon"/>
-          </svg>
-          <span class="text-[9px] font-bold">{{ item.shortLabel || item.label }}</span>
-        </Link>
-        <span v-else
-          class="flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-gray-300 opacity-50 cursor-not-allowed">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" :d="item.icon"/>
-          </svg>
-          <span class="text-[9px] font-bold">{{ item.shortLabel || item.label }}</span>
-        </span>
-      </template>
+      <!-- Tab 1: Tổng Quan (always) -->
+      <Link :href="primaryNavItems[0]?.href || '#'"
+        class="flex flex-col items-center justify-center flex-1 gap-0.5 transition-colors relative"
+        :class="primaryNavItems[0]?.active ? activeColor : 'text-gray-400'">
+        <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" :d="primaryNavItems[0]?.icon"/>
+        </svg>
+        <span class="text-[10px] font-semibold">Tổng Quan</span>
+        <span v-if="primaryNavItems[0]?.active" class="absolute top-1.5 w-1 h-1 rounded-full" :class="activeDot"></span>
+      </Link>
 
-      <!-- Dept Switcher (always last on mobile if multi-dept) -->
+      <!-- Tab 2: Primary Feature (Điểm Danh / Thành Viên) -->
+      <Link v-if="primaryNavItems[1]" :href="primaryNavItems[1].href"
+        class="flex flex-col items-center justify-center flex-1 gap-0.5 transition-colors relative"
+        :class="primaryNavItems[1].active ? activeColor : 'text-gray-400'">
+        <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" :d="primaryNavItems[1].icon"/>
+        </svg>
+        <span class="text-[10px] font-semibold">{{ primaryNavItems[1].shortLabel || primaryNavItems[1].label }}</span>
+        <span v-if="primaryNavItems[1].active" class="absolute top-1.5 w-1 h-1 rounded-full" :class="activeDot"></span>
+      </Link>
+
+      <!-- Tab 3: Thăm Viếng / Chức năng chính thứ 2 -->
+      <Link v-if="primaryNavItems[2]" :href="primaryNavItems[2].href"
+        class="flex flex-col items-center justify-center flex-1 gap-0.5 transition-colors relative"
+        :class="primaryNavItems[2].active ? activeColor : 'text-gray-400'">
+        <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" :d="primaryNavItems[2].icon"/>
+        </svg>
+        <span class="text-[10px] font-semibold">{{ primaryNavItems[2].shortLabel || primaryNavItems[2].label }}</span>
+        <span v-if="primaryNavItems[2].active" class="absolute top-1.5 w-1 h-1 rounded-full" :class="activeDot"></span>
+      </Link>
+
+      <!-- Tab 4: Chuyển Ban (dept switcher) -->
       <button v-if="(availableDepartments && availableDepartments.length > 1) || isGlobalAdmin"
         @click="isSwitcherOpen = true"
-        class="flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-gray-500 transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
+        class="flex flex-col items-center justify-center flex-1 gap-0.5 text-gray-400 transition-colors">
+        <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
         </svg>
-        <span class="text-[9px] font-bold">Chuyển</span>
+        <span class="text-[10px] font-semibold">Chuyển</span>
       </button>
 
-      <!-- Nav Settings button (only show if > 6 items available) -->
-      <button v-if="visibleNavItems.length > 6"
-        @click="isNavSettingsOpen = true"
-        class="flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-gray-400 transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+      <!-- Tab 5: Thêm (More — opens slide-up sheet) -->
+      <button @click="isMoreOpen = true"
+        class="flex flex-col items-center justify-center flex-1 gap-0.5 transition-colors relative"
+        :class="hasActiveSecondary ? activeColor : 'text-gray-400'">
+        <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/>
         </svg>
-        <span class="text-[9px] font-bold">Thêm</span>
+        <span class="text-[10px] font-semibold">Thêm</span>
+        <!-- Badge if secondary item is active -->
+        <span v-if="hasActiveSecondary" class="absolute top-1.5 w-1 h-1 rounded-full" :class="activeDot"></span>
       </button>
+
     </div>
   </nav>
 
-  <!-- Mobile Nav Settings SlideOver -->
-  <SlideOver v-model="isNavSettingsOpen" title="Tùy chỉnh Menu Mobile" size="sm">
-    <template #default>
-      <div class="p-4 space-y-2">
-        <p class="text-xs text-gray-500 mb-3">Chọn tối đa 6 mục hiển thị dưới cùng. Mục "Tổng Quan" luôn hiển thị.</p>
-        <div v-for="item in visibleNavItems" :key="item.key"
-          class="flex items-center justify-between p-3 rounded-xl border transition-all"
-          :class="item.key === 'home' ? 'bg-gray-50 border-gray-200 opacity-60' : 'border-gray-200 hover:border-indigo-200 hover:bg-indigo-50'">
-          <div class="flex items-center gap-3">
-            <svg class="w-5 h-5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon"/>
-            </svg>
-            <span class="text-sm font-bold text-gray-700">{{ item.label }}</span>
-          </div>
-          <div v-if="item.key === 'home'" class="text-xs text-gray-400 font-bold">Cố định</div>
-          <button v-else @click="toggleNavItem(item.key)"
-            :class="['relative w-11 h-6 rounded-full transition-all duration-200',
-              hiddenNavKeys.has(item.key) ? 'bg-gray-200' : 'bg-indigo-600']">
-            <span :class="['absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200',
-              hiddenNavKeys.has(item.key) ? 'translate-x-0.5' : 'translate-x-5']"/>
+  <!-- ── More — Slide-up Sheet ────────────────────────────────────────────── -->
+  <transition
+    enter-active-class="transition duration-300 ease-out"
+    enter-from-class="translate-y-full opacity-0"
+    enter-to-class="translate-y-0 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="translate-y-0 opacity-100"
+    leave-to-class="translate-y-full opacity-0">
+    <div v-if="isMoreOpen" class="lg:hidden fixed inset-0 z-30 flex flex-col justify-end" @click.self="isMoreOpen = false">
+      <!-- Backdrop -->
+      <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px]" @click="isMoreOpen = false"></div>
+
+      <!-- Sheet -->
+      <div class="relative bg-white rounded-t-3xl shadow-2xl pb-safe overflow-hidden"
+        style="padding-bottom: calc(env(safe-area-inset-bottom) + 1rem)">
+
+        <!-- Handle bar -->
+        <div class="flex justify-center pt-3 pb-1">
+          <div class="w-10 h-1 rounded-full bg-gray-200"></div>
+        </div>
+
+        <!-- Header -->
+        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+          <h3 class="text-base font-bold text-gray-900">Menu</h3>
+          <button @click="isMoreOpen = false" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
-        <p v-if="selectedNavCount >= 6" class="text-xs text-amber-600 font-bold mt-2">Đã đạt giới hạn 6 mục. Tắt 1 mục để bật mục khác.</p>
+
+        <!-- Secondary nav items grid -->
+        <div class="p-4 grid grid-cols-3 gap-3">
+          <Link v-for="item in secondaryNavItems" :key="item.key"
+            :href="item.href"
+            @click="isMoreOpen = false"
+            class="flex flex-col items-center gap-2 p-3.5 rounded-2xl transition-all"
+            :class="item.active
+              ? (portalType === 'activities' ? 'bg-blue-50 text-blue-600' : portalType === 'ministry' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600')
+              : 'bg-gray-50 text-gray-600 active:bg-gray-100'">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" :d="item.icon"/>
+            </svg>
+            <span class="text-[11px] font-semibold text-center leading-tight">{{ item.label }}</span>
+          </Link>
+
+          <!-- Admin link -->
+          <Link v-if="isGlobalAdmin" :href="route('dashboard')"
+            @click="isMoreOpen = false"
+            class="flex flex-col items-center gap-2 p-3.5 rounded-2xl bg-indigo-50 text-indigo-600 active:bg-indigo-100 transition-all">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+              <circle cx="12" cy="12" r="3" stroke-width="1.8"/>
+            </svg>
+            <span class="text-[11px] font-semibold text-center">Quản Trị</span>
+          </Link>
+
+          <!-- Profile -->
+          <Link :href="route('member.portal.index')"
+            @click="isMoreOpen = false"
+            class="flex flex-col items-center gap-2 p-3.5 rounded-2xl bg-gray-50 text-gray-600 active:bg-gray-100 transition-all">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <span class="text-[11px] font-semibold text-center">Hồ Sơ</span>
+          </Link>
+
+          <!-- Logout -->
+          <Link :href="route('logout')" method="post" as="button"
+            @click="isMoreOpen = false"
+            class="flex flex-col items-center gap-2 p-3.5 rounded-2xl bg-red-50 text-red-500 active:bg-red-100 transition-all">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-6 0v-1m6-10V7a3 3 0 00-6 0v1"/>
+            </svg>
+            <span class="text-[11px] font-semibold text-center">Đăng Xuất</span>
+          </Link>
+        </div>
       </div>
-    </template>
-  </SlideOver>
+    </div>
+  </transition>
 
   <!-- Global Context Switcher SlideOver -->
   <SlideOver v-model="isSwitcherOpen" title="Chuyển đổi Ban ngành" size="md">
@@ -260,68 +327,69 @@ import { computed, ref } from 'vue';
 import SlideOver from '@/Components/SlideOver.vue';
 import { usePermissions } from '@/Composables/usePermissions';
 
-// Allow child pages to trigger the dept switcher via @open-switcher
 const emit = defineEmits(['openSwitcher']);
 
 const page = usePage();
-// Single source of truth: auth.allowed_features (computed by PortalService in HandleInertiaRequests)
 const { can, isSuperAdmin: isAdmin } = usePermissions();
 
 const props = defineProps({
   department:           Object,
   availableDepartments: Array,
   isGlobalAdmin:        Boolean,
-  userPermissions:      { type: Object, default: () => ({}) }, // kept for backward compat, not used for nav
+  userPermissions:      { type: Object, default: () => ({}) },
   portalType:           { type: String, default: 'activities' },
   hideNav:              { type: Boolean, default: false },
   title:                { type: String, default: null },
 });
 
-// Sidebar / switcher state
+// State
 const sidebarCollapsed = ref(false);
 const isSwitcherOpen   = ref(false);
+const isMoreOpen       = ref(false);
 const allDeptsGrouped  = computed(() => page.props.allAvailableDepartments || {});
 
+// Active color per portal type
+const activeColor = computed(() =>
+  props.portalType === 'activities' ? 'text-blue-600' :
+  props.portalType === 'ministry'   ? 'text-emerald-600' : 'text-amber-500'
+);
+const activeDot = computed(() =>
+  props.portalType === 'activities' ? 'bg-blue-600' :
+  props.portalType === 'ministry'   ? 'bg-emerald-600' : 'bg-amber-500'
+);
+
 const blockInfo = {
-  activities: { name: 'Ban Ngành Sinh Hoạt',        icon: '🎯', color: 'text-blue-600' },
-  ministry:   { name: 'Ban Ngành Mục Vụ',            icon: '⛪', color: 'text-emerald-600' },
-  leadership: { name: 'Ban Chấp Sự / Lãnh Đạo',     icon: '🛡', color: 'text-amber-600' },
+  activities: { name: 'Ban Ngành Sinh Hoạt',    icon: '🎯', color: 'text-blue-600' },
+  ministry:   { name: 'Ban Ngành Mục Vụ',        icon: '⛪', color: 'text-emerald-600' },
+  leadership: { name: 'Ban Chấp Sự / Lãnh Đạo', icon: '🛡', color: 'text-amber-600' },
 };
 
 const activeBlockForSwitcher = props.portalType === 'deacon' ? 'leadership' : props.portalType;
 const expandedBlocks = ref({
   activities: activeBlockForSwitcher === 'activities',
-  ministry: activeBlockForSwitcher === 'ministry',
-  leadership: activeBlockForSwitcher === 'leadership'
+  ministry:   activeBlockForSwitcher === 'ministry',
+  leadership: activeBlockForSwitcher === 'leadership',
 });
 
-const toggleBlock = (block) => {
-  expandedBlocks.value[block] = !expandedBlocks.value[block];
-};
+const toggleBlock = (block) => { expandedBlocks.value[block] = !expandedBlocks.value[block]; };
 
 const switchDept = (deptId) => {
   if (deptId === 'secretary' || deptId === 'treasurer') {
     router.post(route('deacon.switch-role'), { role: deptId }, {
-      preserveScroll: true,
-      onSuccess: () => { isSwitcherOpen.value = false; },
+      preserveScroll: true, onSuccess: () => { isSwitcherOpen.value = false; },
     });
   } else if (props.portalType === 'ministry') {
-    // Ministry portal: update ministry session key
     router.post(route('ministry.switch-context'), { department_id: deptId }, {
-      preserveScroll: true,
-      onSuccess: () => { isSwitcherOpen.value = false; },
+      preserveScroll: true, onSuccess: () => { isSwitcherOpen.value = false; },
     });
   } else {
-    // Activities portal (default)
     router.post(route('portal.switch-context'), { department_id: deptId }, {
-      preserveScroll: true,
-      onSuccess: () => { isSwitcherOpen.value = false; },
+      preserveScroll: true, onSuccess: () => { isSwitcherOpen.value = false; },
     });
   }
 };
 
-// ── Nav item definitions per portal type ─────────────────────────────────────
-// Icons are SVG `d` path strings from Heroicons
+// ── Icon paths ───────────────────────────────────────────────────────────────
 const ICONS = {
   dashboard:  'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
   attendance: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
@@ -336,98 +404,62 @@ const ICONS = {
   care:       'M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
 };
 
-/**
- * visibleNavItems — Nguồn sự thật duy nhất: can(slug) từ usePermissions
- * can(slug) đọc từ auth.allowed_features (PortalService::getAllowedFeaturesForDept)
- * Quy tắc: can(slug) = true → hiện và enable; false → ẩn hoàn toàn
- */
+// ── All nav items (full list) ─────────────────────────────────────────────────
 const visibleNavItems = computed(() => {
   const type = props.portalType;
-
-  const always = [
-    { key: 'home', label: 'Tổng Quan', icon: ICONS.dashboard,
-      href: type === 'activities' ? route('portal.index') : type === 'ministry' ? route('ministry.index') : route('deacon.index'),
-      active: false, disabled: false },
-  ];
+  const home = { key: 'home', label: 'Tổng Quan', icon: ICONS.dashboard,
+    href: type === 'activities' ? route('portal.index') : type === 'ministry' ? route('ministry.index') : route('deacon.index'),
+    active: type === 'activities' ? route().current('portal.index') : type === 'ministry' ? route().current('ministry.index') : route().current('deacon.index'),
+    disabled: false };
 
   if (type === 'activities') {
-    return [
-      ...always,
-      can('attendance')   && { key: 'attendance',   label: 'Điểm Danh',  icon: ICONS.attendance, href: route('portal.attendance.index'),     active: route().current('portal.attendance.*'),     disabled: false },
-      can('visitation')   && { key: 'visitation',   label: 'Thăm Viếng', icon: ICONS.visitation, href: route('portal.visitation.index'),     active: route().current('portal.visitation.*'),     disabled: false },
-      can('care')         && { key: 'care',         label: 'Chăm Sóc',   icon: ICONS.care,       href: route('portal.care.index'),           active: route().current('portal.care.*'),           disabled: false },
-      can('members')      && { key: 'members',      label: 'Thành Viên', icon: ICONS.members,    href: route('portal.members.index'),        active: route().current('portal.members.*'),        disabled: false },
-      can('reports')      && { key: 'reports',      label: 'Báo Cáo',    icon: ICONS.reports,    href: route('portal.reports.index'),        active: route().current('portal.reports.*'),        disabled: false },
-      can('finance')      && { key: 'finance',      label: 'Tài Chính',  icon: ICONS.finance,    href: route('portal.finance.index'),        active: route().current('portal.finance.*'),        disabled: false },
-      can('documents')    && { key: 'documents',    label: 'Tài Liệu',   icon: ICONS.documents,  href: route('portal.documents.index'),      active: route().current('portal.documents.*'),      disabled: false },
-      can('chronicles')   && { key: 'chronicles',   label: 'Sổ Tay HT',  icon: ICONS.logs,       href: route('portal.chronicles.index'),     active: route().current('portal.chronicles.*'),     disabled: false },
-      can('assignments')  && { key: 'assignments',  label: 'Phân Công',  icon: ICONS.assignment, href: route('portal.duty-rooster.index'),   active: route().current('portal.duty-rooster.*'),  disabled: false },
-      can('activity-logs')&& { key: 'logs',         label: 'Nhật Ký',    icon: ICONS.logs,       href: route('portal.logs'),                active: route().current('portal.logs'),             disabled: false },
+    return [home,
+      can('attendance')  && { key: 'attendance',  label: 'Điểm Danh',  icon: ICONS.attendance, href: route('portal.attendance.index'),   active: route().current('portal.attendance.*'),   disabled: false },
+      can('visitation')  && { key: 'visitation',  label: 'Thăm Viếng', icon: ICONS.visitation, href: route('portal.visitation.index'),   active: route().current('portal.visitation.*'),   disabled: false },
+      can('care')        && { key: 'care',         label: 'Chăm Sóc',   icon: ICONS.care,       href: route('portal.care.index'),         active: route().current('portal.care.*'),         disabled: false },
+      can('members')     && { key: 'members',      label: 'Thành Viên', icon: ICONS.members,    href: route('portal.members.index'),      active: route().current('portal.members.*'),      disabled: false },
+      can('reports')     && { key: 'reports',      label: 'Báo Cáo',    icon: ICONS.reports,    href: route('portal.reports.index'),      active: route().current('portal.reports.*'),      disabled: false },
+      can('finance')     && { key: 'finance',      label: 'Tài Chính',  icon: ICONS.finance,    href: route('portal.finance.index'),      active: route().current('portal.finance.*'),      disabled: false },
+      can('documents')   && { key: 'documents',    label: 'Tài Liệu',   icon: ICONS.documents,  href: route('portal.documents.index'),    active: route().current('portal.documents.*'),    disabled: false },
+      can('chronicles')  && { key: 'chronicles',   label: 'Sổ Tay',     icon: ICONS.logs,       href: route('portal.chronicles.index'),   active: route().current('portal.chronicles.*'),   disabled: false },
+      can('assignments') && { key: 'assignments',  label: 'Phân Công',  icon: ICONS.assignment, href: route('portal.duty-rooster.index'), active: route().current('portal.duty-rooster.*'), disabled: false },
+      can('activity-logs') && { key: 'logs',       label: 'Nhật Ký',    icon: ICONS.logs,       href: route('portal.logs'),               active: route().current('portal.logs'),           disabled: false },
     ].filter(Boolean);
   }
 
   if (type === 'ministry') {
-    return [
-      ...always,
-      can('members')              && { key: 'members',   label: 'Thành Viên',    icon: ICONS.members,    href: route('ministry.members.index'),          active: route().current('ministry.members.*'),          disabled: false },
-      can('visitation')           && { key: 'visitation', label: 'Thăm Viếng',    icon: ICONS.visitation, href: route('ministry.visitation.index'),        active: route().current('ministry.visitation.*'),        disabled: false },
-      can('care')                 && { key: 'care',       label: 'Chăm Sóc',      icon: ICONS.care,       href: route('ministry.care.index'),             active: route().current('ministry.care.*'),             disabled: false },
-      can('education-classes')    && { key: 'classes',   label: 'Lớp Học',        icon: ICONS.education,  href: route('ministry.education.classes'),      active: route().current('ministry.education.classes'),  disabled: false },
-      can('education-report')     && { key: 'edu-rep',   label: 'BC Giáo Dục',    icon: ICONS.reports,    href: route('ministry.education.report'),       active: route().current('ministry.education.report'),   disabled: false },
-      can('documents')            && { key: 'documents', label: 'Tài Liệu',       icon: ICONS.documents,  href: route('ministry.documents.index'),        active: route().current('ministry.documents.*'),        disabled: false },
-      can('chronicles')           && { key: 'chronicles', label: 'Sổ Tay HT',     icon: ICONS.logs,       href: route('ministry.chronicles.index'),       active: route().current('ministry.chronicles.*'),       disabled: false },
-      can('assignments')          && { key: 'assignments', label: 'Phân Công',    icon: ICONS.assignment, href: route('ministry.duty-rooster.index'),     active: route().current('ministry.duty-rooster.*'),     disabled: false },
-      can('activity-logs')        && { key: 'logs',       label: 'Nhật Ký',        icon: ICONS.logs,       href: route('ministry.logs'),                  active: route().current('ministry.logs'),               disabled: false },
+    return [home,
+      can('members')           && { key: 'members',    label: 'Thành Viên',  icon: ICONS.members,    href: route('ministry.members.index'),       active: route().current('ministry.members.*'),       disabled: false },
+      can('visitation')        && { key: 'visitation',  label: 'Thăm Viếng',  icon: ICONS.visitation, href: route('ministry.visitation.index'),    active: route().current('ministry.visitation.*'),    disabled: false },
+      can('care')              && { key: 'care',         label: 'Chăm Sóc',    icon: ICONS.care,       href: route('ministry.care.index'),          active: route().current('ministry.care.*'),          disabled: false },
+      can('education-classes') && { key: 'classes',     label: 'Lớp Học',      icon: ICONS.education,  href: route('ministry.education.classes'),   active: route().current('ministry.education.classes'), disabled: false },
+      can('education-report')  && { key: 'edu-rep',     label: 'BC Giáo Dục',  icon: ICONS.reports,    href: route('ministry.education.report'),    active: route().current('ministry.education.report'), disabled: false },
+      can('documents')         && { key: 'documents',   label: 'Tài Liệu',     icon: ICONS.documents,  href: route('ministry.documents.index'),     active: route().current('ministry.documents.*'),     disabled: false },
+      can('chronicles')        && { key: 'chronicles',  label: 'Sổ Tay',       icon: ICONS.logs,       href: route('ministry.chronicles.index'),    active: route().current('ministry.chronicles.*'),    disabled: false },
+      can('assignments')       && { key: 'assignments', label: 'Phân Công',    icon: ICONS.assignment, href: route('ministry.duty-rooster.index'),  active: route().current('ministry.duty-rooster.*'),  disabled: false },
     ].filter(Boolean);
   }
 
-  // Deacon portal
+  // Deacon
   const deaconRole = page.props.activeDeaconRole;
-  return [
-    ...always,
-    deaconRole === 'secretary' && can('attendance') && { key: 'attendance', label: 'Điểm Danh',   icon: ICONS.attendance, href: route('deacon.attendance'),         active: route().current('deacon.attendance.*'), disabled: false },
-    deaconRole === 'secretary' && can('reports')    && { key: 'reports',    label: 'Báo Cáo',     icon: ICONS.reports,    href: route('deacon.report'),             active: route().current('deacon.report.*'),    disabled: false },
-    can('members')                                  && { key: 'members',    label: 'Thành Viên',  icon: ICONS.members,    href: route('deacon.members.index'),      active: route().current('deacon.members.*'),   disabled: false },
-    deaconRole === 'treasurer' && can('finance')    && { key: 'finance',    label: 'Quản Lý Quỹ', icon: ICONS.finance,    href: route('finance.index'),             active: route().current('finance.*'),          disabled: false },
+  return [home,
+    deaconRole === 'secretary' && can('attendance') && { key: 'attendance', label: 'Điểm Danh',   icon: ICONS.attendance, href: route('deacon.attendance'),        active: route().current('deacon.attendance.*'), disabled: false },
+    deaconRole === 'secretary' && can('reports')    && { key: 'reports',    label: 'Báo Cáo',     icon: ICONS.reports,    href: route('deacon.report'),            active: route().current('deacon.report.*'),    disabled: false },
+    can('members')                                  && { key: 'members',    label: 'Thành Viên',  icon: ICONS.members,    href: route('deacon.members.index'),     active: route().current('deacon.members.*'),   disabled: false },
+    deaconRole === 'treasurer' && can('finance')    && { key: 'finance',    label: 'Quản Lý Quỹ', icon: ICONS.finance,    href: route('finance.index'),            active: route().current('finance.*'),          disabled: false },
     can('assignments')                              && { key: 'assignments', label: 'Phân Công',   icon: ICONS.assignment, href: route('deacon.duty-rooster.index'), active: route().current('deacon.duty-rooster.*'), disabled: false },
   ].filter(Boolean);
 });
 
-// Mobile nav: max 6, user-configurable via localStorage
-const MOBILE_NAV_MAX = 6;
-const isNavSettingsOpen = ref(false);
+// ── Primary tabs (shown in bottom bar): home + first 2 feature items ─────────
+const PRIMARY_COUNT = 3; // home + 2 features
+const primaryNavItems = computed(() => visibleNavItems.value.slice(0, PRIMARY_COUNT));
 
-// Load user hidden nav preferences from localStorage (per portal type)
-const navPrefKey = computed(() => `portal_nav_hidden_${props.portalType}`);
-const hiddenNavKeys = ref(new Set(
-  JSON.parse(localStorage.getItem(`portal_nav_hidden_${props.portalType}`) || '[]')
-));
+// ── Secondary items (shown in More sheet) ────────────────────────────────────
+const secondaryNavItems = computed(() => visibleNavItems.value.slice(PRIMARY_COUNT));
 
-const toggleNavItem = (key) => {
-  const hidden = new Set(hiddenNavKeys.value);
-  if (hidden.has(key)) {
-    hidden.delete(key); // show it
-  } else if (selectedNavCount.value >= MOBILE_NAV_MAX) {
-    return; // already at max, can't add more
-  } else {
-    hidden.add(key); // hide it
-  }
-  hiddenNavKeys.value = hidden;
-  localStorage.setItem(navPrefKey.value, JSON.stringify([...hidden]));
-};
-
-// How many items are currently visible (not hidden, not counting 'home' which is always visible)
-const selectedNavCount = computed(() =>
-  visibleNavItems.value.filter(i => i.key !== 'home' && !hiddenNavKeys.value.has(i.key)).length + 1 // +1 for home
-);
-
-// Mobile shows up to MOBILE_NAV_MAX items, filtering out hidden ones
-const mobileNavItems = computed(() => {
-  const ordered = visibleNavItems.value.filter(
-    i => i.key === 'home' || !hiddenNavKeys.value.has(i.key)
-  );
-  return ordered.slice(0, MOBILE_NAV_MAX);
-});
+// Whether any secondary item is currently active (highlights More button)
+const hasActiveSecondary = computed(() => secondaryNavItems.value.some(i => i.active));
 
 </script>
 
@@ -436,3 +468,4 @@ const mobileNavItems = computed(() => {
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 }
 </style>
+
