@@ -5,7 +5,18 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\Member;
+use App\Models\OrgRole;
+use App\Models\OrgMembership;
+use App\Models\Department;
 
+/**
+ * P4 — Cổng Chấp Sự (Deacon Portal)
+ * Cho phép: SuperAdmin + tín hữu có org_role = 'cs' (Chấp Sự) trong BCS
+ *           hoặc bất kỳ org_role lãnh đạo (tb, pb, tkhu, tqht) trong ban leadership
+ *
+ * MAC: Matrix Access Control chia sẻ prop cho frontend.
+ */
 class EnsureDeaconContext
 {
     public function handle(Request $request, Closure $next): Response
@@ -16,44 +27,51 @@ class EnsureDeaconContext
             return redirect()->route('login');
         }
 
-        $isGlobalAdmin = $user->isSuperAdmin()
-            || $user->email === 'superadmin@httlthanhmyloi.com';
+        $isGlobalAdmin = $user->isSuperAdmin();
 
-        $hasDeaconPerm = false;
-        try {
-            $hasDeaconPerm = $user->hasPermissionTo('view_deacon');
-        } catch (\Spatie\Permission\Exceptions\PermissionDoesNotExist $e) {
-            // Permission 'view_deacon' chưa được seed — bỏ qua, dùng role check
-        }
+        if (!$isGlobalAdmin) {
+            // Lấy member gắn với user
+            $member = Member::where('user_id', $user->id)->first();
 
-        $allowed = $isGlobalAdmin
-            || $user->isSuperAdmin()
-            || $hasDeaconPerm;
+            if (!$member) {
+                return redirect()->route('login')->withErrors([
+                    'email' => 'Tài khoản chưa được gắn với hồ sơ tín hữu. Liên hệ quản trị viên.',
+                ]);
+            }
 
-        if (!$allowed) {
-            return redirect()->route('login')->withErrors([
-                'email' => 'Bạn không có quyền truy cập cổng Chấp Sự. Vui lòng liên hệ quản trị viên.',
-            ]);
+            // Roles được phép vào Deacon Portal:
+            // cs=Chấp Sự, tkhu=Thư Ký HT, ptk=Phó TK, tqht=Thủ Quỹ HT, ptq=Phó TQ
+            $allowedCodes = ['cs', 'tkhu', 'ptk', 'tqht', 'ptq'];
+            $allowedRoleIds = OrgRole::whereIn('code', $allowedCodes)->pluck('id');
+
+            $hasAccess = OrgMembership::where('member_id', $member->id)
+                ->whereIn('org_role_id', $allowedRoleIds)
+                ->where('is_active', true)
+                ->exists();
+
+            if (!$hasAccess) {
+                return redirect()->route('login')->withErrors([
+                    'email' => 'Bạn không có quyền truy cập cổng Chấp Sự. Vui lòng liên hệ quản trị viên.',
+                ]);
+            }
         }
 
         // Default active role if not set
         if (!session()->has('active_deacon_role')) {
-            session(['active_deacon_role' => 'secretary']);
+            session(['active_deacon_role' => 'deacon']);
         }
 
         // ── MAC: Matrix Access Control Prop Sharing ─────────────────────
-        // Cho Chấp sự, chúng ta mặc định lấy cấu hình của "Ban Chấp sự" (ID=1)
-        $deaconDept = \App\Models\Department::find(1); 
+        $deaconDept = Department::find(1); // Ban Chấp Sự BCS
         $service = app(\App\Services\FeatureAssignmentService::class);
         $departmentFeatures = $deaconDept ? $service->getAvailableFeaturesForDepartment($deaconDept) : [];
-        
-        // Level 2: Strict Whitelist: Mặc định user không có quyền gì cả (false). Phải cấp tường minh.
+
+        // Level 2: Strict Whitelist — default false, phải cấp tường minh
         $userPermissions = collect(\App\Models\Feature::pluck('slug'))
             ->mapWithKeys(fn($s) => [$s => false])
             ->toArray();
 
         if ($isGlobalAdmin) {
-            // Admin only gets what the department has (which are scopes now)
             $userPermissions = collect(\App\Models\Feature::pluck('slug'))
                 ->mapWithKeys(fn($s) => [$s => $departmentFeatures[$s] ?? false])
                 ->toArray();
@@ -62,26 +80,25 @@ class EnsureDeaconContext
                 ->where('department_id', 1)
                 ->with('feature')
                 ->get();
-                
+
             foreach ($overrideRecords as $uf) {
                 if (!$uf->feature) continue;
                 $userPermissions[$uf->feature->slug] = $uf->is_enabled ? ($uf->data_scope ?? 'dept') : false;
             }
         }
 
-        // Structural Deacon Role overrides
-        // Thư ký and Thủ quỹ need these rendered on the sidebar
-        $userPermissions['attendance'] = 'global';       // for Secretary Điểm danh
-        $userPermissions['reports'] = 'global';          // for Secretary Báo cáo
-        $userPermissions['finance'] = 'global';          // for Treasurer Quản lý quỹ
-        $userPermissions['finance-reports'] = 'global';  // for Treasurer Báo cáo tài chính
-        $userPermissions['assignments'] = 'global';      // for All Deacons Phân công
+        // Structural overrides — các chức năng mặc định của portal Chấp Sự
+        $userPermissions['attendance']     = 'global';
+        $userPermissions['reports']        = 'global';
+        $userPermissions['finance']        = 'global';
+        $userPermissions['finance-reports']= 'global';
+        $userPermissions['assignments']    = 'global';
 
-        $departmentFeatures['attendance'] = 'global';
-        $departmentFeatures['reports'] = 'global';
-        $departmentFeatures['finance'] = 'global';
-        $departmentFeatures['finance-reports'] = 'global';
-        $departmentFeatures['assignments'] = 'global';
+        $departmentFeatures['attendance']     = 'global';
+        $departmentFeatures['reports']        = 'global';
+        $departmentFeatures['finance']        = 'global';
+        $departmentFeatures['finance-reports']= 'global';
+        $departmentFeatures['assignments']    = 'global';
 
         $request->attributes->set('userPermissions', $userPermissions);
 
@@ -89,7 +106,7 @@ class EnsureDeaconContext
         \Inertia\Inertia::share('userPermissions', $userPermissions);
         \Inertia\Inertia::share('activeDepartment', $deaconDept);
         \Inertia\Inertia::share('isGlobalAdmin', $isGlobalAdmin);
-        \Inertia\Inertia::share('activeDeaconRole', session('active_deacon_role', 'secretary'));
+        \Inertia\Inertia::share('activeDeaconRole', session('active_deacon_role', 'deacon'));
 
         return $next($request);
     }

@@ -473,6 +473,58 @@ class DashboardController extends Controller
             ];
         }
 
+        // ── Portal Quick Links (P1 → các portal khác) ────────────
+        $portalLinks = [
+            [
+                'id'          => 'P2',
+                'label'       => 'Thư Ký Hội Thánh',
+                'description' => 'Điểm danh CN · Số liệu MXH · Nội vụ',
+                'icon'        => '📋',
+                'route'       => route('secretary.dashboard'),
+                'color'       => 'indigo',
+            ],
+            [
+                'id'          => 'P3',
+                'label'       => 'Thủ Quỹ Hội Thánh',
+                'description' => 'Thu chi · Dâng hiến · Quỹ chuyên biệt',
+                'icon'        => '💰',
+                'route'       => route('finance.index'),
+                'color'       => 'emerald',
+            ],
+            [
+                'id'          => 'P4',
+                'label'       => 'Cổng Chấp Sự',
+                'description' => 'Tổng quan ban ngành · Báo cáo · Phân công',
+                'icon'        => '⛪',
+                'route'       => route('deacon.dashboard'),
+                'color'       => 'blue',
+            ],
+            [
+                'id'          => 'P5',
+                'label'       => 'Cổng Mục Vụ',
+                'description' => 'Ban ngành mục vụ · Sinh hoạt · Giáo dục',
+                'icon'        => '🏛',
+                'route'       => route('ministry.index'),
+                'color'       => 'purple',
+            ],
+            [
+                'id'          => 'ADM',
+                'label'       => 'Quản Trị Hệ Thống',
+                'description' => 'Người dùng · Phân quyền · Tài sản',
+                'icon'        => '⚙️',
+                'route'       => route('admin.accounts.index'),
+                'color'       => 'slate',
+            ],
+            [
+                'id'          => 'TERM',
+                'label'       => 'Phân Công Chấp Sự',
+                'description' => 'Quản lý nhiệm kỳ · Phân công ban ngành',
+                'icon'        => '⚖️',
+                'route'       => route('admin.deacon-assignments.index'),
+                'color'       => 'orange',
+            ],
+        ];
+
         // ── 12. THÂN HỮU TRUYỀN GIẢNG NÀY ─────────────────────────
         $btgDept = Department::where('code', 'BTG')->first();
         $evangelisticGuests = $btgDept
@@ -486,6 +538,9 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard', [
             'filters' => ['month' => $month, 'year' => $year],
             'activities_departments' => $depts->values(), // For filter dropdown
+
+            // Portal Quick Links (P1 Master Dashboard)
+            'portal_links' => $portalLinks,
 
             // KPI
             'kpi' => [

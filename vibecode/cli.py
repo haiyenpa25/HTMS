@@ -9,7 +9,7 @@ from .injector import Injector
 from .linker import GraphLinker
 from .ui_builder import UIBuilder
 
-app = typer.Typer(help="VibeCode: AI Context Injector & Code Knowledge Store")
+app = typer.Typer(help="VibeCode: AI Context Injector & Code Knowledge Store — v2 với Enrichment")
 
 @app.command()
 def init():
@@ -106,10 +106,26 @@ def ui():
     """Sinh file HTML và mở Sơ đồ mạng nhện (Visual Graph) trên Browser."""
     store = ContextStore()
     from .ui_builder import UIBuilder
+    # Kiểm tra có enrichment data không
+    enrichment_path = 'vibecode_enrichment.json'
+    if not os.path.exists(enrichment_path):
+        typer.echo("💡 Tip: Chạy 'python -m vibecode enrich' trước để có thêm layer/domain info!")
     builder = UIBuilder(store)
     output_file = builder.generate_html()
     store.close()
     typer.echo(f"Đã xuất sơ đồ ra file {output_file} và mở trên trình duyệt!")
+
+
+@app.command()
+def enrich(root_dir: str = "."):
+    """Phân tích codebase theo layer/domain (heuristic, không cần LLM). Sinh vibecode_enrichment.json và docs/KNOWLEDGE_GRAPH.md."""
+    typer.echo("🔍 Bắt đầu phân tích HTMS codebase...")
+    from .enricher import HTMSEnricher
+    enricher = HTMSEnricher(root_dir)
+    enricher.scan()
+    enricher.save('vibecode_enrichment.json')
+    enricher.generate_knowledge_graph_md('docs/KNOWLEDGE_GRAPH.md')
+    typer.echo("\n✨ Hoàn tất! Chạy 'python -m vibecode ui' để mở graph với đầy đủ tính năng.")
 
 @app.command()
 def prompt(task: str, filepath: str):

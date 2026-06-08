@@ -18,7 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
             // MAC — Matrix Access Control
             // CheckPortalAccess  = block-gate (vào portal được không?)
             // CheckFeatureAccess = feature-gate (dùng tính năng cụ thể được không?)
-            'portal.access'  => \App\Http\Middleware\CheckFeatureAccess::class,
+            'portal.access'     => \App\Http\Middleware\CheckFeatureAccess::class,
+            'secretary.context' => \App\Http\Middleware\EnsureSecretaryContext::class,
         ]);
 
 

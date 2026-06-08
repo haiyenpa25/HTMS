@@ -124,6 +124,9 @@ class MinistryPortalController extends Controller
         }
 
         // Logic switch context và redirect
+        // Clear cached_home_portal so it gets recomputed on next request
+        session()->forget('cached_home_portal');
+
         if ($dept->block === 'ministry') {
             session(['active_ministry_dept_id' => $deptId]);
             return redirect()->route('ministry.index');

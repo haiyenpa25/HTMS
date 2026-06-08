@@ -305,7 +305,14 @@ const switchDept = (deptId) => {
       preserveScroll: true,
       onSuccess: () => { isSwitcherOpen.value = false; },
     });
+  } else if (props.portalType === 'ministry') {
+    // Ministry portal: update ministry session key
+    router.post(route('ministry.switch-context'), { department_id: deptId }, {
+      preserveScroll: true,
+      onSuccess: () => { isSwitcherOpen.value = false; },
+    });
   } else {
+    // Activities portal (default)
     router.post(route('portal.switch-context'), { department_id: deptId }, {
       preserveScroll: true,
       onSuccess: () => { isSwitcherOpen.value = false; },
@@ -380,6 +387,7 @@ const visibleNavItems = computed(() => {
     ...always,
     deaconRole === 'secretary' && can('attendance') && { key: 'attendance', label: 'Điểm Danh',   icon: ICONS.attendance, href: route('deacon.attendance'),         active: route().current('deacon.attendance.*'), disabled: false },
     deaconRole === 'secretary' && can('reports')    && { key: 'reports',    label: 'Báo Cáo',     icon: ICONS.reports,    href: route('deacon.report'),             active: route().current('deacon.report.*'),    disabled: false },
+    can('members')                                  && { key: 'members',    label: 'Thành Viên',  icon: ICONS.members,    href: route('deacon.members.index'),      active: route().current('deacon.members.*'),   disabled: false },
     deaconRole === 'treasurer' && can('finance')    && { key: 'finance',    label: 'Quản Lý Quỹ', icon: ICONS.finance,    href: route('finance.index'),             active: route().current('finance.*'),          disabled: false },
     can('assignments')                              && { key: 'assignments', label: 'Phân Công',   icon: ICONS.assignment, href: route('deacon.duty-rooster.index'), active: route().current('deacon.duty-rooster.*'), disabled: false },
   ].filter(Boolean);

@@ -167,6 +167,9 @@ class DepartmentPortalController extends Controller
         }
 
         // Logic switch context và redirect
+        // Clear cached_home_portal so it gets recomputed on next request
+        session()->forget('cached_home_portal');
+
         if ($dept->block === 'activities') {
             session(['active_portal_dept_id' => $deptId]);
             return redirect()->route('portal.index');

@@ -19,22 +19,28 @@ Route::prefix('ministry')
     Route::post('/switch-context', [\App\Http\Controllers\MinistryPortalController::class, 'switchContext'])->name('ministry.switch-context');
     Route::get('/logs', [\App\Http\Controllers\MinistryPortalController::class, 'logs'])->name('ministry.logs');
 
-    Route::get('/visitation', [\App\Http\Controllers\Portal\VisitationController::class, 'index'])->name('ministry.visitation.index');
-    Route::post('/visitation', [\App\Http\Controllers\Portal\VisitationController::class, 'store'])->name('ministry.visitation.store');
-    Route::put('/visitation/{visitation}', [\App\Http\Controllers\Portal\VisitationController::class, 'update'])->name('ministry.visitation.update');
-    Route::patch('/visitation/{visitation}/complete', [\App\Http\Controllers\Portal\VisitationController::class, 'quickComplete'])->name('ministry.visitation.quick-complete');
-    Route::delete('/visitation/{visitation}', [\App\Http\Controllers\Portal\VisitationController::class, 'destroy'])->name('ministry.visitation.destroy');
+    // ── Thăm viếng (MAC V2) ────────────────────────────────
+    Route::middleware('portal.access:visitation,ministry')->group(function () {
+        Route::get('/visitation', [\App\Http\Controllers\Portal\VisitationController::class, 'index'])->name('ministry.visitation.index');
+        Route::post('/visitation', [\App\Http\Controllers\Portal\VisitationController::class, 'store'])->name('ministry.visitation.store');
+        Route::put('/visitation/{visitation}', [\App\Http\Controllers\Portal\VisitationController::class, 'update'])->name('ministry.visitation.update');
+        Route::patch('/visitation/{visitation}/complete', [\App\Http\Controllers\Portal\VisitationController::class, 'quickComplete'])->name('ministry.visitation.quick-complete');
+        Route::delete('/visitation/{visitation}', [\App\Http\Controllers\Portal\VisitationController::class, 'destroy'])->name('ministry.visitation.destroy');
+    });
 
-    Route::get('/members', [\App\Http\Controllers\Portal\PortalMemberController::class, 'index'])->name('ministry.members.index');
-    Route::get('/members/export', [\App\Http\Controllers\Portal\PortalMemberController::class, 'exportTemplate'])->name('ministry.members.export');
-    Route::post('/members/import', [\App\Http\Controllers\Portal\PortalMemberController::class, 'import'])->name('ministry.members.import');
-    Route::post('/members/{member}/role', [\App\Http\Controllers\Portal\PortalMemberController::class, 'updateRole'])->name('ministry.members.update');
-    Route::post('/members/{member}/toggle-active', [\App\Http\Controllers\Portal\PortalMemberController::class, 'toggleActiveStatus'])->name('ministry.members.toggle-active');
-    Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('ministry.members.bulk-assign');
-    Route::post('/members/bulk-toggle-active', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkToggleActive'])->name('ministry.members.bulk-toggle-active');
-    Route::post('/members/{member}/generate-account', [\App\Http\Controllers\Portal\PortalMemberController::class, 'createUserAccount'])->name('ministry.members.generate-account');
-    Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('ministry.members.remove');
-    Route::delete('/members/bulk/remove', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkRemove'])->name('ministry.members.bulk-remove');
+    // ── Thành viên (MAC V2) ────────────────────────────────
+    Route::middleware('portal.access:members,ministry')->group(function () {
+        Route::get('/members', [\App\Http\Controllers\Portal\PortalMemberController::class, 'index'])->name('ministry.members.index');
+        Route::get('/members/export', [\App\Http\Controllers\Portal\PortalMemberController::class, 'exportTemplate'])->name('ministry.members.export');
+        Route::post('/members/import', [\App\Http\Controllers\Portal\PortalMemberController::class, 'import'])->name('ministry.members.import');
+        Route::post('/members/{member}/role', [\App\Http\Controllers\Portal\PortalMemberController::class, 'updateRole'])->name('ministry.members.update');
+        Route::post('/members/{member}/toggle-active', [\App\Http\Controllers\Portal\PortalMemberController::class, 'toggleActiveStatus'])->name('ministry.members.toggle-active');
+        Route::post('/members/bulk-assign-team', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkAssignTeam'])->name('ministry.members.bulk-assign');
+        Route::post('/members/bulk-toggle-active', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkToggleActive'])->name('ministry.members.bulk-toggle-active');
+        Route::post('/members/{member}/generate-account', [\App\Http\Controllers\Portal\PortalMemberController::class, 'createUserAccount'])->name('ministry.members.generate-account');
+        Route::delete('/members/{member}', [\App\Http\Controllers\Portal\PortalMemberController::class, 'removeMember'])->name('ministry.members.remove');
+        Route::delete('/members/bulk/remove', [\App\Http\Controllers\Portal\PortalMemberController::class, 'bulkRemove'])->name('ministry.members.bulk-remove');
+    });
 
     Route::middleware('portal.access:assignments,ministry')->group(function () {
         Route::prefix('duty-rooster')->name('ministry.duty-rooster.')->group(function () {
@@ -75,7 +81,7 @@ Route::prefix('ministry')
     Route::middleware('portal.access:care,ministry')->group(function () {
         Route::get('/care', [\App\Http\Controllers\CareController::class, 'index'])->name('ministry.care.index');
         Route::post('/care', [\App\Http\Controllers\CareController::class, 'store'])->name('ministry.care.store');
-        Route::patch('/care/{careRequest}/status', [\App\Http\Controllers\CareController::class, 'updateStatus'])->name('ministry.care.updateStatus');
+        Route::patch('/care/{careRequest}/status', [\App\Http\Controllers\CareController::class, 'updateStatus'])->name('ministry.care.update-status');
         Route::patch('/care/{careRequest}/assign', [\App\Http\Controllers\CareController::class, 'assign'])->name('ministry.care.assign');
         Route::delete('/care/{careRequest}', [\App\Http\Controllers\CareController::class, 'destroy'])->name('ministry.care.destroy');
     });
@@ -114,8 +120,14 @@ Route::prefix('ministry')
             Route::post('/report/save', [\App\Http\Controllers\Portal\EducationController::class, 'saveReport'])->name('ministry.education.report.save');
             Route::post('/report/{eduReport}/approve', [\App\Http\Controllers\Portal\EducationController::class, 'approveReport'])->name('ministry.education.report.approve');
         });
+
+        // Bảng xếp hạng quiz trong lớp (xem: chỉ cần có education-classes access)
+        Route::middleware('portal.access:education-classes,ministry')->group(function () {
+            Route::get('/{eduClass}/ranking', [\App\Http\Controllers\Portal\EduRankingController::class, 'classRanking'])->name('ministry.education.ranking');
+        });
     });
 });
+
 
 // ════════════════════════════════════════════════════════
 // Finance Portal — Tài Chính Hội Thánh

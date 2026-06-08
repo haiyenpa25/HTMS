@@ -101,7 +101,7 @@ class User extends Authenticatable
      */
     public function isSuperAdmin(): bool
     {
-        return $this->is_superadmin || $this->email === 'superadmin@httlthanhmyloi.com';
+        return (bool) $this->is_superadmin;
     }
 
     // ── Announcements Relationships ─────────────────────────────────

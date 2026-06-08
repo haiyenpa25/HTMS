@@ -39,53 +39,11 @@ class HandleInertiaRequests extends Middleware
         
         $homePortal = '/dashboard'; // default
         if ($user) {
-            if ($user->isSuperAdmin()) {
-                $homePortal = '/dashboard';
-            } elseif ($user->hasRole('Deacon') || $user->hasRole('Secretary')) {
-                $homePortal = '/deacon';
-            } else {
-                // Check Ministry
-                $hasMinistry = false;
-                $member = \App\Models\Member::where('user_id', $user->id)->first();
-                if ($member) {
-                    $ministryDeptIds = \App\Models\Department::where('block', 'ministry')->pluck('id');
-                    $hasMinistry = \App\Models\OrgMembership::where('member_id', $member->id)
-                        ->where('model_type', \App\Models\Department::class)
-                        ->whereIn('model_id', $ministryDeptIds)
-                        ->exists();
-                }
-                if (!$hasMinistry) {
-                    $hasMinistry = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
-                        ->where('is_enabled', true)
-                        ->whereHas('department', fn($q) => $q->where('block', 'ministry'))
-                        ->exists();
-                }
-                
-                if ($hasMinistry) {
-                    $homePortal = '/ministry';
-                } else {
-                    // Check Activities
-                    $hasActivities = false;
-                    if ($member) {
-                        $activitiesDeptIds = \App\Models\Department::where('block', 'activities')->pluck('id');
-                        $hasActivities = \App\Models\OrgMembership::where('member_id', $member->id)
-                            ->where('model_type', \App\Models\Department::class)
-                            ->whereIn('model_id', $activitiesDeptIds)
-                            ->exists();
-                    }
-                    if (!$hasActivities) {
-                        $hasActivities = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
-                            ->where('is_enabled', true)
-                            ->whereHas('department', fn($q) => $q->where('block', 'activities'))
-                            ->exists();
-                    }
-                    if ($hasActivities) {
-                        $homePortal = '/portal';
-                    } else {
-                        // Tín hữu bình thường không thuộc ban nào -> Portal Tín Hữu
-                        $homePortal = '/member';
-                    }
-                }
+            // Cache homePortal in session to avoid 6-7 queries per request
+            $homePortal = $request->session()->get('cached_home_portal');
+            if (!$homePortal) {
+                $homePortal = $this->resolveHomePortal($user);
+                $request->session()->put('cached_home_portal', $homePortal);
             }
         }
         
@@ -127,10 +85,16 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
                 'allowed_features' => $allowedFeatures,
             ],
-            'pending_approvals_count' => $user ? \App\Models\ApprovalRequest::where('status', 'pending')->count() : 0,
+            'pending_approvals_count' => $user ? \App\Models\ApprovalRequest::where('status', 'pending')
+                ->when(!$user->isSuperAdmin() && $activeDeptId, fn ($q) => $q->where('department_id', $activeDeptId))
+                ->count() : 0,
             'pending_reports_count'   => $user ? (
-                \App\Models\DepartmentReport::where('status', 'submitted')->count() +
-                \App\Models\EduReport::where('status', 'submitted')->count()
+                \App\Models\DepartmentReport::where('status', 'submitted')
+                    ->when(!$user->isSuperAdmin() && $activeDeptId, fn($q) => $q->where('department_id', $activeDeptId))
+                    ->count() +
+                \App\Models\EduReport::where('status', 'submitted')
+                    ->when(!$user->isSuperAdmin() && $activeDeptId, fn($q) => $q->where('department_id', $activeDeptId))
+                    ->count()
             ) : 0,
             'allAvailableDepartments' => $user ? app(\App\Services\PortalService::class)->getAllAvailableDepartmentsGrouped($user) : [],
             'flash' => [
@@ -139,5 +103,58 @@ class HandleInertiaRequests extends Middleware
                 'error'   => fn () => $request->session()->get('error'),
             ],
         ];
+    }
+
+    /**
+     * Resolve home portal for user (called once, cached in session).
+     * Clears cache on role/dept change by calling session()->forget('cached_home_portal').
+     */
+    private function resolveHomePortal(\App\Models\User $user): string
+    {
+        if ($user->isSuperAdmin()) {
+            return '/dashboard';
+        }
+
+        if ($user->hasRole('Deacon') || $user->hasRole('Secretary')) {
+            return '/deacon';
+        }
+
+        $member = \App\Models\Member::where('user_id', $user->id)->value('id');
+
+        // Check Ministry
+        $hasMinistry = false;
+        if ($member) {
+            $ministryDeptIds = \App\Models\Department::where('block', 'ministry')->pluck('id');
+            $hasMinistry = \App\Models\OrgMembership::where('member_id', $member)
+                ->where('model_type', \App\Models\Department::class)
+                ->whereIn('model_id', $ministryDeptIds)
+                ->exists();
+        }
+        if (!$hasMinistry) {
+            $hasMinistry = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
+                ->where('is_enabled', true)
+                ->whereHas('department', fn ($q) => $q->where('block', 'ministry'))
+                ->exists();
+        }
+        if ($hasMinistry) return '/ministry';
+
+        // Check Activities
+        $hasActivities = false;
+        if ($member) {
+            $activitiesDeptIds = \App\Models\Department::where('block', 'activities')->pluck('id');
+            $hasActivities = \App\Models\OrgMembership::where('member_id', $member)
+                ->where('model_type', \App\Models\Department::class)
+                ->whereIn('model_id', $activitiesDeptIds)
+                ->exists();
+        }
+        if (!$hasActivities) {
+            $hasActivities = \App\Models\UserDepartmentFeature::where('user_id', $user->id)
+                ->where('is_enabled', true)
+                ->whereHas('department', fn ($q) => $q->where('block', 'activities'))
+                ->exists();
+        }
+        if ($hasActivities) return '/portal';
+
+        return '/member';
     }
 }

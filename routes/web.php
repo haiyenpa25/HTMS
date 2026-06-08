@@ -44,12 +44,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/visitation-reasons/{reason}', [\App\Http\Controllers\Portal\VisitationController::class, 'destroyReason'])->name('visitation-reasons.destroy');
     
     // Search
-    Route::get('api/search', [\App\Http\Controllers\SearchController::class, 'search'])->name('search.global');
+    Route::get('api/search', [\App\Http\Controllers\SearchController::class, 'search'])->name('search.global')->middleware('throttle:30,1');
 
     // Notifications
     Route::get('notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('api/notifications/list', [\App\Http\Controllers\NotificationController::class, 'getList'])->name('api.notifications.list');
-    Route::get('api/notifications/unread-count', [\App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('api.notifications.unread-count');
+    Route::get('api/notifications/list', [\App\Http\Controllers\NotificationController::class, 'getList'])->name('api.notifications.list')->middleware('throttle:60,1');
+    Route::get('api/notifications/unread-count', [\App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('api.notifications.unread-count')->middleware('throttle:60,1');
     Route::post('notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
     
@@ -75,16 +75,6 @@ Route::middleware('auth')->group(function () {
 
     Route::patch('members/update-status', [\App\Http\Controllers\MemberController::class, 'updateStatus'])->name('members.update-status');
     
-    // ==========================================
-    // Sổ Tay Hội Thánh & Ban Ngành (Data Scope MAC V2)
-    // ==========================================
-    Route::prefix('admin/chronicles')->name('admin.chronicles.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\ChronicleController::class, 'index'])->name('index');
-        Route::post('/', [\App\Http\Controllers\Admin\ChronicleController::class, 'store'])->name('store');
-        Route::put('/{chronicle}', [\App\Http\Controllers\Admin\ChronicleController::class, 'update'])->name('update');
-        Route::delete('/{chronicle}', [\App\Http\Controllers\Admin\ChronicleController::class, 'destroy'])->name('destroy');
-    });
-
     // ==========================================
     // Restricted Administrative Routes
     // ==========================================
@@ -114,7 +104,7 @@ Route::middleware('auth')->group(function () {
 
     // Meetings — export/import MUST be before resource() to avoid {meeting} route conflict
     Route::get('meetings/export', [\App\Http\Controllers\MeetingController::class, 'export'])->name('meetings.export');
-    Route::post('meetings/import', [\App\Http\Controllers\MeetingController::class, 'import'])->name('meetings.import');
+    Route::post('meetings/import', [\App\Http\Controllers\MeetingController::class, 'import'])->name('meetings.import')->middleware('throttle:10,1');
     Route::post('meetings/{meeting}/toggle-cancel', [\App\Http\Controllers\MeetingController::class, 'toggleCancel'])->name('meetings.toggle-cancel');
     Route::resource('meetings', \App\Http\Controllers\MeetingController::class);
 
@@ -135,8 +125,28 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/{user}/permissions/roles', [\App\Http\Controllers\Admin\UserPermissionController::class, 'updateRoles'])->name('admin.users.permissions.roles');
         Route::post('/users/{user}/permissions/grant-full', [\App\Http\Controllers\Admin\UserPermissionController::class, 'grantFull'])->name('admin.users.permissions.grant-full');
 
+        // ── Quản Lý Tài Khoản (Account Management) ────────────────────────────
+        Route::prefix('accounts')->name('admin.accounts.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\AccountController::class, 'index'])->name('index');
+            Route::post('/create-from-member', [\App\Http\Controllers\Admin\AccountController::class, 'createFromMember'])->name('create-from-member');
+            Route::post('/{user}/link-member', [\App\Http\Controllers\Admin\AccountController::class, 'linkMember'])->name('link-member');
+            Route::post('/{user}/unlink-member', [\App\Http\Controllers\Admin\AccountController::class, 'unlinkMember'])->name('unlink-member');
+            Route::post('/{user}/reset-password', [\App\Http\Controllers\Admin\AccountController::class, 'resetPassword'])->name('reset-password');
+            Route::post('/{user}/toggle-superadmin', [\App\Http\Controllers\Admin\AccountController::class, 'toggleSuperAdmin'])->name('toggle-superadmin');
+            Route::delete('/{user}', [\App\Http\Controllers\Admin\AccountController::class, 'destroy'])->name('destroy');
+            Route::get('/{user}/org-roles', [\App\Http\Controllers\Admin\AccountController::class, 'orgRoles'])->name('org-roles');
+        });
+
         // Global System Activity Logs
         Route::get('/activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity.index');
+
+        // Sổ Tay Hội Thánh (Admin — moved into EnsureSuperAdmin)
+        Route::prefix('chronicles')->name('admin.chronicles.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\ChronicleController::class, 'index'])->name('index');
+            Route::post('/', [\App\Http\Controllers\Admin\ChronicleController::class, 'store'])->name('store');
+            Route::put('/{chronicle}', [\App\Http\Controllers\Admin\ChronicleController::class, 'update'])->name('update');
+            Route::delete('/{chronicle}', [\App\Http\Controllers\Admin\ChronicleController::class, 'destroy'])->name('destroy');
+        });
 
         // Feature System Configuration (Tab Tính Năng)
         Route::get('/features', [\App\Http\Controllers\Admin\SystemFeatureController::class, 'index'])->name('admin.features.index');
@@ -190,9 +200,17 @@ Route::middleware('auth')->group(function () {
         Route::resource('forms-manager', \App\Http\Controllers\Admin\FormTemplateController::class)->except(['create', 'edit', 'show'])->parameters(['forms-manager' => 'form'])->names('admin.forms-manager');
         Route::get('forms-manager/{form}/download', [\App\Http\Controllers\Admin\FormTemplateController::class, 'download'])->name('admin.forms-manager.download');
 
-        // Activity Logs
-        Route::get('/activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity.logs');
+        // Phân Công Chấp Sự theo Nhiệm Kỳ
+        Route::prefix('deacon-assignments')->name('admin.deacon-assignments.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\DeaconAssignmentController::class, 'index'])->name('index');
+            Route::post('/assign', [\App\Http\Controllers\Admin\DeaconAssignmentController::class, 'assign'])->name('assign');
+            Route::post('/init-term', [\App\Http\Controllers\Admin\DeaconAssignmentController::class, 'initNewTerm'])->name('init-term');
+            Route::delete('/{id}', [\App\Http\Controllers\Admin\DeaconAssignmentController::class, 'destroy'])->name('destroy');
+        });
+
+        // Activity Logs — removed duplicate (admin.activity.index above is canonical)
     });
+
 
     // ── Member Portal (Cổng tín hữu) ─────────────────────────────────────────────
     Route::prefix('member')->group(function () {
@@ -209,6 +227,31 @@ Route::middleware('auth')->group(function () {
     // ── Portal, Ministry, Finance, Deacon ─────────────────────────────────────
     require __DIR__.'/portal.php';
     require __DIR__.'/ministry.php';
+
+    // ── Deacon Portal (Ban Chấp Sự) ───────────────────────────────────────────
+    Route::prefix('deacon')->name('deacon.')->middleware('auth')->group(function () {
+        // Dashboard — tổng quan ban mình phụ trách
+        Route::get('/', [\App\Http\Controllers\Deacon\DeaconDashboardController::class, 'index'])->name('dashboard');
+        // Nhận xét báo cáo ban
+        Route::post('/reports/{reportId}/review', [\App\Http\Controllers\Deacon\DeaconDashboardController::class, 'reviewReport'])->name('reports.review');
+    });
+
+    // ── Secretary Portal P2 (Thư Ký Hội Thánh) ───────────────────────────────
+    Route::prefix('secretary')->name('secretary.')->middleware(['auth', 'secretary.context'])->group(function () {
+        Route::get('/', [\App\Http\Controllers\Secretary\SecretaryPortalController::class, 'index'])->name('dashboard');
+
+        // Điểm danh Chủ Nhật
+        Route::prefix('attendance')->name('attendance.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Secretary\SecretaryPortalController::class, 'attendance'])->name('index');
+            Route::post('/', [\App\Http\Controllers\Secretary\SecretaryPortalController::class, 'storeAttendance'])->name('store');
+        });
+
+        // Số liệu MXH
+        Route::prefix('social-stats')->name('social-stats.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Secretary\SecretaryPortalController::class, 'socialStats'])->name('index');
+            Route::post('/', [\App\Http\Controllers\Secretary\SecretaryPortalController::class, 'storeSocialStats'])->name('store');
+        });
+    });
 
     Route::post('logout', [\App\Http\Controllers\Auth\AuthController::class, 'logout'])->name('logout');
 });

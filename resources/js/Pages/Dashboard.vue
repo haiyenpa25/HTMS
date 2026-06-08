@@ -48,6 +48,9 @@
         </div>
       </div>
 
+      <!-- ══ PORTAL QUICK LINKS (P1 → P2/P3/P4/P5) ══ -->
+      <PortalLinks v-if="portal_links && portal_links.length" :links="portal_links" />
+
       <!-- ══ SECTION 1: BÁO CÁO CHỜ DUYỆT ══ -->
       <div v-if="pending_reports.length > 0" class="bg-amber-50 rounded-2xl border border-amber-200 overflow-hidden">
         <div class="px-5 py-3 bg-amber-500 flex items-center justify-between">
@@ -516,12 +519,14 @@ import StatusBadge from '@/Components/StatusBadge.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import DangerButton from '@/Components/DangerButton.vue';
 import VueApexCharts from 'vue3-apexcharts';
+import PortalLinks from '@/Components/PortalLinks.vue';
 
 const apexchart = VueApexCharts;
 
 const props = defineProps({
     filters: Object,
     activities_departments: Array,
+    portal_links: { type: Array, default: () => [] },
     kpi: Object,
     pending_reports: Array,
     pending_approvals_count: Number,

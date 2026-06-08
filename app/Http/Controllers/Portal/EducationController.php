@@ -760,24 +760,38 @@ class EducationController extends Controller
         if (!$departmentId) abort(400, 'Chưa chọn ban CĐGD.');
 
         $validated = $request->validate([
-            'name'        => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'class_type'  => 'nullable|in:sunday_school,gospel,bible_quiz',
+            'name'           => 'required|string|max:255',
+            'description'    => 'nullable|string',
+            'class_type'     => 'nullable|in:sunday_school,gospel,bible_quiz,seasonal',
+            'class_category' => 'nullable|in:au_nhi,thieu_nhi,thieu_nien,thanh_nien,trung_nien,nguoi_lon,mixed',
+            'is_seasonal'    => 'nullable|boolean',
+            'season_name'    => 'nullable|string|max:150',
+            'season_start'   => 'nullable|date',
+            'season_end'     => 'nullable|date|after_or_equal:season_start',
         ]);
+
+        $isSeasonal = $validated['is_seasonal'] ?? false;
 
         $class = EduClass::create([
-            'department_id' => $departmentId,
-            'name'          => $validated['name'],
-            'description'   => $validated['description'] ?? null,
-            'class_type'    => $validated['class_type'] ?? 'sunday_school',
+            'department_id'  => $departmentId,
+            'name'           => $validated['name'],
+            'description'    => $validated['description'] ?? null,
+            'class_type'     => $isSeasonal ? 'seasonal' : ($validated['class_type'] ?? 'sunday_school'),
+            'class_category' => $validated['class_category'] ?? null,
+            'is_seasonal'    => $isSeasonal,
+            'season_name'    => $isSeasonal ? ($validated['season_name'] ?? null) : null,
+            'season_start'   => $isSeasonal ? ($validated['season_start'] ?? null) : null,
+            'season_end'     => $isSeasonal ? ($validated['season_end'] ?? null) : null,
         ]);
 
-        // Chỉ tạo quỹ tiền dâng cho lớp có thu tiền dâng (không phải gospel)
+        // Tạo quỹ tiền dâng cho lớp (trừ gospel)
         if ($class->class_type !== 'gospel') {
             EduClassFund::create([
                 'edu_class_id' => $class->id,
                 'name'         => 'Quỹ Tiền Dâng',
-                'description'  => 'Tiền dâng hàng tuần của lớp',
+                'description'  => $isSeasonal
+                    ? "Tiền dâng mùa học: {$class->season_name}"
+                    : 'Tiền dâng hàng tuần của lớp',
             ]);
         }
 
@@ -789,10 +803,15 @@ class EducationController extends Controller
         $this->authorizeManage('education-classes');
 
         $validated = $request->validate([
-            'name'        => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'class_type'  => 'nullable|in:sunday_school,gospel,bible_quiz',
-            'is_active'   => 'boolean',
+            'name'           => 'required|string|max:255',
+            'description'    => 'nullable|string',
+            'class_type'     => 'nullable|in:sunday_school,gospel,bible_quiz,seasonal',
+            'class_category' => 'nullable|in:au_nhi,thieu_nhi,thieu_nien,thanh_nien,trung_nien,nguoi_lon,mixed',
+            'is_seasonal'    => 'nullable|boolean',
+            'season_name'    => 'nullable|string|max:150',
+            'season_start'   => 'nullable|date',
+            'season_end'     => 'nullable|date|after_or_equal:season_start',
+            'is_active'      => 'boolean',
         ]);
 
         $eduClass->update($validated);

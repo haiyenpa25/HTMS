@@ -1,1 +1,0 @@
-import{G as a,O as o}from"./app-BZtu6jaF.js";function i(){const s=o(),n=a(()=>{var e,u;return((u=(e=s.props.auth)==null?void 0:e.user)==null?void 0:u.is_superadmin)||!1}),r=a(()=>{var e;return((e=s.props.auth)==null?void 0:e.allowed_features)||[]}),t=e=>r.value.includes(e);return{can:e=>t(e),isSuperAdmin:n,allowedFeatures:r}}export{i as u};
