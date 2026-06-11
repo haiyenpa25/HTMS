@@ -31,6 +31,12 @@
             <div v-if="getLatest(pKey, mKey) !== null" class="metric-chip">
               <div class="metric-val">{{ getLatest(pKey, mKey)?.toLocaleString('vi-VN') ?? '—' }}</div>
               <div class="metric-lbl">{{ mLabel }}</div>
+              <div v-if="getDelta(pKey, mKey) !== null"
+                class="metric-delta"
+                :class="getDelta(pKey, mKey) >= 0 ? 'delta-up' : 'delta-down'"
+              >
+                {{ getDelta(pKey, mKey) >= 0 ? '▲' : '▼' }} {{ Math.abs(getDelta(pKey, mKey)).toLocaleString('vi-VN') }}
+              </div>
             </div>
           </template>
           <div v-if="!hasAnyData(pKey)" class="no-data-msg">Chưa có dữ liệu</div>
@@ -130,8 +136,25 @@ const props = defineProps({
   platforms:   { type: Object, default: () => ({}) },
   metrics:     { type: Object, default: () => ({}) },
   latest:      { type: Object, default: () => ({}) },
+  prev_stats:  { type: Object, default: () => ({}) },
   chart_data:  { type: Object, default: () => ({}) },
 });
+
+// Lấy giá trị tháng trước để tính delta
+function getPrev(platform, metric) {
+  const data = props.prev_stats[platform];
+  if (!data) return null;
+  const entry = data[metric];
+  return entry?.count ?? null;
+}
+
+// Delta so tháng trước
+function getDelta(platform, metric) {
+  const cur = getLatest(platform, metric);
+  const prv = getPrev(platform, metric);
+  if (cur === null || prv === null) return null;
+  return cur - prv;
+}
 
 // Emojis map
 const emojiMap = { youtube: '🎬', facebook: '👍', zalo: '💬', instagram: '📸' };
@@ -294,6 +317,9 @@ function submitStats() {
 .metric-chip { background: #f3f4f6; border-radius: 10px; padding: 8px 10px; min-width: 70px; }
 .metric-val { font-size: 1.1rem; font-weight: 800; color: #1f2937; }
 .metric-lbl { font-size: 0.68rem; color: #6b7280; margin-top: 2px; }
+.metric-delta { font-size: 0.68rem; font-weight: 700; margin-top: 3px; }
+.delta-up   { color: #059669; }
+.delta-down { color: #dc2626; }
 .no-data-msg { font-size: 0.8rem; color: #9ca3af; font-style: italic; }
 
 /* Platform colors */

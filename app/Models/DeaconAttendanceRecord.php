@@ -13,7 +13,7 @@ class DeaconAttendanceRecord extends Model
         'total_online', 'total_children', 'guests_count',
         // Điểm danh từng ban (ban trưởng báo — JSON: {"dept_id": count})
         'dept_breakdown',
-        'notes', 'recorded_at',
+        'notes', 'incident_note', 'youtube_live_count', 'recorded_at',
     ];
 
     protected $casts = [

@@ -256,7 +256,14 @@ Route::middleware('auth')->group(function () {
             Route::get('/', [\App\Http\Controllers\Secretary\SecretaryPortalController::class, 'socialStats'])->name('index');
             Route::post('/', [\App\Http\Controllers\Secretary\SecretaryPortalController::class, 'storeSocialStats'])->name('store');
         });
+
+        // Ghi chú tháng (thông báo + kế hoạch)
+        Route::post('month-note', [\App\Http\Controllers\Secretary\SecretaryPortalController::class, 'storeMonthNote'])->name('month-note.store');
+
+        // Báo cáo tháng (In / Xuất)
+        Route::get('report', [\App\Http\Controllers\Secretary\SecretaryPortalController::class, 'report'])->name('report');
     });
+
 
     Route::post('logout', [\App\Http\Controllers\Auth\AuthController::class, 'logout'])->name('logout');
 });
