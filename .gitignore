@@ -37,10 +37,22 @@ C:\tmp\*
 /.vibecode
 /.superpowers
 
-# ── Bảo mật — Deploy scripts chứa mật khẩu (KHÔNG commit) ──
-deploy/*.bat
-deploy/*.sh
+# ── VibeCode generated files (lớn, không cần commit) ──
+/vibecode_enrichment.json
+/vibecode_graph.html
+/vibecode_graph_data.js
+/update_graph.ps1
+/UPDATE_GRAPH_README.md
+/VIBECODE_SPEC.md
+
+# ── Deploy — Bảo mật (KHÔNG commit) ──────────────────
+# sites.conf chứa thông tin server (SSH user, host)
+deploy/sites.conf
+# .env.* và config.* chứa thông tin nhạy cảm
 deploy/.env.*
 deploy/config.*
-# Giữ lại file tài liệu cần thiết
+# Giữ lại các file tài liệu và scripts cần thiết
 !deploy/INSTALL.html
+!deploy/deploy-new-church.sh
+!deploy/deploy.bat
+!deploy/setup-ssh.bat

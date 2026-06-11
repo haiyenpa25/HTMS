@@ -285,6 +285,24 @@ class FinanceTransactionController extends Controller
         return back()->with('message', 'Đã cập nhật giao dịch.');
     }
 
+    public function create()
+    {
+        // Finance Portal dùng modal — redirect về index
+        return redirect()->route('finance.transactions.index');
+    }
+
+    public function show(FinanceTransaction $transaction)
+    {
+        // Finance Portal dùng modal — redirect về index
+        return redirect()->route('finance.transactions.index');
+    }
+
+    public function edit(FinanceTransaction $transaction)
+    {
+        // Finance Portal dùng modal — redirect về index
+        return redirect()->route('finance.transactions.index');
+    }
+
     public function destroy(FinanceTransaction $transaction)
     {
         $this->authorizeManage('finance');

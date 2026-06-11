@@ -2,28 +2,30 @@
   <div class="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white">
 
     <!-- === HEADER / NAVBAR === -->
-    <header class="px-6 py-5 flex items-center justify-between border-b border-white/10 backdrop-blur-sm bg-white/5">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 11-4.13 19.14M12 2v4m0 0a6 6 0 00-6 6"/></svg>
+    <header class="border-b border-white/10 backdrop-blur-sm bg-white/5">
+      <div class="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 11-4.13 19.14M12 2v4m0 0a6 6 0 00-6 6"/></svg>
+          </div>
+          <div>
+            <div class="font-black text-lg text-white leading-none tracking-tight">HTMS</div>
+            <div class="text-xs text-white/50 font-medium">Hệ Thống Quản Lý Hội Thánh</div>
+          </div>
         </div>
-        <div>
-          <div class="font-black text-lg text-white leading-none tracking-tight">HTMS</div>
-          <div class="text-xs text-white/50 font-medium">Hệ Thống Quản Lý Hội Thánh</div>
-        </div>
-      </div>
 
-      <div class="flex items-center gap-3">
-        <span class="text-sm text-white/60 hidden sm:block">{{ $page.props.auth.user.name }}</span>
-        <Link :href="homePortal"
-          class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-          {{ portalLabel }}
-        </Link>
-        <Link :href="route('logout')" method="post" as="button"
-          class="p-2 text-white/40 hover:text-white/80 hover:bg-white/10 rounded-xl transition-all" title="Đăng xuất">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-        </Link>
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-white/60 hidden sm:block">{{ $page.props.auth.user.name }}</span>
+          <Link :href="homePortal"
+            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            {{ portalLabel }}
+          </Link>
+          <Link :href="route('logout')" method="post" as="button"
+            class="p-2 text-white/40 hover:text-white/80 hover:bg-white/10 rounded-xl transition-all" title="Đăng xuất">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          </Link>
+        </div>
       </div>
     </header>
 

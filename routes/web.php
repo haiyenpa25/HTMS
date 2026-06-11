@@ -193,6 +193,10 @@ Route::middleware('auth')->group(function () {
         Route::post('broadcasts/{broadcast}/send', [\App\Http\Controllers\Admin\BroadcastController::class, 'send'])->name('admin.broadcasts.send');
         Route::delete('broadcasts/{broadcast}', [\App\Http\Controllers\Admin\BroadcastController::class, 'destroy'])->name('admin.broadcasts.destroy');
 
+        // Cấu Hình Hội Thánh (Church Settings)
+        Route::get('church-settings', [\App\Http\Controllers\Admin\ChurchSettingController::class, 'index'])->name('admin.church-settings.index');
+        Route::post('church-settings', [\App\Http\Controllers\Admin\ChurchSettingController::class, 'update'])->name('admin.church-settings.update');
+
         // Quản lý Bản Tin (Announcements)
         Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class)->except(['show', 'edit', 'update'])->names('admin.announcements');
 

@@ -81,10 +81,27 @@ class FinanceFundController extends Controller
         return back()->with('message', 'Đã cập nhật quỹ.');
     }
 
+    public function create()
+    {
+        // Finance Portal dùng modal — redirect về index
+        return redirect()->route('finance.funds.index');
+    }
+
+    public function show(FinanceFund $fund)
+    {
+        // Finance Portal dùng modal — redirect về index
+        return redirect()->route('finance.funds.index');
+    }
+
+    public function edit(FinanceFund $fund)
+    {
+        // Finance Portal dùng modal — redirect về index
+        return redirect()->route('finance.funds.index');
+    }
+
     public function destroy(FinanceFund $fund)
     {
         $this->authorizeManage('finance');
-
 
         if ($fund->transactions()->count() > 0) {
             return back()->with('error', 'Không thể xóa quỹ đang có giao dịch.');
@@ -95,3 +112,4 @@ class FinanceFundController extends Controller
         return back()->with('message', 'Đã xóa quỹ.');
     }
 }
+

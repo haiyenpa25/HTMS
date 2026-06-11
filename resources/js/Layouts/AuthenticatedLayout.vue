@@ -109,6 +109,7 @@
             <Link :href="route('admin.assets.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.assets.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Quản lý thiết bị</Link>
             <Link :href="route('documents.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('documents.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Quản lý tài liệu</Link>
             <Link :href="route('admin.forms-manager.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.forms-manager.*') ? 'text-slate-800' : 'text-gray-500 hover:text-gray-700'">Biểu mẫu hệ thống</Link>
+            <Link :href="route('admin.church-settings.index')" class="block py-2 text-sm font-medium transition-colors" :class="route().current('admin.church-settings.*') ? 'text-slate-800 font-bold' : 'text-gray-500 hover:text-gray-700'">⚙️ Cấu hình HT</Link>
           </div>
         </div>
 
@@ -305,19 +306,20 @@
     <!-- Main Wrapper -->
     <div class="flex-1 flex flex-col overflow-hidden relative">
       <!-- Topbar -->
-      <header class="flex items-center justify-between px-6 py-3 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm z-10 sticky top-0">
-        <div class="flex items-center sm:hidden">
-          <button @click="isMobileMenuOpen = true" class="text-gray-500 focus:outline-none focus:text-indigo-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-          </button>
-          <h2 class="ml-2 text-lg font-black text-gray-800 md:hidden">CMS<span class="text-blue-600">HT</span></h2>
-        </div>
-        <div class="hidden sm:block">
-          <!-- Page title placeholder -->
-          <h1 class="text-xl font-semibold text-gray-800">
-             <slot name="header"></slot>
-          </h1>
-        </div>
+      <header class="bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm z-10 sticky top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between w-full">
+          <div class="flex items-center sm:hidden">
+            <button @click="isMobileMenuOpen = true" class="text-gray-500 focus:outline-none focus:text-indigo-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <h2 class="ml-2 text-lg font-black text-gray-800 md:hidden">CMS<span class="text-blue-600">HT</span></h2>
+          </div>
+          <div class="hidden sm:block">
+            <!-- Page title placeholder -->
+            <h1 class="text-xl font-semibold text-gray-800">
+               <slot name="header"></slot>
+            </h1>
+          </div>
           <div class="flex items-center space-x-4">
             <!-- Command Palette Shortcut Hint -->
             <button @click="openCommandPalette" class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-500 hover:bg-gray-100 transition-colors">
@@ -338,25 +340,28 @@
                 <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
               </button>
               <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <Link v-if="page.props.auth?.user?.home_portal" :href="page.props.auth.user.home_portal" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-100">
-                Vào Cổng Nội Bộ
-              </Link>
-              <Link :href="route('logout')" method="post" as="button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors">
-                Đăng xuất
-              </Link>
+                <Link v-if="page.props.auth?.user?.home_portal" :href="page.props.auth.user.home_portal" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-100">
+                  Vào Cổng Nội Bộ
+                </Link>
+                <Link :href="route('logout')" method="post" as="button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors">
+                  Đăng xuất
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </header>
       
       <!-- Content Area -->
-      <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 px-4 sm:px-6 lg:px-8 py-6">
-        <!-- Flash message -->
-        <div v-if="page.props.flash.message" class="mb-4 bg-blue-100 border border-blue-200 text-blue-700 px-4 py-3 rounded relative shadow-sm" role="alert">
-          <span class="block sm:inline">{{ page.props.flash.message }}</span>
-        </div>
+      <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <!-- Flash message -->
+          <div v-if="page.props.flash.message" class="mb-4 bg-blue-100 border border-blue-200 text-blue-700 px-4 py-3 rounded relative shadow-sm" role="alert">
+            <span class="block sm:inline">{{ page.props.flash.message }}</span>
+          </div>
 
-        <slot />
+          <slot />
+        </div>
       </main>
     </div>
 

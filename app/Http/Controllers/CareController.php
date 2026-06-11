@@ -112,16 +112,38 @@ class CareController extends Controller
     
     public function assign(Request $request, CareRequest $careRequest)
     {
-        if (!Auth::user()->isSuperAdmin()) {
-            abort(403);
+        $user = Auth::user();
+
+        // SuperAdmin: luôn được assign toàn cục
+        if ($user->isSuperAdmin()) {
+            $validated = $request->validate(['assigned_to' => 'nullable|exists:users,id']);
+            $careRequest->update(['assigned_to' => $validated['assigned_to']]);
+            return redirect()->back()->with('success', 'Đã phân công nhân sự xử lý.');
         }
-        
-        $validated = $request->validate([
-            'assigned_to' => 'nullable|exists:users,id'
-        ]);
-        
+
+        // Portal Leader: resolve session key theo đúng portal type
+        $sessionKey = 'active_portal_dept_id';  // default: activities portal
+        if ($request->routeIs('ministry.*')) {
+            $sessionKey = 'active_ministry_dept_id';
+        } elseif ($request->routeIs('deacon.*')) {
+            $sessionKey = 'active_deacon_dept_id';
+        }
+
+        $departmentId = $request->session()->get($sessionKey);
+        $isPortal = $request->routeIs('portal.*') || $request->routeIs('ministry.*') || $request->routeIs('deacon.*');
+
+        if (!$isPortal || !$departmentId) {
+            abort(403, 'Bạn không có quyền phân công yêu cầu này.');
+        }
+
+        // Care request phải thuộc department này (và phải có department_id — không cho assign request chưa gán ban)
+        if (!$careRequest->department_id || $careRequest->department_id !== (int) $departmentId) {
+            abort(403, 'Bạn chỉ có thể phân công yêu cầu trong phạm vi ban ngành của mình.');
+        }
+
+        $validated = $request->validate(['assigned_to' => 'nullable|exists:users,id']);
         $careRequest->update(['assigned_to' => $validated['assigned_to']]);
-        
+
         return redirect()->back()->with('success', 'Đã phân công nhân sự xử lý.');
     }
 
